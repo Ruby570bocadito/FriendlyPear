@@ -1,34 +1,24 @@
 # Estado IMP-2
 
+Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (API 37).
+
 ## Hecho (24 h)
-- android-servicios (lo hizo IMP-1 a petición de la persona):
-  - `device/AndroidDevice.kt`: `DevicePort` con TTS en español (0,9×), `ACTION_CALL`, SMS y última ubicación. Sin permiso o con un intent fallido lanza una excepción → plan B del agente.
-  - `device/VoiceInput.kt`: reconocedor de Android en es-ES con 2 s de silencio (habla lenta). Escucha sola cuando Peri espera un "sí".
-  - `services/MessageListener.kt`: WhatsApp y correo por notificaciones; SMS también si no hay permiso de SMS.
-  - `services/SmsReceiver.kt`: SMS entrantes completos (`RECEIVE_SMS`). Motivo: desde Android 15 el sistema oculta a los lectores de notificaciones los avisos con códigos (llegan sin título y con "Sensitive notification content hidden"), justo lo que necesita el momento 2.
-  - `services/CallStateWatcher.kt`: estado de llamada con `TelephonyCallback`; nunca el audio.
-  - `services/PeriHub.kt`: un solo `PeriAgent` en el hilo principal; cuenta atrás de emergencia de 10 s. Registro solo con canal, nivel y regla dura, nunca texto ni remitente.
-  - `config/PhoneContacts.kt`: agenda del móvil; "Laura hija" → Laura, relación hija; apodos → alias.
-  - Pantalla de un botón con la frase de Peri en grande.
-- Probado en el emulador (API 37), con contacto "Laura hija" +34600111222:
-  - Momento 1: SMS de 699000111 "Mamá… número nuevo… Bizum" → aviso + "Si me dices que sí, llamo a Laura" → "sí" → llamada saliente a +34600111222 (registro de llamadas, tipo 2).
-  - Momento 2: llamada entrante descolgada + SMS "BBVA: tu código… 640281" → SCAM, `CODE_DURING_CALL`, "…cuelga y no se lo digas a nadie" en pantalla con la llamada activa.
-
-- filtro-llamadas: `services/CallScreener.kt` (`CallScreeningService`, nunca bloquea ni escucha) y `CallStateWatcher` distingue sonando/descolgada. El rol se pide con una frase tras los permisos. Probado: aviso al sonar y verificación al colgar con llamada saliente a Laura.
-
-- permisos-progresivos (lo hizo IMP-1): `config/Need.kt` (permiso, frase de Peri y qué sigue funcionando si se dice que no) y `config/PermissionGate.kt` (uno a uno; sin pantalla, la respuesta es "no").
-  - Primer arranque: agenda → SMS entrantes → estado de llamada → rol de filtro → aviso de notificaciones, cada uno una sola vez. Micrófono al pulsar "Hablar"; llamadas y envío de SMS con `DevicePort.prepare` antes de actuar; ubicación durante la cuenta atrás de emergencia.
-  - Emulador: frase de Peri + diálogo de Android en cada paso; SMS denegado respetado; llamar no se pidió aparte porque Android lo concede junto con el estado de llamada (mismo grupo).
-  - Un "Allow" que no dio IMP-1 fue un toque de la persona en la ventana del emulador; sin entrada, el diálogo espera, y BACK o ENDCALL cuentan como "no".
-
-- te-estan-guiando (IMP-1): `AppWatcher` + `RemoteApps` (15 apps de control remoto, visibles solo por `<queries>`): aviso, "cuelga" si hay llamada y oferta de avisar al guardián tras un "sí". `BankWatcher` + `BankApps` (22 apps de bancos y pagos): solo durante una llamada descolgada de un desconocido, con acceso al uso de apps (botón con explicación). Probado con `--es installed` y `--es opened`; el vigilante real detectó el cambio de app durante la llamada.
+- android-servicios: `AndroidDevice` (TTS cálida, llamadas, SMS, ubicación; un fallo lanza excepción → plan B), `VoiceInput` (2 s de silencio), `MessageListener` (WhatsApp y correo), `SmsReceiver` (`RECEIVE_SMS`: Android 15 oculta los códigos a los lectores de notificaciones), `CallStateWatcher` (sonando/descolgada, nunca el audio), `PeriHub` (un solo agente; registro sin texto ni remitente), `PhoneContacts` ("Laura hija" → relación hija).
+  - Momentos 1 y 2 en español e inglés: número nuevo → llamada a la hija; código durante llamada → "cuelga".
+- filtro-llamadas: `CallScreener` (`CallScreeningService`, nunca bloquea ni escucha): aviso al sonar y verificación al colgar.
+- permisos-progresivos: `config/Need.kt` + `config/PermissionGate.kt`, uno a uno y con la frase de Peri.
+  - Primer arranque: agenda → SMS entrantes → estado de llamada → rol de filtro → notificaciones, una sola vez cada uno.
+  - Al usarlos: micrófono ("Hablar"), llamar y enviar SMS (`DevicePort.prepare`), ubicación (cuenta atrás de emergencia).
+  - Android concede llamar junto con el estado de llamada (mismo grupo). Sin entrada, un diálogo espera; BACK o ENDCALL cuentan como "no".
+- te-estan-guiando: `AppWatcher` + `RemoteApps` (15 apps de control remoto, solo visibles por `<queries>`) → aviso, "cuelga" si hay llamada y oferta de avisar al guardián tras un "sí". `BankWatcher` + `BankApps` (22 apps de bancos) solo durante una llamada descolgada de un desconocido, con acceso al uso explicado.
+  - Probado con el puente de depuración (`--es installed`, `--es opened`); el vigilante real detectó el cambio de app durante la llamada. Sin apps reales instaladas.
 
 ## Cómo probar sin micrófono (solo builds de depuración)
-- `adb shell am broadcast -a app.friendlypear.debug.HEAR --es text si` hace que Peri "oiga" esa frase. Con varias palabras, comillas dentro: `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`.
-- Tras `adb install -r`, reconectar el lector: `adb shell cmd notification disallow_listener app.friendlypear/app.friendlypear.services.MessageListener` y después `allow_listener`.
-- Rol de filtro en el emulador: `adb shell cmd role add-role-holder android.app.role.CALL_SCREENING app.friendlypear`.
+- `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`; también `--es installed <paquete>` y `--es opened <paquete>`.
+- Tras `adb install -r`: `cmd notification disallow_listener` y `allow_listener app.friendlypear/app.friendlypear.services.MessageListener`.
+- Rol de filtro: `adb shell cmd role add-role-holder android.app.role.CALL_SCREENING app.friendlypear`. Acceso al uso: `adb shell appops set app.friendlypear GET_USAGE_STATS allow`.
 - En `adb emu gsm`, esperar a que suene (`mCallState=1`) antes de `accept`.
-- Segunda opinión: `~/.gradle/gradle.properties` con `friendlypear.backendUrl=http://10.0.2.2:8711` y `friendlypear.deviceToken=<DEVICE_TOKEN de backend/.env>`; arrancar `cd backend; bun src/main.ts`. Sin token, la app decide solo con las reglas.
+- Backend: `~/.gradle/gradle.properties` con `friendlypear.backendUrl=http://10.0.2.2:8711` y `friendlypear.deviceToken`; `cd backend; bun src/main.ts`.
 
 ## En curso
 - Nada.
@@ -37,8 +27,8 @@
 - Nada.
 
 ## Peticiones
-- DIR: `docs/IDEA.md` dice que los mensajes se leen "con un solo permiso"; ahora los SMS usan además `RECEIVE_SMS` (mismo grupo que `SEND_SMS`), por la protección de códigos de Android 15.
-- SEG: revisar los permisos nuevos del manifiesto (RECORD_AUDIO, READ_CONTACTS, READ_PHONE_STATE, CALL_PHONE, SEND_SMS, RECEIVE_SMS, ubicación) y el receptor de depuración exportado.
+- DIR: `docs/IDEA.md` dice "con un solo permiso"; los SMS usan además `RECEIVE_SMS` por la protección de códigos de Android 15.
+- SEG: revisar los permisos del manifiesto (incluido `PACKAGE_USAGE_STATS`) y el receptor de depuración exportado.
 
 ## Propuestas para el roadmap
-- momento-1 y momento-2: hechos en el emulador; falta grabarlos en un móvil real.
+- Grabar los momentos en un móvil real; comprobar allí los nombres de paquete de bancos y apps de control remoto.
