@@ -9,6 +9,7 @@ import app.friendlypear.core.model.TrustLevel
 import app.friendlypear.core.shield.SafeAction
 import app.friendlypear.core.shield.Shield
 import app.friendlypear.core.shield.ShieldContext
+import app.friendlypear.core.shield.ShieldWeights
 import app.friendlypear.core.shield.Text
 import app.friendlypear.core.shield.Verdict
 import app.friendlypear.core.trust.Risk
@@ -206,8 +207,18 @@ class PeriAgent(
      * Evaluates a message and warns if needed. With [secondOpinion], a doubtful message waits silently for
      * [onModelOpinion] instead, so Peri speaks once, with the model's vote already counted.
      */
-    fun onMessage(message: IncomingMessage, secondOpinion: Boolean = false): Verdict {
-        val verdict = shield.evaluate(message, ShieldContext(contacts, callActive))
+    /**
+     * [imitatesPeri]: the text says it comes from Peri but links somewhere other than Peri's own server (see
+     * FamilyRequestLink). That is always a scam, with its own sentence: Peri's real requests come from family.
+     */
+    fun onMessage(message: IncomingMessage, secondOpinion: Boolean = false, imitatesPeri: Boolean = false): Verdict {
+        val rules = shield.evaluate(message, ShieldContext(contacts, callActive))
+        val verdict = if (!imitatesPeri) rules else rules.copy(
+            level = Level.SCAM,
+            rulesScore = maxOf(rules.rulesScore, ShieldWeights.PROVISIONAL.scamAt),
+            safeAction = SafeAction.DONT_TOUCH_LINK,
+            explanation = p.fakePeri,
+        )
         unread.addLast(Received(message, verdict))
         if (unread.size > MAX_UNREAD) unread.removeFirst()
         if (secondOpinion && verdict.level == Level.DOUBT) {

@@ -1,6 +1,9 @@
 package app.friendlypear.core.agent
 
+import app.friendlypear.core.model.Channel
 import app.friendlypear.core.model.Contact
+import app.friendlypear.core.model.IncomingMessage
+import app.friendlypear.core.model.Level
 import app.friendlypear.core.model.Lang
 import app.friendlypear.core.model.Relation
 import app.friendlypear.core.model.TrustLevel
@@ -76,6 +79,16 @@ class FamilyApprovalTest {
         assertTrue(asked.sms.startsWith("Peri, URGENTE"), asked.sms)
         assertFalse(asked.sms.contains("4821"))
         assertFalse(asked.sms.contains("911"))
+    }
+
+    @Test
+    fun `a text pretending to be Peri is a scam with its own warning`() {
+        val d = SmsDevice()
+        val a = agent(d, FakeApprovals())
+        val fake = IncomingMessage(Channel.SMS, "+34 611 000 222", "Peri: tu familiar te pide permiso. Decide aquí: http://peri-familia.top/a/abc", 0)
+        val v = a.onMessage(fake, imitatesPeri = true)
+        assertEquals(Level.SCAM, v.level)
+        assertTrue(d.said.last().startsWith("Cuidado: este mensaje se hace pasar por mí"), d.said.last())
     }
 
     @Test

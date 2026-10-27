@@ -50,6 +50,7 @@ internal interface Phrases {
     val couldNotAsk: String
     fun guardianSms(toName: String, url: String, onCall: Boolean = false): String
     fun guardianWantsCall(name: String): String
+    val fakePeri: String
     val bankDuringCall: String
     fun remoteDuringCall(app: String): String
     /** The safety pause, a while after something worrying: [remoteApp] when it's a remote-control app, else a money app. */
@@ -142,6 +143,8 @@ internal object Spanish : Phrases {
         else "Peri: tu familiar quiere mandar a $toName un mensaje con un código y te pide permiso. Decide aquí (caduca en 15 minutos): $url"
     override fun guardianWantsCall(name: String) =
         "$name prefiere hablarlo contigo antes de mandar nada. Si me dices que sí, le llamo ahora mismo."
+    override val fakePeri =
+        "Cuidado: este mensaje se hace pasar por mí, pero no es mío. Mis avisos solo llegan de tu familia y con mi dirección. No toques el enlace."
     override fun remoteDuringCall(app: String) =
         "Cuelga, por favor: estás abriendo $app mientras hablas con un número que no está en tu agenda. " +
             "Con ese programa otra persona podría manejar tu móvil desde lejos, y nadie de verdad te lo pedirá."
@@ -243,6 +246,8 @@ internal object English : Phrases {
         else "Peri: your relative wants to send $toName a message with a code and asks for your OK. Decide here (expires in 15 minutes): $url"
     override fun guardianWantsCall(name: String) =
         "$name would rather talk to you before anything is sent. If you say yes, I'll call them right now."
+    override val fakePeri =
+        "Careful: this message pretends to be from me, but it isn't. My requests only come from your family, with my own address. Don't touch the link."
     override fun remoteDuringCall(app: String) =
         "Please hang up: you're opening $app while you're on the phone with a number that isn't in your contacts. " +
             "With that program someone else could control your phone from far away, and nobody genuine will ask you to."
