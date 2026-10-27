@@ -149,10 +149,15 @@ class SettingsActivity : Activity() {
             }
         }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
 
+        // Every permission, what for and how to switch it off, and what Peri did with them.
+        list.addView(Pill(this, getString(R.string.settings_access), R.drawable.ic_shield, primary = false).apply {
+            setOnClickListener { startActivity(android.content.Intent(this@SettingsActivity, AccessActivity::class.java)) }
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(60)).apply { topMargin = dp(16) })
+
         // Peri's welcome again, for whoever sets the phone up with the person.
         list.addView(Pill(this, getString(R.string.settings_welcome_again), R.drawable.ic_pear, primary = false).apply {
             setOnClickListener { startActivity(android.content.Intent(this@SettingsActivity, WelcomeActivity::class.java)) }
-        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(60)).apply { topMargin = dp(16) })
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(60)).apply { topMargin = dp(10) })
 
         val pad = dp(20)
         val scroll = ScrollView(this).apply {

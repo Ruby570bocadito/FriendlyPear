@@ -12,6 +12,7 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import android.telephony.SmsManager
+import app.friendlypear.config.UseLog
 import app.friendlypear.core.agent.Capability
 import app.friendlypear.core.agent.DevicePort
 import app.friendlypear.core.model.Lang
@@ -33,6 +34,8 @@ class AndroidDevice(
     private val pause: (text: String, callName: String?) -> Unit = { _, _ -> },
     /** Right after Peri places a call, so Mini Peri can stay beside the call screen. */
     private val onCalling: () -> Unit = {},
+    /** Each call, text and location share, for the person's own log ("What Peri did"). */
+    private val onUse: (UseLog.Kind, String?) -> Unit = { _, _ -> },
 ) : DevicePort {
     override fun prepare(capability: Capability, then: (Boolean) -> Unit) = ask(capability, then)
 
@@ -138,6 +141,7 @@ class AndroidDevice(
         require(granted(Manifest.permission.CALL_PHONE)) { "CALL_PHONE not granted" }
         val intent = Intent(Intent.ACTION_CALL, Uri.fromParts("tel", phone, null)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
+        onUse(UseLog.Kind.CALL, phone)
         main.post(onCalling)
     }
 
@@ -145,6 +149,7 @@ class AndroidDevice(
         require(granted(Manifest.permission.SEND_SMS)) { "SEND_SMS not granted" }
         val sms = context.getSystemService(SmsManager::class.java) ?: error("no SMS on this device")
         sms.sendMultipartTextMessage(phone, null, sms.divideMessage(text), null, null)
+        onUse(UseLog.Kind.TEXT, phone)
     }
 
     override fun lastKnownLocation(): String? {
@@ -155,6 +160,7 @@ class AndroidDevice(
         } catch (e: SecurityException) {
             null
         } ?: return null
+        onUse(UseLog.Kind.LOCATION, null)
         return String.format(Locale.US, "%.5f,%.5f", best.latitude, best.longitude)
     }
 

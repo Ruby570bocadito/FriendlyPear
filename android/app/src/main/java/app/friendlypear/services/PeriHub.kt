@@ -25,6 +25,7 @@ import app.friendlypear.ui.peri.GuardianActivity
 import app.friendlypear.config.FamilyStore
 import app.friendlypear.config.InvestigationEntry
 import app.friendlypear.config.InvestigationLog
+import app.friendlypear.config.UseLog
 import app.friendlypear.config.NewsEntry
 import app.friendlypear.config.SharedNews
 import app.friendlypear.config.Need
@@ -108,6 +109,9 @@ class PeriHub(context: Context) {
     var lang = phoneLang()
         private set
 
+    /** What Peri did with the phone (calls, texts, location, pictures, voice), for the person to check. */
+    val uses = UseLog(this.context)
+
     private val device: AndroidDevice = AndroidDevice(
         this.context,
         lang,
@@ -131,6 +135,7 @@ class PeriHub(context: Context) {
         ask = { capability, then -> permissions.ask(Need.of(capability), then) },
         pause = { text, callName -> pauseScreen.show(text, callName) },
         onCalling = { miniBesideCall() },
+        onUse = { kind, phone -> uses.add(kind, phone) },
     )
 
     /** The safety pause over a money app; the person's choice goes back to the agent. */
@@ -214,6 +219,7 @@ class PeriHub(context: Context) {
         override val on: Boolean get() = museVoice && transcriber.enabled
 
         override fun transcribe(wav: ByteArray, done: (String?) -> Unit) {
+            uses.add(UseLog.Kind.VOICE)
             waiting.execute {
                 val text = transcriber.transcribe(wav)
                 // Never the words: only whether it worked.
@@ -498,6 +504,7 @@ class PeriHub(context: Context) {
      * app pause, like a scam message would. [done] gets null if anything failed; the picture is never kept.
      */
     fun lookAtPicture(jpegBase64: String, done: (PictureVerdict?) -> Unit) {
+        uses.add(UseLog.Kind.PICTURE)
         waiting.execute {
             val verdict = pictures.look(jpegBase64, lang)
             main.post {

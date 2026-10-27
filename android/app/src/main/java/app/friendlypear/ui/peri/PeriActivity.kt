@@ -105,6 +105,10 @@ class PeriActivity : Activity() {
             gravity = Gravity.CENTER_VERTICAL
             setPadding(dp(12), dp(6), dp(14), dp(6))
             compoundDrawablePadding = dp(8)
+            // Tapping the chip shows what Peri can do and what she did.
+            isClickable = true
+            isFocusable = true
+            setOnClickListener { startActivity(Intent(this@PeriActivity, AccessActivity::class.java)) }
         }
         // The shield's basics, if one was turned down: asked again, or Android's app settings if it won't ask.
         basics = setupRow(R.drawable.ic_shield, getString(R.string.setup_basics)) { askBasics() }
