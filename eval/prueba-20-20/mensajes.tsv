@@ -1,0 +1,41 @@
+id	label	lang	channel	sender	known	call	text
+s01	scam	es	SMS	Correos	0	0	Correos: su paquete está retenido por tasas impagadas. Pague 1,99 € en correos-envio.top/pago antes de 24 horas.
+s02	scam	es	SMS	DGT	0	0	DGT: tiene una multa pendiente de 150 €. Evite el recargo pagando hoy en dgt-multas.info
+s03	scam	es	SMS	+34 699 120 334	0	0	Agencia Tributaria: tiene un reembolso de 314,20 €. Para recibirlo, confirme sus datos bancarios en aeat-devolucion.com
+s04	scam	es	SMS	BBVA	0	0	BBVA: hemos detectado un acceso no autorizado. Verifique su identidad en bbva-seguridad.net o su cuenta quedará bloqueada.
+s05	scam	es	WHATSAPP	+34 611 450 982	0	0	Mamá, se me ha roto el móvil, este es mi número nuevo. ¿Me haces un Bizum de 300 € que tengo que pagar una factura urgente?
+s06	scam	es	WHATSAPP	+34 622 731 004	0	0	Abuela, soy Pablo, he tenido un accidente con el coche y necesito 800 € para el taller hoy mismo. No se lo digas a papá.
+s07	scam	es	SMS	+34 911 230 456	0	0	Soporte Microsoft: su ordenador está infectado. Instale AnyDesk y llámenos urgentemente para que un técnico lo arregle.
+s08	scam	es	WHATSAPP	+34 633 908 117	0	0	Invierte solo 250 € en nuestra plataforma de criptomonedas y gana 3.000 € al mes sin hacer nada. Plazas limitadas.
+s09	scam	es	SMS	+34 644 222 781	0	0	¡Enhorabuena! Has ganado un iPhone 16 en nuestro sorteo. Reclama tu premio aquí: premio-ganador.xyz
+s10	scam	es	SMS	Iberdrola	0	0	Iberdrola: su suministro será cortado mañana por impago. Abone 47,90 € ahora en iberdrola-pagos.top para evitar el corte.
+s11	scam	es	EMAIL	soporte@netflix-cuentas.com	0	0	Netflix: no hemos podido procesar su pago y su suscripción se ha suspendido. Actualice su tarjeta para seguir viendo.
+s12	scam	es	SMS	BBVA	0	1	BBVA: su código de verificación es 739204. Si no ha solicitado esta operación, ignore este mensaje.
+s13	scam	en	SMS	Royal Mail	0	0	Royal Mail: your parcel is on hold due to an unpaid shipping fee of £1.45. Pay now at royalmail-redelivery.top to avoid return.
+s14	scam	en	SMS	+44 7700 900 123	0	0	HMRC: you are due a tax refund of £428.60. Claim it within 48 hours by confirming your bank details at hmrc-refund.info
+s15	scam	en	WHATSAPP	+44 7700 900 456	0	0	Hi Mum, I dropped my phone in the bath, this is my new number. Can you send me £250 for rent today? I'll pay you back next week.
+s16	scam	en	SMS	+44 7700 900 789	0	0	Your bank account has been locked after a suspicious login. Reply with the code we just sent you so we can unlock it.
+s17	scam	en	EMAIL	security@amaz0n-support.com	0	0	Amazon: your account will be closed today. Verify your password and card number immediately to keep your orders.
+s18	scam	en	WHATSAPP	+44 7700 900 321	0	0	Congratulations, you've won a £1,000 Tesco gift card! Claim your prize before midnight at tesco-winner.xyz
+s19	scam	en	WHATSAPP	+44 7700 900 654	0	0	Earn 500 dollars a week from home with our crypto trading bot. Invest just 100 today, guaranteed returns.
+s20	scam	en	SMS	+44 7700 900 987	0	0	This is Microsoft support. We detected a virus on your computer. Please install TeamViewer now so our engineer can fix it.
+n01	normal	es	WHATSAPP	Laura	1	0	¿Venís a comer el domingo? Hago paella y luego vemos las fotos del viaje.
+n02	normal	es	WHATSAPP	Pablo	1	0	Abuela, mañana te llamo después del cole para contarte cómo me ha ido el examen.
+n03	normal	es	SMS	BBVA	0	0	BBVA: su código es 482913. No lo comparta con nadie; BBVA nunca se lo pedirá por teléfono.
+n04	normal	es	SMS	Correos	0	0	Correos: su envío ha sido entregado en su buzón. Gracias por confiar en nosotros.
+n05	normal	es	SMS	Centro de Salud	0	0	Le recordamos su cita con el médico de cabecera el jueves a las 10:30. Si no puede acudir, llame al centro.
+n06	normal	es	SMS	Farmacia	0	0	Farmacia San Roque: su pedido ya está disponible para recoger. Horario de 9 a 21 h.
+n07	normal	es	WHATSAPP	Carmen	1	0	Te dejo el bizcocho en la portería, que hoy no puedo subir. ¡Un beso!
+n08	normal	es	WHATSAPP	+34 655 300 120	0	0	Hola, soy Marisa, la vecina del tercero. Mañana cortan el agua de 9 a 12 por la obra del portal.
+n09	normal	es	SMS	Movistar	0	0	Movistar: su factura de este mes ya está disponible en la app Mi Movistar. Importe: 38,50 €.
+n10	normal	es	WHATSAPP	Laura	1	0	Mamá, ya he llegado a casa. Mañana te paso a buscar a las 11 para ir al mercado.
+n11	normal	es	EMAIL	reservas@paradores.es	0	0	Confirmamos su reserva para dos personas del 12 al 14 de noviembre. Le esperamos.
+n12	normal	es	SMS	+34 666 410 233	0	0	Hola, soy el fontanero. Paso mañana a las 10 a mirar la caldera, como quedamos.
+n13	normal	en	WHATSAPP	Laura	1	0	Lunch on Sunday? I'm making roast chicken and the kids want to see you.
+n14	normal	en	SMS	Barclays	0	0	Barclays: your one-time code is 582910. Never share it with anyone, not even with us.
+n15	normal	en	SMS	Riverside Dental	0	0	Reminder: your dental appointment is tomorrow at 10:30. Reply YES to confirm or call us to change it.
+n16	normal	en	SMS	Boots	0	0	Boots: your prescription is ready to collect at your local pharmacy.
+n17	normal	en	WHATSAPP	Pablo	1	0	Hi Grandma! I passed my driving test today. Can I come round on Saturday to show you the car?
+n18	normal	en	SMS	Royal Mail	0	0	Royal Mail: your parcel was delivered today and left with your neighbour at number 12.
+n19	normal	en	WHATSAPP	+44 7700 900 222	0	0	Hi, it's Sue from the book club. We moved Thursday's meeting to the library café, same time.
+n20	normal	en	SMS	Riverside Gym	0	0	Hi, it's Riverside Gym: your membership expires tomorrow. You can pay at reception when you come in.

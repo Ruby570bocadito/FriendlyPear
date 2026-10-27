@@ -30,3 +30,11 @@ kotlin {
 tasks.test {
     useJUnitPlatform()
 }
+
+// Evaluation runner for the rules alone (eval/); not part of the library.
+tasks.register<JavaExec>("evalShield") {
+    group = "verification"
+    description = "Runs the shield's rules over an evaluation TSV"
+    classpath = sourceSets["test"].runtimeClasspath
+    mainClass.set("app.friendlypear.core.eval.EvalShieldKt")
+}
