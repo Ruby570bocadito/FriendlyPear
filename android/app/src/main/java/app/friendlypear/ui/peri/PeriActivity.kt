@@ -48,6 +48,7 @@ class PeriActivity : Activity() {
     private lateinit var access: View
     private lateinit var usage: View
     private lateinit var basics: View
+    private lateinit var location: View
     private var pulse: ObjectAnimator? = null
     private var wantsMini = false
     /** Set while the app steps aside for Mini Peri, so the last resume before that doesn't put her away. */
@@ -103,6 +104,11 @@ class PeriActivity : Activity() {
         }
         // The shield's basics, if one was turned down: asked again, or Android's app settings if it won't ask.
         basics = setupRow(R.drawable.ic_shield, getString(R.string.setup_basics)) { askBasics() }
+        // Optional, asked calmly here rather than during an emergency.
+        location = setupRow(R.drawable.ic_family, getString(R.string.setup_location)) {
+            asked.edit().putBoolean(LOCATION_ASKED, true).apply()
+            hub.permissions.ask(Need.LOCATION) { showSetup() }
+        }
         access = setupRow(R.drawable.ic_notifications, getString(R.string.notification_access)) {
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
         }
@@ -127,6 +133,7 @@ class PeriActivity : Activity() {
             addView(basics)
             addView(access)
             addView(usage)
+            addView(location)
         }
 
         val wordmark = TextView(this).apply {
@@ -279,7 +286,9 @@ class PeriActivity : Activity() {
         basics.visibility = if (noBasics) View.VISIBLE else View.GONE
         access.visibility = if (noAccess) View.VISIBLE else View.GONE
         usage.visibility = if (noUsage) View.VISIBLE else View.GONE
-        setup.visibility = if (noBasics || noAccess || noUsage) View.VISIBLE else View.GONE
+        val noLocation = !hub.permissions.granted(Need.LOCATION) && !asked.getBoolean(LOCATION_ASKED, false)
+        location.visibility = if (noLocation) View.VISIBLE else View.GONE
+        setup.visibility = if (noBasics || noAccess || noUsage || noLocation) View.VISIBLE else View.GONE
         val protecting = !noBasics && !noAccess
         status.text = getString(if (protecting) R.string.status_protecting else R.string.status_setup)
         status.setTextColor(if (protecting) Palette.GREEN_DARK else Palette.AMBER_INK)
@@ -415,5 +424,6 @@ class PeriActivity : Activity() {
         const val REQUEST_SCREENING = 2
         const val SCREENING = "screening"
         const val NOTIFICATIONS = "notifications"
+        const val LOCATION_ASKED = "location_setup"
     }
 }

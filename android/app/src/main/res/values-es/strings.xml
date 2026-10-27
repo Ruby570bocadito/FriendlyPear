@@ -127,4 +127,5 @@
     <string name="picture_ask_family">Vamos a comprobarlo con tu familia antes de hacer nada.</string>
     <string name="picture_label_qr">QR</string>
     <string name="picture_label_risk">Ojo</string>
+    <string name="setup_location">En una emergencia, compartir dónde estás (opcional)</string>
 </resources>

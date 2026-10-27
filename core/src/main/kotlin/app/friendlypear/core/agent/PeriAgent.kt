@@ -366,8 +366,9 @@ class PeriAgent(
             Command.Emergency -> {
                 pending = Pending.Emergency
                 say(p.countdown(emergencyContacts().firstOrNull()?.name), Mood.WORRIED)
-                // Whatever is still missing is asked during the countdown; when it ends, Peri uses what it has.
-                device.prepare(Capability.CALL) { device.prepare(Capability.SEND_SMS) { device.prepare(Capability.LOCATION) {} } }
+                // Only what the alert can't do without is asked during the countdown (calling, texting); the
+                // location is used if it was granted before, never asked with someone possibly on the floor.
+                device.prepare(Capability.CALL) { device.prepare(Capability.SEND_SMS) {} }
             }
             Command.Yes -> say(p.whatToDo)
             Command.No, Command.Cancel ->

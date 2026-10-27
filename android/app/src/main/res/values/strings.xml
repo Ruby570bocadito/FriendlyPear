@@ -128,4 +128,5 @@
     <string name="picture_ask_family">Let\'s check it with your family before doing anything.</string>
     <string name="picture_label_qr">QR</string>
     <string name="picture_label_risk">Careful</string>
+    <string name="setup_location">In an emergency, share where you are (optional)</string>
 </resources>

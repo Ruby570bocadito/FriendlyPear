@@ -66,9 +66,9 @@ class PermissionTest {
     }
 
     @Test
-    fun `the emergency asks for what is missing one by one during the countdown`() {
+    fun `the emergency only asks for calling and texting, never the location, during the countdown`() {
         val d = AskingDevice(emptyMap())
         PeriAgent(d, listOf(laura)).onHeard("me he caído")
-        assertEquals(listOf(Capability.CALL, Capability.SEND_SMS, Capability.LOCATION), d.asked)
+        assertEquals(listOf(Capability.CALL, Capability.SEND_SMS), d.asked)
     }
 }
