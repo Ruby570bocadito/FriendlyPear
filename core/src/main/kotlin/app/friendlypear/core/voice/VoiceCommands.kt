@@ -3,37 +3,65 @@ package app.friendlypear.core.voice
 import app.friendlypear.core.shield.Text
 
 /**
- * Spanish voice orders as older people say them: with fillers ("oye Peri, por favor"),
- * without accents from the transcriber, and with short answers to Peri's questions.
+ * Voice orders in Spanish and English as older people say them: with fillers ("oye Peri, por favor",
+ * "hey Peri, please"), without accents from the transcriber, and with short answers to Peri's questions.
+ * Both languages are always understood: families mix them.
  */
 object VoiceCommands {
-    private val fillers = Text.anyOf(listOf("oye", "peri", "por favor", "porfa", "anda", "venga ya", "hazme el favor de", "puedes", "podrias"))
+    private val fillers = Text.anyOf(
+        listOf(
+            "oye", "peri", "por favor", "porfa", "anda", "venga ya", "hazme el favor de", "puedes", "podrias",
+            "hey", "please", "can you", "could you", "would you", "will you",
+        ),
+    )
 
     private val callVerbs = Regex(
-        "\\b(llamame|llamale|llamala|llama|llamar|llames|telefonea|marca|ponme con|pasame con|quiero hablar con|habla con|hablar con)\\b(.*)",
+        "\\b(llamame|llamale|llamala|llama|llamar|llames|telefonea|marca|ponme con|pasame con|quiero hablar con|habla con|hablar con|" +
+            "call|ring|phone|dial|put me through to|i want to talk to|i want to speak to|talk to|speak to)\\b(.*)",
     )
     private val send = Regex(
         "\\b(?:dile|di|manda|mandale|envia|enviale|escribe|escribele)\\s+(?:un\\s+(?:mensaje|whatsapp|sms)\\s+)?(?:a|al)\\s+(.+?)" +
-            "\\s+(?:que|diciendo que|diciendole que|poniendo que|poniendole que)\\s+(.+)$",
+            "\\s+(?:que|diciendo que|diciendole que|poniendo que|poniendole que)\\s+(.+)$" +
+            "|\\b(?:tell|text|message|write to|send a (?:text|message) to)\\s+(.+?)\\s+(?:that|saying)\\s+(.+)$",
     )
-    private val trailingPlease = Regex("(?i)[,\\s]*por favor[.!\\s]*$")
+    private val trailingPlease = Regex("(?i)[,\\s]*(por favor|please)[.!\\s]*$")
     private val emergency = Text.anyOf(
-        listOf("me he caido", "me caido", "me he caio", "socorro", "auxilio", "emergencia", "me encuentro mal", "no me puedo levantar"),
+        listOf(
+            "me he caido", "me caido", "me he caio", "socorro", "auxilio", "emergencia", "me encuentro mal", "no me puedo levantar",
+            "i ve fallen", "i have fallen", "i fell", "i can t get up", "i cannot get up", "emergency", "i don t feel well",
+        ),
     )
-    private val readVerbs = Regex("\\b(leeme|lee|leer|lees|que dice|que dicen|que me han|tengo)\\b")
-    private val messageWords = Text.anyOf(listOf("mensaje", "mensajes", "whatsapp", "whatsapps", "sms", "correo", "correos"))
-    private val lastWords = Text.anyOf(listOf("ultimo", "ultima", "el nuevo"))
-    private val cancel = Text.anyOf(listOf("cancela", "cancelar", "cancelalo", "dejalo", "para", "parar", "olvidalo", "estoy bien"))
-    private val repeat = Text.anyOf(listOf("repite", "repitelo", "otra vez", "como", "no te he entendido", "que has dicho"))
-    private val yes = setOf("si", "vale", "venga", "claro", "de acuerdo", "si si", "si claro", "si por favor", "adelante", "hazlo", "llama", "ok", "okey", "eso", "exacto")
-    private val no = setOf("no", "no no", "no gracias", "mejor no", "no llames", "nada", "ahora no")
+    /** Too common inside other orders ("help me call Laura") to count unless said almost alone. */
+    private val shortCry = setOf("help", "help me", "help help", "ayuda", "ayudame")
+    private val readVerbs = Regex("\\b(leeme|lee|leer|lees|que dice|que dicen|que me han|tengo|read|any|what|do i have)\\b")
+    private val messageWords = Text.anyOf(
+        listOf("mensaje", "mensajes", "whatsapp", "whatsapps", "sms", "correo", "correos", "message", "messages", "texts", "emails", "email"),
+    )
+    private val lastWords = Text.anyOf(listOf("ultimo", "ultima", "el nuevo", "last", "latest", "newest"))
+    private val cancel = Text.anyOf(
+        listOf(
+            "cancela", "cancelar", "cancelalo", "dejalo", "para", "parar", "olvidalo", "estoy bien",
+            "cancel", "stop", "forget it", "i m fine", "i m ok", "i am fine", "i am ok", "never mind",
+        ),
+    )
+    private val repeat = Text.anyOf(
+        listOf("repite", "repitelo", "otra vez", "como", "no te he entendido", "que has dicho", "repeat", "say that again", "again", "what", "pardon", "sorry", "come again"),
+    )
+    private val yes = setOf(
+        "si", "vale", "venga", "claro", "de acuerdo", "si si", "si claro", "adelante", "hazlo", "llama", "ok", "okey", "eso", "exacto",
+        "yes", "yeah", "yep", "sure", "go ahead", "do it", "right", "okay", "call", "call her", "call him", "of course", "alright", "all right", "yes yes",
+    )
+    private val no = setOf(
+        "no", "no no", "no gracias", "mejor no", "no llames", "nada", "ahora no",
+        "nope", "no thanks", "no thank you", "not now", "don t", "dont", "don t call", "better not", "nothing",
+    )
 
     fun parse(utterance: String): Command {
         val folded = Text.fold(utterance)
         val clean = fillers.replace(folded, " ").replace(Regex("[^a-z0-9 ]"), " ").replace(Regex("\\s+"), " ").trim()
         if (clean.isEmpty()) return Command.Unknown(utterance)
 
-        if (emergency.containsMatchIn(clean)) return Command.Emergency
+        if (emergency.containsMatchIn(clean) || clean in shortCry) return Command.Emergency
         if (clean in yes) return Command.Yes
         if (clean in no) return Command.No
         if (cancel.containsMatchIn(clean) && clean.split(" ").size <= 3) return Command.Cancel
@@ -53,10 +81,11 @@ object VoiceCommands {
     /** The body is cut from the original words: folding keeps the length, so the match ranges line up. */
     private fun sendMessage(utterance: String, folded: String): Command.SendMessage? {
         val m = send.find(folded) ?: return null
-        val bodyRange = m.groups[2]!!.range
-        val body = if (folded.length == utterance.length) utterance.substring(bodyRange.first, bodyRange.last + 1) else m.groupValues[2]
+        val (targetGroup, bodyGroup) = if (m.groups[1] != null) 1 to 2 else 3 to 4
+        val bodyRange = m.groups[bodyGroup]!!.range
+        val body = if (folded.length == utterance.length) utterance.substring(bodyRange.first, bodyRange.last + 1) else m.groupValues[bodyGroup]
         val text = trailingPlease.replace(body, "").trim().trimEnd('.', '!')
         if (text.isEmpty()) return null
-        return Command.SendMessage(m.groupValues[1].trim(), text)
+        return Command.SendMessage(m.groupValues[targetGroup].trim(), text)
     }
 }

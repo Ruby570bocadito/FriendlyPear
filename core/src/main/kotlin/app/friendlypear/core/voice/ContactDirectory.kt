@@ -62,6 +62,9 @@ class ContactDirectory(private val contacts: List<Contact>) {
     private fun meaningful(folded: String): List<String> = Text.words(folded).filter { it !in stopWords }
 
     private companion object {
-        val stopWords = setOf("a", "al", "el", "la", "los", "las", "mi", "mis", "de", "del", "con", "y", "que", "tu", "su", "nuestro", "nuestra")
+        val stopWords = setOf(
+            "a", "al", "el", "la", "los", "las", "mi", "mis", "de", "del", "con", "y", "que", "tu", "su", "nuestro", "nuestra",
+            "my", "the", "to", "an", "with", "his", "her", "our", "me", "and",
+        )
     }
 }

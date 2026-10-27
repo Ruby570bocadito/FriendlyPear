@@ -73,4 +73,32 @@ class VoiceCommandsTest {
         assertEquals("hace un día precioso", c.utterance)
         assertIs<Command.Unknown>(parse(""))
     }
+
+    @Test
+    fun `english orders`() {
+        assertEquals(Command.Call("my daughter"), parse("Hey Peri, call my daughter please"))
+        assertEquals(Command.Call("the boy"), parse("ring the boy"))
+        assertEquals(Command.Call("laura"), parse("I want to talk to Laura"))
+        assertEquals(Command.SendMessage("laura", "I'll be late"), parse("Tell Laura that I'll be late"))
+        assertEquals(Command.SendMessage("pablo", "see you tomorrow"), parse("text Pablo saying see you tomorrow, please"))
+        assertEquals(Command.ReadMessages(), parse("Read me my messages"))
+        assertEquals(Command.ReadMessages(onlyLast = true), parse("read the last message"))
+        assertEquals(Command.ReadMessages(), parse("any new messages?"))
+    }
+
+    @Test
+    fun `english answers and emergencies`() {
+        assertEquals(Command.Yes, parse("yes please"))
+        assertEquals(Command.Yes, parse("go ahead"))
+        assertEquals(Command.No, parse("not now"))
+        assertEquals(Command.Cancel, parse("I'm fine"))
+        assertEquals(Command.Repeat, parse("Sorry?"))
+        assertEquals(Command.Emergency, parse("I've fallen and I can't get up"))
+        assertEquals(Command.Emergency, parse("help!"))
+    }
+
+    @Test
+    fun `help inside an order is not an emergency`() {
+        assertEquals(Command.Call("laura"), parse("help me call Laura"))
+    }
 }

@@ -19,4 +19,11 @@ class RelationWordsTest {
         assertNull(RelationWords.inSavedName("Laura Gómez"))
         assertNull(RelationWords.inSavedName("Fontanero"))
     }
+
+    @Test
+    fun `english relations`() {
+        assertEquals(Relation.CHILD to "Laura", RelationWords.inSavedName("Laura daughter"))
+        assertEquals(Relation.GRANDCHILD to "Pablo", RelationWords.inSavedName("My grandson Pablo"))
+        assertEquals(Relation.SIBLING, RelationWords.of("sister"))
+    }
 }
