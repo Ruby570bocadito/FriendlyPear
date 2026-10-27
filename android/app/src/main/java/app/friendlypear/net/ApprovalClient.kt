@@ -16,12 +16,13 @@ class ApprovalClient(private val baseUrl: String, private val deviceToken: Strin
 
     data class Created(val id: String, val url: String)
 
-    fun create(kind: ApprovalKind, toName: String, lang: Lang): Created? {
+    fun create(kind: ApprovalKind, toName: String, lang: Lang, onCall: Boolean = false): Created? {
         if (!enabled) return null
         val body = JSONObject()
             .put("kind", kind.name.lowercase())
             .put("toName", toName)
             .put("lang", if (lang == Lang.ES) "es" else "en")
+            .put("onCall", onCall)
         val answer = call("POST", "/v1/approvals", body.toString(), expect = 201) ?: return null
         return Created(answer.getString("id"), answer.getString("url"))
     }
@@ -33,6 +34,7 @@ class ApprovalClient(private val baseUrl: String, private val deviceToken: Strin
             when (call("GET", "/v1/approvals/$id", null, expect = 200)?.optString("status")) {
                 "approved" -> return ApprovalResult.APPROVED
                 "rejected" -> return ApprovalResult.REJECTED
+                "callback" -> return ApprovalResult.CALL_BACK
                 "expired" -> return ApprovalResult.EXPIRED
             }
             Thread.sleep(everyMillis)
