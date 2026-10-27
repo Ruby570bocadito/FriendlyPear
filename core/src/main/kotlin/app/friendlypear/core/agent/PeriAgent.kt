@@ -11,6 +11,7 @@ import app.friendlypear.core.shield.Shield
 import app.friendlypear.core.shield.ShieldContext
 import app.friendlypear.core.shield.ShieldWeights
 import app.friendlypear.core.shield.CallStory
+import app.friendlypear.core.trust.FamilyRequestLink
 import app.friendlypear.core.shield.Text
 import app.friendlypear.core.shield.Verdict
 import app.friendlypear.core.trust.Risk
@@ -217,6 +218,14 @@ class PeriAgent(
      */
     fun onMessage(message: IncomingMessage, secondOpinion: Boolean = false, imitatesPeri: Boolean = false): Verdict {
         val rules = shield.evaluate(message, ShieldContext(contacts, callActive))
+        // A relative's Peri says they've fallen: not a message to judge, a reason to call them now.
+        val relative = directory.byPhone(message.sender)
+        if (relative != null && relative.phones.isNotEmpty() && FamilyRequestLink.periAlert(message.text)) {
+            val question = p.relativeFell(relative.name)
+            pending = Pending.Confirm(Action.Call(relative), question)
+            say(question, Mood.WORRIED)
+            return rules.copy(level = Level.OK)
+        }
         val verdict = if (!imitatesPeri) rules else rules.copy(
             level = Level.SCAM,
             rulesScore = maxOf(rules.rulesScore, ShieldWeights.PROVISIONAL.scamAt),
@@ -290,8 +299,12 @@ class PeriAgent(
             }
             Pending.WhatAsked -> {
                 pending = null
-                if (command == Command.No || command == Command.Cancel) return say(p.callerAdvice)
-                tellStory(CallStory.read(utterance))
+                when (command) {
+                    Command.No, Command.Cancel -> say(p.callerAdvice)
+                    // An order ("tell Marisa the code is…") is an order, not an answer: it goes its own way.
+                    is Command.Call, is Command.SendMessage, is Command.ReadMessages -> handle(command)
+                    else -> tellStory(CallStory.read(utterance))
+                }
             }
             is Pending.WhoClaimed -> {
                 pending = null

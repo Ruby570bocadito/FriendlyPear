@@ -35,4 +35,15 @@ class FamilyRequestLinkTest {
         assertFalse(FamilyRequestLink.imitatesPeri("Le he contado a Peri lo del domingo, qué maja es", server))
         assertFalse(FamilyRequestLink.imitatesPeri("Correos: su paquete está retenido en correos-envio.top", server))
     }
+
+    @Test
+    fun `Peri's own alert and news link are not impersonations, a lookalike map is`() {
+        val fell = "Alert from Peri: your relative said they have fallen and did not cancel the alert. Location: https://maps.google.com/?q=40.41680,-3.70380"
+        assertFalse(FamilyRequestLink.imitatesPeri(fell, server))
+        assertTrue(FamilyRequestLink.periAlert(fell))
+        assertTrue(FamilyRequestLink.periAlert("Aviso de Peri: tu familiar ha dicho que se ha caído y no ha cancelado el aviso. No tengo su ubicación."))
+        assertFalse(FamilyRequestLink.imitatesPeri("Hi, I'm Peri. Here you'll see when I warn them about a scam: http://10.0.2.2:8711/g/abcdefghijklmnopqrstuv", server))
+        assertTrue(FamilyRequestLink.imitatesPeri(fell.replace("https://maps.google.com", "https://maps-google.top"), server))
+        assertFalse(FamilyRequestLink.periAlert("Peri dice que mañana llueve"))
+    }
 }

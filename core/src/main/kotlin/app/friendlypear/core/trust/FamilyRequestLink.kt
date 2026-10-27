@@ -14,6 +14,9 @@ object FamilyRequestLink {
     private val link = Regex("""https?://[^\s/]+/a/([A-Za-z0-9_-]{20,64})(?=$|[\s.,;:!?)\]])""")
     private val anyLink = Regex("""(https?://|www\.)[^\s]+|\b[a-z0-9-]+\.(com|net|org|info|top|xyz|es|app|link|site|online|io)\b""", RegexOption.IGNORE_CASE)
     private val periWords = Regex("""\b(peri|friendlypear|friendly pear)\b""", RegexOption.IGNORE_CASE)
+    /** The map link Peri's own emergency alert carries: Google Maps, a point, nothing else. */
+    private val mapsLink = Regex("""^https://maps\.google\.com/\?q=-?\d+(\.\d+)?,-?\d+(\.\d+)?$""")
+    private val alert = Regex("""\b(aviso de peri|alert from peri)\b.*\b(se ha caido|have fallen)\b""")
 
     /** The request link in [text], if it points at [server] (same scheme, host and port). */
     fun find(text: String, server: String): Found? {
@@ -23,11 +26,20 @@ object FamilyRequestLink {
         }
     }
 
-    /** It says it's from Peri and carries a link, but not one to Peri's own server. */
+    /**
+     * It says it's from Peri and carries a link that isn't Peri's: not to Peri's own server (a request, the
+     * guardians' news page), nor the map in Peri's own emergency alert.
+     */
     fun imitatesPeri(text: String, server: String): Boolean {
         if (!periWords.containsMatchIn(text) || find(text, server) != null) return false
-        return anyLink.containsMatchIn(text)
+        val own = origin(server)
+        return anyLink.findAll(text).any { m -> !isPeris(m.value.trimEnd('.', ',', ';', ':', '!', '?', ')'), own) }
     }
+
+    /** Peri's own emergency alert ("Alert from Peri: your relative said they have fallen…"), in either language. */
+    fun periAlert(text: String): Boolean = alert.containsMatchIn(app.friendlypear.core.shield.Text.fold(text))
+
+    private fun isPeris(link: String, own: String?): Boolean = mapsLink.matches(link) || (own != null && origin(link) == own)
 
     private fun origin(url: String): String? = runCatching {
         val u = URI(url)

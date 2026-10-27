@@ -54,6 +54,8 @@ internal interface Phrases {
     val storyData: String
     val storyDoubt: String
     fun callFamilyAbout(name: String): String
+    /** A relative's Peri sent its emergency alert. */
+    fun relativeFell(name: String): String
     fun askingGuardian(names: String): String
     val guardianApproved: String
     val guardianRejected: String
@@ -158,6 +160,7 @@ internal object Spanish : Phrases {
     override val storyDoubt =
         "Puede ser una trampa. No des códigos, dinero ni datos, y llama tú al número oficial para comprobarlo."
     override fun callFamilyAbout(name: String) = "¿Llamo a $name para contárselo?"
+    override fun relativeFell(name: String) = "Aviso del Peri de $name: dice que se ha caído y no lo ha cancelado. ¿Llamo a $name ahora?"
     override fun askingGuardian(names: String) =
         "Mandar un código es delicado, así que se lo pregunto a $names. En cuanto me conteste, te digo. Mientras, aquí sigo."
     override val guardianApproved = "¡Buenas noticias! Tu familia lo ha aprobado."
@@ -277,6 +280,7 @@ internal object English : Phrases {
     override val storyDoubt =
         "It could be a trap. Don't give codes, money or details, and call the official number yourself to check."
     override fun callFamilyAbout(name: String) = "Shall I call $name to tell them?"
+    override fun relativeFell(name: String) = "An alert from $name's Peri: they said they've fallen and didn't cancel it. Shall I call $name now?"
     override fun askingGuardian(names: String) =
         "Sending a code is delicate, so I'm asking $names. As soon as they answer, I'll tell you. I'm still here meanwhile."
     override val guardianApproved = "Good news! Your family has approved it."
