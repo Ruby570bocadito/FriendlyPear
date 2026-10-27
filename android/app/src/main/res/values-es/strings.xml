@@ -72,4 +72,10 @@
     <string name="mini_hide">Guardar a Peri</string>
     <string name="mini_talk">Hablar con Peri</string>
     <string name="mini_open">Abrir la app</string>
+    <string name="family_short">Familia</string>
+    <string name="status_protecting">Te estoy cuidando</string>
+    <string name="status_setup">Falta terminar</string>
+    <string name="setup_title">Un par de pasos para protegerte del todo</string>
+    <string name="investigations_empty">Aún no hay nada. Cuando Peri investigue un mensaje dudoso, verás aquí lo que encontró.</string>
+    <string name="setup_basics">Deja que Peri vea tus contactos y SMS</string>
 </resources>

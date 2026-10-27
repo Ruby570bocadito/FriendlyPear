@@ -9,7 +9,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
-import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -18,7 +17,6 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
-import android.view.ViewOutlineProvider
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.LinearLayout
@@ -86,7 +84,8 @@ class MiniPeriService : Service(), PeriView {
         val open = PendingIntent.getActivity(this, 0, Intent(this, PeriActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
         val stop = PendingIntent.getService(this, 1, Intent(this, MiniPeriService::class.java).setAction(ACTION_STOP), PendingIntent.FLAG_IMMUTABLE)
         val notification = Notification.Builder(this, CHANNEL)
-            .setSmallIcon(android.R.drawable.ic_btn_speak_now)
+            .setSmallIcon(R.drawable.ic_pear)
+            .setColor(Palette.GREEN_DARK)
             .setContentTitle(getString(R.string.mini_title))
             .setContentText(getString(R.string.mini_text))
             .setContentIntent(open)
@@ -98,42 +97,30 @@ class MiniPeriService : Service(), PeriView {
     }
 
     private fun buildWindow() {
-        val density = resources.displayMetrics.density
-        val dp = { v: Int -> (v * density).toInt() }
-        // A round badge: the illustrations have a cream background, which reads as a coin over other apps.
-        face = PeriFace(this).apply {
-            background = GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(CREAM)
-                setStroke(dp(3), GREEN)
-            }
-            outlineProvider = ViewOutlineProvider.BACKGROUND
-            clipToOutline = true
-            elevation = dp(6).toFloat()
-            val inset = dp(6)
-            setPadding(inset, inset, inset, inset)
-        }
+        // Only the pear: her illustrations are cut out, and she brings her own soft shadow.
+        face = PeriFace(this)
         bubble = TextView(this).apply {
             textSize = 18f
-            setTextColor(INK)
-            maxWidth = dp(240)
-            setPadding(dp(14), dp(10), dp(14), dp(10))
-            background = GradientDrawable().apply {
-                setColor(CREAM)
-                cornerRadius = dp(18).toFloat()
-                setStroke(dp(2), GREEN)
-            }
+            typeface = weight(500)
+            setTextColor(Palette.INK)
+            setLineSpacing(0f, 1.1f)
+            maxWidth = dp(250)
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+            elevation = dp(4).toFloat()
             visibility = View.GONE
             setOnClickListener { visibility = View.GONE }
         }
         onRight = prefs.getBoolean(KEY_RIGHT, true)
+        shapeBubble()
         root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = if (onRight) Gravity.END else Gravity.START
-            val edge = dp(8)
+            clipChildren = false
+            clipToPadding = false
+            // Room for the bubble's shadow inside the window.
+            val edge = dp(10)
             setPadding(edge, edge, edge, edge)
-            addView(bubble, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = dp(4) })
+            addView(bubble, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = -dp(6) })
             addView(face, LinearLayout.LayoutParams(dp(SIZE_DP), dp(SIZE_DP)))
         }
         params = WindowManager.LayoutParams(
@@ -227,8 +214,24 @@ class MiniPeriService : Service(), PeriView {
         params.x = 0
         params.y = params.y.coerceIn(0, resources.displayMetrics.heightPixels - root.height)
         root.gravity = if (onRight) Gravity.END else Gravity.START
+        shapeBubble()
         windows.updateViewLayout(root, params)
         prefs.edit().putBoolean(KEY_RIGHT, onRight).putInt(KEY_Y, params.y).apply()
+    }
+
+    /** The bubble's tail points down at Peri, on whichever side she sits. */
+    private fun shapeBubble() {
+        val tail = dp(12)
+        bubble.background = BubbleDrawable(
+            Palette.WHITE,
+            Palette.GREEN,
+            dp(2).toFloat(),
+            dp(20).toFloat(),
+            tail.toFloat(),
+            if (onRight) BubbleDrawable.Tail.BOTTOM_END else BubbleDrawable.Tail.BOTTOM_START,
+            tailInset = dp(SIZE_DP / 2).toFloat(),
+        )
+        bubble.setPadding(dp(16), dp(12), dp(16), dp(14) + tail)
     }
 
     private fun talk() {
@@ -271,14 +274,11 @@ class MiniPeriService : Service(), PeriView {
         const val ACTION_STOP = "app.friendlypear.mini.STOP"
         private const val CHANNEL = "mini_peri"
         private const val NOTIFICATION_ID = 7
-        private const val SIZE_DP = 104
+        private const val SIZE_DP = 128
         private const val BUBBLE_MILLIS = 9_000L
         private const val LONG_PRESS_EXTRA = 300L
         private const val KEY_RIGHT = "right"
         private const val KEY_Y = "y"
-        private const val CREAM = 0xFFFFF8EC.toInt()
-        private const val INK = 0xFF1F2A1A.toInt()
-        private const val GREEN = 0xFF7CC242.toInt()
 
         fun start(context: Context) = context.startForegroundService(Intent(context, MiniPeriService::class.java))
 

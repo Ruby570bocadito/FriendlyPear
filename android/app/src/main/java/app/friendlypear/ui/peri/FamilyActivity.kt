@@ -1,15 +1,19 @@
 package app.friendlypear.ui.peri
 
 import android.app.Activity
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Gravity
 import android.view.View
+import android.view.WindowInsets
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.Spinner
@@ -33,7 +37,7 @@ class FamilyActivity : Activity() {
     private lateinit var store: FamilyStore
     private var config = FamilyConfig()
     private lateinit var status: TextView
-    private lateinit var cancel: Button
+    private lateinit var cancel: View
     private var names: Map<String, String> = emptyMap()
     private var syncing = false
 
@@ -41,47 +45,75 @@ class FamilyActivity : Activity() {
         super.onCreate(savedInstanceState)
         store = FamilyStore(this)
         config = store.load()
-        val pad = (20 * resources.displayMetrics.density).toInt()
         val list = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(pad, pad, pad, pad)
+            clipChildren = false
+            clipToPadding = false
         }
-        list.addView(text(getString(R.string.family_title), 26f))
-        list.addView(text(getString(R.string.family_intro), 18f))
-        status = text("", 18f)
-        cancel = Button(this).apply {
-            text = getString(R.string.circle_cancel)
+        list.addView(illustrated(R.drawable.peri_family, heading(getString(R.string.family_title), 28f), body(getString(R.string.family_intro))))
+        status = body("", 18f).apply {
+            setTextColor(Palette.AMBER_INK)
+            background = rounded(Palette.AMBER_TINT, dp(18).toFloat())
+            setPadding(dp(16), dp(12), dp(16), dp(12))
+        }
+        cancel = Pill(this, getString(R.string.circle_cancel), R.drawable.ic_chevron, primary = false, size = 18f).apply {
             setOnClickListener {
                 store.savePending(null)
                 showPending()
             }
         }
-        list.addView(status)
-        list.addView(cancel)
+        list.addView(status, spaced())
+        list.addView(cancel, spaced().apply { height = dp(56) })
 
-        list.addView(CheckBox(this).apply {
-            text = getString(R.string.family_word_agreed)
-            textSize = 20f
-            isChecked = config.hasFamilyWord
-            setOnCheckedChangeListener { _, checked -> update(config.copy(hasFamilyWord = checked)) }
-        })
-        list.addView(text(getString(R.string.family_word_note), 16f))
+        list.addView(card().apply {
+            addView(CheckBox(this@FamilyActivity).apply {
+                text = getString(R.string.family_word_agreed)
+                textSize = 20f
+                typeface = weight(600)
+                setTextColor(Palette.INK)
+                isChecked = config.hasFamilyWord
+                setOnCheckedChangeListener { _, checked -> update(config.copy(hasFamilyWord = checked)) }
+            })
+            addView(body(getString(R.string.family_word_note), 16f).apply { setPadding(dp(6), dp(4), 0, 0) })
+        }, spaced())
 
         val contacts = PhoneContacts.load(this)
         names = contacts.associate { it.id to it.name }
-        if (contacts.isEmpty()) list.addView(text(getString(R.string.family_no_contacts), 18f))
-        contacts.forEach { c -> list.addView(row(c.id, c.name, c.relation)) }
+        if (contacts.isEmpty()) list.addView(body(getString(R.string.family_no_contacts)), spaced())
+        contacts.forEach { c -> list.addView(row(c.id, c.name, c.relation), spaced()) }
 
         // What the investigator looked into, so the family can see why Peri warned. Never the message itself.
         val looked = InvestigationLog(this).load()
-        if (looked.isNotEmpty()) list.addView(text(getString(R.string.investigations_title), 22f))
         val format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-        looked.forEach { e ->
-            val verdict = getString(VERDICTS[e.verdict] ?: R.string.verdict_doubt)
-            list.addView(text("${format.format(Date(e.at))} · $verdict\n" + e.evidence.joinToString("\n") { "• $it" }, 16f))
+        val report = card().apply {
+            addView(illustrated(R.drawable.peri_report, heading(getString(R.string.investigations_title), 21f), null, size = 72))
+            if (looked.isEmpty()) addView(body(getString(R.string.investigations_empty), 16f).apply { setPadding(0, dp(8), 0, 0) })
+            looked.forEach { e ->
+                val verdict = getString(VERDICTS[e.verdict] ?: R.string.verdict_doubt)
+                addView(heading("${format.format(Date(e.at))} · $verdict", 17f).apply { setPadding(0, dp(14), 0, dp(2)) })
+                addView(body(e.evidence.joinToString("\n") { "•  $it" }, 16f))
+            }
         }
+        list.addView(report, spaced())
 
-        setContentView(ScrollView(this).apply { addView(list) })
+        val pad = dp(20)
+        // A cream strip under the status bar, so the list scrolls behind it rather than under the clock.
+        val scrim = View(this).apply { setBackgroundColor(Palette.CREAM) }
+        val scroll = ScrollView(this).apply {
+            clipToPadding = false
+            addView(list)
+        }
+        setContentView(FrameLayout(this).apply {
+            background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(Palette.CREAM, Palette.MEADOW))
+            addView(scroll)
+            addView(scrim, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, 0))
+            setOnApplyWindowInsetsListener { _, insets ->
+                val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.ime())
+                scroll.setPadding(pad + bars.left, pad + bars.top, pad + bars.right, pad + bars.bottom)
+                scrim.layoutParams = scrim.layoutParams.apply { height = bars.top }
+                insets
+            }
+        })
         showPending()
     }
 
@@ -123,14 +155,12 @@ class FamilyActivity : Activity() {
     }
 
     private fun row(id: String, name: String, guessed: Relation?): View {
-        val box = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(0, (18 * resources.displayMetrics.density).toInt(), 0, 0)
-        }
-        box.addView(text(name, 22f))
+        val box = card()
+        box.addView(heading(name, 22f))
         box.addView(CheckBox(this).apply {
             text = getString(R.string.family_guardian)
             textSize = 18f
+            setTextColor(Palette.INK)
             isChecked = id in config.guardians
             setOnCheckedChangeListener { box, checked -> onGuardianTicked(box as CheckBox, id, name, checked) }
         })
@@ -153,6 +183,9 @@ class FamilyActivity : Activity() {
         box.addView(EditText(this).apply {
             hint = getString(R.string.family_aliases_hint)
             textSize = 18f
+            setTextColor(Palette.INK)
+            background = rounded(Palette.CREAM, dp(14).toFloat(), Palette.GREEN_TINT, dp(2))
+            setPadding(dp(14), dp(12), dp(14), dp(12))
             setText(config.aliases[id].orEmpty().joinToString(", "))
             addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
@@ -169,9 +202,30 @@ class FamilyActivity : Activity() {
         PeriApp.hub(this).refresh()
     }
 
-    private fun text(value: String, size: Float) = TextView(this).apply {
-        text = value
-        textSize = size
+    private fun spaced() = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+        topMargin = dp(14)
+    }
+
+    private fun card() = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        background = cardBackground()
+        elevation = dp(2).toFloat()
+        setPadding(dp(18), dp(16), dp(18), dp(18))
+    }
+
+    /** One of Peri's illustrations beside a title and, optionally, a line under it. */
+    private fun illustrated(image: Int, title: TextView, line: TextView?, size: Int = 104) = LinearLayout(this).apply {
+        gravity = Gravity.CENTER_VERTICAL
+        addView(ImageView(this@FamilyActivity).apply {
+            setImageResource(image)
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, LinearLayout.LayoutParams(dp(size), dp(size)))
+        addView(LinearLayout(this@FamilyActivity).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), 0, 0, 0)
+            addView(title)
+            if (line != null) addView(line.apply { setPadding(0, dp(4), 0, 0) })
+        }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
     }
 
     private companion object {

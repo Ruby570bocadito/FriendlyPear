@@ -73,4 +73,10 @@
     <string name="mini_hide">Put Peri away</string>
     <string name="mini_talk">Talk to Peri</string>
     <string name="mini_open">Open the app</string>
+    <string name="family_short">Family</string>
+    <string name="status_protecting">Protecting you</string>
+    <string name="status_setup">Setup not finished</string>
+    <string name="setup_title">A couple of steps to protect you fully</string>
+    <string name="investigations_empty">Nothing to show yet. When Peri looks into a doubtful message, what she found appears here.</string>
+    <string name="setup_basics">Let Peri see your contacts and texts</string>
 </resources>

@@ -1,16 +1,22 @@
 package app.friendlypear.ui.peri
 
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
+import android.animation.ValueAnimator
 import android.app.Activity
 import android.app.role.RoleManager
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
-import android.widget.Button
+import android.view.WindowInsets
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import java.util.Calendar
@@ -24,9 +30,10 @@ import app.friendlypear.services.PeriHub
 import app.friendlypear.services.PeriView
 
 /**
- * Peri's one-button screen: what Peri says, in large letters, and a big button to talk.
- * Permissions are asked one at a time, each with Peri's sentence first: the shield's basics at first start,
- * everything else (microphone, calls, texts, location) the first time it's needed.
+ * Peri's screen: Peri herself, what she says in a speech bubble, in large letters, and one big button to talk.
+ * Above, a chip that says whether she's fully protecting the person; below, a card with the setup steps still
+ * missing, if any. Permissions are asked one at a time, each with Peri's sentence first: the shield's basics at
+ * first start, everything else (microphone, calls, texts, location) the first time it's needed.
  * "Mini Peri" switches to the other mode: only the pear, floating over other apps ([MiniPeriService]).
  */
 class PeriActivity : Activity() {
@@ -35,15 +42,18 @@ class PeriActivity : Activity() {
     private lateinit var said: TextView
     private lateinit var face: PeriFace
     private var listening = false
-    private lateinit var talk: Button
-    private lateinit var access: Button
-    private lateinit var usage: Button
-    private lateinit var family: Button
-    private lateinit var mini: Button
+    private lateinit var talk: Pill
+    private lateinit var status: TextView
+    private lateinit var setup: LinearLayout
+    private lateinit var access: View
+    private lateinit var usage: View
+    private lateinit var basics: View
+    private var pulse: ObjectAnimator? = null
     private var wantsMini = false
     /** Set while the app steps aside for Mini Peri, so the last resume before that doesn't put her away. */
     private var leaving = false
     private var resumed = false
+    private var greeted = false
     private var answer: ((Boolean) -> Unit)? = null
     private val asked by lazy { getSharedPreferences("permissions", MODE_PRIVATE) }
 
@@ -52,65 +62,105 @@ class PeriActivity : Activity() {
         hub = PeriApp.hub(this)
         voice = VoiceInput(this, hub.lang, onText = { hub.heard(it) }, onListening = { on ->
             listening = on
-            talk.text = getString(if (on) R.string.listening else R.string.talk)
+            showListening(on)
             showFace(hub.mood)
         })
         face = PeriFace(this)
 
         said = TextView(this).apply {
             text = hub.lastSaid.ifEmpty { getString(R.string.peri_greeting) }
-            textSize = 26f
-            setTextColor(INK)
+            textSize = 22f
+            typeface = weight(500)
+            setTextColor(Palette.INK)
+            setLineSpacing(0f, 1.12f)
             gravity = Gravity.CENTER
+            maxLines = 7
+            ellipsize = TextUtils.TruncateAt.END
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+            val tail = dp(14).toFloat()
+            background = BubbleDrawable(Palette.WHITE, 0, 0f, dp(26).toFloat(), tail, BubbleDrawable.Tail.TOP)
+            elevation = dp(4).toFloat()
+            setPadding(dp(22), dp(16) + tail.toInt(), dp(22), dp(18))
         }
-        talk = Button(this).apply {
-            text = getString(R.string.talk)
-            textSize = 26f
-            minHeight = (140 * resources.displayMetrics.density).toInt()
+        talk = Pill(this, getString(R.string.talk), R.drawable.ic_mic, primary = true, size = 24f).apply {
             setOnClickListener { listen() }
         }
-        access = Button(this).apply {
-            text = getString(R.string.notification_access)
-            textSize = 18f
-            setOnClickListener { startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
-        }
-        family = Button(this).apply {
-            text = getString(R.string.family_title)
-            textSize = 18f
+        val family = Pill(this, getString(R.string.family_short), R.drawable.ic_family, primary = false, size = 19f).apply {
             setOnClickListener { startActivity(Intent(this@PeriActivity, FamilyActivity::class.java)) }
         }
-        // Usage access is a special setting: Peri explains it first, then opens the screen where it's granted.
-        usage = Button(this).apply {
-            text = getString(R.string.usage_access)
-            textSize = 18f
-            setOnClickListener {
-                hub.say(getString(R.string.why_usage))
-                startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
-            }
-        }
-        mini = Button(this).apply {
-            text = getString(R.string.mini_mode)
-            textSize = 18f
+        val mini = Pill(this, getString(R.string.mini_mode), R.drawable.ic_mini, primary = false, size = 19f).apply {
             setOnClickListener { goMini() }
         }
-        setContentView(
-            LinearLayout(this).apply {
-                orientation = LinearLayout.VERTICAL
-                gravity = Gravity.CENTER
-                // Cream like the illustrations' background, with ink text: 14:1 contrast (docs/DISENO.md).
-                setBackgroundColor(CREAM)
-                val pad = (24 * resources.displayMetrics.density).toInt()
-                setPadding(pad, pad, pad, pad)
-                addView(face, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
-                addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0.8f))
-                addView(access)
-                addView(usage)
-                addView(family)
-                addView(mini)
-                addView(talk, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-            },
-        )
+        status = TextView(this).apply {
+            textSize = 15f
+            typeface = weight(600)
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(12), dp(6), dp(14), dp(6))
+            compoundDrawablePadding = dp(8)
+        }
+        // The shield's basics, if one was turned down: asked again, or Android's app settings if it won't ask.
+        basics = setupRow(R.drawable.ic_shield, getString(R.string.setup_basics)) { askBasics() }
+        access = setupRow(R.drawable.ic_notifications, getString(R.string.notification_access)) {
+            startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+        }
+        // Usage access is a special setting: Peri explains it first, then opens the screen where it's granted.
+        usage = setupRow(R.drawable.ic_bank, getString(R.string.usage_access)) {
+            hub.say(getString(R.string.why_usage))
+            startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+        }
+        setup = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = cardBackground()
+            elevation = dp(2).toFloat()
+            setPadding(dp(16), dp(12), dp(12), dp(8))
+            addView(LinearLayout(this@PeriActivity).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                addView(ImageView(this@PeriActivity).apply {
+                    setImageResource(R.drawable.peri_shield)
+                    importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                }, LinearLayout.LayoutParams(dp(56), dp(56)))
+                addView(heading(getString(R.string.setup_title), 18f).apply { setPadding(dp(10), 0, 0, 0) })
+            })
+            addView(basics)
+            addView(access)
+            addView(usage)
+        }
+
+        val wordmark = TextView(this).apply {
+            text = getString(R.string.app_name)
+            textSize = 24f
+            typeface = weight(800)
+            setTextColor(Palette.GREEN_DARK)
+        }
+        val header = LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            addView(wordmark, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            addView(status)
+        }
+        val secondary = LinearLayout(this).apply {
+            addView(family, LinearLayout.LayoutParams(0, dp(60), 1f).apply { marginEnd = dp(6) })
+            addView(mini, LinearLayout.LayoutParams(0, dp(60), 1f).apply { marginStart = dp(6) })
+        }
+        val root = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            // Cream like Peri's world, with a hint of meadow at the bottom; ink text on it is 14:1.
+            background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(Palette.CREAM, Palette.MEADOW))
+            clipChildren = false
+            addView(header)
+            addView(face, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(4) })
+            addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            addView(setup, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
+            addView(talk, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(84)).apply { topMargin = dp(18) })
+            addView(secondary, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
+        }
+        // Edge to edge: the cream goes under the status and navigation bars, the content stays clear of them.
+        val pad = dp(20)
+        root.setOnApplyWindowInsetsListener { v, insets ->
+            val bars = insets.getInsets(WindowInsets.Type.systemBars())
+            v.setPadding(pad + bars.left, dp(8) + bars.top, pad + bars.right, pad + bars.bottom)
+            insets
+        }
+        setContentView(root)
 
         // This screen shows Android's dialog whenever Peri needs a permission, now or later.
         hub.permissions.presenter = { need, done ->
@@ -118,6 +168,35 @@ class PeriActivity : Activity() {
             requestPermissions(need.permissions.toTypedArray(), REQUEST_NEED)
         }
         firstStart()
+    }
+
+    /** One missing setup step: an icon, what it's for in plain words, and a chevron. */
+    private fun setupRow(icon: Int, label: String, onClick: () -> Unit): View = LinearLayout(this).apply {
+        gravity = Gravity.CENTER_VERTICAL
+        minimumHeight = dp(60)
+        setPadding(dp(4), dp(6), dp(4), dp(6))
+        background = pressable(rounded(Palette.WHITE, dp(16).toFloat()), Palette.RIPPLE_DARK)
+        isClickable = true
+        isFocusable = true
+        contentDescription = label
+        setOnClickListener { onClick() }
+        addView(ImageView(this@PeriActivity).apply {
+            setImageResource(icon)
+            setColorFilter(Palette.GREEN_DARK)
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Palette.GREEN_TINT)
+            }
+            setPadding(dp(10), dp(10), dp(10), dp(10))
+        }, LinearLayout.LayoutParams(dp(44), dp(44)))
+        addView(body(label, 17f).apply {
+            setTextColor(Palette.INK)
+            setPadding(dp(14), 0, dp(8), 0)
+        }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        addView(ImageView(this@PeriActivity).apply {
+            setImageResource(R.drawable.ic_chevron)
+            setColorFilter(Palette.INK_SOFT)
+        }, LinearLayout.LayoutParams(dp(24), dp(24)))
     }
 
     /** The shield's basics, one at a time and only once each: a "no" is never asked again on every start. */
@@ -166,9 +245,47 @@ class PeriActivity : Activity() {
         hub.attach(view)
         showFace(hub.mood)
         face.speaking(hub.speaking)
-        access.visibility = if (hasNotificationAccess()) View.GONE else View.VISIBLE
-        usage.visibility = if (hub.bank.allowed()) View.GONE else View.VISIBLE
+        if (!greeted) {
+            greeted = true
+            face.greet()
+        }
+        showSetup()
         hub.refresh()
+    }
+
+    /** The chip and the setup card: what's still missing for Peri to protect the person fully. */
+    private fun showSetup() {
+        val noAccess = !hasNotificationAccess()
+        val noUsage = !hub.bank.allowed()
+        val noBasics = Need.FIRST_START.any { !hub.permissions.granted(it) }
+        basics.visibility = if (noBasics) View.VISIBLE else View.GONE
+        access.visibility = if (noAccess) View.VISIBLE else View.GONE
+        usage.visibility = if (noUsage) View.VISIBLE else View.GONE
+        setup.visibility = if (noBasics || noAccess || noUsage) View.VISIBLE else View.GONE
+        val protecting = !noBasics && !noAccess
+        status.text = getString(if (protecting) R.string.status_protecting else R.string.status_setup)
+        status.setTextColor(if (protecting) Palette.GREEN_DARK else Palette.AMBER_INK)
+        status.background = rounded(if (protecting) Palette.GREEN_TINT else Palette.AMBER_TINT, dp(20).toFloat())
+        val dot = GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(if (protecting) Palette.GREEN else Palette.AMBER_INK)
+            setSize(dp(10), dp(10))
+        }
+        status.setCompoundDrawablesRelativeWithIntrinsicBounds(dot, null, null, null)
+    }
+
+    private fun askBasics() {
+        val need = Need.FIRST_START.firstOrNull { !hub.permissions.granted(it) } ?: return showSetup()
+        val canAsk = need.permissions.any { shouldShowRequestPermissionRationale(it) } || !asked.getBoolean(need.name, false)
+        if (!canAsk) {
+            hub.say(getString(need.why))
+            return startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+        }
+        asked.edit().putBoolean(need.name, true).apply()
+        hub.permissions.ask(need) {
+            hub.refresh()
+            showSetup()
+        }
     }
 
     override fun onPause() {
@@ -207,6 +324,25 @@ class PeriActivity : Activity() {
         override fun speaking(on: Boolean) {
             face.speaking(on)
             if (!on && resumed && hub.isWaitingForAnswer && voice.available && hub.permissions.granted(Need.MIC)) voice.listen()
+        }
+    }
+
+    /** While the microphone is open the button says so and breathes gently, so it's clear Peri is listening. */
+    private fun showListening(on: Boolean) {
+        talk.label = getString(if (on) R.string.listening else R.string.talk)
+        pulse?.cancel()
+        talk.scaleX = 1f
+        talk.scaleY = 1f
+        if (!on || Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f) return
+        pulse = ObjectAnimator.ofPropertyValuesHolder(
+            talk,
+            PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.03f),
+            PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.06f),
+        ).apply {
+            duration = 650
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.REVERSE
+            start()
         }
     }
 
@@ -256,8 +392,6 @@ class PeriActivity : Activity() {
     }
 
     private companion object {
-        const val CREAM = 0xFFFFF8EC.toInt()
-        const val INK = 0xFF1F2A1A.toInt()
         const val REQUEST_NEED = 1
         const val REQUEST_SCREENING = 2
         const val SCREENING = "screening"
