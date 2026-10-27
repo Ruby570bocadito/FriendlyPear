@@ -51,7 +51,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [x] (SEG) llamadas-sin-audio — [S] verificar que nada accede al audio de llamadas y que el rol de filtro se pide con explicación — android/app/src/main/AndroidManifest.xml · hecho 2026-10-27 (sin acceso al audio; el micrófono no se abre durante ninguna llamada)
 - [x] (IMP-1) aprobaciones — [M] enlace de un solo uso, 15 min, página del guardián — backend/src/approvals/ · hecho 2026-10-27
 - [x] (IMP-2) mfa-punta-a-punta — [M] MFA familiar con dos móviles — android/ · hecho 2026-10-27 (dos emuladores; SMS entre ellos entregado con adb)
-- [ ] (IMP-1) avisos-familia — [M] inmediatos, ataque en curso, resumen semanal — core/.../alerts/ · a medias: la página del guardián muestra avisos y pausas al momento; falta el resumen semanal por SMS
+- [x] (IMP-1) avisos-familia — [M] inmediatos, ataque en curso, resumen semanal — core/.../alerts/ · hecho 2026-10-27 (avisos al momento en la página, URGENTE en la petición, y resumen semanal por SMS con solo los recuentos: `WeeklySummary`, alarma diaria inexacta; probado: "avisé de 3 mensajes que eran timos")
 - [x] (IMP-2) ajustes-idioma — [S] pantalla de Ajustes (rueda en la cabecera) con Idioma: igual que el móvil, español o inglés; cambia pantallas y voz de Peri sin reiniciar — android/.../ui/peri/SettingsActivity.kt · hecho 2026-10-27
 - [x] (IMP-2) mini-en-llamadas — [S] Mini Peri sale sola junto a la pantalla de la llamada (llamadas que hace Peri y llamadas descolgadas de desconocidos) y se va al colgar — android/.../ui/peri/MiniPeriService.kt · hecho 2026-10-27
 - [x] (IMP-1) novedades-en-disco — [S] enlaces de guardianes (solo hash) y novedades en `backend/data/guardians.json`, escritura atómica — backend/src/guardians/ · hecho 2026-10-27
@@ -69,7 +69,8 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [ ] (IMP-2) emergencia — [M] cuenta atrás, llamada y SMS con ubicación — android/
 - [x] (IMP-2) config-familia — [M] guardianes, alias, relaciones, números oficiales — android/.../config/ · hecho 2026-10-27 (guardianes, relaciones, apodos y palabra de la familia sin guardarla; faltan los números oficiales)
 - [ ] (IMP-2) panel-permisos — [M] "Lo que Peri puede hacer": estado de cada permiso, para qué sirve, botón para quitarlo y registro de usos sensibles — android/.../ui/peri/, config/
-- [ ] (SEG) emparejamiento-qr — [L] clave por dispositivo con QR en persona — android/.../config/, backend/src/
+- [x] (SEG) emparejamiento-qr — [L] clave por dispositivo con QR en persona — android/.../config/, backend/src/ · hecho 2026-10-27 (`bun pair`: código de un uso, 10 min, QR propio sin dependencias verificado con los dos lectores de OpenCV; clave por móvil cifrada con el Keystore, solo hashes en el servidor, desconexión por móvil, `ALLOW_SHARED_TOKEN=0`; un QR de otro servidor se rechaza; sin copias de seguridad)
+- [x] (IMP-2) bienvenida — [M] Peri se presenta antes de pedir permisos: 4 páginas animadas, idioma arriba, solo la primera en voz alta; no sale al actualizar — android/.../ui/peri/WelcomeActivity.kt · hecho 2026-10-27
 - [x] (IMP-1) circulo-reglas — [S] segundo guardián y 48 h para cambios — core/.../trust/ · hecho 2026-10-27 (el sí de un guardián actual + 48 h; la persona puede cancelar)
 
 ## Día 6 · 1 nov — Meta a fondo y Peri

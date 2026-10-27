@@ -65,6 +65,8 @@ There is no app for the family to install, and nothing to watch. A guardian (for
 
 <p align="center"><img src="docs/media/family-approval.gif" width="660" alt="Mum's phone and Ana's phone side by side, step by step: the stranger's call, the code request stopped, Ana's urgent approval page, and Peri calling Ana"></p>
 
+Once a week each guardian also gets a short SMS summary with the same counts, *"I warned about 3 messages that were scams"*, or that it was a quiet week.
+
 If the person turns on **"Let my guardians see Peri's news"** in the family setup, each guardian gets a personal link (by SMS) to **Peri's news**: a page with the last 7 days at a glance and a timeline of what Peri did ("warned about a WhatsApp message that looked like a scam", "paused them before a money app, and they chose to call family") and the approvals asked. Only the kind of event travels (level and channel, or the pause's answer); never text, numbers, names, calls, location or apps. The person sees exactly the same list on their own phone, and turning sharing off makes every link stop working at once. Links (only their hash) and the news are saved in `backend/data/`, so they survive a restart. A weekly summary sent to guardians is still on the roadmap (`avisos-familia`).
 
 ### Peri to Peri
@@ -146,6 +148,12 @@ docs/      Concept, architecture, demo script and the multi-agent protocol (in S
 cd core && ./gradlew test                                    # JDK 17+
 cd backend && bun test                                       # Bun >= 1.1
 cd android && ./gradlew :app:assembleDebug :app:lintDebug    # Android SDK 35 (sdk.dir in android/local.properties)
+```
+
+Each phone can get its own key for the server, paired in person (the shared `DEVICE_TOKEN` is only for testing):
+
+```bash
+cd backend && bun pair        # prints a one-time code and its QR; point the phone's camera at it
 ```
 
 On the emulator, save a contact as "Laura daughter" (or "Laura hija") with any number, then:

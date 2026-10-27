@@ -29,6 +29,7 @@ ColorOS) · 🧪 unit tests in `core/` or `backend/`.
 | Feature | What it does | Status |
 |---|---|---|
 | **Family approval** | Something risky (dictating a code, changing guardians) sends the guardian an SMS with a one-time link valid for 15 minutes. Three answers: "No" first, "Ask them to call me first" (Peri sends nothing and offers to call the guardian; a spoken "yes" calls), "Yes, I approve". Silence counts as no; only the link's hash is stored | ✅ (two emulators: Mum and "Ana hija") 🧪 |
+| **Weekly summary** | Once a week, while sharing is on, each guardian gets an SMS with only the counts their page already shows ("I warned about 3 messages that were scams"); a quiet week says so too, and carrying on after a pause suggests a call | ✅ 🧪 |
 | **Peri to Peri** | A guardian who has FriendlyPear gets the request in their own Peri: read aloud, a screen with the guardian art and the three answers, a notification if the app is closed. Trusted only from a saved contact and with a link to Peri's own server; the details come from the server. "Call them now" answers "call me first" and dials them | ✅ (two emulators, Spanish and English) |
 | **Fake Peri** | A text that talks like Peri but links elsewhere is a firm scam with its own sentence; no model is asked | ✅ 🧪 |
 | **Approving safely** | Web: a second "are you sure?" page with three checks. App: the same checks and the phone's own lock. Opening the family setup also needs the lock once there is a guardian | ✅ 🧪 |
@@ -58,6 +59,8 @@ ColorOS) · 🧪 unit tests in `core/` or `backend/`.
 
 | Feature | What it does | Status |
 |---|---|---|
+| **Peri's welcome** | Before any permission, Peri introduces herself in four short pages (who she is, she stops scams, the family never spies, you decide), animated, with the language choice at the top. Only the first page is said aloud; each has "Hear it". Seen again from Settings | ✅ |
+| **Pairing a phone** | `bun pair` on the server shows a one-time code and QR; the phone's camera opens "Connect this phone", which gets the phone its own key (Keystore-encrypted). Or type the code in Settings. QRs for another server are refused | ✅ 🧪 |
 | **One permission at a time** | Each permission is asked the first time it's needed, after Peri says what it's for and what she won't do with it. A "no" is respected and never asked again on every start | ✅ 📱 |
 | **Setup card** | One missing step at a time, the most important first; optional steps (texts, bank-app notice) can be hidden with "×". "Protecting you" needs only contacts, calls and one way to see messages | ✅ 📱 |
 | **Unlock guide** | Installed from a file, Android 13+ locks message alerts and texts as "restricted settings" (spy apps use them). The guide walks through the only order Android accepts: try once → allow restricted settings in app info → turn it on, each step opening the exact screen and ticking itself off. One unlock covers both. The app no longer asks for texts at first start when it's locked, which avoided Android's frightening "denied" notice | ✅ (installed from Downloads like on a phone) |

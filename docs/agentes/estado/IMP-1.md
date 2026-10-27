@@ -4,8 +4,7 @@
 - escudo-capas: señales, log-odds, reglas duras, voto del modelo ±2, acción segura y frase de Peri; marcas de Reino Unido y EE. UU.; señal `CODE_FORWARD_REQUEST`.
 - creditos-y-spark: `backend/src/models/` (`chat.ts`, `spark.ts`). Meta Model API en `https://api.meta.ai/v1`, `muse-spark-1.3`; el razonamiento cuenta en `max_completion_tokens` (por defecto 400, tope 512).
 - voz-y-agenda (órdenes, alias, apodos, relaciones, `RelationWords`) y agente-base: `PeriAgent` con confirmación por voz, riesgo, verificación, plan B, lectura segura y emergencia.
-- peri-bilingue y peri-personalidad: `Lang.ES`/`Lang.EN`, `Phrases`/`PeriExplainer`, guía `docs/PERI_VOZ.md`. segunda-opinion: Muse Spark Open en Baseten Model APIs (`inference.baseten.co/v1`); `POST /v1/opinion`, solo DOUBT, voto ±2; en el móvil, el dudoso espera el voto y Peri habla una vez.
-- llamadas: aviso antes de descolgar si el número no está en la agenda; al colgar, "¿quién decía ser?" → llamada al número guardado; palabra de la familia (se recuerda, nunca se dice).
+- peri-bilingue y peri-personalidad: `Lang.ES`/`Lang.EN`, `Phrases`/`PeriExplainer`, guía `docs/PERI_VOZ.md`. segunda-opinion: Muse Spark Open en Baseten Model APIs (`inference.baseten.co/v1`); `POST /v1/opinion`, solo DOUBT, voto ±2; en el móvil, el dudoso espera el voto y Peri habla una vez. llamadas: aviso antes de descolgar si el número no está en la agenda; al colgar, "¿quién decía ser?" → llamada al número guardado; palabra de la familia (se recuerda, nunca se dice).
 - mfa-familiar:
   - Backend `approvals/`: enlace de un solo uso (solo se guarda su hash), 15 min, `POST /v1/approvals`, `GET /v1/approvals/:id`, página del guardián `/a/:token` (es/en, "No" primero, sin scripts). Silencio = expirado; nunca se aprueba solo.
   - `PeriAgent`: riesgo alto (dictar un código) → `ApprovalPort`; el SMS al guardián lleva el enlace, nunca el código; "cancela" anula la petición.
@@ -22,7 +21,8 @@
 - pesos-aprendidos: `eval/reservado-200` (200 a mano), `training/generate.ts` (1.306 sintéticos, Spark contributor), `training/fit.py` (regresión con los pesos a mano como prior, validación cruzada); informe `eval/REPORT.md`. `LEARNED` mejora el AUC y los avisos firmes pero da una falsa alarma firme: no es el de por defecto.
 - mfa-dos-moviles: `ApprovalResult.CALL_BACK` y `onCall` en `ApprovalPort`; página con "No", "Que me llame primero" y "Sí"; SMS "URGENTE" con llamada de desconocido en curso o en los últimos 30 min (nunca el número). Probado con 5554 (madre) y 5556 (Ana): llamada del "banco" → "dile a Marisa que el código es 7350" → SMS a Ana → "Que me llame primero" → Peri ofrece llamar → "sí" → llama a Ana.
 - peri-a-peri y escudo-ronda-2: `FamilyRequestLink` (origen exacto del servidor + contacto guardado), `GuardianActivity`, `FamilyRequestClient` (GET JSON con el enlace, sin token), `Identity.kt` (bloqueo del móvil); página del guardián con Peri y paso de confirmación; señales SECRECY, DEVICE_SCARE, ROMANCE_BAIT. Reservado-200: 88,2 % / 59,8 % / 4,1 %.
-- Tests: core (192) y backend (77) en verde.
+- bienvenida, resumen-semanal y emparejamiento-qr: `WelcomeActivity`; `core/alerts/WeeklySummary` + `SummaryReceiver`; `backend/src/devices/store.ts`, `qr.ts` (propio, verificado con OpenCV), `bun pair`, `DeviceKey` (Keystore) y `PairActivity`. Probado con `ALLOW_SHARED_TOKEN=0`: el móvil emparejado sigue con los modelos y el otro vuelve a las reglas.
+- Tests: core (196) y backend (88) en verde.
 
 ## En curso
 - Nada.

@@ -27,7 +27,10 @@ in the code and covered by tests or by the two-phone test of Oct 27.
 | 4 | A leaked or previewed link | One-time, 15 minutes, only its SHA-256 hash is stored. Opening it (GET) never decides anything, so link previews are harmless. Silence never approves | ✅ |
 | 4 | The page itself | No scripts; `Content-Security-Policy: default-src 'none'; img-src 'self'; form-action 'self'; frame-ancestors 'none'`, `no-referrer`, `no-store`, `nosniff`, `X-Frame-Options: DENY`, HSTS over HTTPS. Peri's pictures come from the same server | ✅ |
 | 5 | Prompt injection | "Ignore previous instructions"-style text is its own signal. Models only vote, within ±2, on doubtful messages; hard rules can't be overridden; Peri never reads a model's words aloud | ✅ |
-| 6 | Floods and guessing | Per-IP limits on links, the API, pictures and voice; an IP sending wrong device tokens is locked out for 15 minutes; body size limits; timing-safe token check | ✅ |
+| 6 | A stolen or extracted device token | Each phone gets **its own key**, paired in person: `bun pair` on the server shows a one-time code and its QR (10 minutes, single use, only its hash kept); the phone's camera opens FriendlyPear, which asks before connecting. The server keeps only a hash of each key; the key sits on the phone encrypted by the Android Keystore, never backed up. Any phone can be disconnected alone. `ALLOW_SHARED_TOKEN=0` turns the shared test token off | ✅ |
+| 6 | A QR that points Peri elsewhere | The phone only pairs with **its own server** (same scheme, host and port as its build); any other QR is refused with a warning | ✅ |
+| 6 | Backups leaking keys or family setup | `allowBackup="false"` and data-extraction rules exclude everything from cloud backups and device transfers | ✅ |
+| 6 | Floods and guessing | Per-IP limits on links, the API, pictures, voice and pairing (10 codes tried per 15 minutes); behind the tunnel the client IP is the one the proxy adds, so a forged header can't dodge them; an IP sending wrong device tokens is locked out for 15 minutes; body size limits; timing-safe token check | ✅ |
 
 ## What the family can and can't see
 
@@ -49,8 +52,9 @@ what the guardians see, and can stop sharing at any moment; every link dies at o
 
 ## Still open
 
-- **One shared device token in debug builds.** Anyone who unpacks the debug APK can call the API within the rate
-  limits. The plan is per-device keys paired in person with a QR code (`emparejamiento-qr` in the roadmap).
+- **Debug builds still carry the shared test token**, so an unpaired test phone works out of the box. With
+  `ALLOW_SHARED_TOKEN=0` it stops working and only paired phones get in (tested: the unpaired phone falls back to
+  the on-phone rules, which still warn).
 - **SMS is not encrypted.** The link travels by SMS, so it is short-lived, single-use and guarded by the "are you
   sure?" step and the phone lock. A spoofed sender number alone is not enough: the request must exist on the server.
 - **Pending requests live in memory** and are lost if the server restarts (the request then simply expires: nothing
