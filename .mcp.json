@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mobile-mcp": {
+      "command": "npx",
+      "args": ["-y", "@mobilenext/mobile-mcp@1.0.13"]
+    },
+    "android-studio": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote@0.1.29", "http://127.0.0.1:64342/sse"]
+    }
+  }
+}

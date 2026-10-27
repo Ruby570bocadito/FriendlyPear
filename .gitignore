@@ -1,0 +1,27 @@
+# Build output
+build/
+.gradle/
+.kotlin/
+*.apk
+*.aab
+
+# Local config and secrets
+local.properties
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+
+# Tooling
+.idea/
+*.iml
+.DS_Store
+node_modules/
+
+# Agent scratch space
+.agent-tmp/
+
+# Evaluation data with real (even anonymised) messages stays local
+eval/data/
+training/data/
