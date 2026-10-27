@@ -53,6 +53,9 @@ export const FRAMES: Record<string, string> = {
   glanceleft: "Only change: both pupils look towards the left side of the image, as if glancing at something there; head, body, mouth and everything else stay exactly the same. If the eyes are closed, keep them closed.",
   glanceright: "Only change: both pupils look towards the right side of the image, as if glancing at something there; head, body, mouth and everything else stay exactly the same. If the eyes are closed, keep them closed.",
   talko: "Only change: the mouth is a small round 'o' shape, as if saying 'oh', keeping the same eyes and expression. If sleeping, the mouth is a tiny relaxed line.",
+  gesturea: "Change: Peri is talking with a friendly open mouth and raises her free hand (the one not holding anything) to shoulder height, palm open, as if kindly explaining something. Same face style, eyes, props, framing, size and position.",
+  gestureb: "Change: Peri is talking with a friendly open mouth and opens her arms a little outwards at the sides, palms up, as if saying 'you see?'. If a hand holds something, it keeps holding it and only the free arm opens wider. Same face style, eyes, props, framing, size and position.",
+  wink: "Only change: Peri winks: the eye on the right side of the image is closed in a happy curve, the other eye stays open, and the smile is a little bigger. Everything else stays exactly the same.",
   stepleft: "Only change: Peri lifts the foot on the left side of the image a little off the ground, that leg slightly bent at the knee, as if taking a small cheerful step; the other foot stays flat on the ground. Head, body, arms, face, props and position stay exactly the same.",
   stepright: "Only change: Peri lifts the foot on the right side of the image a little off the ground, that leg slightly bent at the knee, as if taking a small cheerful step; the other foot stays flat on the ground. Head, body, arms, face, props and position stay exactly the same.",
 };
@@ -108,7 +111,9 @@ if (framesMode) {
       if (pickedFrames && !pickedFrames.includes(frame)) continue;
       // A worried Peri talks worried: the wide mouth otherwise comes out as a happy grin.
       const change = state === "worried" ? `${plain.replace("happy rounded", "concerned rounded")} Keep the worried eyebrows and the concerned look; she is not smiling.` : plain;
-      const prompt = `Exactly the same image: same character, same pose, same framing, same size and position, same background and props. ${change} ${STYLE}`;
+      // Gestures change the arms on purpose: they keep everything but the pose.
+      const keep = frame.startsWith("gesture") ? "Same image: same character, same framing, same size and position, same background and props." : "Exactly the same image: same character, same pose, same framing, same size and position, same background and props.";
+      const prompt = `${keep} ${change} ${STYLE}`;
       const image = await call("/images/edits", { model: "muse-image-1.0", prompt, images: [{ image_url: reference }], n: 1, size: "1024x1024", output_format: "webp" });
       prompts.push(save(`${state}_${frame}`, image, prompt));
     }
