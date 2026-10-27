@@ -16,10 +16,12 @@ All illustrations are made with **Muse Image** (`muse-image-1.0`) by [`generate.
 | happy | Approved, message sent, "I'm fine" | `peri_happy.webp` |
 | sleeping | Night, nothing going on | `peri_sleeping.webp` |
 
-The app uses 768 px copies in `android/app/src/main/res/drawable-nodpi/`, with a cross-fade between states and a slow breath (none with "remove animations" on).
+Each state also has **4 animation frames**, each an edit of that state's own image that changes one small thing and keeps the framing: `_blink` (eyes closed), `_talk` (mouth open), `_swayleft` and `_swayright` (leaf and body tilt a little). 36 frames, $0.36.
+
+The app uses 768 px copies in `android/app/src/main/res/drawable-nodpi/`. `PeriFace` cross-fades between frames: a slow sway (still → left → still → right), a blink every 3–5 s, the mouth opening and closing while Peri speaks, a soft fade between moods and a slow breath. With "remove animations" on she only changes mood, without moving.
 
 ```bash
 cd backend; bun ../assets/peri/generate.ts
 ```
 
-Regenerate a single state from the saved base with `bun ../assets/peri/generate.ts calm`.
+Regenerate a single state from the saved base with `bun ../assets/peri/generate.ts calm`, and its frames with `bun ../assets/peri/generate.ts frames calm`.

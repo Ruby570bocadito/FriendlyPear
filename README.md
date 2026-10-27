@@ -31,10 +31,11 @@ Also working, with unit tests:
 - **Safe reading**: links, emails, codes and unknown numbers are never read aloud; scams are not read at all, only Peri's warning.
 - **"Are they guiding you over the phone?"**: installing a remote-control app (AnyDesk, TeamViewer…) gets a warning and an offer to tell the family; opening a banking app while a stranger is on the line gets *"Please hang up and call your bank yourself on the number on your card."*
 - **Family setup**: guardians, relations, nicknames and whether the family agreed a secret word, set up together on the person's phone. The word itself is never stored: Peri only reminds you to ask for it. Changing who the guardians are needs a current guardian's yes and then waits 48 hours, so nobody can quietly take over the family's protection.
+- **Two modes: the app or Mini Peri**: the full screen, or only the pear, small and floating over other apps. Tap her to talk, drag her to any side, long-press to open the app; what she says appears in a speech bubble. She blinks, sways and moves her mouth while she speaks (still with "remove animations" on).
 - **Emergency**: "I've fallen" → 10-second countdown → SMS with location and a call to the guardian. It never dials an emergency number.
 - **Muse Spark client** with tool calling, a token cap and a response cache.
 - **Second opinion with Muse Spark Open** (`POST /v1/opinion`, device token): only messages the rules left as doubtful are accepted; the model answers scam / doubt / ok with a confidence, turned into a vote of at most ±2. On the emulator, end to end: a fake "nephew" asking for money → doubtful for the rules, +1.9 from the model → Peri warns, 2.6 s after the SMS; a gym reminder → doubtful, −1.9 → Peri stays quiet, 2.1 s. Peri always speaks her own sentence, never the model's, so a message cannot talk the model into saying something unsafe.
-- **Investigator with Muse Spark** (`POST /v1/investigate`, device token, doubtful messages only): an agent that looks things up before judging, with read-only tools: how old a web domain is (public RDAP registry), cards of known scam scripts, and whether the family has a relation the sender claims (relations only, never names or numbers). At most 3 rounds and 6 lookups. Tested on the real API: a fake Correos parcel fee → it checked the domain and the scam cards → scam, +1.9; a pharmacy pickup notice → ok, −1.3.
+- **Investigator with Muse Spark** (`POST /v1/investigate`, device token, doubtful messages only): an agent that looks things up before judging, with read-only tools: how old a web domain is (public RDAP registry), cards of known scam scripts, and whether the family has a relation the sender claims (relations only, never names or numbers). At most 3 rounds and 6 lookups. The phone calls it only when a message is still doubtful after the second opinion; both votes together stay within ±2, and the evidence (never the message) is kept on the phone for the family to see in the family setup. Tested on the real API: a fake Correos parcel fee → it checked the domain and the scam cards → scam, +1.9; a pharmacy pickup notice → ok, −1.3.
 
 Peri speaks the phone's language (English or Spanish) and understands orders in both, since families mix them. Scam signals are looked for in both languages whatever the phone's language is. See [`docs/agentes/ROADMAP.md`](docs/agentes/ROADMAP.md) for everything else.
 
@@ -42,11 +43,11 @@ Peri speaks the phone's language (English or Spanish) and understands orders in 
 
 | Model | Job in FriendlyPear | State |
 |---|---|---|
-| Muse Spark | Investigator agent with read-only tools for doubtful messages; summaries for guardians | Investigator working against the API; not yet called from the phone |
+| Muse Spark | Investigator agent with read-only tools for doubtful messages; summaries for guardians | Called from the phone when the second opinion leaves a message doubtful |
 | Muse Spark Open (open weights, on Baseten) | Second opinion on doubtful messages: a vote of at most ±2 on the rules' score | Working end to end on the emulator |
 | Muse Voice Transcribe | Voice input from older people | Planned |
 | Muse Spark (multimodal) + SAM 3.1 | "Look at this picture": letters, invoices, QR codes | Planned |
-| Muse Image | Peri's nine illustrated states (calm, listening, thinking, worried, protective, calling, waiting, happy, sleeping), each an edit of one base so she stays the same character | In the app; prompts in `assets/peri/prompts.json` |
+| Muse Image | Peri's nine illustrated states (calm, listening, thinking, worried, protective, calling, waiting, happy, sleeping), each an edit of one base so she stays the same character, plus 4 animation frames per state (blink, talking, leaf swaying left and right) made as edits of each state | In the app, animated; prompts in `assets/peri/prompts.json` |
 
 ## How it decides
 
