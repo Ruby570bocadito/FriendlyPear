@@ -112,6 +112,22 @@ adb shell am broadcast -a app.friendlypear.debug.HEAR --es text "yes"
 
 The broadcast stands in for the microphone in debug builds only.
 
+### Run it yourself
+
+1. **SDK path**: in `android/local.properties`, `sdk.dir=C:/Users/you/AppData/Local/Android/Sdk` (forward slashes work on Windows too).
+2. **Backend** (optional: without it Peri still protects with the on-phone rules alone):
+   ```bash
+   cd backend && cp .env.example .env    # set DEVICE_TOKEN to 32+ random characters, plus the API keys you have
+   bun src/main.ts                       # prints which layers are on: second opinion, investigator, pictures
+   ```
+   For the emulator, set `PUBLIC_BASE_URL=http://10.0.2.2:8787` so guardian links open from the phone.
+3. **Point the app at it**, in `~/.gradle/gradle.properties` (outside the repo):
+   ```properties
+   friendlypear.backendUrl=http://10.0.2.2:8787
+   friendlypear.deviceToken=<the same DEVICE_TOKEN>
+   ```
+4. **Install and grant** (debug build): `adb install -r android/app/build/outputs/apk/debug/app-debug.apk`, open FriendlyPear and accept what Peri asks for. Notification access, usage access and "appear on top" are granted from the setup card (or with `adb shell cmd notification allow_listener app.friendlypear/app.friendlypear.services.MessageListener`, `adb shell appops set app.friendlypear GET_USAGE_STATS allow` and `adb shell appops set app.friendlypear SYSTEM_ALERT_WINDOW allow`).
+
 Secrets never go in the repo: the backend reads `backend/.env` (see `.env.example`), the app reads `~/.gradle/gradle.properties`.
 
 ## Privacy
