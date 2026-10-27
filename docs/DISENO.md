@@ -30,10 +30,18 @@ Colores de la interfaz (`ui/peri/Style.kt`), todos ≥ 7:1:
 | Rol | Color | Texto encima | Contraste |
 |---|---|---|---|
 | Verde bosque (botón principal) | `#25541A` | Blanco | 8,89:1 ✅ |
-| Verde brote (botones secundarios, chip "Protecting you") | `#E1F0CF` | Verde bosque | 7,44:1 ✅ |
-| Blanco (tarjetas, bocadillo) | `#FFFFFF` | Tinta / tinta suave `#3F4D39` | 14,95:1 / 9,01:1 ✅ |
-| Prado (final del degradado del fondo) | `#EAF4DC` | Tinta | 13,15:1 ✅ |
+| Verde brote (chip "Protecting you", idioma elegido) | `#E1F0CF` | Verde bosque | 7,44:1 ✅ |
+| Blanco (tarjetas, bocadillo, botones secundarios) | `#FFFFFF` | Tinta / tinta suave `#3F4D39` / verde bosque | 14,95:1 / 9,01:1 / 8,89:1 ✅ |
+| Borde de tarjeta / de botón | `#EDE4D0` / `#D8CCB2` | (no lleva texto) | — |
 | Ámbar claro (chip "Setup not finished", cambios pendientes) | `#FFEBC7` | Ámbar oscuro `#6B3E00` | 7,76:1 ✅ |
+
+**Forma (27 oct, guía design-taste-frontend, conservando la paleta y el tono de Peri):**
+- Un solo fondo crema liso en todas las pantallas y en las páginas web; nada de degradados.
+- Tarjetas y bocadillo blancos con un borde fino, sin sombra: solo lleva sombra lo que flota (Mini Peri sobre otras apps).
+- Tres tamaños de letra (`TextSize` en `Style.kt`): títulos 26, todo lo que se lee o se pulsa 20, letra pequeña 16. En la web, 26 / 19 / 15.
+- Un único botón verde relleno por pantalla (la acción principal); los demás, blancos con borde y letra verde. Todos los botones son píldoras redondas.
+- Texto alineado a la izquierda; solo la bienvenida y las pantallas de un único momento (pausa, conectar el móvil) van centradas.
+- Sin iconos dentro de círculos de color, sin antetítulos encima de los títulos y sin emojis.
 
 **Nunca solo color:** cada estado lleva también icono y palabra ("Todo bien", "Cuidado", "Es una trampa"), para personas que no distinguen colores.
 

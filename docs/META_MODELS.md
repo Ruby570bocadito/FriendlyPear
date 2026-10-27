@@ -62,9 +62,9 @@ All of Peri is made with **Muse Image** (`muse-image-1.0`, `/v1/images/generatio
 1. **Eight designs to choose from** (`assets/peri/concepts.ts`: clay, watercolour, sticker, grandma, hero, geometric, plush, anime). The person chose **soft 3D clay**, which became the base.
 2. Each of her nine moods is an **edit of that base**, so she stays the same character.
 3. Each mood has 12 animation frames, each an edit of **its mood's own image** that changes one small thing and keeps the pose and framing: two blink steps, three mouth shapes, two glances, a foot lifted on each side, two hand gestures for talking and a wink.
-4. Extras made the same way: a wave hello, an idea, "sorry", a thumbs up, the app icon, the family heart, the shield, and **Peri the guardian** holding a phone (calm and urgent) for the family screens and the guardian's web page.
+4. Extras made the same way: a wave hello, an idea, "sorry", a thumbs up, a laugh, a heart, dizzy spiral eyes, a yawn, reading a letter, the app icon, the family heart, the shield, and **Peri the guardian** holding a phone (calm and urgent) for the family screens and the guardian's web page.
 
-About 120 frames ship in the app, from roughly 250 generations (about $2.50 in all, re-dos included). Every prompt is saved in [`assets/peri/prompts.json`](../assets/peri/prompts.json). [`assets/peri/cutout.py`](../assets/peri/cutout.py) removes the cream background and the floor so she stands on any screen.
+About 125 frames ship in the app, from roughly 255 generations (about $2.55 in all, re-dos included). Every prompt is saved in [`assets/peri/prompts.json`](../assets/peri/prompts.json). [`assets/peri/cutout.py`](../assets/peri/cutout.py) removes the cream background and the floor so she stands on any screen.
 
 ## For the training data
 
