@@ -133,4 +133,5 @@
     <string name="settings_ears_note">El modelo de voz de Meta, que entiende mejor a las personas mayores. Lo que le dices a Peri va al servidor de tu familia y a la API de Meta para pasarlo a texto, y no se guarda. Desactivado: el reconocedor del propio móvil.</string>
     <string name="settings_ears_unavailable">Necesita el servidor de tu familia. Mientras tanto, Peri usa el reconocedor del propio móvil.</string>
     <string name="voice_missed">Perdona, no te he entendido. Pulsa el botón y dímelo otra vez, con calma.</string>
+    <string name="setup_restricted">Si Android dice que es un ajuste restringido, abre FriendlyPear en los ajustes de aplicaciones del móvil, toca los tres puntos de arriba y elige «Permitir ajustes restringidos»; luego vuelve a intentarlo.</string>
 </resources>

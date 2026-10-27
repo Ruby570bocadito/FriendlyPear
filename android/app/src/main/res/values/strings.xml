@@ -134,4 +134,5 @@
     <string name="settings_ears_note">Meta\'s speech model, better with older voices. Each thing you say to Peri goes to your family\'s backend and Meta\'s API to be written down, and is never kept. Off: this phone\'s own recognizer.</string>
     <string name="settings_ears_unavailable">Needs your family\'s backend. Until then Peri uses this phone\'s own recognizer.</string>
     <string name="voice_missed">Sorry, I didn\'t catch that. Press the button and tell me again, nice and calm.</string>
+    <string name="setup_restricted">If Android says it\'s a restricted setting, open FriendlyPear in the phone\'s app settings, tap the three dots at the top and choose “Allow restricted settings”, then try again.</string>
 </resources>

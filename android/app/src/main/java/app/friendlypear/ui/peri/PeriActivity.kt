@@ -110,6 +110,7 @@ class PeriActivity : Activity() {
             hub.permissions.ask(Need.LOCATION) { showSetup() }
         }
         access = setupRow(R.drawable.ic_notifications, getString(R.string.notification_access)) {
+            hub.say(getString(R.string.why_notifications) + " " + getString(R.string.setup_restricted))
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
         }
         // Usage access is a special setting: Peri explains it first, then opens the screen where it's granted.
@@ -283,11 +284,11 @@ class PeriActivity : Activity() {
         val noAccess = !hasNotificationAccess()
         val noUsage = !hub.bank.allowed()
         val noBasics = Need.FIRST_START.any { !hub.permissions.granted(it) }
-        basics.visibility = if (noBasics) View.VISIBLE else View.GONE
-        access.visibility = if (noAccess) View.VISIBLE else View.GONE
-        usage.visibility = if (noUsage) View.VISIBLE else View.GONE
+        // One step at a time, the most important first: a card with every step would squeeze Peri off the screen.
+        val first = listOf(noBasics to basics, noAccess to access, noUsage to usage).firstOrNull { it.first }?.second
+        listOf(basics, access, usage).forEach { it.visibility = if (it == first) View.VISIBLE else View.GONE }
         val noLocation = !hub.permissions.granted(Need.LOCATION) && !asked.getBoolean(LOCATION_ASKED, false)
-        location.visibility = if (noLocation) View.VISIBLE else View.GONE
+        location.visibility = if (noLocation && first == null) View.VISIBLE else View.GONE
         setup.visibility = if (noBasics || noAccess || noUsage || noLocation) View.VISIBLE else View.GONE
         val protecting = !noBasics && !noAccess
         status.text = getString(if (protecting) R.string.status_protecting else R.string.status_setup)
@@ -305,7 +306,8 @@ class PeriActivity : Activity() {
         val need = Need.FIRST_START.firstOrNull { !hub.permissions.granted(it) } ?: return showSetup()
         val canAsk = need.permissions.any { shouldShowRequestPermissionRationale(it) } || !asked.getBoolean(need.name, false)
         if (!canAsk) {
-            hub.say(getString(need.why))
+            // Installed from outside a store, Android 13+ locks texts and notification access ("restricted setting").
+            hub.say(getString(need.why) + " " + getString(R.string.setup_restricted))
             return startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
         }
         asked.edit().putBoolean(need.name, true).apply()
