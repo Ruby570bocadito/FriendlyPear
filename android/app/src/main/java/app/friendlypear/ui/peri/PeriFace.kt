@@ -26,11 +26,23 @@ import kotlin.random.Random
  * Peri on screen, cut out of her Muse Image illustrations (assets/peri/) so she stands on any background.
  * The motion is smooth and never blends two poses: she tilts and bobs as one image, with a soft shadow that
  * shrinks as she rises, and each mood moves its own way (a bouncy happy Peri, a steady protective one, slow
- * breathing asleep). Only quick changes swap frames: a four-step blink, and two mouth shapes while she speaks.
+ * breathing asleep). Only quick changes swap frames: a four-step blink, a glance to one side now and then, and
+ * three mouth shapes while she speaks.
  * Moods cross-fade with a small pop. With "remove animations" on she changes mood without moving.
  */
 class PeriFace(context: Context) : FrameLayout(context) {
-    private data class Frames(val still: Int, val half: Int, val closed: Int, val talk: Int, val wide: Int)
+    private data class Frames(
+        val still: Int,
+        val half: Int,
+        val closed: Int,
+        val talk: Int,
+        val wide: Int,
+        val round: Int,
+        val left: Int,
+        val right: Int,
+    ) {
+        val all = setOf(still, half, closed, talk, wide, round, left, right)
+    }
 
     /** How each mood moves: tilt in degrees and its period, bob in dp and its period, breathing depth. */
     private data class Motion(
@@ -114,8 +126,14 @@ class PeriFace(context: Context) : FrameLayout(context) {
         frames = FRAMES.getValue(mood)
         contentDescription = context.getString(DESCRIPTIONS.getValue(mood))
         // Only this mood's frames stay in memory: each is a full-quality illustration.
-        loaded.keys.retainAll(setOf(frames.still, frames.half, frames.closed, frames.talk, frames.wide))
+        loaded.keys.retainAll(frames.all)
         val still = drawable(frames.still)
+        // A change during the previous fade: stop it first, or its end would hide the new mood.
+        front.animate().cancel()
+        back.animate().cancel()
+        front.alpha = 1f
+        back.alpha = 0f
+        fading = false
         if (!moves || first) {
             front.setImageDrawable(still)
         } else {
@@ -133,7 +151,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
             popStart = SystemClock.uptimeMillis()
         }
         // The other frames decode a moment later, so the change itself is instant.
-        main.post { listOf(frames.half, frames.closed, frames.talk, frames.wide).forEach { drawable(it) } }
+        main.post { frames.all.forEach { drawable(it) } }
     }
 
     /** The mouth moves while Peri's voice plays. */
@@ -154,7 +172,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
 
     /** Swaps the frame at once: blinks and the mouth are quick, and a swap never blends two pictures. */
     private fun put(res: Int) {
-        if (fading) return
+        // A blink or wave scheduled before a mood change never shows a frame of the old mood.
+        val waving = shown == Mood.CALM && (res == R.drawable.peri_calm_wave1 || res == R.drawable.peri_calm_wave2)
+        if (fading || (res !in frames.all && !waving)) return
         front.setImageDrawable(drawable(res))
     }
 
@@ -162,7 +182,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         private var last = 0
         override fun run() {
             if (!talking || shown == null) return
-            val next = listOf(frames.talk, frames.wide, frames.still).filter { it != last }.random()
+            val next = listOf(frames.talk, frames.wide, frames.round, frames.still).filter { it != last }.random()
             last = next
             put(next)
             main.postDelayed(this, if (next == frames.still) Random.nextLong(70, 130) else Random.nextLong(90, 170))
@@ -178,6 +198,18 @@ class PeriFace(context: Context) : FrameLayout(context) {
                 if (Random.nextInt(5) == 0) steps.forEach { (res, at) -> main.postDelayed({ if (!talking) put(res) }, 260 + at) }
             }
             main.postDelayed(this, Random.nextLong(2_600, 5_200))
+        }
+    }
+
+    /** Now and then she glances to one side and back, like someone keeping you company. */
+    private val glance = object : Runnable {
+        override fun run() {
+            if (shown != null && !talking && MOTIONS.getValue(shown!!).blinks) {
+                val side = if (Random.nextBoolean()) frames.left else frames.right
+                put(side)
+                main.postDelayed({ if (!talking) put(frames.still) }, Random.nextLong(700, 1_200))
+            }
+            main.postDelayed(this, Random.nextLong(6_000, 11_000))
         }
     }
 
@@ -207,6 +239,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         running = true
         Choreographer.getInstance().postFrameCallback(frame)
         main.postDelayed(blink, 1_800)
+        main.postDelayed(glance, 5_000)
         if (talking) main.post(mouth)
     }
 
@@ -240,15 +273,42 @@ class PeriFace(context: Context) : FrameLayout(context) {
         )
 
         val FRAMES = mapOf(
-            Mood.CALM to Frames(R.drawable.peri_calm, R.drawable.peri_calm_blinkhalf, R.drawable.peri_calm_blink, R.drawable.peri_calm_talk, R.drawable.peri_calm_talkwide),
-            Mood.LISTENING to Frames(R.drawable.peri_listening, R.drawable.peri_listening_blinkhalf, R.drawable.peri_listening_blink, R.drawable.peri_listening_talk, R.drawable.peri_listening_talkwide),
-            Mood.THINKING to Frames(R.drawable.peri_thinking, R.drawable.peri_thinking_blinkhalf, R.drawable.peri_thinking_blink, R.drawable.peri_thinking_talk, R.drawable.peri_thinking_talkwide),
-            Mood.WORRIED to Frames(R.drawable.peri_worried, R.drawable.peri_worried_blinkhalf, R.drawable.peri_worried_blink, R.drawable.peri_worried_talk, R.drawable.peri_worried_talkwide),
-            Mood.PROTECTIVE to Frames(R.drawable.peri_protective, R.drawable.peri_protective_blinkhalf, R.drawable.peri_protective_blink, R.drawable.peri_protective_talk, R.drawable.peri_protective_talkwide),
-            Mood.CALLING to Frames(R.drawable.peri_calling, R.drawable.peri_calling_blinkhalf, R.drawable.peri_calling_blink, R.drawable.peri_calling_talk, R.drawable.peri_calling_talkwide),
-            Mood.WAITING to Frames(R.drawable.peri_waiting, R.drawable.peri_waiting_blinkhalf, R.drawable.peri_waiting_blink, R.drawable.peri_waiting_talk, R.drawable.peri_waiting_talkwide),
-            Mood.HAPPY to Frames(R.drawable.peri_happy, R.drawable.peri_happy_blinkhalf, R.drawable.peri_happy_blink, R.drawable.peri_happy_talk, R.drawable.peri_happy_talkwide),
-            Mood.SLEEPING to Frames(R.drawable.peri_sleeping, R.drawable.peri_sleeping_blinkhalf, R.drawable.peri_sleeping_blink, R.drawable.peri_sleeping_talk, R.drawable.peri_sleeping_talkwide),
+            Mood.CALM to Frames(
+                R.drawable.peri_calm, R.drawable.peri_calm_blinkhalf, R.drawable.peri_calm_blink, R.drawable.peri_calm_talk,
+                R.drawable.peri_calm_talkwide, R.drawable.peri_calm_talko, R.drawable.peri_calm_glanceleft, R.drawable.peri_calm_glanceright,
+            ),
+            Mood.LISTENING to Frames(
+                R.drawable.peri_listening, R.drawable.peri_listening_blinkhalf, R.drawable.peri_listening_blink, R.drawable.peri_listening_talk,
+                R.drawable.peri_listening_talkwide, R.drawable.peri_listening_talko, R.drawable.peri_listening_glanceleft, R.drawable.peri_listening_glanceright,
+            ),
+            Mood.THINKING to Frames(
+                R.drawable.peri_thinking, R.drawable.peri_thinking_blinkhalf, R.drawable.peri_thinking_blink, R.drawable.peri_thinking_talk,
+                R.drawable.peri_thinking_talkwide, R.drawable.peri_thinking_talko, R.drawable.peri_thinking_glanceleft, R.drawable.peri_thinking_glanceright,
+            ),
+            Mood.WORRIED to Frames(
+                R.drawable.peri_worried, R.drawable.peri_worried_blinkhalf, R.drawable.peri_worried_blink, R.drawable.peri_worried_talk,
+                R.drawable.peri_worried_talkwide, R.drawable.peri_worried_talko, R.drawable.peri_worried_glanceleft, R.drawable.peri_worried_glanceright,
+            ),
+            Mood.PROTECTIVE to Frames(
+                R.drawable.peri_protective, R.drawable.peri_protective_blinkhalf, R.drawable.peri_protective_blink, R.drawable.peri_protective_talk,
+                R.drawable.peri_protective_talkwide, R.drawable.peri_protective_talko, R.drawable.peri_protective_glanceleft, R.drawable.peri_protective_glanceright,
+            ),
+            Mood.CALLING to Frames(
+                R.drawable.peri_calling, R.drawable.peri_calling_blinkhalf, R.drawable.peri_calling_blink, R.drawable.peri_calling_talk,
+                R.drawable.peri_calling_talkwide, R.drawable.peri_calling_talko, R.drawable.peri_calling_glanceleft, R.drawable.peri_calling_glanceright,
+            ),
+            Mood.WAITING to Frames(
+                R.drawable.peri_waiting, R.drawable.peri_waiting_blinkhalf, R.drawable.peri_waiting_blink, R.drawable.peri_waiting_talk,
+                R.drawable.peri_waiting_talkwide, R.drawable.peri_waiting_talko, R.drawable.peri_waiting_glanceleft, R.drawable.peri_waiting_glanceright,
+            ),
+            Mood.HAPPY to Frames(
+                R.drawable.peri_happy, R.drawable.peri_happy_blinkhalf, R.drawable.peri_happy_blink, R.drawable.peri_happy_talk,
+                R.drawable.peri_happy_talkwide, R.drawable.peri_happy_talko, R.drawable.peri_happy_glanceleft, R.drawable.peri_happy_glanceright,
+            ),
+            Mood.SLEEPING to Frames(
+                R.drawable.peri_sleeping, R.drawable.peri_sleeping_blinkhalf, R.drawable.peri_sleeping_blink, R.drawable.peri_sleeping_talk,
+                R.drawable.peri_sleeping_talkwide, R.drawable.peri_sleeping_talko, R.drawable.peri_sleeping_glanceleft, R.drawable.peri_sleeping_glanceright,
+            ),
         )
 
         val DESCRIPTIONS = mapOf(
