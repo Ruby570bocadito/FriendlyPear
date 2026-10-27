@@ -3,7 +3,7 @@ package app.friendlypear.core.agent
 import app.friendlypear.core.model.Contact
 
 /** What a guardian is asked to approve. Only the kind travels, never the message or the code. */
-enum class ApprovalKind { SEND_CODE }
+enum class ApprovalKind { SEND_CODE, CIRCLE_CHANGE }
 
 enum class ApprovalResult { APPROVED, REJECTED, EXPIRED, FAILED }
 
