@@ -91,6 +91,20 @@ class PeriAgent(
         }
     }
 
+    /**
+     * A new app was installed. If it lets someone control the phone remotely, Peri warns, says to hang up if a
+     * call is going on, and offers to tell the family; the text to them is sent only after a spoken "yes".
+     */
+    fun onAppInstalled(packageName: String) {
+        val app = RemoteApps.nameOf(packageName) ?: return
+        val warning = p.remoteAppInstalled(app, onCall = callActive)
+        val guardian = emergencyContacts().firstOrNull()
+        if (guardian == null || pending == Pending.Emergency) return say(warning)
+        val question = p.tellFamily(guardian.name)
+        pending = Pending.Confirm(Action.SendSms(guardian, p.remoteAppFamilyText(app)), question)
+        say("$warning $question")
+    }
+
     /** Before picking up: warns when the number isn't in the contacts. Never blocks or answers the call. */
     fun onIncomingCall(number: String) {
         if (directory.byPhone(number) != null) {

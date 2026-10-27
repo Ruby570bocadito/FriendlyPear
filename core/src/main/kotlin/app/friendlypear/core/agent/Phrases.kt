@@ -49,6 +49,9 @@ internal interface Phrases {
     val guardianSilent: String
     val couldNotAsk: String
     fun guardianSms(toName: String, url: String): String
+    fun remoteAppInstalled(app: String, onCall: Boolean): String
+    fun tellFamily(name: String): String
+    fun remoteAppFamilyText(app: String): String
     fun callWithoutPermission(name: String, phone: String): String
     fun smsWithoutPermission(name: String): String
     val or: String
@@ -128,6 +131,14 @@ internal object Spanish : Phrases {
     override val couldNotAsk = "No he podido preguntar a tu familia ahora mismo, así que no lo mando. Lo intentamos más tarde."
     override fun guardianSms(toName: String, url: String) =
         "Peri: tu familiar quiere mandar a $toName un mensaje con un código y te pide permiso. Decide aquí (caduca en 15 minutos): $url"
+    override fun remoteAppInstalled(app: String, onCall: Boolean) =
+        (if (onCall) "Cuelga ahora mismo, por favor. " else "") +
+            "Se acaba de instalar $app, un programa para que otra persona maneje tu móvil desde lejos. " +
+            "¿Alguien te ha pedido que lo instales? Nadie de tu banco ni de ninguna empresa te lo pedirá nunca. " +
+            "No le des acceso a nadie y, si quieres, lo borramos juntos."
+    override fun tellFamily(name: String) = "¿Se lo cuento a $name?"
+    override fun remoteAppFamilyText(app: String) =
+        "Peri: en el móvil de tu familiar se acaba de instalar $app, un programa para controlarlo desde lejos. Llámale para ver si alguien le está guiando por teléfono."
     override fun callWithoutPermission(name: String, phone: String) =
         "Vale, sin ese permiso no llamo yo. El número de $name es $phone; si quieres, márcalo tú. Puedes darme el permiso cuando quieras."
     override fun smsWithoutPermission(name: String) =
@@ -199,6 +210,14 @@ internal object English : Phrases {
     override val couldNotAsk = "I couldn't ask your family right now, so I won't send it. Let's try again later."
     override fun guardianSms(toName: String, url: String) =
         "Peri: your relative wants to send $toName a message with a code and asks for your OK. Decide here (expires in 15 minutes): $url"
+    override fun remoteAppInstalled(app: String, onCall: Boolean) =
+        (if (onCall) "Please hang up right now. " else "") +
+            "$app has just been installed, a program that lets someone else control your phone from far away. " +
+            "Did someone ask you to install it? Nobody from your bank or any company will ever ask you to. " +
+            "Don't give anyone access and, if you like, we'll remove it together."
+    override fun tellFamily(name: String) = "Shall I let $name know?"
+    override fun remoteAppFamilyText(app: String) =
+        "Peri: $app, a program to control the phone from far away, has just been installed on your relative's phone. Give them a call to check nobody is guiding them over the phone."
     override fun callWithoutPermission(name: String, phone: String) =
         "OK, without that permission I won't call. $name's number is $phone, if you'd like to dial it yourself. You can give me the permission any time."
     override fun smsWithoutPermission(name: String) =
