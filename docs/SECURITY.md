@@ -43,7 +43,7 @@ what the guardians see, and can stop sharing at any moment; every link dies at o
 
 - Contacts are read on the phone and never sent. Only doubtful messages leave it, plus what the person chooses (a
   picture shown to Peri, voice orders if Muse Voice Transcribe is turned on).
-- The microphone stays closed during any call. Peri never accesses call audio and never blocks or answers calls.
+- The microphone stays closed during any call. If Peri was already listening when a call starts (for example, the call she places after a "yes"), it closes at once and anything it heard is dropped; the app also stops listening when it leaves the screen. Peri never accesses call audio and never blocks or answers calls.
 - Permissions are asked one at a time with a reason; a "no" is respected. Installed from a file, Android locks
   message alerts and texts ("restricted settings"); Peri explains Android's own unlock in three steps instead of
   hiding it.
