@@ -8,9 +8,13 @@ const T = {
   es: {
     title: "Peri te pide permiso",
     send_code: (name: string) => `Tu familiar quiere mandar a ${esc(name)} un mensaje con un código.`,
-    why: "Peri lo ha parado porque los estafadores piden códigos para entrar en cuentas o mover dinero.",
+    circle_change: (name: string) => `Se ha pedido un cambio en los guardianes de tu familiar: ${esc(name)}.`,
+    why_send_code: "Peri lo ha parado porque los estafadores piden códigos para entrar en cuentas o mover dinero.",
+    why_circle_change:
+      "Los cambios en los guardianes necesitan el sí de un guardián y esperan 48 horas, para que nadie pueda quedarse con la protección de tu familiar. Si no lo reconoces, recházalo.",
     advice: "Si tienes dudas, llámale antes de decidir.",
-    no: "No, que no lo mande",
+    no_send_code: "No, que no lo mande",
+    no_circle_change: "No, que no cambie nada",
     yes: "Sí, lo apruebo",
     expires: (min: number) => `Este enlace caduca en ${min} minutos y solo sirve una vez.`,
     approved: "Aprobado. Peri se lo dirá ahora mismo.",
@@ -22,9 +26,13 @@ const T = {
   en: {
     title: "Peri is asking for your OK",
     send_code: (name: string) => `Your relative wants to send ${esc(name)} a message with a code.`,
-    why: "Peri stopped it because scammers ask for codes to get into accounts or move money.",
+    circle_change: (name: string) => `Someone asked to change your relative's guardians: ${esc(name)}.`,
+    why_send_code: "Peri stopped it because scammers ask for codes to get into accounts or move money.",
+    why_circle_change:
+      "Changes to the guardians need a guardian's yes and wait 48 hours, so nobody can take over your relative's protection. If you don't recognise it, decline it.",
     advice: "If you're unsure, give them a call before deciding.",
-    no: "No, don't send it",
+    no_send_code: "No, don't send it",
+    no_circle_change: "No, don't change anything",
     yes: "Yes, I approve",
     expires: (min: number) => `This link expires in ${min} minutes and works only once.`,
     approved: "Approved. Peri will tell them right away.",
@@ -57,9 +65,9 @@ export function askPage(a: Approval, token: string, now: number): string {
   const action = `/a/${encodeURIComponent(token)}`;
   return layout(
     a.lang,
-    `<h1>🍐 ${t.title}</h1><p><strong>${t[a.kind](a.toName)}</strong></p><p>${t.why}</p><p>${t.advice}</p>
+    `<h1>🍐 ${t.title}</h1><p><strong>${t[a.kind](a.toName)}</strong></p><p>${t[`why_${a.kind}`]}</p><p>${t.advice}</p>
 <form method="post" action="${action}">
-<button class="no" name="decision" value="reject">${t.no}</button>
+<button class="no" name="decision" value="reject">${t[`no_${a.kind}`]}</button>
 <button class="yes" name="decision" value="approve">${t.yes}</button>
 </form><p class="small">${t.expires(minutes)}</p>`,
   );

@@ -48,6 +48,17 @@ test("the guardian sees what is asked, with No first, and never the code", async
   expect(page).not.toMatch(/\d{4,}/);
 });
 
+test("a change of guardians says so and why it waits 48 hours", async () => {
+  const { handle } = setup();
+  const res = await handle(device("POST", "/v1/approvals", { kind: "circle_change", toName: "añadir a Marisa", lang: "es" }));
+  expect(res.status).toBe(201);
+  const { url } = (await res.json()) as { url: string };
+  const page = await (await handle(new Request(url))).text();
+  expect(page).toContain("Se ha pedido un cambio en los guardianes de tu familiar: añadir a Marisa.");
+  expect(page).toContain("esperan 48 horas");
+  expect(page).toContain("No, que no cambie nada");
+});
+
 test("the page follows the phone's language", async () => {
   const { handle } = setup();
   const a = await newApproval(handle, "en");

@@ -6,7 +6,7 @@
 import { createHash, randomBytes } from "node:crypto";
 
 export const TTL_MS = 15 * 60 * 1000;
-export const KINDS = ["send_code"] as const;
+export const KINDS = ["send_code", "circle_change"] as const;
 export type Kind = (typeof KINDS)[number];
 export type Status = "pending" | "approved" | "rejected" | "expired";
 export type Lang = "es" | "en";
