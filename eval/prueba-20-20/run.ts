@@ -118,8 +118,14 @@ const timings = [...model.values()].map((r) => Number(r.ms)).sort((a, b) => a - 
 const median = timings[Math.floor(timings.length / 2)] ?? 0;
 const spent = [...model.values()].reduce((s, r) => s + Number(r.promptTokens) * PRICE_IN + Number(r.completionTokens) * PRICE_OUT, 0);
 const misses = messages
-  .filter((m) => (m.label === "scam" ? combinedLevel(m) === "OK" : combinedLevel(m) !== "OK"))
-  .map((m) => `- \`${m.id}\` (${m.label}): rules ${rulesLevel(m)}, model ${modelLevel(m)}, together ${combinedLevel(m)}`);
+  .filter((m) => (m.label === "scam" ? combinedLevel(m) !== "SCAM" : combinedLevel(m) !== "OK"))
+  .map((m) => {
+    const how = m.label === "scam" && combinedLevel(m) === "DOUBT" ? "warned only as doubtful" : "wrong";
+    return `- \`${m.id}\` (${m.label}, ${how}): rules ${rulesLevel(m)}, model ${modelLevel(m)}, together ${combinedLevel(m)}`;
+  });
+const modelOnlyDoubts = messages
+  .filter((m) => modelLevel(m) === "DOUBT")
+  .map((m) => `\`${m.id}\` (${m.label}, rules ${rulesLevel(m)})`);
 
 const report = `# Prueba 20/20 · resultados
 
@@ -136,7 +142,10 @@ ${row("Rules + model vote (±2, doubtful only)", combinedLevel)}
 - Median latency of the model: ${median} ms. Cost of this run ≈ $${spent.toFixed(4)} (Baseten credits).
 
 ## Where it still fails
-${misses.length ? misses.join("\n") : "- Nothing: every scam got a warning and every normal message stayed quiet."}
+${misses.length ? misses.join("\n") : "- Nothing: every scam was caught as a scam and every normal message stayed quiet."}
+
+## Where the model hesitates
+The model answered "doubt" (no vote) on ${modelOnlyDoubts.length ? modelOnlyDoubts.join(", ") : "nothing"}.
 `;
 writeFileSync(join(out, "informe.md"), report);
 console.log(report);

@@ -13,7 +13,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [ ] (IMP-1) glimmer-servido — [M] servir Muse Glimmer en local o en Modal/Baseten y medir latencia — models/glimmer/
 - [ ] (IMP-1) finetune-viable — [S] comprobar si Modal o Fireworks permiten LoRA de Muse Glimmer / Spark Open y su coste — training/
 - [ ] (TEST) reservado-200 — [M] recoger 200 mensajes reales anonimizados que nunca se usan para entrenar — eval/data/ (no se sube)
-- [ ] (TEST) prueba-20-20 — [S] 20 estafas actuales y 20 mensajes reales anonimizados por Spark y Glimmer; criterio de pivote si fallan más de un tercio — eval/
+- [x] (TEST) prueba-20-20 — [S] 20 estafas actuales y 20 mensajes reales anonimizados por Spark y Glimmer; criterio de pivote si fallan más de un tercio — eval/ · hecho 2026-10-27 con 40 sintéticos (es/en) y Muse Spark Open: sin pivote; repetir con reales
 - [ ] (DIR) bases-y-dudas — [S] confirmar en #questions que el diseño previo está permitido; guardar la respuesta — docs/agentes/
 
 ## Día 2 · 28 oct — núcleo y datos
