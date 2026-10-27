@@ -19,6 +19,7 @@ import app.friendlypear.PeriApp
 import app.friendlypear.R
 import app.friendlypear.core.agent.Mood
 import app.friendlypear.net.PictureVerdict
+import app.friendlypear.services.PeriView
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.Executors
 import kotlin.math.max
@@ -34,6 +35,8 @@ class PictureActivity : Activity() {
     private lateinit var said: TextView
     private val work = Executors.newSingleThreadExecutor()
     private var shown: Bitmap? = null
+    /** The sentence about the picture: while it's on screen, its face stays (the agent's own mood is for other things). */
+    private var mine: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -164,7 +167,37 @@ class PictureActivity : Activity() {
         }
         face.show(mood)
         said.text = text
+        mine = text
         PeriApp.hub(this).say(text)
+    }
+
+    /** Peri on this screen is still Peri: a warning that arrives meanwhile (a scam text, a call) shows here too. */
+    private val view = object : PeriView {
+        override fun said(text: String) {
+            said.text = text
+        }
+
+        override fun mood(mood: Mood) {
+            if (said.text.toString() != mine) face.show(mood)
+        }
+
+        override fun speaking(on: Boolean) = face.speaking(on)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val hub = PeriApp.hub(this)
+        hub.attach(view)
+        // Peri is on screen here: Mini Peri steps aside, as with the main screen.
+        hub.appVisible = true
+    }
+
+    override fun onPause() {
+        val hub = PeriApp.hub(this)
+        hub.detach(view)
+        hub.appVisible = false
+        face.speaking(false)
+        super.onPause()
     }
 
     override fun onDestroy() {
