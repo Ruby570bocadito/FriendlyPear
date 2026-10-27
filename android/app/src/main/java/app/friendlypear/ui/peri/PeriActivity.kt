@@ -212,6 +212,8 @@ class PeriActivity : Activity() {
             insets
         }
         setContentView(root)
+        // The screen says hello: Peri first, then her bubble and the buttons, one by one.
+        listOf(said, setup, talk, look, secondary).forEachIndexed { i, v -> v.floatIn(80L + 70L * i) }
 
         // This screen shows Android's dialog whenever Peri needs a permission, now or later.
         hub.permissions.presenter = { need, done ->

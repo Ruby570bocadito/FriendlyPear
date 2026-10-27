@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Typeface
+import android.provider.Settings
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -169,5 +171,17 @@ internal fun Context.body(value: CharSequence, size: Float = 18f) = TextView(thi
     setLineSpacing(0f, 1.15f)
 }
 
-/** A white card with soft corners and a gentle shadow. */
-internal fun Context.cardBackground(): Drawable = rounded(Palette.WHITE, dp(24).toFloat())
+/** A white card with soft corners, a whisper of green around it and a gentle shadow. */
+internal fun Context.cardBackground(): Drawable = rounded(Palette.WHITE, dp(24).toFloat(), Palette.GREEN_TINT, dp(2))
+
+/**
+ * A gentle entrance: the view rises into place as it fades in. With animations off it just appears.
+ * Stagger [delay] so a screen's pieces arrive one after another, like Peri setting the table.
+ */
+internal fun View.floatIn(delay: Long = 0L) {
+    if (Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) <= 0f) return
+    alpha = 0f
+    translationY = context.dp(14).toFloat()
+    animate().alpha(1f).translationY(0f).setStartDelay(delay).setDuration(340)
+        .setInterpolator(DecelerateInterpolator(1.5f)).start()
+}
