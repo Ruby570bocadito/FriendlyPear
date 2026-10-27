@@ -6,6 +6,7 @@ import { guardianPage } from "./guardians/page";
 import { type GuardianStore, readEvent } from "./guardians/store";
 import { investigate, readInvestigation } from "./investigator/investigate";
 import { readInput, secondOpinion } from "./investigator/opinion";
+import { LIMITS, RateLimiter, readLimited } from "./limits";
 import type { ChatClient } from "./models/chat";
 
 const json = (body: unknown, status = 200) =>
@@ -19,9 +20,27 @@ const html = (body: string, status = 200) =>
       "cache-control": "no-store",
       "referrer-policy": "no-referrer",
       "x-frame-options": "DENY",
-      "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'",
+      "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
     },
   });
+
+/** On every answer: no sniffing, no referrer, no embedding elsewhere, no camera or microphone; HSTS over HTTPS. */
+function secure(res: Response, https: boolean): Response {
+  const h = res.headers;
+  h.set("x-content-type-options", "nosniff");
+  h.set("referrer-policy", "no-referrer");
+  h.set("cross-origin-resource-policy", "same-origin");
+  h.set("cross-origin-opener-policy", "same-origin");
+  h.set("permissions-policy", "camera=(), microphone=(), geolocation=(), interest-cohort=()");
+  if (https) h.set("strict-transport-security", "max-age=31536000");
+  return res;
+}
+
+const tooMany = (seconds: number, page: boolean) => {
+  const res = page ? html(resultPage("es", "busy"), 429) : json({ error: "too_many_requests" }, 429);
+  res.headers.set("retry-after", String(seconds));
+  return res;
+};
 
 const MAX_BODY = 8 * 1024;
 const NAME = /^[\p{L}][\p{L} .'-]{0,39}$/u;
@@ -43,8 +62,8 @@ function fromDevice(req: Request, config: Config): boolean {
 }
 
 async function readJson(req: Request): Promise<unknown | Response> {
-  const raw = await req.text();
-  if (raw.length > MAX_BODY) return json({ error: "too_large" }, 413);
+  const raw = await readLimited(req, MAX_BODY);
+  if (raw === "too_large") return json({ error: "too_large" }, 413);
   try {
     return JSON.parse(raw);
   } catch {
@@ -52,10 +71,34 @@ async function readJson(req: Request): Promise<unknown | Response> {
   }
 }
 
-/** Routes are added by module: approvals/, investigator/ and models/ each register their own. */
-export function createHandler(config: Config, services: Services = {}) {
-  return async function handle(req: Request): Promise<Response> {
+/**
+ * Every request goes through the limits first, per client IP: the public links (`/a/`, `/g/`) and the phone's
+ * API (`/v1/`) have their own, and an IP that keeps sending wrong device tokens waits out a 15-minute window.
+ */
+export function createHandler(config: Config, services: Services = {}, limiter = new RateLimiter()) {
+  const https = config.publicBaseUrl.startsWith("https://");
+  const route = routes(config, services);
+  return async function handle(req: Request, ip = "local"): Promise<Response> {
     const { pathname } = new URL(req.url);
+    const page = pathname.startsWith("/a/") || pathname.startsWith("/g/");
+    const api = pathname.startsWith("/v1/");
+    if (api && limiter.count(`token:${ip}`, LIMITS.badToken) >= LIMITS.badToken.max) {
+      return secure(tooMany(limiter.retryAfter(`token:${ip}`, LIMITS.badToken), false), https);
+    }
+    const limit = page ? LIMITS.link : api ? LIMITS.device : null;
+    if (limit) {
+      const key = `${page ? "link" : "device"}:${ip}`;
+      if (limiter.hit(key, limit) > limit.max) return secure(tooMany(limiter.retryAfter(key, limit), page), https);
+    }
+    const res = await route(req, pathname);
+    if (api && res.status === 401) limiter.hit(`token:${ip}`, LIMITS.badToken);
+    return secure(res, https);
+  };
+}
+
+/** Routes are added by module: approvals/, guardians/, investigator/ and models/ each have their own. */
+function routes(config: Config, services: Services) {
+  return async function route(req: Request, pathname: string): Promise<Response> {
     if (req.method === "GET" && pathname === "/health") return json({ ok: true, service: "friendlypear" });
 
     if (req.method === "POST" && pathname === "/v1/opinion") {
@@ -167,8 +210,8 @@ export function createHandler(config: Config, services: Services = {}) {
         return html(askPage(a, token, Date.now()));
       }
       if (req.method === "POST") {
-        const raw = await req.text();
-        if (raw.length > 256) return html(resultPage("es", "unknown"), 413);
+        const raw = await readLimited(req, 256);
+        if (raw === "too_large") return html(resultPage("es", "unknown"), 413);
         const decision = new URLSearchParams(raw).get("decision");
         if (decision !== "approve" && decision !== "reject") return html(resultPage("es", "unknown"), 400);
         const lang = approvals.byLink(token)?.lang ?? "es";

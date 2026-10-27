@@ -22,6 +22,7 @@ const T = {
     used: "Este enlace ya se usó. Si no fuiste tú, llama a tu familiar.",
     expired: "Este enlace ha caducado y no se aprobó nada. Si hace falta, Peri pedirá otro.",
     unknown: "Este enlace no es válido.",
+    busy: "Demasiados intentos seguidos. Espera un minuto y vuelve a abrir el enlace.",
   },
   en: {
     title: "Peri is asking for your OK",
@@ -40,6 +41,7 @@ const T = {
     used: "This link has already been used. If it wasn't you, call your relative.",
     expired: "This link has expired and nothing was approved. Peri will ask again if needed.",
     unknown: "This link isn't valid.",
+    busy: "Too many tries in a row. Wait a minute and open the link again.",
   },
 };
 
@@ -73,6 +75,6 @@ export function askPage(a: Approval, token: string, now: number): string {
   );
 }
 
-export function resultPage(lang: Lang, outcome: "approved" | "rejected" | "used" | "expired" | "unknown"): string {
+export function resultPage(lang: Lang, outcome: "approved" | "rejected" | "used" | "expired" | "unknown" | "busy"): string {
   return layout(lang, `<h1>🍐 Peri</h1><p>${T[lang][outcome]}</p>`);
 }
