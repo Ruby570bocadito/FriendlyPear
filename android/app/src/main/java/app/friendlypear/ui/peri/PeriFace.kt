@@ -1,43 +1,75 @@
 package app.friendlypear.ui.peri
 
-import android.animation.ObjectAnimator
-import android.animation.PropertyValuesHolder
-import android.animation.ValueAnimator
 import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.RadialGradient
+import android.graphics.Shader
+import android.graphics.drawable.Drawable
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.provider.Settings
+import android.view.Choreographer
+import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
 import app.friendlypear.R
 import app.friendlypear.core.agent.Mood
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.min
+import kotlin.math.sin
 import kotlin.random.Random
 
 /**
- * Peri on screen. Each mood has a Muse Image illustration plus four frames made from it (assets/peri/): a blink,
- * talking, and the leaf swaying left and right. Two stacked layers cross-fade between frames, so she sways
- * slowly, blinks now and then and moves her mouth while she speaks. With "remove animations" on, she changes
- * mood without moving (docs/DISENO.md).
+ * Peri on screen, cut out of her Muse Image illustrations (assets/peri/) so she stands on any background.
+ * The motion is smooth and never blends two poses: she tilts and bobs as one image, with a soft shadow that
+ * shrinks as she rises, and each mood moves its own way (a bouncy happy Peri, a steady protective one, slow
+ * breathing asleep). Only quick changes swap frames: a four-step blink, and two mouth shapes while she speaks.
+ * Moods cross-fade with a small pop. With "remove animations" on she changes mood without moving.
  */
 class PeriFace(context: Context) : FrameLayout(context) {
-    private data class Frames(val still: Int, val blink: Int, val talk: Int, val left: Int, val right: Int)
+    private data class Frames(val still: Int, val half: Int, val closed: Int, val talk: Int, val wide: Int)
+
+    /** How each mood moves: tilt in degrees and its period, bob in dp and its period, breathing depth. */
+    private data class Motion(
+        val tilt: Float,
+        val tiltMs: Long,
+        val bob: Float,
+        val bobMs: Long,
+        val bounce: Boolean = false,
+        val breath: Float = 0.012f,
+        val breathMs: Long = 3_200,
+        val blinks: Boolean = true,
+    )
 
     private val moves = Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f
     private val main = Handler(Looper.getMainLooper())
+    private val shadow = Paint(Paint.ANTI_ALIAS_FLAG)
+    private var feetY = 0f
+    private var shadowWidth = 0f
+    private var rise = 0f
+    private val rig = FrameLayout(context)
     private var front = layer()
     private var back = layer()
     private var shown: Mood? = null
-    private var frame = 0
+    private var frames = FRAMES.getValue(Mood.CALM)
+    private val loaded = HashMap<Int, Drawable>()
     private var talking = false
-    private var mouthOpen = false
-    private var swayStep = 0
-    private var breath: ObjectAnimator? = null
+    private var fading = false
+    private var popStart = 0L
+    private val pop = OvershootInterpolator(2.2f)
+    private var running = false
 
     init {
-        addView(back)
-        addView(front)
+        rig.addView(back, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        rig.addView(front, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        addView(rig, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         back.alpha = 0f
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
+        clipChildren = false
+        clipToPadding = false
     }
 
     private fun layer() = ImageView(context).apply {
@@ -45,135 +77,178 @@ class PeriFace(context: Context) : FrameLayout(context) {
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
     }
 
-    private val frames: Frames get() = FRAMES.getValue(shown ?: Mood.CALM)
-
     /** Mini Peri handles touches itself (tap, drag, long press) and reports a tap here, for accessibility. */
     override fun performClick(): Boolean = super.performClick()
+
+    /** The illustrations are square; her feet are near the bottom of that square, wherever it lands. */
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        val side = min(w, h).toFloat()
+        feetY = (h - side) / 2 + side * FEET
+        shadowWidth = side * 0.44f
+        rig.pivotX = w / 2f
+        rig.pivotY = feetY
+        shadow.shader = RadialGradient(0f, 0f, shadowWidth / 2, Palette.SHADOW, 0x00000000, Shader.TileMode.CLAMP)
+    }
+
+    /** Her shadow on the ground, under the picture: smaller and lighter as she rises. */
+    override fun dispatchDraw(canvas: Canvas) {
+        if (shadowWidth > 0) {
+            val scale = 1 - rise * 0.22f
+            canvas.save()
+            canvas.translate(width / 2f, feetY)
+            canvas.scale(scale, scale * SHADOW_FLATNESS)
+            shadow.alpha = (255 * (1 - rise * 0.35f)).toInt()
+            canvas.drawCircle(0f, 0f, shadowWidth / 2, shadow)
+            canvas.restore()
+        }
+        super.dispatchDraw(canvas)
+    }
+
+    private fun drawable(res: Int): Drawable = loaded.getOrPut(res) { context.getDrawable(res)!! }
 
     fun show(mood: Mood) {
         if (mood == shown) return
         val first = shown == null
         shown = mood
+        frames = FRAMES.getValue(mood)
         contentDescription = context.getString(DESCRIPTIONS.getValue(mood))
-        swayStep = 0
-        if (!moves || first) put(frames.still) else fadeTo(frames.still, MOOD_FADE)
+        // Only this mood's frames stay in memory: each is a full-quality illustration.
+        loaded.keys.retainAll(setOf(frames.still, frames.half, frames.closed, frames.talk, frames.wide))
+        val still = drawable(frames.still)
+        if (!moves || first) {
+            front.setImageDrawable(still)
+        } else {
+            fading = true
+            back.setImageDrawable(still)
+            back.alpha = 0f
+            back.bringToFront()
+            val leaving = front
+            back.animate().alpha(1f).setDuration(MOOD_FADE).withEndAction {
+                leaving.alpha = 0f
+                fading = false
+            }.start()
+            front = back
+            back = leaving
+            popStart = SystemClock.uptimeMillis()
+        }
+        // The other frames decode a moment later, so the change itself is instant.
+        main.post { listOf(frames.half, frames.closed, frames.talk, frames.wide).forEach { drawable(it) } }
     }
 
-    /** Mouth moves while Peri's voice plays. */
+    /** The mouth moves while Peri's voice plays. */
     fun speaking(on: Boolean) {
         if (on == talking) return
         talking = on
         main.removeCallbacks(mouth)
-        if (on && moves) main.post(mouth) else if (!on) {
-            mouthOpen = false
-            if (shown != null) put(frames.still)
-        }
+        if (on && moves) main.post(mouth) else if (!on && shown != null) put(frames.still)
     }
 
-    /** Shows a frame at once, with no fade: blinks and the mouth are quick. */
+    /** A little wave hello, when the app opens and she's calm. */
+    fun greet() {
+        if (!moves || shown != Mood.CALM || talking) return
+        val steps = listOf(R.drawable.peri_calm_wave1, R.drawable.peri_calm_wave2, R.drawable.peri_calm_wave1, R.drawable.peri_calm_wave2, R.drawable.peri_calm_wave1)
+        steps.forEachIndexed { i, res -> main.postDelayed({ if (shown == Mood.CALM && !talking) put(res) }, WAVE_START + i * WAVE_STEP) }
+        main.postDelayed({ if (shown == Mood.CALM && !talking) put(frames.still) }, WAVE_START + steps.size * WAVE_STEP)
+    }
+
+    /** Swaps the frame at once: blinks and the mouth are quick, and a swap never blends two pictures. */
     private fun put(res: Int) {
-        frame = res
-        front.animate().cancel()
-        back.animate().cancel()
-        front.setImageResource(res)
-        front.alpha = 1f
-        back.alpha = 0f
-    }
-
-    private fun fadeTo(res: Int, millis: Long) {
-        if (res == frame) return
-        frame = res
-        front.animate().cancel()
-        back.animate().cancel()
-        back.setImageResource(res)
-        back.alpha = 0f
-        val leaving = front
-        val coming = back
-        coming.bringToFront()
-        coming.animate().alpha(1f).setDuration(millis).withEndAction { leaving.alpha = 0f }.start()
-        front = coming
-        back = leaving
+        if (fading) return
+        front.setImageDrawable(drawable(res))
     }
 
     private val mouth = object : Runnable {
+        private var last = 0
         override fun run() {
             if (!talking || shown == null) return
-            mouthOpen = !mouthOpen
-            put(if (mouthOpen) frames.talk else frames.still)
-            main.postDelayed(this, if (mouthOpen) Random.nextLong(140, 220) else Random.nextLong(90, 170))
+            val next = listOf(frames.talk, frames.wide, frames.still).filter { it != last }.random()
+            last = next
+            put(next)
+            main.postDelayed(this, if (next == frames.still) Random.nextLong(70, 130) else Random.nextLong(90, 170))
         }
     }
 
     private val blink = object : Runnable {
         override fun run() {
-            if (shown != null && !talking && frame == frames.still) {
-                put(frames.blink)
-                main.postDelayed({ if (!talking && frame == frames.blink) put(frames.still) }, BLINK_MILLIS)
+            if (shown != null && !talking && MOTIONS.getValue(shown!!).blinks) {
+                val steps = listOf(frames.half to 0L, frames.closed to 45L, frames.half to 125L, frames.still to 170L)
+                steps.forEach { (res, at) -> main.postDelayed({ if (!talking) put(res) }, at) }
+                // Now and then a double blink, as people do.
+                if (Random.nextInt(5) == 0) steps.forEach { (res, at) -> main.postDelayed({ if (!talking) put(res) }, 260 + at) }
             }
-            main.postDelayed(this, Random.nextLong(2_800, 5_500))
+            main.postDelayed(this, Random.nextLong(2_600, 5_200))
         }
     }
 
-    /** Still, lean left, still, lean right: slow fades so it reads as one movement. */
-    private val sway = object : Runnable {
-        override fun run() {
-            if (shown != null && !talking) {
-                swayStep = (swayStep + 1) % 4
-                val f = frames
-                fadeTo(
-                    when (swayStep) {
-                        1 -> f.left
-                        3 -> f.right
-                        else -> f.still
-                    },
-                    SWAY_FADE,
-                )
-            }
-            main.postDelayed(this, SWAY_HOLD)
+    private val frame = object : Choreographer.FrameCallback {
+        override fun doFrame(frameTimeNanos: Long) {
+            if (!running) return
+            val t = SystemClock.uptimeMillis()
+            val m = MOTIONS.getValue(shown ?: Mood.CALM)
+            fun wave(period: Long) = sin(2 * PI * (t % period) / period).toFloat()
+            rise = if (m.bounce) abs(sin(PI * (t % m.bobMs) / m.bobMs).toFloat()) else (1 - wave(m.bobMs)) / 2
+            val breath = wave(m.breathMs) * m.breath
+            val p = ((t - popStart) / POP_MS).coerceIn(0f, 1f)
+            val popScale = 0.94f + 0.06f * pop.getInterpolation(p)
+            rig.rotation = wave(m.tiltMs) * m.tilt
+            rig.translationY = -rise * m.bob * resources.displayMetrics.density
+            // Squash and stretch keeps her volume: taller is a touch thinner.
+            rig.scaleY = popScale * (1 + breath)
+            rig.scaleX = popScale * (1 - breath / 2)
+            invalidate()
+            Choreographer.getInstance().postFrameCallback(this)
         }
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         if (!moves) return
-        main.postDelayed(blink, 2_000)
-        main.postDelayed(sway, SWAY_HOLD)
+        running = true
+        Choreographer.getInstance().postFrameCallback(frame)
+        main.postDelayed(blink, 1_800)
         if (talking) main.post(mouth)
-        breath = ObjectAnimator.ofPropertyValuesHolder(
-            this,
-            PropertyValuesHolder.ofFloat(SCALE_X, 1f, 1.03f),
-            PropertyValuesHolder.ofFloat(SCALE_Y, 1f, 1.03f),
-        ).apply {
-            duration = BREATH_MILLIS
-            repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.REVERSE
-            start()
-        }
     }
 
     override fun onDetachedFromWindow() {
+        running = false
+        Choreographer.getInstance().removeFrameCallback(frame)
         main.removeCallbacksAndMessages(null)
-        breath?.cancel()
         super.onDetachedFromWindow()
     }
 
     private companion object {
-        const val MOOD_FADE = 220L
-        const val SWAY_FADE = 650L
-        const val SWAY_HOLD = 1_400L
-        const val BLINK_MILLIS = 130L
-        const val BREATH_MILLIS = 1_500L
+        const val MOOD_FADE = 200L
+        const val POP_MS = 420f
+        const val WAVE_START = 400L
+        const val WAVE_STEP = 170L
+        /** Where her feet are, as a fraction of the illustration's height. */
+        const val FEET = 0.885f
+        /** The shadow is a circle squashed flat onto the ground. */
+        const val SHADOW_FLATNESS = 0.16f
+
+        val MOTIONS = mapOf(
+            Mood.CALM to Motion(tilt = 1.8f, tiltMs = 4_200, bob = 3f, bobMs = 2_100),
+            Mood.LISTENING to Motion(tilt = 1.2f, tiltMs = 3_400, bob = 1.5f, bobMs = 1_700),
+            Mood.THINKING to Motion(tilt = 2.4f, tiltMs = 3_000, bob = 2f, bobMs = 1_500),
+            Mood.WORRIED to Motion(tilt = 1f, tiltMs = 2_400, bob = 1f, bobMs = 1_200),
+            Mood.PROTECTIVE to Motion(tilt = 0.6f, tiltMs = 3_600, bob = 1f, bobMs = 1_800),
+            Mood.CALLING to Motion(tilt = 1.5f, tiltMs = 3_000, bob = 2f, bobMs = 1_500),
+            Mood.WAITING to Motion(tilt = 3f, tiltMs = 5_000, bob = 1.5f, bobMs = 2_500),
+            Mood.HAPPY to Motion(tilt = 3f, tiltMs = 1_800, bob = 12f, bobMs = 900, bounce = true),
+            Mood.SLEEPING to Motion(tilt = 0f, tiltMs = 1_000, bob = 0f, bobMs = 1_000, breath = 0.022f, breathMs = 4_600, blinks = false),
+        )
 
         val FRAMES = mapOf(
-            Mood.CALM to Frames(R.drawable.peri_calm, R.drawable.peri_calm_blink, R.drawable.peri_calm_talk, R.drawable.peri_calm_swayleft, R.drawable.peri_calm_swayright),
-            Mood.LISTENING to Frames(R.drawable.peri_listening, R.drawable.peri_listening_blink, R.drawable.peri_listening_talk, R.drawable.peri_listening_swayleft, R.drawable.peri_listening_swayright),
-            Mood.THINKING to Frames(R.drawable.peri_thinking, R.drawable.peri_thinking_blink, R.drawable.peri_thinking_talk, R.drawable.peri_thinking_swayleft, R.drawable.peri_thinking_swayright),
-            Mood.WORRIED to Frames(R.drawable.peri_worried, R.drawable.peri_worried_blink, R.drawable.peri_worried_talk, R.drawable.peri_worried_swayleft, R.drawable.peri_worried_swayright),
-            Mood.PROTECTIVE to Frames(R.drawable.peri_protective, R.drawable.peri_protective_blink, R.drawable.peri_protective_talk, R.drawable.peri_protective_swayleft, R.drawable.peri_protective_swayright),
-            Mood.CALLING to Frames(R.drawable.peri_calling, R.drawable.peri_calling_blink, R.drawable.peri_calling_talk, R.drawable.peri_calling_swayleft, R.drawable.peri_calling_swayright),
-            Mood.WAITING to Frames(R.drawable.peri_waiting, R.drawable.peri_waiting_blink, R.drawable.peri_waiting_talk, R.drawable.peri_waiting_swayleft, R.drawable.peri_waiting_swayright),
-            Mood.HAPPY to Frames(R.drawable.peri_happy, R.drawable.peri_happy_blink, R.drawable.peri_happy_talk, R.drawable.peri_happy_swayleft, R.drawable.peri_happy_swayright),
-            Mood.SLEEPING to Frames(R.drawable.peri_sleeping, R.drawable.peri_sleeping_blink, R.drawable.peri_sleeping_talk, R.drawable.peri_sleeping_swayleft, R.drawable.peri_sleeping_swayright),
+            Mood.CALM to Frames(R.drawable.peri_calm, R.drawable.peri_calm_blinkhalf, R.drawable.peri_calm_blink, R.drawable.peri_calm_talk, R.drawable.peri_calm_talkwide),
+            Mood.LISTENING to Frames(R.drawable.peri_listening, R.drawable.peri_listening_blinkhalf, R.drawable.peri_listening_blink, R.drawable.peri_listening_talk, R.drawable.peri_listening_talkwide),
+            Mood.THINKING to Frames(R.drawable.peri_thinking, R.drawable.peri_thinking_blinkhalf, R.drawable.peri_thinking_blink, R.drawable.peri_thinking_talk, R.drawable.peri_thinking_talkwide),
+            Mood.WORRIED to Frames(R.drawable.peri_worried, R.drawable.peri_worried_blinkhalf, R.drawable.peri_worried_blink, R.drawable.peri_worried_talk, R.drawable.peri_worried_talkwide),
+            Mood.PROTECTIVE to Frames(R.drawable.peri_protective, R.drawable.peri_protective_blinkhalf, R.drawable.peri_protective_blink, R.drawable.peri_protective_talk, R.drawable.peri_protective_talkwide),
+            Mood.CALLING to Frames(R.drawable.peri_calling, R.drawable.peri_calling_blinkhalf, R.drawable.peri_calling_blink, R.drawable.peri_calling_talk, R.drawable.peri_calling_talkwide),
+            Mood.WAITING to Frames(R.drawable.peri_waiting, R.drawable.peri_waiting_blinkhalf, R.drawable.peri_waiting_blink, R.drawable.peri_waiting_talk, R.drawable.peri_waiting_talkwide),
+            Mood.HAPPY to Frames(R.drawable.peri_happy, R.drawable.peri_happy_blinkhalf, R.drawable.peri_happy_blink, R.drawable.peri_happy_talk, R.drawable.peri_happy_talkwide),
+            Mood.SLEEPING to Frames(R.drawable.peri_sleeping, R.drawable.peri_sleeping_blinkhalf, R.drawable.peri_sleeping_blink, R.drawable.peri_sleeping_talk, R.drawable.peri_sleeping_talkwide),
         )
 
         val DESCRIPTIONS = mapOf(
