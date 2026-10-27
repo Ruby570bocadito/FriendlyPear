@@ -85,6 +85,16 @@ class SignalDetectorTest {
     }
 
     @Test
+    fun `links without TLS or on another port are insecure`() {
+        assertTrue(Signal.INSECURE_LINK in signals("Paga aquí: http://correos-envio.top/pago"))
+        assertTrue(Signal.INSECURE_LINK in signals("Entra en https://banco-seguro.com:8443/acceso"))
+        assertTrue(Signal.INSECURE_LINK in signals("Verify at https://185.23.10.4/login"))
+        assertFalse(Signal.INSECURE_LINK in signals("Tu cita: https://www.sanidad.gob.es/cita"))
+        assertFalse(Signal.INSECURE_LINK in signals("Mira https://example.com:443/foto"))
+        assertFalse(Signal.INSECURE_LINK in signals("Te veo en correos.es mañana"))
+    }
+
+    @Test
     fun `an ordinary message from family has no signals`() {
         val d = SignalDetector.detect(IncomingMessage(Channel.WHATSAPP, "Laura", "¿Venís a comer el domingo? Te espero a las 14:00", 0), family)
         assertEquals(emptySet(), d.signals)

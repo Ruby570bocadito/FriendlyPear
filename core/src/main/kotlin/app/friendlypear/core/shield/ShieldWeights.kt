@@ -23,6 +23,8 @@ data class ShieldWeights(
                 Signal.UNKNOWN_SENDER to 1.0,
                 Signal.LINK to 0.5,
                 Signal.URL_SHORTENER to 1.5,
+                // With a link (0.5) it reaches "doubt" even from a contact: Peri always mentions an unsafe link.
+                Signal.INSECURE_LINK to 2.5,
                 Signal.BRAND_LOOKALIKE to 4.0,
                 Signal.URGENCY to 1.0,
                 Signal.MONEY_REQUEST to 1.5,

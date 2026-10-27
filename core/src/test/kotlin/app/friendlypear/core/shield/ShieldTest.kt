@@ -28,6 +28,14 @@ class ShieldTest {
     }
 
     @Test
+    fun `a link without TLS gets a warning, even from family`() {
+        val v = check("Mira las fotos: http://fotos-boda.net/album", sender = "Laura", channel = Channel.WHATSAPP)
+        assertEquals(Level.DOUBT, v.level)
+        assertTrue(Signal.INSECURE_LINK in v.signals)
+        assertTrue("padlock" in Shield(lang = Lang.EN).evaluate(IncomingMessage(Channel.SMS, stranger, "Pay at http://pago.top", 0), family).explanation)
+    }
+
+    @Test
     fun `ordinary message from a stranger stays quiet`() {
         assertEquals(Level.OK, check("Hola, soy el fontanero, mañana paso a las 10").level)
     }

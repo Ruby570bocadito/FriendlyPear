@@ -7,6 +7,8 @@ enum class Signal {
     UNKNOWN_SENDER,
     LINK,
     URL_SHORTENER,
+    /** A link without TLS (http://) or on a port other than 443: nobody checks who is on the other side. */
+    INSECURE_LINK,
     BRAND_LOOKALIKE,
     URGENCY,
     MONEY_REQUEST,

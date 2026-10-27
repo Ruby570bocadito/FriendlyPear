@@ -87,6 +87,7 @@ internal object SignalDetector {
         if (!context.knows(message.sender)) signals += Signal.UNKNOWN_SENDER
         if (hosts.isNotEmpty()) signals += Signal.LINK
         if (hosts.any(Links::isShortener)) signals += Signal.URL_SHORTENER
+        if (Links.insecure(message.text)) signals += Signal.INSECURE_LINK
         if (impersonated != null) signals += Signal.BRAND_LOOKALIKE
         if (urgency.containsMatchIn(folded)) signals += Signal.URGENCY
         if (money.containsMatchIn(folded)) signals += Signal.MONEY_REQUEST

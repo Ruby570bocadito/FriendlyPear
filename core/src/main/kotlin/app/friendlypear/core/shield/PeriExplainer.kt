@@ -15,6 +15,7 @@ internal object PeriExplainer {
         Signal.PRIZE_OR_PROFIT,
         Signal.URGENCY,
         Signal.URL_SHORTENER,
+        Signal.INSECURE_LINK,
         Signal.UNKNOWN_SENDER,
         Signal.LINK,
     )
@@ -28,6 +29,7 @@ internal object PeriExplainer {
         Signal.PRIZE_OR_PROFIT to "promete premios o ganancias",
         Signal.URGENCY to "te mete prisa",
         Signal.URL_SHORTENER to "lleva un enlace que esconde a dónde va",
+        Signal.INSECURE_LINK to "lleva un enlace sin candado, que no es seguro",
         Signal.UNKNOWN_SENDER to "no viene de nadie de tu agenda",
         Signal.LINK to "lleva un enlace",
     )
@@ -41,6 +43,7 @@ internal object PeriExplainer {
         Signal.PRIZE_OR_PROFIT to "it promises prizes or profits",
         Signal.URGENCY to "it rushes you",
         Signal.URL_SHORTENER to "it has a link that hides where it goes",
+        Signal.INSECURE_LINK to "its link has no padlock, so it isn't safe",
         Signal.UNKNOWN_SENDER to "it doesn't come from anyone in your contacts",
         Signal.LINK to "it has a link",
     )

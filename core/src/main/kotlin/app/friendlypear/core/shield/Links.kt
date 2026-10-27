@@ -29,4 +29,16 @@ internal object Links {
     fun senderDomain(sender: String): String? = emailDomain.find(sender.lowercase())?.groupValues?.get(1)
 
     fun isShortener(host: String): Boolean = host in shorteners
+
+    private val withPort = Regex("""\b(https?)://([\p{L}\p{N}.-]+)(?::(\d{1,5}))?""")
+    private val ipv4 = Regex("""^\d{1,3}(?:\.\d{1,3}){3}$""")
+
+    /**
+     * Links that don't travel over TLS on the usual port 443: "http://", an explicit other port
+     * ("https://pago.example:8443"), or a bare IP address instead of a name. Real banks and shops never send these.
+     */
+    fun insecure(text: String): Boolean = withPort.findAll(text.lowercase()).any { m ->
+        val (scheme, host, port) = m.destructured
+        scheme == "http" || (port.isNotEmpty() && port != "443") || ipv4.matches(host)
+    }
 }
