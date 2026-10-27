@@ -14,9 +14,12 @@
   - Momento 1: SMS de 699000111 "Mamá… número nuevo… Bizum" → aviso + "Si me dices que sí, llamo a Laura" → "sí" → llamada saliente a +34600111222 (registro de llamadas, tipo 2).
   - Momento 2: llamada entrante descolgada + SMS "BBVA: tu código… 640281" → SCAM, `CODE_DURING_CALL`, "…cuelga y no se lo digas a nadie" en pantalla con la llamada activa.
 
+- filtro-llamadas: `services/CallScreener.kt` (`CallScreeningService`, nunca bloquea ni escucha) y `CallStateWatcher` distingue sonando/descolgada. El rol se pide con una frase tras los permisos. Probado: aviso al sonar y verificación al colgar con llamada saliente a Laura.
+
 ## Cómo probar sin micrófono (solo builds de depuración)
 - `adb shell am broadcast -a app.friendlypear.debug.HEAR --es text si` hace que Peri "oiga" esa frase. Con varias palabras, comillas dentro: `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`.
 - Tras `adb install -r`, reconectar el lector: `adb shell cmd notification disallow_listener app.friendlypear/app.friendlypear.services.MessageListener` y después `allow_listener`.
+- Rol de filtro en el emulador: `adb shell cmd role add-role-holder android.app.role.CALL_SCREENING app.friendlypear`.
 - En `adb emu gsm`, esperar a que suene (`mCallState=1`) antes de `accept`.
 - Segunda opinión: `~/.gradle/gradle.properties` con `friendlypear.backendUrl=http://10.0.2.2:8711` y `friendlypear.deviceToken=<DEVICE_TOKEN de backend/.env>`; arrancar `cd backend; bun src/main.ts`. Sin token, la app decide solo con las reglas.
 

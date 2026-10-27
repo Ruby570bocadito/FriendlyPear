@@ -14,6 +14,8 @@
   - Momentos 1 y 2 probados en inglés en el emulador; 101 tests en `core`.
 - peri-personalidad: guía `docs/PERI_VOZ.md` y `PROTOCOLO.md` §10; frases del escudo, del agente y de la UI más cálidas en las dos lenguas; voz TTS 0,9 de ritmo, 1,1 de tono y la mejor voz sin conexión.
 
+- llamadas: `PeriAgent.onIncomingCall` (aviso si el número no está en la agenda) y al colgar una llamada descolgada "¿quién decía ser?" → "no es el número de Pablo" → llamada al guardado; banco o empresa → colgar y llamar al oficial; palabra de la familia (se recuerda, nunca se dice). 125 tests.
+
 ## En curso
 - Nada.
 
