@@ -150,7 +150,7 @@ class MiniPeriService : Service(), PeriView {
         voice = VoiceInput(this, hub.lang, onText = { hub.heard(it) }, onListening = { on ->
             listening = on
             showFace(hub.mood)
-        }, mayListen = { !hub.inCall })
+        }, mayListen = { !hub.inCall }, ears = hub.ears, onMissed = { hub.missedVoice() })
         listenToTouches()
         windows.addView(root, params)
         appShown(hub.appVisible)

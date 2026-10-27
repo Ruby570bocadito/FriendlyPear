@@ -65,7 +65,7 @@ class PeriActivity : Activity() {
             listening = on
             showListening(on)
             showFace(hub.mood)
-        }, mayListen = { !hub.inCall })
+        }, mayListen = { !hub.inCall }, ears = hub.ears, onMissed = { hub.missedVoice() })
         face = PeriFace(this)
 
         said = TextView(this).apply {

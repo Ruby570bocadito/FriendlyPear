@@ -129,4 +129,9 @@
     <string name="picture_label_qr">QR</string>
     <string name="picture_label_risk">Careful</string>
     <string name="setup_location">In an emergency, share where you are (optional)</string>
+    <string name="settings_ears">Peri\'s ears</string>
+    <string name="settings_ears_muse">Understand me better with Muse Voice Transcribe</string>
+    <string name="settings_ears_note">Meta\'s speech model, better with older voices. Each thing you say to Peri goes to your family\'s backend and Meta\'s API to be written down, and is never kept. Off: this phone\'s own recognizer.</string>
+    <string name="settings_ears_unavailable">Needs your family\'s backend. Until then Peri uses this phone\'s own recognizer.</string>
+    <string name="voice_missed">Sorry, I didn\'t catch that. Press the button and tell me again, nice and calm.</string>
 </resources>

@@ -70,6 +70,31 @@ class SettingsActivity : Activity() {
             topMargin = dp(14)
         })
 
+        // Peri's ears: Muse Voice Transcribe understands older voices better, but the order leaves the phone.
+        val hub = app.friendlypear.PeriApp.hub(this)
+        val ears = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = cardBackground()
+            elevation = dp(2).toFloat()
+            setPadding(dp(18), dp(16), dp(18), dp(18))
+            addView(heading(getString(R.string.settings_ears), 21f))
+            addView(android.widget.CheckBox(this@SettingsActivity).apply {
+                text = getString(R.string.settings_ears_muse)
+                textSize = 19f
+                typeface = weight(600)
+                setTextColor(Palette.INK)
+                isChecked = hub.museVoice
+                isEnabled = hub.museVoiceAvailable
+                setOnCheckedChangeListener { _, on -> hub.museVoice = on }
+            })
+            addView(body(getString(if (hub.museVoiceAvailable) R.string.settings_ears_note else R.string.settings_ears_unavailable), 16f).apply {
+                setPadding(dp(6), dp(4), 0, 0)
+            })
+        }
+        list.addView(ears, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+            topMargin = dp(14)
+        })
+
         val pad = dp(20)
         val scroll = ScrollView(this).apply {
             clipToPadding = false

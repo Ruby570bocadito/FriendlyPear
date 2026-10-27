@@ -128,4 +128,9 @@
     <string name="picture_label_qr">QR</string>
     <string name="picture_label_risk">Ojo</string>
     <string name="setup_location">En una emergencia, compartir dónde estás (opcional)</string>
+    <string name="settings_ears">Los oídos de Peri</string>
+    <string name="settings_ears_muse">Entenderme mejor con Muse Voice Transcribe</string>
+    <string name="settings_ears_note">El modelo de voz de Meta, que entiende mejor a las personas mayores. Lo que le dices a Peri va al servidor de tu familia y a la API de Meta para pasarlo a texto, y no se guarda. Desactivado: el reconocedor del propio móvil.</string>
+    <string name="settings_ears_unavailable">Necesita el servidor de tu familia. Mientras tanto, Peri usa el reconocedor del propio móvil.</string>
+    <string name="voice_missed">Perdona, no te he entendido. Pulsa el botón y dímelo otra vez, con calma.</string>
 </resources>

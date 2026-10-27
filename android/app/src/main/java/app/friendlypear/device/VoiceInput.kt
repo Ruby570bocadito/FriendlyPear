@@ -18,7 +18,20 @@ class VoiceInput(
     private val onText: (String) -> Unit,
     private val onListening: (Boolean) -> Unit,
     private val mayListen: () -> Boolean = { true },
+    /** Muse Voice Transcribe, when the person turned it on in Settings; otherwise Android's own recognizer. */
+    private val ears: Ears? = null,
+    /** Nothing understood (silence, or the transcription failed). */
+    private val onMissed: () -> Unit = {},
 ) {
+    interface Ears {
+        val on: Boolean
+        fun transcribe(wav: ByteArray, done: (String?) -> Unit)
+    }
+
+    private val main = android.os.Handler(android.os.Looper.getMainLooper())
+    private val recorder = VoiceRecorder()
+    @Volatile
+    private var recording = false
     private val recognizer: SpeechRecognizer? =
         if (SpeechRecognizer.isRecognitionAvailable(context)) SpeechRecognizer.createSpeechRecognizer(context) else null
 
@@ -45,6 +58,22 @@ class VoiceInput(
     /** False when it may not listen now (a call is going on). */
     fun listen(): Boolean {
         if (!mayListen()) return false
+        val muse = ears
+        if (muse != null && muse.on) {
+            if (recording) return true
+            recording = true
+            onListening(true)
+            Thread {
+                val wav = recorder.record()
+                main.post {
+                    recording = false
+                    onListening(false)
+                    if (wav == null) return@post onMissed()
+                    muse.transcribe(wav) { text -> if (text.isNullOrBlank()) onMissed() else onText(text) }
+                }
+            }.start()
+            return true
+        }
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
             .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             .putExtra(RecognizerIntent.EXTRA_LANGUAGE, speechLocale(lang).toLanguageTag())
@@ -55,6 +84,7 @@ class VoiceInput(
     }
 
     fun destroy() {
+        recorder.stop()
         recognizer?.destroy()
     }
 }

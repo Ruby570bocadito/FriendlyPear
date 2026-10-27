@@ -42,6 +42,8 @@ import app.friendlypear.net.GuardianClient
 import app.friendlypear.net.OpinionClient
 import app.friendlypear.net.PictureClient
 import app.friendlypear.net.PictureVerdict
+import app.friendlypear.net.TranscribeClient
+import app.friendlypear.device.VoiceInput
 import app.friendlypear.ui.peri.MiniPeriService
 import app.friendlypear.ui.peri.PauseOverlay
 import java.util.concurrent.CopyOnWriteArraySet
@@ -169,6 +171,37 @@ class PeriHub(context: Context) {
     private val investigations = InvestigationLog(this.context)
     private val guardianClient = GuardianClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
     private val pictures = PictureClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
+    private val transcriber = TranscribeClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
+    private val settings = this.context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+
+    /** Whether voice orders go to Muse Voice Transcribe (the person's choice in Settings; off by default). */
+    var museVoice: Boolean
+        get() = settings.getBoolean(MUSE_VOICE, false)
+        set(value) {
+            settings.edit().putBoolean(MUSE_VOICE, value).apply()
+        }
+
+    /** Can Muse Voice Transcribe be offered at all: a backend is configured. */
+    val museVoiceAvailable: Boolean get() = transcriber.enabled
+
+    /** Peri's ears for every screen that listens: Muse when it's on, Android's recognizer otherwise. */
+    val ears: VoiceInput.Ears = object : VoiceInput.Ears {
+        override val on: Boolean get() = museVoice && transcriber.enabled
+
+        override fun transcribe(wav: ByteArray, done: (String?) -> Unit) {
+            waiting.execute {
+                val text = transcriber.transcribe(wav)
+                // Never the words: only whether it worked.
+                main.post {
+                    Log.i(TAG, "voice transcribed=${text != null}")
+                    done(text)
+                }
+            }
+        }
+    }
+
+    /** Nothing understood: Peri says so kindly, and how to try again. */
+    fun missedVoice() = say(context.getString(R.string.voice_missed))
 
     /** Peri's news for the guardians, only if the person turned it on; the same list stays on this phone. */
     val news = SharedNews(this.context)
@@ -445,6 +478,11 @@ class PeriHub(context: Context) {
                 intent.getStringExtra("text")?.let { heard(it) }
                 intent.getStringExtra("installed")?.let { onAppInstalled(it) }
                 intent.getStringExtra("opened")?.let { onAppOpened(it) }
+                // A WAV in the app's own files stands in for the microphone, through Muse Voice Transcribe.
+                intent.getStringExtra("wav")?.let { name ->
+                    val file = java.io.File(context.filesDir, name)
+                    if (file.isFile) ears.transcribe(file.readBytes()) { text -> if (text != null) heard(text) else missedVoice() }
+                }
             }
         }
         // Only adb's shell holds DUMP: no app on the phone can make Peri "hear" a "yes".
@@ -455,5 +493,6 @@ class PeriHub(context: Context) {
         const val TAG = "FriendlyPear"
         const val COUNTDOWN_MILLIS = 10_000L
         const val DEBUG_HEAR = "app.friendlypear.debug.HEAR"
+        const val MUSE_VOICE = "muse_voice"
     }
 }
