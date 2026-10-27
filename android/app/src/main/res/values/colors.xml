@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The same palette as ui/peri/Style.kt, for what Android draws itself. -->
+<resources>
+    <color name="cream">#FFFFF8EC</color>
+    <color name="green_dark">#FF25541A</color>
+    <color name="icon_background">#FFE1F0CF</color>
+</resources>
