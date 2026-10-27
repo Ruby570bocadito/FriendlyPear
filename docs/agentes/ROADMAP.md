@@ -48,7 +48,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [ ] (SEG) backend-endurecido — [S] cabeceras, límites de cuerpo y de peticiones — backend/src/server.ts
 
 ## Día 5 · 31 oct — confianza y emergencia
-- [ ] (IMP-2) te-estan-guiando — [M] avisos al instalar apps de control remoto y al abrir la app del banco durante una llamada desconocida — android/.../services/
+- [ ] (IMP-2) te-estan-guiando — [M] avisos al instalar apps de control remoto y al abrir la app del banco durante una llamada desconocida — android/.../services/ · parte 1 hecha 2026-10-27 (apps de control remoto); falta la app del banco durante una llamada desconocida
 - [ ] (IMP-1) finetune-glimmer-1 — [L] apuesta: LoRA de Glimmer con el dataset — training/
 - [ ] (IMP-2) emergencia — [M] cuenta atrás, llamada y SMS con ubicación — android/
 - [ ] (IMP-2) config-familia — [M] guardianes, alias, relaciones, números oficiales — android/.../config/
