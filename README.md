@@ -15,6 +15,14 @@ Built for the **Meta Global AI Developer Hackathon** · Indie track · *Build fo
 
 <p align="center"><img src="docs/media/screens.png" width="860" alt="Four screens: Peri's home, Peri warning about a fake Correos text, the unlock guide, and Mini Peri floating over the home screen"></p>
 
+## At a glance
+
+- **Stops scams before money moves**: SMS, WhatsApp and email checked on the phone the moment they arrive; calls from strangers flagged before pickup; a code arriving during a call is a scam, full stop. **88 %** of 200 unseen scams flagged with **4 %** false alarms, before any model ([`eval/REPORT.md`](eval/REPORT.md)).
+- **Five Meta models, each with one job**: Muse Spark Open (second opinion), Muse Spark (investigator with tools, and "look at this picture" with SAM 3.1), Muse Voice Transcribe (Peri's ears), Muse Image (every picture of Peri) and Muse Spark contributor (training data).
+- **Family double-check, not surveillance**: risky actions wait for a guardian's one-time link ("No" / "Call me first" / "Yes"), flagged **URGENT** if a stranger just called. If the guardian has FriendlyPear too, it opens **Peri to Peri** in their own app. Tested with two phones.
+- **Built to be hard to abuse**: hard rules no model can override, fake "Peri" texts caught, a yes needs the phone's own lock, every phone paired in person with its own key (QR), no backups of secrets ([`docs/SECURITY.md`](docs/SECURITY.md)).
+- **A friend people want to keep**: Peri, a clay pear with 9 moods and about 120 animation frames, introduces herself before asking for anything, reads aloud, calls on a spoken "yes", jokes when you tap her, and floats as Mini Peri over other apps. English and Spanish.
+
 ## A companion, not a watchdog
 
 Nobody wants an app "to control your phone". Peri is presented, truthfully, as a friend who reads your messages aloud, calls whoever you ask and keeps you company, and who also spots scams. She works for the person, not for the family: the family never reads messages, calls, location or apps, and only gets a one-time link to approve something risky when the person asks for it. Every permission is explained first and can be refused, and the app never says "control", "monitor" or "watch". See [`docs/CONFIANZA.md`](docs/CONFIANZA.md) (in Spanish), including how to suggest it to a relative.
@@ -48,6 +56,9 @@ Also working, with unit tests:
 - **Two modes: the app or Mini Peri**: the full screen, or only the pear (cut out, with her own shadow) floating over other apps. She pops up with a little bounce; tap her to talk (a soft green ring pulses while she listens), drag her and she glides to the nearest side, drop her on the "×" at the bottom to put her away, long-press to open the app. What she says appears in a speech bubble pointing at her, with smaller letters for long sentences so it never covers the screen. She also comes out by herself beside the call screen during a call she placed or a picked-up call from a stranger, and leaves when it ends.
 - **A friend with personality**: Peri greets you by the time of day (said aloud only the first time each day), and she keeps herself busy: she shifts her weight, blinks, glances around and, every few seconds, hops, takes a few steps on the spot, stretches or waves; happy, she runs on the spot and squashes a little as she lands. When you tap her she has an idea and shares a little anti-scam tip; she says sorry when she didn't catch you, and gives a thumbs up when you leave a risky app. Permission explanations are written in her bubble rather than read aloud, so the first start isn't a lecture. The layout keeps Peri on screen with the phone's large text on, and her voice uses Google's speech engine when the phone has it. In **Settings → Peri's voice** you can hear every voice the phone has for her language and pick the nicest; a button leads to Android's speech settings (or Google's engine in the Play Store) for more natural voices.
 - **An animated, friendly look**: Peri tilts and bobs smoothly, blinks, glances around, moves her mouth while she speaks and waves hello; each mood moves its own way (bouncy when happy, steady when protecting you, breathing slowly asleep), and she keeps still with "remove animations" on. Big rounded buttons, a status chip ("Protecting you" / "Setup not finished") and a card with any setup step still missing; every text has at least 7:1 contrast.
+- **Welcome before permissions**: on first start Peri introduces herself in four short animated pages (who she is, she stops scams, the family never spies, you decide), with the language choice at the top; only the first page is said aloud. Then permissions come one at a time, each with its reason.
+- **Unlock guide**: installed from a file, Android 13+ locks message alerts and texts ("restricted settings"). Peri walks through Android's own three steps, each opening the exact screen and ticking itself off.
+- **Peri's voice**: Google's speech engine when the phone has it; in Settings, every voice the phone has for her language, with a sample, and a button to get more natural voices.
 - **Emergency**: "I've fallen" → 10-second countdown → SMS with location and a call to the guardian. It never dials an emergency number.
 - **Muse Spark client** with tool calling, a token cap and a response cache.
 - **Second opinion with Muse Spark Open** (`POST /v1/opinion`, device token): only messages the rules left as doubtful are accepted; the model answers scam / doubt / ok with a confidence, turned into a vote of at most ±2. On the emulator, end to end: a fake "nephew" asking for money → doubtful for the rules, +1.9 from the model → Peri warns, 2.6 s after the SMS; a gym reminder → doubtful, −1.9 → Peri stays quiet, 2.1 s. Peri always speaks her own sentence, never the model's, so a message cannot talk the model into saying something unsafe.
@@ -75,6 +86,12 @@ If the guardian also has FriendlyPear, the request opens **in their own Peri**: 
 
 <p align="center"><img src="docs/media/peri-to-peri.gif" width="660" alt="Mum's Peri and Ana's Peri side by side: the stranger's call, Ana's Peri opening the urgent request, Ana calling Mum, and a fake Peri text caught"></p>
 
+### Connecting each phone
+
+Every phone gets **its own key** for Peri's server, handed over in person, so a key pulled out of an app can't be used against the family and a lost phone is disconnected on its own. On the computer that runs the server, `bun pair` shows a one-time code and its QR (10 minutes, single use); the phone's camera opens FriendlyPear, which shows the server and the code and asks before connecting. A QR for any other server is refused. The key is kept encrypted by Android's Keystore and never backed up; the server stores only its hash. With `ALLOW_SHARED_TOKEN=0` the shared test key stops working: tested, the paired phone kept its second opinion while an unpaired one fell back to the on-phone rules.
+
+<p align="center"><img src="docs/media/pair-page.jpg" width="420" alt="The pairing page: Peri, a large QR code, the code Z6E6-STBC, a 10-minute countdown and three steps"></p>
+
 How the family features are protected, and what is still open: [`docs/SECURITY.md`](docs/SECURITY.md).
 
 ## iPhone
@@ -96,12 +113,12 @@ How each model is used in the engine and for the images, with its limits: [`docs
 
 | Model | Job in FriendlyPear | State |
 |---|---|---|
-| Muse Spark | Investigator agent with read-only tools for doubtful messages; summaries for guardians | Called from the phone when the second opinion leaves a message doubtful |
+| Muse Spark | Investigator agent with read-only tools for doubtful messages | Called from the phone when the second opinion leaves a message doubtful |
 | Muse Spark Open (open weights, on Baseten) | Second opinion on doubtful messages: a vote of at most ±2 on the rules' score | Working end to end on the emulator |
 | Muse Voice Transcribe | Peri's ears, if the person turns it on in Settings: each voice order is recorded on the phone (it stops after a long pause, for people who speak slowly) and written down by Meta's speech model | Working on the emulator and the real API ("Oye Peri, llama a mi hija, por favor." exact, 1.8 s); off by default |
 | Muse Spark 1.3 contributor | Writes the 1,306 synthetic training messages for the shield's learned weights (`training/generate.ts`); never used to evaluate | Done, a few cents |
 | Muse Spark (multimodal) + SAM 3.1 | "Look at this picture": Spark reads a letter, invoice or screenshot and names the risky things; SAM 3.1 finds the QR code so the phone can mark it | Working on the emulator and the real API |
-| Muse Image | Peri in soft 3D clay (chosen among eight Muse Image designs, `assets/peri/concepts/`): nine illustrated states (calm, listening, thinking, worried, protective, calling, waiting, happy, sleeping), each an edit of one base so she stays the same character, plus animation frames made as edits of each state (two blink steps, three mouth shapes, glances to each side), a wave hello, poses for an idea, "sorry" and a thumbs up, one-foot-up step frames, the app icon and illustrations for the family screen; cut out for any background (98 clay images, about $0.98) | In the app, animated; prompts in `assets/peri/prompts.json` |
+| Muse Image | Peri in soft 3D clay (chosen among eight Muse Image designs, `assets/peri/concepts/`): nine illustrated states (calm, listening, thinking, worried, protective, calling, waiting, happy, sleeping), each an edit of one base so she stays the same character, plus animation frames made as edits of each state (two blink steps, three mouth shapes, glances to each side), a wave hello, poses for an idea, "sorry" and a thumbs up, one-foot-up step frames, the app icon and illustrations for the family screen; and the guardian art for the family screens; cut out for any background (about 120 frames in the app, ~$2.50 in all, including 8 designs Peri was chosen from) | In the app, animated; prompts in `assets/peri/prompts.json` |
 
 ## How it decides
 
@@ -134,7 +151,7 @@ Doubtful messages then go to Muse Spark Open and the investigator. Weights learn
 ```
 core/      Kotlin/JVM library: shield, voice, agent, trust, alerts. Tested without a phone.
 android/   Android app (Kotlin, Android 12+). Includes core/ as a composite build.
-backend/   Bun + TypeScript: guardian approvals, investigator agent, model clients.
+backend/   Bun + TypeScript: guardian approvals and pages, investigator agent, model clients, device pairing (`bun pair`, own QR encoder).
 models/    How to serve the open-weight model.
 eval/      Held-out test set and metrics scripts.
 training/  Scam knowledge base, dataset scripts, learned weights and fine-tuning.
@@ -181,9 +198,14 @@ The broadcast stands in for the microphone in debug builds only.
    ```
 4. **Install and grant** (debug build): `adb install -r android/app/build/outputs/apk/debug/app-debug.apk`, open FriendlyPear and accept what Peri asks for. Notification access, usage access and "appear on top" are granted from the setup card (or with `adb shell cmd notification allow_listener app.friendlypear/app.friendlypear.services.MessageListener`, `adb shell appops set app.friendlypear GET_USAGE_STATS allow` and `adb shell appops set app.friendlypear SYSTEM_ALERT_WINDOW allow`).
 
+5. **Give the phone its own key** (optional, recommended): with the backend running, `cd backend && bun pair` and point the phone's camera at the QR, or type the code in Settings → "Connect this phone". Set `ALLOW_SHARED_TOKEN=0` in `.env` once every phone is paired.
+
 Secrets never go in the repo: the backend reads `backend/.env` (see `.env.example`), the app reads `~/.gradle/gradle.properties`.
 
 ## Privacy
+
+Threats, mitigations and what is still open: [`docs/SECURITY.md`](docs/SECURITY.md). Every feature and how it was tested: [`docs/FEATURES.md`](docs/FEATURES.md).
+
 
 Only doubtful messages ever leave the phone, plus what the person chooses to send: a picture they show Peri, and their voice orders if they turn on Muse Voice Transcribe in Settings (off by default; Android's own recognizer otherwise). None of it is stored. Contacts are read on the phone and never sent anywhere. Permissions are asked one at a time, the first time they are needed, and Peri first says what each one is for and what she won't do with it. Reading texts is optional: Android locks it for apps installed from a file, so Peri also protects from notifications alone, and the step can be hidden. For those locked settings, Peri's **unlock guide** walks through Android's own three steps (try once, allow restricted settings, turn it on). A "no" is respected: Peri says what still works (for example, she gives you the number to dial yourself) and never asks again on every start. Peri never accesses call audio, and the microphone stays closed during any phone call, even on speaker.
 

@@ -59,12 +59,16 @@ SAM segments things you can see as objects: in the real test it found the QR cod
 
 All of Peri is made with **Muse Image** (`muse-image-1.0`, `/v1/images/generations` and `/v1/images/edits`), by [`assets/peri/generate.ts`](../assets/peri/generate.ts):
 
-1. One base Peri from the character description in `docs/DISENO.md`.
+1. **Eight designs to choose from** (`assets/peri/concepts.ts`: clay, watercolour, sticker, grandma, hero, geometric, plush, anime). The person chose **soft 3D clay**, which became the base.
 2. Each of her nine moods is an **edit of that base**, so she stays the same character.
-3. Each animation frame (two blink steps, two mouth shapes, a sway) is an edit of **its mood's own image** that changes one small thing and keeps the pose and framing, so frames line up.
-4. Extras made the same way: a wave hello, the app icon, and illustrations for the family screen, the investigator's findings and the setup card.
+3. Each mood has 12 animation frames, each an edit of **its mood's own image** that changes one small thing and keeps the pose and framing: two blink steps, three mouth shapes, two glances, a foot lifted on each side, two hand gestures for talking and a wink.
+4. Extras made the same way: a wave hello, an idea, "sorry", a thumbs up, the app icon, the family heart, the shield, and **Peri the guardian** holding a phone (calm and urgent) for the family screens and the guardian's web page.
 
-97 images in total, $0.98. Every prompt is saved in [`assets/peri/prompts.json`](../assets/peri/prompts.json). [`assets/peri/cutout.py`](../assets/peri/cutout.py) then removes the cream background so Peri stands on any screen, including on top of other apps in Mini Peri mode.
+About 120 frames ship in the app, from roughly 250 generations (about $2.50 in all, re-dos included). Every prompt is saved in [`assets/peri/prompts.json`](../assets/peri/prompts.json). [`assets/peri/cutout.py`](../assets/peri/cutout.py) removes the cream background and the floor so she stands on any screen.
+
+## For the training data
+
+**Muse Spark 1.3 contributor** wrote 1,306 short synthetic messages (scams of 15 kinds and ordinary ones of 11 kinds, in Spanish and English) for the shield's learned weights ([`training/generate.ts`](../training/generate.ts), about 180 k tokens, a few cents). Contributor prompts may be used by Meta for training, which is fine here because nothing private is sent. These messages are **never used to evaluate**: the 200 held-out messages are written by hand ([`eval/REPORT.md`](../eval/REPORT.md)).
 
 ## Planned
 
