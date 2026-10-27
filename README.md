@@ -115,6 +115,8 @@ Secrets never go in the repo: the backend reads `backend/.env` (see `.env.exampl
 
 ## Privacy
 
-Only doubtful messages ever leave the phone. Contacts are read on the phone and never sent anywhere. Permissions are asked one at a time, the first time they are needed, and Peri first says what each one is for and what she won't do with it. A "no" is respected: Peri says what still works (for example, she gives you the number to dial yourself) and never asks again on every start. Peri never accesses call audio.
+Only doubtful messages ever leave the phone. Contacts are read on the phone and never sent anywhere. Permissions are asked one at a time, the first time they are needed, and Peri first says what each one is for and what she won't do with it. A "no" is respected: Peri says what still works (for example, she gives you the number to dial yourself) and never asks again on every start. Peri never accesses call audio, and the microphone stays closed during any phone call, even on speaker.
+
+Security of the backend, whose guardian links are public URLs: requests are limited per IP (30 a minute on `/a/` and `/g/`, 240 on the phone's API), an IP that keeps sending wrong device tokens is shut out for 15 minutes, bodies are capped and read only up to the limit, and every answer carries security headers (no sniffing, no referrer, no embedding, CSP on pages, HSTS over HTTPS). Link tokens are stored only as hashes. Release builds speak HTTPS only; plain HTTP to the developer's machine exists in debug builds alone, and the debug voice bridge only answers `adb`.
 
 Icons in the app's buttons: [Material Icons](https://fonts.google.com/icons) (Apache License 2.0). Everything else, including Peri, was made during the event.

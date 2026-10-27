@@ -24,7 +24,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [x] (IMP-1) voz-y-agenda — [M] órdenes en español, alias y relaciones — core/.../voice/ · hecho 2026-10-27
 - [x] (IMP-1) agente-base — [M] bucle con confirmaciones y verificación de resultados — core/.../agent/ · hecho 2026-10-27
 - [x] (IMP-2) android-servicios — [M] lector de notificaciones, estado de llamada, voz y TTS — android/.../services/, device/ · hecho 2026-10-27
-- [ ] (SEG) permisos-minimos — [S] permisos justos y ningún log con texto de mensajes — android/app/src/main/AndroidManifest.xml
+- [x] (SEG) permisos-minimos — [S] permisos justos y ningún log con texto de mensajes — android/app/src/main/AndroidManifest.xml · hecho 2026-10-27 (revisados; HTTP en claro solo en debug; el puente de depuración exige DUMP, es decir, `adb`)
 
 - [x] (IMP-1) peri-bilingue — [L] Peri habla y entiende inglés además de español: frases del escudo y del agente, órdenes de voz, relaciones y señales de estafa en inglés; TTS y reconocedor en el idioma del móvil — core/.../shield/, voice/, agent/, android/.../device/ · hecho 2026-10-27
 
@@ -45,7 +45,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [ ] (IMP-1) cuentame-llamada — [M] clasificador de relatos de llamadas frente a guiones de vishing — backend/src/investigator/, training/
 - [x] (IMP-2) filtro-llamadas — [M] `CallScreeningService`: aviso de número fuera de la agenda antes de descolgar — android/.../services/ · hecho 2026-10-27 (aviso antes de descolgar, probado en el emulador)
 - [x] (IMP-1) verificar-llamante — [M] al colgar, "¿quién decía ser?" → comparar con la agenda → ofrecer llamar al número guardado; palabra de la familia; si pide dinero, colgar y devolver la llamada — core/.../agent/, voice/, trust/ · hecho 2026-10-27 (al colgar, "¿quién decía ser?" → llamada al número guardado; probado en el emulador)
-- [ ] (SEG) llamadas-sin-audio — [S] verificar que nada accede al audio de llamadas y que el rol de filtro se pide con explicación — android/app/src/main/AndroidManifest.xml
+- [x] (SEG) llamadas-sin-audio — [S] verificar que nada accede al audio de llamadas y que el rol de filtro se pide con explicación — android/app/src/main/AndroidManifest.xml · hecho 2026-10-27 (sin acceso al audio; el micrófono no se abre durante ninguna llamada)
 - [x] (IMP-1) aprobaciones — [M] enlace de un solo uso, 15 min, página del guardián — backend/src/approvals/ · hecho 2026-10-27
 - [x] (IMP-2) mfa-punta-a-punta — [M] MFA familiar con dos móviles — android/ · hecho 2026-10-27 (dos emuladores; SMS entre ellos entregado con adb)
 - [ ] (IMP-1) avisos-familia — [M] inmediatos, ataque en curso, resumen semanal — core/.../alerts/ · a medias: la página del guardián muestra avisos y pausas al momento; falta el resumen semanal por SMS
@@ -58,7 +58,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [x] (IMP-1) pedir-ayuda — [S] "pide ayuda a mamá", "avisa a mi hija", "ask my daughter for help", "llama a mamá, que necesito ayuda" → llamada con el "sí" de siempre; relación `PARENT` (madre, padre, mum, dad) — core/.../voice/ · hecho 2026-10-27
 - [x] (IMP-1) docs-confianza-y-modelos — [S] `docs/CONFIANZA.md` (acompañar, no vigilar; guion para proponerlo) y `docs/META_MODELS.md` (modelos en el motor y en las imágenes) · hecho 2026-10-27
 - [x] (IMP-2) vista-guardian — [M] "Novedades de Peri": enlace personal por guardián (`/g/:token`, solo su hash), resumen de 7 días y cronología de avisos, pausas y aprobaciones; solo si la persona lo activa, con la misma lista en su móvil; quitarlo invalida los enlaces — backend/src/guardians/ · hecho 2026-10-27 (se guarda en disco desde novedades-en-disco)
-- [ ] (SEG) backend-endurecido — [S] cabeceras, límites de cuerpo y de peticiones — backend/src/server.ts
+- [x] (SEG) backend-endurecido — [S] cabeceras, límites de cuerpo y de peticiones — backend/src/server.ts · hecho 2026-10-27 (`limits.ts`: 30/min en `/a/` y `/g/`, 240/min en `/v1/`, 10 tokens malos → 15 min fuera; cuerpo leído hasta el límite; cabeceras en todo)
 
 ## Día 5 · 31 oct — confianza y emergencia
 - [x] (IMP-2) te-estan-guiando — [M] avisos al instalar apps de control remoto y al abrir la app del banco durante una llamada desconocida — android/.../services/ · hecho 2026-10-27 (apps de control remoto y app del banco en llamada desconocida; probado con el puente de depuración, sin apps reales)

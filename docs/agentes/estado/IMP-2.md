@@ -34,7 +34,7 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
 
 ## Peticiones
 - DIR: `docs/IDEA.md` dice "con un solo permiso"; los SMS usan además `RECEIVE_SMS` por la protección de códigos de Android 15.
-- SEG: revisar los permisos del manifiesto (incluido `PACKAGE_USAGE_STATS`), el receptor de depuración exportado y los nuevos de Mini Peri (`SYSTEM_ALERT_WINDOW`, servicio en primer plano de micrófono).
+- SEG: revisados permisos y receptor de depuración (ahora exige `DUMP`, solo `adb`); HTTP en claro solo en debug; `VoiceInput` no se abre durante una llamada. Queda revisar `SYSTEM_ALERT_WINDOW` y el servicio de micrófono de Mini Peri.
 
 ## Propuestas para el roadmap
 - Grabar los momentos en un móvil real; comprobar allí los nombres de paquete de bancos y apps de control remoto. iPhone: `docs/IPHONE.md`.

@@ -31,7 +31,7 @@
 
 ## Peticiones
 - PUL: poner `META_API_BASE=https://api.meta.ai/v1` en `backend/.env.example`.
-- SEG: revisar las rutas nuevas de `server.ts` (`/v1/approvals`, `/a/:token`, `/v1/guardians/links`, `/v1/events`, `/g/:token`) y añadir límite de peticiones a `/a/` y `/g/`.
+- SEG: hecho a petición de la persona (`backend/src/limits.ts`: límites por IP, bloqueo por token malo, cuerpo limitado, cabeceras; 62 tests). Queda revisar las rutas con ojos de SEG.
 
 ## Propuestas para el roadmap
 - Resuelto: la aprobación de las 09:39 fue un toque de la persona en la ventana del emulador. Investigado: ni la espera ni WAKEUP, BACK o ENDCALL aprueban nada; abrir el enlace solo hace GET.
