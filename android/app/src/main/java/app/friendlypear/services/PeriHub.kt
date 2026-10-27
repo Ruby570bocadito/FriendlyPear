@@ -211,6 +211,17 @@ class PeriHub(context: Context) {
         }
     }
 
+    /** Peri's voices for the Settings chooser, and the one in use. */
+    fun voices() = device.voices()
+    val voiceName: String? get() = device.voiceName
+    val googleVoice: Boolean get() = device.googleEngine
+
+    /** The person picked a voice: Peri uses it from now on and says a sample sentence with it. */
+    fun chooseVoice(name: String) = main.post {
+        device.chooseVoice(name)
+        device.speak(context.getString(R.string.voice_sample))
+    }
+
     /** Nothing understood: Peri says so kindly, and how to try again. */
     fun missedVoice() {
         say(context.getString(R.string.voice_missed))

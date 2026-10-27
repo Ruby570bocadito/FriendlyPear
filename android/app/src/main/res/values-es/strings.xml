@@ -176,4 +176,14 @@
     </string-array>
     <string name="setup_sms">Deja que Peri lea tus SMS, para pillar los códigos trampa (opcional)</string>
     <string name="setup_hide">Ocultar este paso</string>
+    <string name="settings_voice">La voz de Peri</string>
+    <string name="settings_voice_note">Toca una voz para oírla. Peri recuerda la que elijas.</string>
+    <string name="settings_voice_no_google">Este móvil usa su propio motor de voz, que puede sonar robótico. Toca una voz para oírla, o consigue las voces de Google abajo.</string>
+    <string name="settings_voice_none">La voz de Peri todavía se está cargando. Vuelve en un momento.</string>
+    <string name="settings_voice_more">Conseguir voces más naturales</string>
+    <string name="voice_label">Voz %1$d</string>
+    <string name="voice_label_notes">Voz %1$d · %2$s</string>
+    <string name="voice_best">recomendada</string>
+    <string name="voice_online">necesita internet</string>
+    <string name="voice_sample">¡Hola! Así sonaré a partir de ahora. ¿Te gusta?</string>
 </resources>

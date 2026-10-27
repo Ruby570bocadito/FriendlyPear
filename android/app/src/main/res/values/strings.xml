@@ -177,4 +177,14 @@
     </string-array>
     <string name="setup_sms">Let Peri read your texts, to catch scam codes (optional)</string>
     <string name="setup_hide">Hide this step</string>
+    <string name="settings_voice">Peri\'s voice</string>
+    <string name="settings_voice_note">Tap a voice to hear it. Peri remembers your choice.</string>
+    <string name="settings_voice_no_google">This phone uses its own speech engine, which can sound robotic. Tap a voice to hear it, or get Google\'s voices below.</string>
+    <string name="settings_voice_none">Peri\'s voice is still loading. Come back in a moment.</string>
+    <string name="settings_voice_more">Get more natural voices</string>
+    <string name="voice_label">Voice %1$d</string>
+    <string name="voice_label_notes">Voice %1$d · %2$s</string>
+    <string name="voice_best">recommended</string>
+    <string name="voice_online">needs internet</string>
+    <string name="voice_sample">Hello! This is how I\'ll sound from now on. Do you like it?</string>
 </resources>

@@ -52,12 +52,14 @@ class AndroidDevice(
     private val queued = ArrayDeque<String>()
     private val ids = AtomicInteger()
     private var ready = false
+    private var usingGoogle = false
     /**
      * Google's speech engine when the phone has it: some makers' own engines sound robotic, and older people
      * understand a natural voice better. Otherwise the phone's default engine.
      */
     private val tts: TextToSpeech = run {
         val google = runCatching { this.context.packageManager.getPackageInfo(GOOGLE_TTS, 0) }.isSuccess
+        usingGoogle = google
         val ready = TextToSpeech.OnInitListener { status -> main.post { onTtsReady(status) } }
         if (google) TextToSpeech(this.context, ready, GOOGLE_TTS) else TextToSpeech(this.context, ready)
     }
@@ -85,10 +87,36 @@ class AndroidDevice(
         while (queued.isNotEmpty()) say(queued.removeFirst())
     }
 
+    private val prefs = this.context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+
     private fun useVoice() {
         val locale = speechLocale(lang)
         tts.language = locale
-        bestOfflineVoice(locale)?.let { tts.voice = it }
+        // The voice the person chose in Settings, if this phone still has it; otherwise the best offline one.
+        val chosen = prefs.getString(voiceKey(), null)?.let { name -> tts.voices.orEmpty().firstOrNull { it.name == name } }
+        (chosen ?: bestOfflineVoice(locale))?.let { tts.voice = it }
+    }
+
+    private fun voiceKey() = "voice_${lang.name}"
+
+    /** The installed voices for Peri's language, the best first, for the Settings chooser. */
+    fun voices(): List<Voice> {
+        if (!ready) return emptyList()
+        val locale = speechLocale(lang)
+        return tts.voices.orEmpty()
+            .filter { it.locale.language == locale.language && "notInstalled" !in it.features }
+            .sortedWith(compareByDescending<Voice> { it.locale.country == locale.country }.thenByDescending { it.quality }.thenBy { it.isNetworkConnectionRequired })
+            .take(MAX_VOICES)
+    }
+
+    val voiceName: String? get() = if (ready) tts.voice?.name else null
+
+    /** Whether Google's engine is the one speaking (the most natural voices on most phones). */
+    val googleEngine: Boolean get() = usingGoogle
+
+    fun chooseVoice(name: String) {
+        prefs.edit().putString(voiceKey(), name).apply()
+        if (ready) useVoice()
     }
 
     /** The best voice for the language that works without a connection, so Peri never goes silent. */
@@ -143,4 +171,5 @@ fun speechLocale(lang: Lang): Locale = when (lang) {
     Lang.EN -> Locale.getDefault().takeIf { it.language == "en" } ?: Locale.US
 }
 
-private const val GOOGLE_TTS = "com.google.android.tts"
+const val GOOGLE_TTS = "com.google.android.tts"
+private const val MAX_VOICES = 8
