@@ -10,6 +10,9 @@
  *   cd backend; bun ../assets/peri/generate.ts happy            only the named states, from the saved base
  *   cd backend; bun ../assets/peri/generate.ts frames           4 frames per state (36 images, about $0.36)
  *   cd backend; bun ../assets/peri/generate.ts frames calm      only the named states' frames
+ *   cd backend; bun ../assets/peri/generate.ts frames --frame=blinkhalf,talkwide   only those frames
+ *   cd backend; bun ../assets/peri/generate.ts extras           the app icon and the illustrations for screens
+ * Then `python assets/peri/cutout.py` cuts the cream background out for the app.
  */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -44,8 +47,20 @@ export const STATES: Record<string, string> = {
 export const FRAMES: Record<string, string> = {
   blink: "Only change: the eyes are gently closed, as in the middle of a blink. If the eyes are already closed, make the chest rise slightly as if breathing in.",
   talk: "Only change: the mouth is open in a friendly rounded shape, as if saying a word. If sleeping, the mouth makes a tiny soft 'o'.",
+  blinkhalf: "Only change: the eyes are half closed, halfway through a blink, the upper eyelids covering the top half of each eye. If the eyes are already closed, keep them closed and make the smile a little softer.",
+  talkwide: "Only change: the mouth is open wider in a happy rounded 'ah' shape, as if saying a vowel, with a little pink tongue showing. If sleeping, the mouth is a small relaxed oval.",
   swayleft: "Only change: the leaf on top bends a little to the left and the whole body tilts very slightly (about 3 degrees) to the left.",
   swayright: "Only change: the leaf on top bends a little to the right and the whole body tilts very slightly (about 3 degrees) to the right.",
+};
+
+/** Illustrations made from one state, for the app icon and the screens around Peri. */
+export const EXTRAS: Record<string, { from: string; prompt: string }> = {
+  icon: { from: "calm", prompt: "Close-up of Peri's head only: the face large and centred, filling most of the image, warm smile, leaf on top, no arms, no legs, no props." },
+  calm_wave1: { from: "calm", prompt: "Only change: Peri raises the right hand high above the shoulder, waving hello, palm open." },
+  calm_wave2: { from: "calm", prompt: "Only change: Peri raises the right hand high above the shoulder, waving hello, the hand tilted the other way, mid-wave." },
+  family: { from: "calm", prompt: "Peri hugging a big warm coral heart with both arms, happy and caring, two small leaves floating around." },
+  report: { from: "calm", prompt: "Peri holding a clipboard with a big green check mark, proud and kind expression." },
+  shield: { from: "calm", prompt: "Peri holding a big green shield with a white leaf emblem in front of the body, confident and friendly smile." },
 };
 
 async function call(path: string, body: unknown): Promise<Buffer> {
@@ -70,9 +85,11 @@ function save(name: string, image: Buffer, prompt: string) {
   return { name, prompt };
 }
 
-const args = process.argv.slice(2);
+const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const framesMode = args[0] === "frames";
-const only = framesMode ? args.slice(1) : args;
+const extrasMode = args[0] === "extras";
+const only = framesMode || extrasMode ? args.slice(1) : args;
+const pickedFrames = process.argv.find((a) => a.startsWith("--frame="))?.slice(8).split(",");
 const prompts: { name: string; prompt: string }[] = [];
 const baseFile = join(here, "peri_base.webp");
 
@@ -81,19 +98,28 @@ if (framesMode) {
     if (only.length && !only.includes(state)) continue;
     const reference = `data:image/webp;base64,${readFileSync(join(here, `peri_${state}.webp`)).toString("base64")}`;
     for (const [frame, change] of Object.entries(FRAMES)) {
+      if (pickedFrames && !pickedFrames.includes(frame)) continue;
       const prompt = `Exactly the same image: same character, same pose, same framing, same size and position, same background and props. ${change} ${STYLE}`;
       const image = await call("/images/edits", { model: "muse-image-1.0", prompt, images: [{ image_url: reference }], n: 1, size: "1024x1024", output_format: "webp" });
       prompts.push(save(`${state}_${frame}`, image, prompt));
     }
+  }
+} else if (extrasMode) {
+  for (const [name, { from, prompt: change }] of Object.entries(EXTRAS)) {
+    if (only.length && !only.includes(name)) continue;
+    const reference = `data:image/webp;base64,${readFileSync(join(here, `peri_${from}.webp`)).toString("base64")}`;
+    const prompt = `Same character as in the image, same style, same colours and proportions. ${change} ${STYLE}`;
+    const image = await call("/images/edits", { model: "muse-image-1.0", prompt, images: [{ image_url: reference }], n: 1, size: "1024x1024", output_format: "webp" });
+    prompts.push(save(name, image, prompt));
   }
 } else if (only.length === 0 || !existsSync(baseFile)) {
   const prompt = `${STYLE} ${CHARACTER} Peri standing and smiling, full body, front view.`;
   prompts.push(save("base", await call("/images/generations", { model: "muse-image-1.0", prompt, n: 1, size: "1024x1024", output_format: "webp" }), prompt));
 }
 
-const reference = framesMode ? "" : `data:image/webp;base64,${readFileSync(baseFile).toString("base64")}`;
+const reference = framesMode || extrasMode ? "" : `data:image/webp;base64,${readFileSync(baseFile).toString("base64")}`;
 for (const [name, pose] of Object.entries(STATES)) {
-  if (framesMode || (only.length && !only.includes(name))) continue;
+  if (framesMode || extrasMode || (only.length && !only.includes(name))) continue;
   const prompt = `Same character as in the image, same style, same colours and proportions. ${pose} ${STYLE}`;
   const image = await call("/images/edits", {
     model: "muse-image-1.0",
