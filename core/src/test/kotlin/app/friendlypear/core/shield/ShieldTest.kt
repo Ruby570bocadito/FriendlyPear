@@ -59,7 +59,7 @@ class ShieldTest {
         assertEquals(Level.SCAM, v.level)
         assertEquals(HardRule.CODE_DURING_CALL, v.hardRule)
         assertEquals(SafeAction.HANG_UP, v.safeAction)
-        assertTrue("cuelga" in v.explanation)
+        assertTrue(v.explanation.startsWith("Cuelga ahora mismo"))
     }
 
     @Test
@@ -162,7 +162,7 @@ class ShieldTest {
     fun `peri explains in english when asked`() {
         val en = Shield(lang = Lang.EN)
         val v = en.evaluate(IncomingMessage(Channel.SMS, "BBVA", "Your code is 482913", 0), family.copy(callActive = true))
-        assertTrue(v.explanation.startsWith("You got a code while you're on the phone"))
+        assertTrue(v.explanation.startsWith("Please hang up right now: you got a code"))
     }
 }
 
