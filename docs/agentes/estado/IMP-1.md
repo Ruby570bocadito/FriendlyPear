@@ -1,22 +1,26 @@
 # Estado IMP-1
 
 ## Hecho (24 h)
-- escudo-capas: `core/.../shield/`
-  - Señales: remitente fuera de la agenda, enlace, acortador, dominio que imita a una marca (también en el email del remitente), prisa, dinero, petición de código o clave (ignora "no lo compartas"), "número nuevo", premios o inversión, app de control remoto, instrucciones para la IA, código de un solo uso.
-  - Reglas duras: código durante llamada y dominio que imita a una marca → estafa; el modelo no las anula.
-  - Puntuación log-odds con `ShieldWeights.PROVISIONAL` (a mano); `withModelOpinion` limita el voto del modelo a ±2 y sustituye al anterior.
-  - Acción segura y frase de Peri sin enlaces ni números (test).
-  - 37 tests nuevos en `core/src/test/.../shield/`.
+- escudo-capas: `core/.../shield/` (señales, log-odds, reglas duras, voto del modelo ±2, acción segura, frase de Peri; 37 tests).
+- creditos-y-spark: `backend/src/models/spark.ts` + 10 tests sin red.
+  - Meta Model API: `https://api.meta.ai/v1/chat/completions`, formato OpenAI, `Authorization: Bearer`. La antigua `api.llama.com` ya no sirve modelos.
+  - Clave con formato `LLM|id|secreto`. `/v1/models` lista muse-spark-1.1/1.2/1.3 (+ contributor), muse-wonder, muse-image, muse-voice-transcribe y sam-3.1.
+  - Herramientas: `tool_choice` solo admite `"auto"`; llamadas en paralelo por defecto (Spark pidió `consultar_agenda` para hijo e hija a la vez).
+  - El razonamiento cuenta en `max_completion_tokens` incluso con `reasoning_effort: "minimal"` (~150 tokens): con 40 y 120 la respuesta salió vacía (`length`). Por defecto 400, tope 512.
+  - Coste de las 3 pruebas: ~1.400 tokens de entrada y ~440 de salida (< 0,01 $).
+  - Caché en memoria por petición idéntica; `untrusted()` delimita el texto del mensaje.
 
 ## En curso
 - Nada.
 
 ## Bloqueado
-- creditos-y-spark, glimmer-servido: falta la clave de Meta Model API (la persona reclama los 150 $).
+- Nada.
 
 ## Peticiones
+- PUL: poner `META_API_BASE=https://api.meta.ai/v1` en `backend/.env.example`.
 - TEST: pasar la prueba 20/20 también por `Shield` (capa 1 sola) para tener la fila de reglas.
 
 ## Propuestas para el roadmap
+- `muse-spark-1.3-contributor` cuesta ~20 veces menos, pero Meta entrena con los prompts: solo para datos sintéticos (20/20, variantes), nunca con mensajes reales de la familia.
 - pesos-aprendidos debe producir un `ShieldWeights` (mapa señal → peso) que `Shield` ya acepta.
 - Ampliar `Brands.ALL` con dominios oficiales verificados de más bancos y empresas.
