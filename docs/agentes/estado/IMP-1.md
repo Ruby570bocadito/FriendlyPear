@@ -11,10 +11,10 @@
   - Caché en memoria por petición idéntica; `untrusted()` delimita el texto del mensaje.
 
 ## En curso
-- Nada.
+- glimmer-servido: cliente `backend/src/models/glimmer.ts` (sobre el cliente común `chat.ts`), script `models/glimmer/latencia.ts` y pasos de Baseten en `models/glimmer/README.md`.
 
 ## Bloqueado
-- Nada.
+- glimmer-servido: falta desplegar Glimmer en Baseten (lo hace la persona) para medir la latencia.
 
 ## Peticiones
 - PUL: poner `META_API_BASE=https://api.meta.ai/v1` en `backend/.env.example`.
