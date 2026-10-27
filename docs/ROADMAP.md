@@ -33,7 +33,7 @@ Vista general para personas. La lista de tareas que usan los agentes (con IDs, s
 - [ ] Base de conocimiento: fichas de los 15 tipos de estafa
 - [ ] Conjunto de entrenamiento (~1.500 ejemplos, anonimizado) y ejemplos para el prompt
 - [ ] Pesos de las reglas aprendidos con regresión logística
-- [ ] Escudo por capas con tests
+- [x] Escudo por capas con tests
 - [ ] Voz en español, alias y relaciones
 - [ ] Agente con confirmaciones y verificación de resultados
 - [ ] Android: lector de notificaciones, estado de llamada, voz y lectura en voz alta
