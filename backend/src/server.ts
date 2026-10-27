@@ -1,5 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
-import { askPage, resultPage } from "./approvals/page";
+import { askPage, confirmPage, resultPage } from "./approvals/page";
+import { asset } from "./assets";
 import { type ApprovalStore, DECISIONS, type Decision, KINDS, type Kind } from "./approvals/store";
 import type { Config } from "./config";
 import { guardianPage } from "./guardians/page";
@@ -23,7 +24,7 @@ const html = (body: string, status = 200) =>
       "cache-control": "no-store",
       "referrer-policy": "no-referrer",
       "x-frame-options": "DENY",
-      "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+      "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
     },
   });
 
@@ -249,6 +250,13 @@ function routes(config: Config, services: Services) {
       const token = link[1];
       // Audit trail without the secret: who decided is a browser, so we keep the method and its user agent.
       console.log(`guardian link ${req.method} ua=${(req.headers.get("user-agent") ?? "-").slice(0, 80)}`);
+      // The guardian's own Peri asks for the same request as data, to show it in the app; the link is still the key.
+      if (req.method === "GET" && (req.headers.get("accept") ?? "").includes("application/json")) {
+        const a = approvals.byLink(token);
+        if (!a) return json({ error: "not_found" }, 404);
+        const { kind, toName, lang, onCall, status, expiresAt } = a;
+        return json({ kind, toName, lang, onCall, status, expiresAt });
+      }
       if (req.method === "GET") {
         const a = approvals.byLink(token);
         if (!a) return html(resultPage("es", "unknown"), 404);
@@ -259,13 +267,24 @@ function routes(config: Config, services: Services) {
       if (req.method === "POST") {
         const raw = await readLimited(req, 256);
         if (raw === "too_large") return html(resultPage("es", "unknown"), 413);
-        const decision = new URLSearchParams(raw).get("decision");
+        const form = new URLSearchParams(raw);
+        const decision = form.get("decision");
         if (!DECISIONS.includes(decision as Decision)) return html(resultPage("es", "unknown"), 400);
-        const lang = approvals.byLink(token)?.lang ?? "es";
+        const pending = approvals.byLink(token);
+        const lang = pending?.lang ?? "es";
+        // A yes needs a second, deliberate step: the first one only shows the "are you sure?" page.
+        if (decision === "approve" && form.get("confirm") !== "yes" && pending?.status === "pending") {
+          return html(confirmPage(pending, token));
+        }
         const result = approvals.decide(token, decision as Decision);
         if (typeof result === "string") return html(resultPage(lang, result), result === "unknown" ? 404 : 410);
         return html(resultPage(result.lang, result.status === "approved" ? "approved" : result.status === "callback" ? "callback" : "rejected"));
       }
+    }
+
+    if (req.method === "GET" && pathname.startsWith("/p/")) {
+      const picture = asset(pathname);
+      if (picture) return picture;
     }
 
     return json({ error: "not_found" }, 404);

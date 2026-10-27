@@ -19,8 +19,15 @@ const device = (method: string, path: string, body?: unknown) =>
     body: body === undefined ? undefined : JSON.stringify(body),
   });
 
-const decide = (url: string, decision: string) =>
-  new Request(url, { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: `decision=${decision}` });
+const decide = (url: string, decision: string, confirm = decision === "approve") =>
+  new Request(url, {
+    method: "POST",
+    headers: { "content-type": "application/x-www-form-urlencoded" },
+    body: `decision=${decision}${confirm ? "&confirm=yes" : ""}`,
+  });
+
+/** What the guardian reads: the page without its styles and tags (colours and the link token aren't text). */
+const visible = (page: string) => page.replace(/<style>[\s\S]*?<\/style>/, "").replace(/<[^>]+>/g, " ");
 
 async function newApproval(handle: (r: Request) => Promise<Response>, lang = "es") {
   const res = await handle(device("POST", "/v1/approvals", { kind: "send_code", toName: "Pablo", lang }));
@@ -45,7 +52,7 @@ test("the guardian sees what is asked, with No first, and never the code", async
   const page = await (await handle(new Request(a.url))).text();
   expect(page).toContain("Tu familiar quiere mandar a Pablo un mensaje con un código.");
   expect(page.indexOf("No, que no lo mande")).toBeLessThan(page.indexOf("Sí, lo apruebo"));
-  expect(page).not.toMatch(/\d{4,}/);
+  expect(visible(page)).not.toMatch(/\d{4,}/);
 });
 
 test("a change of guardians says so and why it waits 48 hours", async () => {
@@ -73,6 +80,39 @@ test("approving reaches the phone, and the link then stops working", async () =>
   expect(await statusOf(handle, a.id)).toBe("approved");
   expect((await handle(decide(a.url, "reject"))).status).toBe(404);
   expect(await statusOf(handle, a.id)).toBe("approved");
+});
+
+test("a yes needs a second, deliberate step", async () => {
+  const { handle } = setup();
+  const a = await newApproval(handle);
+  const first = await (await handle(decide(a.url, "approve", false))).text();
+  expect(first).toContain("¿Seguro que lo apruebas?");
+  expect(first).toContain("Sabes quién es Pablo y es de confianza.");
+  expect(first.indexOf("No, mejor no")).toBeLessThan(first.indexOf("Sí, lo he comprobado"));
+  expect(await statusOf(handle, a.id)).toBe("pending");
+  expect(await (await handle(decide(a.url, "approve"))).text()).toContain("Aprobado");
+  expect(await statusOf(handle, a.id)).toBe("approved");
+});
+
+test("the guardian's Peri can read the request as data, never the code", async () => {
+  const { handle } = setup();
+  const res = await handle(device("POST", "/v1/approvals", { kind: "send_code", toName: "Pablo", lang: "es", onCall: true }));
+  const { url } = (await res.json()) as { url: string };
+  const data = (await (await handle(new Request(url, { headers: { accept: "application/json" } }))).json()) as Record<string, unknown>;
+  expect(data).toMatchObject({ kind: "send_code", toName: "Pablo", lang: "es", onCall: true, status: "pending" });
+  expect(Object.keys(data).sort()).toEqual(["expiresAt", "kind", "lang", "onCall", "status", "toName"]);
+});
+
+test("Peri's pictures are served from here, and the page allows only those", async () => {
+  const { handle } = setup();
+  const a = await newApproval(handle);
+  const page = await handle(new Request(a.url));
+  expect(page.headers.get("content-security-policy")).toContain("img-src 'self'");
+  expect(await page.text()).toContain('src="/p/guardian.webp"');
+  const img = await handle(new Request("http://x/p/waiting.webp"));
+  expect(img.status).toBe(200);
+  expect(img.headers.get("content-type")).toBe("image/webp");
+  expect((await handle(new Request("http://x/p/../config.webp"))).status).toBe(404);
 });
 
 test("rejecting is final too", async () => {
@@ -140,7 +180,7 @@ test("a scam in progress is flagged to the guardian, without any detail of the c
   const { url } = (await res.json()) as { url: string };
   const page = await (await handle(new Request(url))).text();
   expect(page).toContain("They're on the phone, or just were, with a number they haven't saved.");
-  expect(page).not.toMatch(/\d{4,}/);
+  expect(visible(page)).not.toMatch(/\d{4,}/);
   const calm = await newApproval(handle, "en");
   expect(await (await handle(new Request(calm.url))).text()).not.toContain("on the phone with a number");
 });
