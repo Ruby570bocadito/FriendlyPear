@@ -35,4 +35,4 @@
 ## Propuestas para el roadmap
 - `muse-spark-1.3-contributor` es ~20 veces más barato, pero Meta entrena con los prompts: solo para datos sintéticos.
 - pesos-aprendidos debe producir un `ShieldWeights` que `Shield` ya acepta.
-- Ampliar `Brands.ALL` con bancos y empresas del Reino Unido y EE. UU. (Barclays, HSBC, Royal Mail, HMRC, USPS…) para la demo en inglés.
+- Hecho: marcas de Reino Unido y EE. UU. en `Brands.ALL` y señal `CODE_FORWARD_REQUEST` (pedir que reenvíes un código que te han mandado).
