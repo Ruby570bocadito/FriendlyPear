@@ -5,11 +5,12 @@ Si un nieto le dice a su abuela "te voy a instalar una app para controlarte el m
 ## Principios (se cumplen en el código, no solo en el discurso)
 
 1. **Peri trabaja para la persona, no para la familia.** Ella decide qué permisos da, puede decir "no" a cualquiera y Peri sigue funcionando con lo que tenga.
-2. **La familia no lee nada.** Los guardianes no ven mensajes, llamadas, ubicación ni apps. Solo reciben un enlace para aprobar algo arriesgado (dictar un código, cambiar los guardianes) cuando la propia persona lo pide.
-3. **Todo lo que ve la familia lo ve antes la persona.** "Lo que Peri ha investigado" está en su propio móvil, sin el texto de los mensajes.
+2. **La familia no lee nada.** Los guardianes no ven mensajes, llamadas, ubicación ni apps. Reciben un enlace para aprobar algo arriesgado (dictar un código, cambiar los guardianes) cuando la propia persona lo pide y, solo si ella activa "Que mis guardianes vean las novedades de Peri", una página con lo que Peri hizo (avisó de un timo, hizo una pausa y qué eligió). Lo puede quitar cuando quiera y los enlaces dejan de funcionar.
+3. **Todo lo que ve la familia lo ve antes la persona.** "Lo que ven tus guardianes" muestra en su móvil exactamente la misma lista, y "Lo que Peri ha investigado" está también en su móvil, sin el texto de los mensajes.
 4. **Nada a escondidas.** Peri explica cada permiso antes de pedirlo, dice qué no hará con él y nunca lo vuelve a pedir en cada arranque. Mini Peri tiene siempre una notificación visible y se guarda con un toque.
 5. **Nadie se adueña de la protección.** Cambiar quién es guardián necesita el sí de un guardián actual y 48 horas, y la persona puede cancelarlo.
 6. **Lenguaje de compañía.** En la app nunca aparecen "controlar", "vigilar", "monitorizar" ni "supervisar". Peri dice "te ayudo", "lo comprobamos juntos", "¿llamo a Laura?".
+7. **Pausa, no muro.** Antes de algo arriesgado (abrir el banco tras un timo o durante la llamada de un desconocido) Peri para un momento y propone llamar a la familia, pero "Seguir de todos modos" siempre está ahí: la decisión es de la persona.
 
 ## Lo que Peri hace por la persona (lo primero que se cuenta)
 

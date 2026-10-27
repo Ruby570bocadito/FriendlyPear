@@ -19,7 +19,9 @@
 - investigador-en-el-movil: si tras Spark Open sigue en DOUBT, `OpinionClient.investigate` (30 s) manda también las relaciones de la familia (nunca nombres); los dos votos juntos se recortan a ±2. La evidencia (nunca el mensaje) se guarda en el móvil (`config/InvestigationLog`, últimas 10) y se ve en la configuración de la familia. Emulador: excursión del cole → 0 + 0 → dudoso (9 s); "cuota del gimnasio" con enlace → +1,8 + 1,7 → estafa (8 s).
 - enlaces-inseguros: `Links.insecure` + `Signal.INSECURE_LINK` (2,5): un enlace de la familia con `http://` ya es dudoso. Emulador: "fotos de la boda" con `http://` → "its link has no padlock…". La prueba 20/20 (solo reglas) no cambia.
 - pedir-ayuda: `VoiceCommands` (`askForHelp`, `helpTail`) y `Relation.PARENT`. Emulador: "avisa a mi hija que necesito ayuda" → "Sure! Shall I call Ana?".
-- Tests: core (171) y backend (52) en verde.
+- pausa-segura: `PeriAgent.onAppOpened` + `RecentRisk` (30 min tras un timo, un dudoso o una llamada desconocida contestada) → `DevicePort.showPause`; `onPauseAnswer` (llamar, salir, seguir); el "sí" hablado también llama. `watchesApps` mantiene el vigilante de apps solo mientras hay riesgo.
+- vista-guardian (backend): `guardians/` (`store.ts`, `page.ts`), `POST/DELETE /v1/guardians/links`, `POST /v1/events` (solo nivel y canal, o la respuesta de la pausa), `GET /g/:token`. En memoria.
+- Tests: core (178) y backend (57) en verde.
 
 ## En curso
 - Nada.
@@ -29,7 +31,7 @@
 
 ## Peticiones
 - PUL: poner `META_API_BASE=https://api.meta.ai/v1` en `backend/.env.example`.
-- SEG: revisar las rutas nuevas de `server.ts` (`/v1/approvals`, `/a/:token`) y añadir límite de peticiones a `/a/`.
+- SEG: revisar las rutas nuevas de `server.ts` (`/v1/approvals`, `/a/:token`, `/v1/guardians/links`, `/v1/events`, `/g/:token`) y añadir límite de peticiones a `/a/` y `/g/`.
 
 ## Propuestas para el roadmap
 - Resuelto: la aprobación de las 09:39 fue un toque de la persona en la ventana del emulador. Investigado: ni la espera ni WAKEUP, BACK o ENDCALL aprueban nada; abrir el enlace solo hace GET.
