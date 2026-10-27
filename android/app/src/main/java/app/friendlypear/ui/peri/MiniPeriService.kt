@@ -159,6 +159,7 @@ class MiniPeriService : Service(), PeriView {
             setTextColor(Palette.INK)
             setLineSpacing(0f, 1.1f)
             maxWidth = bubbleWidth()
+            minHeight = dp(44)
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
             elevation = dp(4).toFloat()
             visibility = View.GONE
@@ -551,8 +552,8 @@ class MiniPeriService : Service(), PeriView {
         private const val ACTION_CALL_ENDED = "app.friendlypear.mini.CALL_ENDED"
         private const val CHANNEL = "mini_peri"
         private const val NOTIFICATION_ID = 7
-        private const val SIZE_DP = 128
-        private const val RING_DP = 112
+        private const val SIZE_DP = 100
+        private const val RING_DP = 88
         private const val TARGET_DP = 64
         /** How close (from the finger to the "×") counts as dropping her on it. */
         private const val HIT_DP = 72
