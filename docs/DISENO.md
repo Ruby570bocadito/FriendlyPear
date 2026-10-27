@@ -25,6 +25,16 @@ FriendlyPear debe sentirse **alegre, viva y cercana**, como una mascota de video
 
 > Coral con texto **blanco** solo llega a 4,44:1: por eso el texto sobre coral es siempre tinta oscura.
 
+Colores de la interfaz (`ui/peri/Style.kt`), todos ≥ 7:1:
+
+| Rol | Color | Texto encima | Contraste |
+|---|---|---|---|
+| Verde bosque (botón principal) | `#25541A` | Blanco | 8,89:1 ✅ |
+| Verde brote (botones secundarios, chip "Protecting you") | `#E1F0CF` | Verde bosque | 7,44:1 ✅ |
+| Blanco (tarjetas, bocadillo) | `#FFFFFF` | Tinta / tinta suave `#3F4D39` | 14,95:1 / 9,01:1 ✅ |
+| Prado (final del degradado del fondo) | `#EAF4DC` | Tinta | 13,15:1 ✅ |
+| Ámbar claro (chip "Setup not finished", cambios pendientes) | `#FFEBC7` | Ámbar oscuro `#6B3E00` | 7,76:1 ✅ |
+
 **Nunca solo color:** cada estado lleva también icono y palabra ("Todo bien", "Cuidado", "Es una trampa"), para personas que no distinguen colores.
 
 ## 3. Peri
