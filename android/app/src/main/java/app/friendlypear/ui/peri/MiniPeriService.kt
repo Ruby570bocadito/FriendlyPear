@@ -231,6 +231,7 @@ class MiniPeriService : Service(), PeriView {
                     startY = params.y
                     dragging = false
                     longPressed = false
+                    face.press(true)
                     main.postDelayed(longPress, ViewConfiguration.getLongPressTimeout().toLong() + LONG_PRESS_EXTRA)
                 }
                 MotionEvent.ACTION_MOVE -> {
@@ -251,10 +252,12 @@ class MiniPeriService : Service(), PeriView {
                     }
                 }
                 MotionEvent.ACTION_UP -> {
+                    face.press(false)
                     main.removeCallbacks(longPress)
                     if (dragging) drop() else if (!longPressed) face.performClick()
                 }
                 MotionEvent.ACTION_CANCEL -> {
+                    face.press(false)
                     main.removeCallbacks(longPress)
                     if (dragging) drop()
                 }

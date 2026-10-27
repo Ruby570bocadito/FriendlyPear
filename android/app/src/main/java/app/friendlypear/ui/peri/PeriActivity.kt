@@ -70,6 +70,14 @@ class PeriActivity : Activity() {
         face = PeriFace(this).apply {
             isClickable = true
             setOnClickListener { tapped() }
+            // She squishes under the finger and springs back; the tap itself still goes to tapped().
+            setOnTouchListener { _, e ->
+                when (e.actionMasked) {
+                    android.view.MotionEvent.ACTION_DOWN -> press(true)
+                    android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> press(false)
+                }
+                false
+            }
         }
 
         said = TextView(this).apply {
@@ -214,6 +222,7 @@ class PeriActivity : Activity() {
         setContentView(root)
         // The screen says hello: Peri first, then her bubble and the buttons, one by one.
         listOf(said, setup, talk, look, secondary).forEachIndexed { i, v -> v.floatIn(80L + 70L * i) }
+        if (savedInstanceState == null) face.post { face.enter() }
 
         // This screen shows Android's dialog whenever Peri needs a permission, now or later.
         hub.permissions.presenter = { need, done ->
