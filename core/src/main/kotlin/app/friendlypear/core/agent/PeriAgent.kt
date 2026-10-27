@@ -37,7 +37,7 @@ class PeriAgent(
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
     /** A high-risk action waiting for a guardian. Kept apart from [pending]: Peri keeps helping meanwhile. */
-    private data class AwaitingGuardian(val ticket: String, val action: Action)
+    private data class AwaitingGuardian(val ticket: String, val action: Action, val guardians: List<Contact>)
 
     private var awaitingGuardian: AwaitingGuardian? = null
     private var tickets = 0
@@ -430,10 +430,13 @@ class PeriAgent(
         device.prepare(Capability.SEND_SMS) { allowed ->
             if (!allowed) return@prepare say(p.couldNotAsk)
             val ticket = "approval-${++tickets}"
-            awaitingGuardian = AwaitingGuardian(ticket, action)
-            say(p.askingGuardian(speech.names(guardians.take(3).map { it.name })), Mood.WAITING)
-            approvals.request(ticket, ApprovalKind.SEND_CODE, action.contact.name, guardians.take(3)) { url ->
-                p.guardianSms(action.contact.name, url)
+            val asked = guardians.take(3)
+            awaitingGuardian = AwaitingGuardian(ticket, action, asked)
+            say(p.askingGuardian(speech.names(asked.map { it.name })), Mood.WAITING)
+            // On the line with a stranger, or just hung up on one: the guardian should know it may be a scam in progress.
+            val onCall = strangerOnLine || recent?.let { it.kind == RecentKind.CALL && clock() < it.until } == true
+            approvals.request(ticket, ApprovalKind.SEND_CODE, action.contact.name, asked, onCall) { url ->
+                p.guardianSms(action.contact.name, url, onCall)
             }
         }
     }
@@ -448,6 +451,13 @@ class PeriAgent(
                 perform(waiting.action)
             }
             ApprovalResult.REJECTED -> say(p.guardianRejected)
+            // They'd rather talk first: Peri offers to call them, and a "yes" does it.
+            ApprovalResult.CALL_BACK -> {
+                val who = waiting.guardians.firstOrNull { it.phones.isNotEmpty() } ?: return say(p.guardianRejected)
+                val question = p.guardianWantsCall(who.name)
+                pending = Pending.Confirm(Action.Call(who), question)
+                say(question, Mood.CALLING)
+            }
             ApprovalResult.EXPIRED -> say(p.guardianSilent)
             ApprovalResult.FAILED -> say(p.couldNotAsk)
         }

@@ -48,7 +48,8 @@ internal interface Phrases {
     val guardianRejected: String
     val guardianSilent: String
     val couldNotAsk: String
-    fun guardianSms(toName: String, url: String): String
+    fun guardianSms(toName: String, url: String, onCall: Boolean = false): String
+    fun guardianWantsCall(name: String): String
     val bankDuringCall: String
     fun remoteDuringCall(app: String): String
     /** The safety pause, a while after something worrying: [remoteApp] when it's a remote-control app, else a money app. */
@@ -136,8 +137,11 @@ internal object Spanish : Phrases {
         "Tu familia prefiere que no lo mandemos, así que no lo envío. Seguro que tienen sus motivos; si quieres, les llamamos."
     override val guardianSilent = "Tu familia no ha contestado a tiempo, así que no lo mando. Lo más seguro es esperar y preguntarles luego."
     override val couldNotAsk = "No he podido preguntar a tu familia ahora mismo, así que no lo mando. Lo intentamos más tarde."
-    override fun guardianSms(toName: String, url: String) =
-        "Peri: tu familiar quiere mandar a $toName un mensaje con un código y te pide permiso. Decide aquí (caduca en 15 minutos): $url"
+    override fun guardianSms(toName: String, url: String, onCall: Boolean) =
+        if (onCall) "Peri, URGENTE: tu familiar quiere mandar a $toName un código justo después de hablar por teléfono con un número desconocido. Decide aquí (caduca en 15 minutos): $url"
+        else "Peri: tu familiar quiere mandar a $toName un mensaje con un código y te pide permiso. Decide aquí (caduca en 15 minutos): $url"
+    override fun guardianWantsCall(name: String) =
+        "$name prefiere hablarlo contigo antes de mandar nada. Si me dices que sí, le llamo ahora mismo."
     override fun remoteDuringCall(app: String) =
         "Cuelga, por favor: estás abriendo $app mientras hablas con un número que no está en tu agenda. " +
             "Con ese programa otra persona podría manejar tu móvil desde lejos, y nadie de verdad te lo pedirá."
@@ -234,8 +238,11 @@ internal object English : Phrases {
         "Your family would rather we didn't send it, so I won't. I'm sure they have their reasons; we can call them if you like."
     override val guardianSilent = "Your family didn't answer in time, so I won't send it. The safest thing is to wait and ask them later."
     override val couldNotAsk = "I couldn't ask your family right now, so I won't send it. Let's try again later."
-    override fun guardianSms(toName: String, url: String) =
-        "Peri: your relative wants to send $toName a message with a code and asks for your OK. Decide here (expires in 15 minutes): $url"
+    override fun guardianSms(toName: String, url: String, onCall: Boolean) =
+        if (onCall) "Peri, URGENT: your relative wants to send $toName a code right after a call with an unknown number. Decide here (expires in 15 minutes): $url"
+        else "Peri: your relative wants to send $toName a message with a code and asks for your OK. Decide here (expires in 15 minutes): $url"
+    override fun guardianWantsCall(name: String) =
+        "$name would rather talk to you before anything is sent. If you say yes, I'll call them right now."
     override fun remoteDuringCall(app: String) =
         "Please hang up: you're opening $app while you're on the phone with a number that isn't in your contacts. " +
             "With that program someone else could control your phone from far away, and nobody genuine will ask you to."

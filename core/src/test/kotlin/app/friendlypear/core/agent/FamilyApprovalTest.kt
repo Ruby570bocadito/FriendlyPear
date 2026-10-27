@@ -23,10 +23,10 @@ private class SmsDevice : DevicePort {
 }
 
 private class FakeApprovals : ApprovalPort {
-    data class Asked(val ticket: String, val kind: ApprovalKind, val toName: String, val guardians: List<Contact>, val sms: String)
+    data class Asked(val ticket: String, val kind: ApprovalKind, val toName: String, val guardians: List<Contact>, val onCall: Boolean, val sms: String)
     val asked = mutableListOf<Asked>()
-    override fun request(ticket: String, kind: ApprovalKind, toName: String, guardians: List<Contact>, smsFor: (url: String) -> String) {
-        asked += Asked(ticket, kind, toName, guardians, smsFor("http://10.0.2.2:8711/a/TOKEN"))
+    override fun request(ticket: String, kind: ApprovalKind, toName: String, guardians: List<Contact>, onCall: Boolean, smsFor: (url: String) -> String) {
+        asked += Asked(ticket, kind, toName, guardians, onCall, smsFor("http://10.0.2.2:8711/a/TOKEN"))
     }
 }
 
@@ -50,6 +50,44 @@ class FamilyApprovalTest {
         assertEquals(ApprovalKind.SEND_CODE, asked.kind)
         assertEquals("Pablo", asked.toName)
         assertEquals(listOf(laura), asked.guardians)
+    }
+
+    @Test
+    fun `a guardian who wants to talk first gets a call offer`() {
+        val d = SmsDevice()
+        val mfa = FakeApprovals()
+        val a = agent(d, mfa)
+        a.onHeard("dile a Pablo que el código es 4821")
+        a.onApprovalResult(mfa.asked.single().ticket, ApprovalResult.CALL_BACK)
+        assertTrue(d.sms.isEmpty())
+        assertTrue(d.said.last().startsWith("Laura prefiere hablarlo contigo antes"), d.said.last())
+        assertTrue(a.isWaitingForAnswer)
+    }
+
+    @Test
+    fun `the guardian hears it's urgent when a stranger is on the line`() {
+        val mfa = FakeApprovals()
+        val a = agent(SmsDevice(), mfa)
+        a.onIncomingCall("+34 911 000 111")
+        a.onCallStateChanged(active = true, answered = true)
+        a.onHeard("dile a Pablo que el código es 4821")
+        val asked = mfa.asked.single()
+        assertTrue(asked.onCall)
+        assertTrue(asked.sms.startsWith("Peri, URGENTE"), asked.sms)
+        assertFalse(asked.sms.contains("4821"))
+        assertFalse(asked.sms.contains("911"))
+    }
+
+    @Test
+    fun `just after hanging up on a stranger it is still urgent`() {
+        val mfa = FakeApprovals()
+        val a = agent(SmsDevice(), mfa)
+        a.onIncomingCall("+34 911 000 111")
+        a.onCallStateChanged(active = true, answered = true)
+        a.onCallStateChanged(active = false)
+        a.onHeard("no")
+        a.onHeard("dile a Pablo que el código es 4821")
+        assertTrue(mfa.asked.single().onCall)
     }
 
     @Test
