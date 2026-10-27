@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
-import { MAX_TOKENS_CAP, SparkClient, SparkError, sparkFromEnv, untrusted } from "../../src/models/spark";
+import { MAX_TOKENS_CAP, ModelError, untrusted } from "../../src/models/chat";
+import { SparkClient, sparkFromEnv } from "../../src/models/spark";
 
 type Seen = { url: string; init: RequestInit };
 
@@ -90,17 +91,17 @@ test("the cache forgets the oldest entry when full", async () => {
   expect(seen.length).toBe(3);
 });
 
-test("API errors become a SparkError without the key", async () => {
+test("API errors become a ModelError without the key", async () => {
   const { fn } = fakeFetch({ error: "bad" }, 401);
   const err = await client(fn).chat({ messages: [{ role: "user", content: "x" }] }).catch((e) => e);
-  expect(err).toBeInstanceOf(SparkError);
+  expect(err).toBeInstanceOf(ModelError);
   expect(err.status).toBe(401);
   expect(err.message).not.toContain("Bearer");
 });
 
 test("a reply without choices is an error", async () => {
   const { fn } = fakeFetch({ choices: [] });
-  await expect(client(fn).chat({ messages: [{ role: "user", content: "x" }] })).rejects.toBeInstanceOf(SparkError);
+  await expect(client(fn).chat({ messages: [{ role: "user", content: "x" }] })).rejects.toBeInstanceOf(ModelError);
 });
 
 test("untrusted text is delimited and cannot close the delimiter", () => {
