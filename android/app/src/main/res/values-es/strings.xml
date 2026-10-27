@@ -23,4 +23,20 @@
     <string name="why_notifications">Una última cosa: para leer los avisos de WhatsApp y del correo, deja que Peri los lea en la pantalla siguiente. Solo los leo en tu móvil.</string>
     <string name="usage_access">Dejar que Peri note la app del banco en las llamadas</string>
     <string name="why_usage">Los falsos bancos te piden abrir la app del banco sin colgar. Para avisarte, necesito ver qué app está abierta, solo durante una llamada que hayas descolgado. En la pantalla siguiente, activa FriendlyPear. Nunca veo lo que haces dentro de tus apps.</string>
+    <string name="family_title">Configurar la familia</string>
+    <string name="family_intro">Hacedlo juntos. Los guardianes reciben avisos y aprueban lo arriesgado, pero no pueden leer tus mensajes ni mover dinero. Todo se queda en este móvil.</string>
+    <string name="family_word_agreed">Hemos acordado una palabra de la familia</string>
+    <string name="family_word_note">Una palabra secreta que solo sabe tu familia, para distinguir una llamada de verdad de una voz clonada. Peri nunca la guarda ni la dice: solo te recuerda que la pidas.</string>
+    <string name="family_no_contacts">Todavía no veo tu agenda. Primero dale permiso a Peri para verla.</string>
+    <string name="family_guardian">Guardián: recibe avisos y aprueba lo arriesgado</string>
+    <string name="family_aliases_hint">Apodos, separados por comas (el chico, Pablito)</string>
+    <string name="relation_none">Relación: ninguna</string>
+    <string name="relation_child">Hijo o hija</string>
+    <string name="relation_grandchild">Nieto o nieta</string>
+    <string name="relation_nephew_niece">Sobrino o sobrina</string>
+    <string name="relation_sibling">Hermano o hermana</string>
+    <string name="relation_partner">Pareja</string>
+    <string name="relation_friend">Amigo o amiga</string>
+    <string name="relation_caregiver">Cuidador o cuidadora</string>
+    <string name="relation_other">Otra</string>
 </resources>

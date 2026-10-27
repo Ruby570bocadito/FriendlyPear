@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import app.friendlypear.BuildConfig
+import app.friendlypear.config.FamilyStore
 import app.friendlypear.config.Need
 import app.friendlypear.config.PermissionGate
 import app.friendlypear.config.PhoneContacts
@@ -57,6 +58,8 @@ class PeriHub(context: Context) {
     /** One permission at a time, with Peri's explanation; the screen registers itself to show Android's dialog. */
     val permissions: PermissionGate = PermissionGate(this.context) { text -> device.speak(text) }
     private var contacts: List<Contact>? = null
+    private val family = FamilyStore(this.context)
+    private var familyWord = false
     private val approvalClient = ApprovalClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
     /** Waiting for a guardian can take minutes, so it never shares a thread with second opinions. */
     private val waiting = Executors.newCachedThreadPool()
@@ -122,9 +125,11 @@ class PeriHub(context: Context) {
     /** Reloads contacts and listeners after permissions change; the agent keeps its state if nothing changed. */
     fun refresh() = main.post {
         calls.start()
-        val fresh = PhoneContacts.load(context)
-        if (fresh != contacts) {
+        val config = family.load()
+        val fresh = config.applyTo(PhoneContacts.load(context))
+        if (fresh != contacts || config.hasFamilyWord != familyWord) {
             contacts = fresh
+            familyWord = config.hasFamilyWord
             agent = newAgent(fresh).also { it.onCallStateChanged(callActive) }
         }
     }
@@ -168,11 +173,13 @@ class PeriHub(context: Context) {
     }
 
     private fun newAgent(contacts: List<Contact>): PeriAgent =
-        PeriAgent(device, contacts, lang, approvals = if (approvalClient.enabled) approvals else null)
+        PeriAgent(device, contacts, lang, hasFamilyWord = familyWord, approvals = if (approvalClient.enabled) approvals else null)
 
     private fun refreshNow() {
         calls.start()
-        contacts = PhoneContacts.load(context).also { agent = newAgent(it).apply { onCallStateChanged(callActive) } }
+        val config = family.load()
+        familyWord = config.hasFamilyWord
+        contacts = config.applyTo(PhoneContacts.load(context)).also { agent = newAgent(it).apply { onCallStateChanged(callActive) } }
     }
 
     /**

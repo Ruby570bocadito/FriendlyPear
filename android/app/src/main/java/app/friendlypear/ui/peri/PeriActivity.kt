@@ -31,6 +31,7 @@ class PeriActivity : Activity() {
     private lateinit var talk: Button
     private lateinit var access: Button
     private lateinit var usage: Button
+    private lateinit var family: Button
     private var resumed = false
     private var answer: ((Boolean) -> Unit)? = null
     private val asked by lazy { getSharedPreferences("permissions", MODE_PRIVATE) }
@@ -59,6 +60,11 @@ class PeriActivity : Activity() {
             textSize = 18f
             setOnClickListener { startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)) }
         }
+        family = Button(this).apply {
+            text = getString(R.string.family_title)
+            textSize = 18f
+            setOnClickListener { startActivity(Intent(this@PeriActivity, FamilyActivity::class.java)) }
+        }
         // Usage access is a special setting: Peri explains it first, then opens the screen where it's granted.
         usage = Button(this).apply {
             text = getString(R.string.usage_access)
@@ -77,6 +83,7 @@ class PeriActivity : Activity() {
                 addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
                 addView(access)
                 addView(usage)
+                addView(family)
                 addView(talk, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
             },
         )

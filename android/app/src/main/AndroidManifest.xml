@@ -80,6 +80,11 @@
             </intent-filter>
         </service>
 
+        <activity
+            android:name=".ui.peri.FamilyActivity"
+            android:exported="false"
+            android:label="@string/family_title" />
+
         <!-- Sees incoming numbers before pickup to warn about strangers; never blocks or hears the call. -->
         <service
             android:name=".services.CallScreener"

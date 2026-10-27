@@ -24,4 +24,20 @@
     <string name="why_notifications">One last thing: to read your WhatsApp and email alerts, allow Peri in the next screen. I only read them on your phone.</string>
     <string name="usage_access">Let Peri notice your bank app during calls</string>
     <string name="why_usage">Fake bank callers ask you to open your bank app while they stay on the line. To warn you, I need to see which app is open, only during a call you picked up. In the next screen, allow FriendlyPear. I never see what you do inside your apps.</string>
+    <string name="family_title">Family setup</string>
+    <string name="family_intro">Set this up together. Guardians get alerts and approve risky things, but they can\'t read your messages or move money. Everything stays on this phone.</string>
+    <string name="family_word_agreed">We have agreed a family word</string>
+    <string name="family_word_note">A secret word only your family knows, to tell a real call from a cloned voice. Peri never stores it or says it: she only reminds you to ask for it.</string>
+    <string name="family_no_contacts">I can\'t see your contacts yet. Give Peri permission to see them first.</string>
+    <string name="family_guardian">Guardian: gets alerts and approves risky things</string>
+    <string name="family_aliases_hint">Nicknames, separated by commas (the boy, Pablito)</string>
+    <string name="relation_none">Relation: none</string>
+    <string name="relation_child">Son or daughter</string>
+    <string name="relation_grandchild">Grandchild</string>
+    <string name="relation_nephew_niece">Nephew or niece</string>
+    <string name="relation_sibling">Brother or sister</string>
+    <string name="relation_partner">Partner</string>
+    <string name="relation_friend">Friend</string>
+    <string name="relation_caregiver">Carer</string>
+    <string name="relation_other">Other</string>
 </resources>
