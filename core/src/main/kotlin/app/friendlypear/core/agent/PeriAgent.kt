@@ -2,6 +2,7 @@ package app.friendlypear.core.agent
 
 import app.friendlypear.core.model.Contact
 import app.friendlypear.core.model.IncomingMessage
+import app.friendlypear.core.model.Lang
 import app.friendlypear.core.model.Level
 import app.friendlypear.core.model.Relation
 import app.friendlypear.core.model.TrustLevel
@@ -26,8 +27,13 @@ import app.friendlypear.core.voice.VoiceCommands
 class PeriAgent(
     private val device: DevicePort,
     private val contacts: List<Contact>,
-    private val shield: Shield = Shield(),
+    /** The language Peri speaks; orders are understood in Spanish and English whatever it is. */
+    lang: Lang = Lang.ES,
+    private val shield: Shield = Shield(lang = lang),
 ) {
+    private val p = Phrases.of(lang)
+    private val speech = SafeSpeech(p)
+
     private sealed interface Pending {
         data class Confirm(val action: Action, val question: String) : Pending
         data class Choose(val candidates: List<Contact>, val build: (Contact) -> Action, val question: String) : Pending
@@ -62,12 +68,11 @@ class PeriAgent(
         when (real.size) {
             0 -> say(verdict.explanation)
             1 -> {
-                val question = "¿Llamo a ${real[0].name} a su número de siempre?"
-                pending = Pending.Confirm(Action.Call(real[0]), question)
-                say("${verdict.explanation} Si me dices que sí, llamo a ${real[0].name}.")
+                pending = Pending.Confirm(Action.Call(real[0]), p.callUsual(real[0].name))
+                say(p.offerCall(verdict.explanation, real[0].name))
             }
             else -> {
-                val question = "¿A quién llamo: ${SafeSpeech.names(real.map { it.name })}?"
+                val question = p.whoToCall(speech.names(real.map { it.name }))
                 pending = Pending.Choose(real, { Action.Call(it) }, question)
                 say("${verdict.explanation} $question")
             }
@@ -81,26 +86,26 @@ class PeriAgent(
             pending = null
             return handle(command)
         }
-        when (val p = pending) {
+        when (val w = pending) {
             null -> handle(command)
             Pending.Emergency -> when (command) {
                 Command.Cancel, Command.No -> {
                     pending = null
-                    say("Vale, me alegro de que estés bien. No aviso a nadie.")
+                    say(p.emergencyCancelled)
                 }
-                else -> say("Si estás bien, di «cancelar».")
+                else -> say(p.sayCancelIfFine)
             }
             is Pending.Confirm -> when (command) {
                 Command.Yes -> {
                     pending = null
-                    perform(p.action)
+                    perform(w.action)
                 }
                 Command.No, Command.Cancel -> {
                     pending = null
-                    say("Vale, no hago nada.")
+                    say(p.doingNothing)
                 }
-                Command.Repeat -> say(p.question)
-                is Command.Unknown -> say("Dime «sí» o «no». ${p.question}")
+                Command.Repeat -> say(w.question)
+                is Command.Unknown -> say(p.yesOrNo(w.question))
                 else -> {
                     pending = null
                     handle(command)
@@ -109,17 +114,17 @@ class PeriAgent(
             is Pending.Choose -> when (command) {
                 Command.No, Command.Cancel -> {
                     pending = null
-                    say("Vale, no hago nada.")
+                    say(p.doingNothing)
                 }
-                Command.Repeat -> say(p.question)
+                Command.Repeat -> say(w.question)
                 else -> {
                     val spoken = (command as? Command.Call)?.target ?: utterance
-                    when (val r = ContactDirectory(p.candidates).resolve(spoken)) {
+                    when (val r = ContactDirectory(w.candidates).resolve(spoken)) {
                         is Resolution.Found -> {
                             pending = null
-                            request(p.build(r.contact))
+                            request(w.build(r.contact))
                         }
-                        else -> say(p.question)
+                        else -> say(w.question)
                     }
                 }
             }
@@ -132,16 +137,15 @@ class PeriAgent(
         pending = null
         val family = emergencyContacts()
         if (family.isEmpty()) {
-            say("No tengo a nadie de tu familia guardado para avisar. Si puedes, pide ayuda en voz alta.")
+            say(p.noFamily)
             return
         }
         val location = device.lastKnownLocation()
-        val text = "Aviso de Peri: tu familiar ha dicho que se ha caído y no ha cancelado el aviso." +
-            (location?.let { " Ubicación: https://maps.google.com/?q=$it" } ?: " No tengo su ubicación.")
+        val text = p.emergencySms(location)
         family.forEach { c -> c.phones.firstOrNull()?.let { phone -> attempt { device.sendSms(phone, text) } } }
-        say("Aviso a ${family.first().name}.")
+        say(p.alerting(family.first().name))
         if (family.none { c -> c.phones.any { attempt { device.call(it) } } }) {
-            say("No he podido llamar a nadie. Les he mandado un mensaje; si puedes, pide ayuda en voz alta.")
+            say(p.couldNotCallAnyone)
         }
     }
 
@@ -152,33 +156,32 @@ class PeriAgent(
             is Command.ReadMessages -> readMessages(command.onlyLast)
             Command.Emergency -> {
                 pending = Pending.Emergency
-                val who = emergencyContacts().firstOrNull()?.name ?: "tu familia"
-                say("¿Estás bien? Si estás bien, di «cancelar». Si no, en diez segundos aviso a $who.")
+                say(p.countdown(emergencyContacts().firstOrNull()?.name))
             }
-            Command.Yes -> say("¿Qué quieres que haga?")
-            Command.No, Command.Cancel -> say("Vale.")
-            Command.Repeat -> say(lastSaid.ifEmpty { "No te había dicho nada todavía." })
-            is Command.Unknown -> say("No te he entendido. Puedes decirme, por ejemplo, «llama a Laura» o «léeme los mensajes».")
+            Command.Yes -> say(p.whatToDo)
+            Command.No, Command.Cancel -> say(p.ok)
+            Command.Repeat -> say(lastSaid.ifEmpty { p.nothingSaidYet })
+            is Command.Unknown -> say(p.help)
         }
     }
 
     private fun resolve(target: String, build: (Contact) -> Action) {
         when (val r = directory.resolve(target)) {
             is Resolution.Found ->
-                if (r.contact.phones.isEmpty()) say("No tengo el número de ${r.contact.name}.") else request(build(r.contact))
+                if (r.contact.phones.isEmpty()) say(p.noNumber(r.contact.name)) else request(build(r.contact))
             is Resolution.Ambiguous -> {
                 val reachable = r.candidates.filter { it.phones.isNotEmpty() }
                 when (reachable.size) {
-                    0 -> say("No tengo el número de ${SafeSpeech.names(r.candidates.map { it.name })}.")
+                    0 -> say(p.noNumber(speech.names(r.candidates.map { it.name })))
                     1 -> request(build(reachable.single()))
                     else -> {
-                        val question = "¿A quién: ${SafeSpeech.names(reachable.map { it.name })}?"
+                        val question = p.whichOne(speech.names(reachable.map { it.name }))
                         pending = Pending.Choose(reachable, build, question)
                         say(question)
                     }
                 }
             }
-            Resolution.NotFound -> say("No encuentro a esa persona en tu agenda. ¿Cómo se llama?")
+            Resolution.NotFound -> say(p.notFound)
         }
     }
 
@@ -188,15 +191,15 @@ class PeriAgent(
             Risk.LOW -> perform(action)
             Risk.MEDIUM -> {
                 val question = when (action) {
-                    is Action.Call -> "¿Llamo a ${action.contact.name}?"
-                    is Action.SendSms -> "¿Le mando a ${action.contact.name} este mensaje: «${action.text}»?"
+                    is Action.Call -> p.confirmCall(action.contact.name)
+                    is Action.SendSms -> p.confirmSms(action.contact.name, action.text)
                 }
                 pending = Pending.Confirm(action, question)
                 say(question)
             }
             Risk.HIGH -> {
                 pending = null
-                say("Mandar un código es arriesgado: eso tiene que aprobarlo alguien de tu familia, así que no lo mando.")
+                say(p.needsGuardian)
             }
         }
     }
@@ -207,16 +210,16 @@ class PeriAgent(
         val phones = action.contact.phones
         when (action) {
             is Action.Call -> {
-                say("Llamo a $name.")
+                say(p.calling(name))
                 if (phones.none { attempt { device.call(it) } }) {
-                    say("No he podido llamar a $name. Su número es ${SafeSpeech.phone(phones.first())}; puedes marcarlo tú.")
+                    say(p.callFailed(name, SafeSpeech.phone(phones.first())))
                 }
             }
             is Action.SendSms -> {
                 if (phones.any { attempt { device.sendSms(it, action.text) } }) {
-                    say("Mensaje enviado a $name.")
+                    say(p.smsSent(name))
                 } else {
-                    val question = "No he podido mandar el mensaje a $name. ¿Quieres que llame?"
+                    val question = p.smsFailedOfferCall(name)
                     pending = Pending.Confirm(Action.Call(action.contact), question)
                     say(question)
                 }
@@ -225,18 +228,18 @@ class PeriAgent(
     }
 
     private fun readMessages(onlyLast: Boolean) {
-        if (unread.isEmpty()) return say("No tienes mensajes nuevos.")
+        if (unread.isEmpty()) return say(p.noMessages)
         val items = if (onlyLast) listOf(unread.removeLast()) else unread.toList().also { unread.clear() }
-        val intro = if (items.size > 1) "Tienes ${items.size} mensajes. " else ""
+        val intro = if (items.size > 1) p.youHave(items.size) else ""
         say(intro + items.joinToString(" ") { describe(it) })
     }
 
     private fun describe(r: Received): String {
-        val from = "De ${senderName(r.message.sender)}:"
+        val from = p.from(senderName(r.message.sender))
         return when (r.verdict.level) {
-            Level.OK -> "$from ${SafeSpeech.clean(r.message.text)}"
-            Level.DOUBT -> "$from ${SafeSpeech.clean(r.message.text)} Ojo: ${r.verdict.explanation}"
-            Level.SCAM -> "$from no te lo leo. ${r.verdict.explanation}"
+            Level.OK -> "$from ${speech.clean(r.message.text)}"
+            Level.DOUBT -> "$from ${speech.clean(r.message.text)} ${p.careful} ${r.verdict.explanation}"
+            Level.SCAM -> "$from ${p.notReading} ${r.verdict.explanation}"
         }
     }
 
@@ -245,9 +248,9 @@ class PeriAgent(
         val folded = Text.fold(sender).trim()
         contacts.firstOrNull { c -> Text.fold(c.name) == folded || c.aliases.any { Text.fold(it) == folded } }?.let { return it.name }
         return when {
-            '@' in sender -> "una dirección de correo que no está en tu agenda"
-            sender.count { it.isDigit() } >= 3 -> "un número que no está en tu agenda"
-            else -> "«${SafeSpeech.clean(sender)}»"
+            '@' in sender -> p.unknownEmail
+            sender.count { it.isDigit() } >= 3 -> p.unknownNumber
+            else -> p.quote(speech.clean(sender))
         }
     }
 
