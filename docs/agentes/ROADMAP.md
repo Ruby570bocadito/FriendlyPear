@@ -95,6 +95,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [ ] (DIR) video-3-min — [M] montaje del vídeo de demo según `docs/VIDEO.md` — docs/demo/
 - [ ] (DIR) anuncio — [M] anuncio de 30–45 s vertical y cuadrado, ES/EN — docs/demo/
 - [ ] (DIR) post-x — [S] post con el anuncio para Most Viral — docs/demo/
+- [x] (IMP-2) peri-plastilina — [M] Peri en plastilina 3D (el diseño elegido de los 8): 9 estados, 7 fotogramas por estado y 9 extras con Muse Image (82 imágenes, 0,82 $); recorte que quita también el suelo — assets/peri/, res/drawable-nodpi/ · hecho 2026-10-27
 - [x] (TEST) movil-real-2 — [M] segunda ronda en el móvil de la persona: SMS bloqueado (ahora opcional), voz robótica (elegir voz), Mini Peri descuidada, más poses y 8 diseños nuevos para elegir — docs/agentes/hallazgos/2026-10-27-movil-real.md · hecho 2026-10-27
 - [x] (TEST) movil-real-1 — [M] primera prueba en el móvil de la persona: cierre al abrir, letra grande, voz, Mini Peri, familia con muchos contactos, personalidad — docs/agentes/hallazgos/2026-10-27-movil-real.md · hecho 2026-10-27
 - [x] (TEST) instalacion-limpia — [S] instalar desde el README en un móvil limpio — docs/agentes/hallazgos/ · hecho 2026-10-27 en un clon nuevo + emulador (huecos del README cubiertos; los 5 momentos en es/en: `hallazgos/2026-10-27-instalacion-y-momentos.md`); falta en un móvil real

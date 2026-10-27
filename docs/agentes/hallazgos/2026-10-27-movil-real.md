@@ -24,3 +24,7 @@ Lo que contó la persona al instalar el APK de depuración en su móvil, y qué 
 | "8 modelos de pera nueva" | — | `assets/peri/concepts.ts`: barro, acuarela, pegatina, abuela, heroína, geométrica, peluche y anime (0,08 $), en `assets/peri/concepts/peri_concepts.webp` |
 
 Fallos encontrados probando, antes de subir: la etiqueta de la "×" salía cortada ("Drop"); la "×" se pintaba encima de Peri; soltar a Peri sobre la "×" no la guardaba (se olvidaba que estaba encima antes de mirarlo). Arreglados y comprobados en el emulador.
+
+## Peri en plastilina
+
+La persona eligió el diseño de plastilina 3D. Se rehizo toda Peri con ese diseño como base: 9 estados, 7 fotogramas por estado y 9 extras (82 imágenes, 0,82 $). Al revisarlas: "preocupada" hablando salía con una sonrisa (se rehízo con un prompt que mantiene el ceño) y el recorte dejaba el suelo de "preocupada" (cada borde se compara con su propio color y se quita el suelo beige del quinto inferior). Probado en el emulador: app, idea al tocarla, Mini Peri e icono.
