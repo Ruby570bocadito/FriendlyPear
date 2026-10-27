@@ -60,7 +60,7 @@ All of Peri is made with **Muse Image** (`muse-image-1.0`, `/v1/images/generatio
 3. Each animation frame (two blink steps, two mouth shapes, a sway) is an edit of **its mood's own image** that changes one small thing and keeps the pose and framing, so frames line up.
 4. Extras made the same way: a wave hello, the app icon, and illustrations for the family screen, the investigator's findings and the setup card.
 
-70 images in total, $0.71. Every prompt is saved in [`assets/peri/prompts.json`](../assets/peri/prompts.json). [`assets/peri/cutout.py`](../assets/peri/cutout.py) then removes the cream background so Peri stands on any screen, including on top of other apps in Mini Peri mode.
+97 images in total, $0.98. Every prompt is saved in [`assets/peri/prompts.json`](../assets/peri/prompts.json). [`assets/peri/cutout.py`](../assets/peri/cutout.py) then removes the cream background so Peri stands on any screen, including on top of other apps in Mini Peri mode.
 
 ## Planned
 
