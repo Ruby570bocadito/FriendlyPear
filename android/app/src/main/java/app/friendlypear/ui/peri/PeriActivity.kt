@@ -12,9 +12,11 @@ import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
+import java.util.Calendar
 import app.friendlypear.PeriApp
 import app.friendlypear.R
 import app.friendlypear.config.Need
+import app.friendlypear.core.agent.Mood
 import app.friendlypear.device.VoiceInput
 import app.friendlypear.services.MessageListener
 import app.friendlypear.services.PeriHub
@@ -28,6 +30,8 @@ class PeriActivity : Activity() {
     private lateinit var hub: PeriHub
     private lateinit var voice: VoiceInput
     private lateinit var said: TextView
+    private lateinit var face: PeriFace
+    private var listening = false
     private lateinit var talk: Button
     private lateinit var access: Button
     private lateinit var usage: Button
@@ -39,13 +43,17 @@ class PeriActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hub = PeriApp.hub(this)
-        voice = VoiceInput(this, hub.lang, onText = { hub.heard(it) }, onListening = { listening ->
-            talk.text = getString(if (listening) R.string.listening else R.string.talk)
+        voice = VoiceInput(this, hub.lang, onText = { hub.heard(it) }, onListening = { on ->
+            listening = on
+            talk.text = getString(if (on) R.string.listening else R.string.talk)
+            showFace(hub.mood)
         })
+        face = PeriFace(this)
 
         said = TextView(this).apply {
             text = hub.lastSaid.ifEmpty { getString(R.string.peri_greeting) }
-            textSize = 28f
+            textSize = 26f
+            setTextColor(INK)
             gravity = Gravity.CENTER
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
         }
@@ -78,9 +86,12 @@ class PeriActivity : Activity() {
             LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 gravity = Gravity.CENTER
+                // Cream like the illustrations' background, with ink text: 14:1 contrast (docs/DISENO.md).
+                setBackgroundColor(CREAM)
                 val pad = (24 * resources.displayMetrics.density).toInt()
                 setPadding(pad, pad, pad, pad)
-                addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
+                addView(face, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
+                addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 0.8f))
                 addView(access)
                 addView(usage)
                 addView(family)
@@ -136,6 +147,8 @@ class PeriActivity : Activity() {
         // Peri may have spoken while the screen was hidden, e.g. during a call.
         if (hub.lastSaid.isNotEmpty()) said.text = hub.lastSaid
         hub.onSaid = { text -> said.text = text }
+        hub.onMood = { mood -> showFace(mood) }
+        showFace(hub.mood)
         hub.onSpeechDone = {
             if (resumed && hub.isWaitingForAnswer && voice.available && hub.permissions.granted(Need.MIC)) voice.listen()
         }
@@ -147,6 +160,7 @@ class PeriActivity : Activity() {
     override fun onPause() {
         resumed = false
         hub.onSaid = null
+        hub.onMood = null
         hub.onSpeechDone = null
         super.onPause()
     }
@@ -165,6 +179,18 @@ class PeriActivity : Activity() {
         done?.invoke(grantResults.any { it == PackageManager.PERMISSION_GRANTED })
     }
 
+    /** The agent's mood, plus what only the screen knows: the microphone is open, or it's night and all is calm. */
+    private fun showFace(mood: Mood) {
+        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        face.show(
+            when {
+                listening -> Mood.LISTENING
+                mood == Mood.CALM && (hour >= 22 || hour < 8) -> Mood.SLEEPING
+                else -> mood
+            },
+        )
+    }
+
     /** The microphone is asked the first time the person presses the button. */
     private fun listen() {
         if (!voice.available) {
@@ -180,6 +206,8 @@ class PeriActivity : Activity() {
     }
 
     private companion object {
+        const val CREAM = 0xFFFFF8EC.toInt()
+        const val INK = 0xFF1F2A1A.toInt()
         const val REQUEST_NEED = 1
         const val REQUEST_SCREENING = 2
         const val SCREENING = "screening"

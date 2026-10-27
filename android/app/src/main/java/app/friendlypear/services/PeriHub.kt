@@ -16,6 +16,7 @@ import app.friendlypear.config.PhoneContacts
 import app.friendlypear.core.agent.ApprovalKind
 import app.friendlypear.core.agent.ApprovalPort
 import app.friendlypear.core.agent.ApprovalResult
+import app.friendlypear.core.agent.Mood
 import app.friendlypear.core.agent.PeriAgent
 import app.friendlypear.core.model.Contact
 import app.friendlypear.core.model.TrustLevel
@@ -55,6 +56,7 @@ class PeriHub(context: Context) {
         onSpeech = { text ->
             lastSaid = text
             onSaid?.invoke(text)
+            onMood?.invoke(mood)
         },
         onSpeechDone = { onSpeechDone?.invoke() },
         ask = { capability, then -> permissions.ask(Need.of(capability), then) },
@@ -108,6 +110,10 @@ class PeriHub(context: Context) {
     private val network = Executors.newSingleThreadExecutor()
 
     val isWaitingForAnswer: Boolean get() = agent.isWaitingForAnswer
+
+    /** Peri's face for the screen; it changes whenever she speaks. */
+    var onMood: ((Mood) -> Unit)? = null
+    val mood: Mood get() = agent.mood
 
     init {
         apps.start()

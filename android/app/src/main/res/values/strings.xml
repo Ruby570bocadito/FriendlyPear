@@ -52,4 +52,13 @@
     <string name="circle_due">Approved change: %1$s. It applies on %2$s.</string>
     <string name="circle_cancel">Cancel this change</string>
     <string name="circle_busy">There\'s already a pending change. Cancel it before asking for another one.</string>
+    <string name="mood_calm">Peri, calm and smiling</string>
+    <string name="mood_listening">Peri, listening to you</string>
+    <string name="mood_thinking">Peri, checking with a magnifying glass</string>
+    <string name="mood_worried">Peri, a little worried about a message</string>
+    <string name="mood_protective">Peri, protecting you with an umbrella</string>
+    <string name="mood_calling">Peri, on the phone</string>
+    <string name="mood_waiting">Peri, waiting for your family</string>
+    <string name="mood_happy">Peri, jumping with joy</string>
+    <string name="mood_sleeping">Peri, sleeping</string>
 </resources>

@@ -51,4 +51,13 @@
     <string name="circle_due">Cambio aprobado: %1$s. Se aplica el %2$s.</string>
     <string name="circle_cancel">Cancelar este cambio</string>
     <string name="circle_busy">Ya hay un cambio pendiente. Cancélalo antes de pedir otro.</string>
+    <string name="mood_calm">Peri, tranquila y sonriente</string>
+    <string name="mood_listening">Peri, escuchándote</string>
+    <string name="mood_thinking">Peri, comprobando con una lupa</string>
+    <string name="mood_worried">Peri, un poco preocupada por un mensaje</string>
+    <string name="mood_protective">Peri, protegiéndote con un paraguas</string>
+    <string name="mood_calling">Peri, al teléfono</string>
+    <string name="mood_waiting">Peri, esperando a tu familia</string>
+    <string name="mood_happy">Peri, saltando de alegría</string>
+    <string name="mood_sleeping">Peri, durmiendo</string>
 </resources>
