@@ -415,11 +415,80 @@ class PeriActivity : Activity() {
         }
     }
 
-    /** Tapping Peri: she jumps for joy, giggles and shares a little anti-scam tip. */
+    private val taps = ArrayDeque<Long>()
+    private val single = Runnable { tappedOnce() }
+    /** Each kind of answer goes round its own shuffled list, so nothing repeats until all were heard. */
+    private val decks = HashMap<Int, ArrayDeque<String>>()
+    private var round = 0
+
+    private fun next(array: Int): String {
+        val deck = decks.getOrPut(array) { ArrayDeque() }
+        if (deck.isEmpty()) deck.addAll(resources.getStringArray(array).toList().shuffled())
+        return deck.removeFirst()
+    }
+
+    /**
+     * Tapping Peri. One tap (she waits a moment, in case more follow): where you touched her (the leaf, her
+     * tummy, her feet) and, on her tummy, a tip, a joke, a fact or a kind word in turn, each with its own move.
+     * Three quick taps make her dizzy and spin; five or more and she gives up laughing and dances.
+     */
     private fun tapped() {
+        if (hub.isWaitingForAnswer) return
+        val now = android.os.SystemClock.uptimeMillis()
+        taps.addLast(now)
+        while (taps.isNotEmpty() && now - taps.first() > TAP_STREAK_MS) taps.removeFirst()
+        face.removeCallbacks(single)
+        // While she's talking, taps only get a hop: she won't talk over herself.
+        if (hub.speaking) return face.play(PeriFace.Trick.HOP)
+        when {
+            taps.size >= 5 -> {
+                taps.clear()
+                face.play(PeriFace.Trick.DANCE)
+                face.sparkle()
+                hub.say(next(R.array.peri_giveup))
+            }
+            taps.size == 3 -> {
+                face.play(PeriFace.Trick.SPIN)
+                hub.say(next(R.array.peri_dizzy))
+            }
+            taps.size == 2 -> face.play(PeriFace.Trick.HOP)
+            else -> face.postDelayed(single, TAP_WAIT_MS)
+        }
+    }
+
+    private fun tappedOnce() {
         if (hub.isWaitingForAnswer || hub.speaking) return
-        face.moment(app.friendlypear.services.PeriMoment.IDEA)
-        hub.say(resources.getStringArray(R.array.peri_taps).random() + " " + resources.getStringArray(R.array.peri_tips).random())
+        val at = face.lastTouch
+        when {
+            at < 0.3f -> {
+                face.play(PeriFace.Trick.WINK)
+                hub.say(next(R.array.peri_tap_head))
+            }
+            at > 0.8f -> {
+                face.play(PeriFace.Trick.DANCE)
+                hub.say(next(R.array.peri_tap_feet))
+            }
+            else -> when (round++ % 4) {
+                0 -> {
+                    face.moment(app.friendlypear.services.PeriMoment.IDEA)
+                    hub.say(next(R.array.peri_taps) + " " + next(R.array.peri_tips))
+                }
+                1 -> {
+                    face.cheer()
+                    face.play(PeriFace.Trick.WINK)
+                    hub.say(next(R.array.peri_jokes))
+                }
+                2 -> {
+                    face.moment(app.friendlypear.services.PeriMoment.THUMBS_UP)
+                    hub.say(next(R.array.peri_facts))
+                }
+                else -> {
+                    face.play(PeriFace.Trick.HOP)
+                    face.sparkle()
+                    hub.say(next(R.array.peri_kind))
+                }
+            }
+        }
     }
 
     /** The chip and the setup card: what's still missing for Peri to protect the person fully. */
@@ -573,6 +642,9 @@ class PeriActivity : Activity() {
     private companion object {
         const val REQUEST_NEED = 1
         const val SAID_SP = 22f
+        const val TAP_STREAK_MS = 1_600L
+        /** A single tap waits this long for a second one before Peri answers it. */
+        const val TAP_WAIT_MS = 380L
         const val TYPE_MS = 22L
         /** However long the sentence, it's all there in about this many steps (~2 s). */
         const val TYPE_STEPS = 90

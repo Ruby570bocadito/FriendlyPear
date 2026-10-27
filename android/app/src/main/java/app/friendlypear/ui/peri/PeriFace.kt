@@ -53,6 +53,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
         val all = setOfNotNull(still, half, closed, talk, wide, round, left, right, stepLeft, stepRight, gestureA, gestureB, wink)
     }
 
+    /** Little tricks the screens can ask for, e.g. when she's tapped. */
+    enum class Trick { HOP, SPIN, DANCE, WINK, STRETCH }
+
     /** What she does by herself now and then, when nothing else is going on; DROP is her entrance. */
     private enum class Idle { HOP, STEPS, LOOK, WAVE, STRETCH, WINK, SPIN, DANCE, DROP }
 
@@ -392,10 +395,38 @@ class PeriFace(context: Context) : FrameLayout(context) {
         pressTarget = if (on) 1f else 0f
     }
 
+    /** Where the last touch landed on her, from 0 (top of the leaf) to 1 (her feet). */
+    var lastTouch = 0.5f
+        private set
+
+    /** A trick right now, if she's free to move. */
+    fun play(trick: Trick) {
+        if (!moves || shown == null || posing || fading) return
+        action = null
+        act(
+            when (trick) {
+                Trick.HOP -> Idle.HOP
+                Trick.SPIN -> Idle.SPIN
+                Trick.DANCE -> Idle.DANCE
+                Trick.WINK -> Idle.WINK
+                Trick.STRETCH -> Idle.STRETCH
+            },
+        )
+    }
+
+    /** A burst of sparkles, for a happy moment the screen knows about. */
+    fun sparkle() {
+        if (moves) sparkles.burst()
+    }
+
     /** Every touch on her squishes her, whoever handles it next (the app's tap, Mini Peri's drag). */
     override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
         when (ev.actionMasked) {
-            android.view.MotionEvent.ACTION_DOWN -> press(true)
+            android.view.MotionEvent.ACTION_DOWN -> {
+                press(true)
+                val side = min(width, height).toFloat()
+                if (side > 0f) lastTouch = ((ev.y - (height - side) / 2) / side).coerceIn(0f, 1f)
+            }
             android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> press(false)
         }
         return super.dispatchTouchEvent(ev)

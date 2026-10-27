@@ -203,4 +203,46 @@
     <string name="unlock_peri_says">¡Gracias! Ya veo los avisos de tus mensajes. Si además me dejas leer tus SMS, también pillaré los códigos trampa.</string>
     <string name="why_notifications_locked">Para ver tus avisos de WhatsApp y del correo, Android necesita que me desbloquees primero. Toca la tarjeta de abajo: tres pasos rápidos, solo una vez.</string>
     <string name="setup_unlock">Desbloquear a Peri: 3 pasos rápidos para que vea tus mensajes</string>
+    <string-array name="peri_jokes">
+        <item>¿Qué le dice una pera a otra? ¡Qué pera-fecta estás hoy!</item>
+        <item>¿Sabes por qué los estafadores no pueden conmigo? Porque siempre les digo: ¡es-pera, que lo compruebo!</item>
+        <item>Yo no me enfado nunca. Como mucho, me pongo un poco… ¡madura!</item>
+        <item>¿Por qué la pera no va al gimnasio? ¡Porque ya tiene buena figura!</item>
+        <item>Me han dicho que soy muy dulce. ¡Es que soy una pera de conferencia!</item>
+        <item>¿Sabes cuál es mi baile favorito? ¡El que se baila por peras… digo, por parejas!</item>
+    </string-array>
+    <string-array name="peri_facts">
+        <item>¿Sabías que tu banco nunca te pedirá un código por teléfono? Si te lo piden, es un timo.</item>
+        <item>¿Sabías que Correos no cobra tasas por SMS? Un enlace para pagar en un SMS es mala señal.</item>
+        <item>¿Sabías que una voz conocida se puede imitar con inteligencia artificial? Por eso la palabra de la familia es tan útil.</item>
+        <item>¿Sabías que nadie de verdad te pedirá instalar AnyDesk o TeamViewer? Si te lo piden, cuelga.</item>
+        <item>¿Sabías que las prisas son el truco favorito de los estafadores? Si te meten prisa, para y pregunta.</item>
+        <item>¿Sabías que Hacienda nunca te pide la tarjeta por SMS?</item>
+    </string-array>
+    <string-array name="peri_kind">
+        <item>Me alegra mucho estar aquí contigo.</item>
+        <item>Hoy lo estás haciendo muy bien.</item>
+        <item>¿Te he dicho ya que me caes genial?</item>
+        <item>Si algo te preocupa, cuéntamelo. Para eso estoy.</item>
+        <item>Gracias por cuidarte. Tu familia también lo agradece.</item>
+        <item>Un ratito juntos siempre me pone de buen humor.</item>
+    </string-array>
+    <string-array name="peri_tap_head">
+        <item>¡Ay, mi hojita! Que la tengo recién peinada.</item>
+        <item>¡Cuidado con el rabito, que es muy delicado!</item>
+        <item>¡Eh, que me despeinas la hoja!</item>
+    </string-array>
+    <string-array name="peri_tap_feet">
+        <item>¡Uy, que me haces cosquillas en los pies!</item>
+        <item>¡Que me caigo! Menos mal que tengo buen equilibrio.</item>
+        <item>¿Bailamos? ¡Mis pies ya están listos!</item>
+    </string-array>
+    <string-array name="peri_dizzy">
+        <item>¡Uy, uy, que me mareo!</item>
+        <item>¡Para, para, que doy vueltas!</item>
+    </string-array>
+    <string-array name="peri_giveup">
+        <item>¡Vale, vale, me rindo! Eres más rápido que yo.</item>
+        <item>¡Jajaja! Me has ganado. ¿Seguimos otro ratito?</item>
+    </string-array>
 </resources>

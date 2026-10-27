@@ -204,4 +204,46 @@
     <string name="unlock_peri_says">Thank you! Now I can see your message alerts. If you also let me read your texts, I\'ll catch scam codes too.</string>
     <string name="why_notifications_locked">To see your WhatsApp and email alerts, Android needs you to unlock me first. Tap the card below: three quick steps, only once.</string>
     <string name="setup_unlock">Unlock Peri: 3 quick steps so she can see your messages</string>
+    <string-array name="peri_jokes">
+        <item>What did one pear say to the other? We make a great pear!</item>
+        <item>Why are scammers scared of me? Because I always say: let me pear-sonally check that!</item>
+        <item>I\'m not just a fruit. I\'m a pear-fectly good friend!</item>
+        <item>What\'s my favourite TV show? Pears and Recreation!</item>
+        <item>I tried to be an apple once. It didn\'t work: I\'m too pear-sistent!</item>
+        <item>Why did the pear stay calm? Because it never goes pear-shaped!</item>
+    </string-array>
+    <string-array name="peri_facts">
+        <item>Did you know? Your bank will never ask you for a code over the phone. If someone does, it\'s a scam.</item>
+        <item>Did you know? Couriers don\'t charge customs fees by text. A payment link in an SMS is a warning sign.</item>
+        <item>Did you know? A familiar voice can be copied with artificial intelligence. That\'s why a family word is so useful.</item>
+        <item>Did you know? Nobody genuine will ask you to install AnyDesk or TeamViewer. If they do, hang up.</item>
+        <item>Did you know? Rushing you is a scammer\'s favourite trick. If you\'re in a hurry, stop and ask.</item>
+        <item>Did you know? The tax office never asks for your card details by text.</item>
+    </string-array>
+    <string-array name="peri_kind">
+        <item>I\'m really glad to be here with you.</item>
+        <item>You\'re doing really well today.</item>
+        <item>Have I told you I think you\'re great?</item>
+        <item>If anything worries you, tell me. That\'s what I\'m here for.</item>
+        <item>Thank you for looking after yourself. Your family is grateful too.</item>
+        <item>A little time together always cheers me up.</item>
+    </string-array>
+    <string-array name="peri_tap_head">
+        <item>Oh, my little leaf! I\'ve just combed it.</item>
+        <item>Careful with my stalk, it\'s very delicate!</item>
+        <item>Hey, you\'re messing up my leaf!</item>
+    </string-array>
+    <string-array name="peri_tap_feet">
+        <item>Ooh, that tickles my feet!</item>
+        <item>Whoa, I\'m falling! Good thing I have great balance.</item>
+        <item>Shall we dance? My feet are ready!</item>
+    </string-array>
+    <string-array name="peri_dizzy">
+        <item>Whoa, whoa, I\'m getting dizzy!</item>
+        <item>Stop, stop, I\'m spinning round!</item>
+    </string-array>
+    <string-array name="peri_giveup">
+        <item>All right, all right, I give up! You\'re faster than me.</item>
+        <item>Ha ha! You win. Shall we keep playing a bit?</item>
+    </string-array>
 </resources>
