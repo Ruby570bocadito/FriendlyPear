@@ -28,7 +28,8 @@ ColorOS) · 🧪 unit tests in `core/` or `backend/`.
 
 | Feature | What it does | Status |
 |---|---|---|
-| **Family approval** | Something risky (dictating a code, changing guardians) sends the guardian an SMS with a one-time link valid for 15 minutes. The page shows "No" first. Silence counts as no; only the link's hash is stored | ✅ (two emulators: grandmother and "Ana hija") 🧪 |
+| **Family approval** | Something risky (dictating a code, changing guardians) sends the guardian an SMS with a one-time link valid for 15 minutes. Three answers: "No" first, "Ask them to call me first" (Peri sends nothing and offers to call the guardian; a spoken "yes" calls), "Yes, I approve". Silence counts as no; only the link's hash is stored | ✅ (two emulators: Mum and "Ana hija") 🧪 |
+| **Scam in progress** | If the person is on the phone with an unsaved number, or hung up on one in the last 30 minutes, the guardian's SMS starts with "URGENT" and the page says so, without the number, the call or the message | ✅ 🧪 |
 | **Circle rules** | The first guardian is set at once; later changes need a current guardian's yes and wait 48 h, and the person can cancel | ✅ 🧪 |
 | **Peri's news for guardians** | Optional. Each guardian gets a personal page with the last 7 days: "warned about a message that looked like a scam", "paused them before a money app". Only the kind of event travels, never text, numbers, names, calls, location or apps | ✅ 🧪 |
 | **Family setup** | Guardians, relations, nicknames and "we agreed a family word" (the word itself is never stored), with search for long contact lists | ✅ 📱 |
@@ -44,7 +45,8 @@ ColorOS) · 🧪 unit tests in `core/` or `backend/`.
 | **Peri's voice** | Uses Google's speech engine when the phone has it; Settings lists every voice the phone has for her language, plays a sample and remembers the choice, with a button to get more natural voices | ✅ |
 | **Language** | English or Spanish, following the phone or chosen in Settings; she understands orders in both | ✅ |
 | **Safe reading** | Links, emails, codes and unknown numbers are never read aloud; scams are not read at all, only Peri's warning | 🧪 |
-| **Personality** | Greets you by the time of day (aloud only the first time each day); tap her and she has an idea and shares an anti-scam tip; says sorry when she didn't catch you; thumbs up when you leave a risky app | ✅ 📱 |
+| **Personality** | Greets you by the time of day (aloud only the first time each day); says sorry when she didn't catch you; thumbs up when you leave a risky app | ✅ 📱 |
+| **Tapping Peri** | Where you touch her matters: her leaf (she winks and complains about her hair), her tummy (in turn: an idea with a tip, a pear joke, a "did you know?" about scams, a kind word, each with its own pose or trick) or her feet (she dances). Three quick taps: dizzy and a spin. Five: she gives up laughing and dances with sparkles. Each list is shuffled and goes round before anything repeats | ✅ |
 | **Animation** | 9 moods in soft 3D clay, each with 13 frames: blinks, three mouth shapes, glances, steps, two hand gestures for talking, and a wink. Between frames she sways her weight, bobs, squashes when landing and nods with each word. Every 7–12 s she does something on her own: a hop, steps or a dance, a spin, a wink, a look around, a stretch, a wave. She drops in when the app opens, squishes like clay under your finger, glances towards where you touch, and sparkles when she's happy. With "remove animations" on, she stays still | ✅ |
 | **Mini Peri** | Only the pear, floating over other apps: tap to talk (a green ring pulses while she listens), drag (she glides to the nearest side), drop her on the "×" at the bottom to put her away, long-press to open the app. She comes out by herself beside the call screen during a stranger's call and leaves when it ends | ✅ 📱 |
 | **Bubble** | What she says appears as she says it, with smaller letters for long sentences so it never covers her | ✅ |

@@ -1,6 +1,10 @@
-# 🍐 FriendlyPear
+<p align="center"><img src="docs/media/icon.png" width="120" alt="FriendlyPear's icon: Peri's smiling clay face"></p>
 
-**An AI voice agent that protects anyone — and especially older adults — from scams, and keeps their family in the loop.**
+<h1 align="center">FriendlyPear</h1>
+
+<p align="center"><b>An AI voice agent that protects anyone — and especially older adults — from scams, and keeps their family in the loop.</b></p>
+
+<p align="center"><img src="docs/media/peri.gif" width="240" alt="Peri, a clay pear, blinking, talking with her hands, winking and stepping on the spot"></p>
 
 Peri, a friendly pear that lives in your phone, reads your messages aloud, calls whoever you ask, and when something smells like a scam it checks with the real person or with your family before you lose a cent.
 
@@ -8,6 +12,8 @@ Built for the **Meta Global AI Developer Hackathon** · Indie track · *Build fo
 
 > All product code was written Oct 27 – Nov 4, 2026. Concept and design documents were drafted before the building period.
 > The app is bilingual (English and Spanish): it follows the phone's language, or the one chosen in Settings. Internal planning docs under `docs/` are in Spanish.
+
+<p align="center"><img src="docs/media/screens.png" width="860" alt="Four screens: Peri's home, Peri warning about a fake Correos text, the unlock guide, and Mini Peri floating over the home screen"></p>
 
 ## A companion, not a watchdog
 
@@ -51,13 +57,25 @@ Peri speaks the phone's language (English or Spanish), or the one chosen in **Se
 
 ## For the family
 
-There is no app for the family to install, and nothing to watch. A guardian (for example the grandchild) is a saved contact the person marks as guardian. When the person asks for something risky (dictating a code, or changing who the guardians are), the guardian gets an SMS with a **one-time link valid for 15 minutes** to a simple page: "No" first, then "Yes, I approve". Silence counts as no. Tested end to end with two emulators: the grandmother's phone and the guardian's phone (Ana), where tapping "Yes, I approve" let Peri go on.
+There is no app for the family to install, and nothing to watch. A guardian (for example a daughter) is a saved contact the person marks as guardian. When the person asks for something risky (dictating a code, or changing who the guardians are), the guardian gets an SMS with a **one-time link valid for 15 minutes** to a simple page with three answers: **"No"** first, then **"Ask them to call me first"**, then "Yes, I approve". Silence counts as no. If the person is on the phone with a number they haven't saved, or has just hung up on one, the SMS starts with **"URGENT"** and the page says it may be a scam in progress; it never says which number or what was said.
+
+**Tested end to end with two phones** (two emulators, Oct 27): a "bank" calls Mum from an unknown number; after hanging up she asks Peri to send Marisa the code. Peri stops, texts Ana *"URGENT: your relative wants to send Marisa a code right after a call with an unknown number"* (the SMS never contains the code), Ana opens the link on her phone and taps **"Ask them to call me first"**. Three seconds later, on Mum's phone, Peri says *"Ana would rather talk to you before anything is sent. If you say yes, I'll call her right now"*; Mum says yes and Peri calls Ana, with Mini Peri beside the call. Nothing was sent.
+
+<p align="center"><img src="docs/media/family-approval.gif" width="660" alt="Mum's phone and Ana's phone side by side, step by step: the stranger's call, the code request stopped, Ana's urgent approval page, and Peri calling Ana"></p>
 
 If the person turns on **"Let my guardians see Peri's news"** in the family setup, each guardian gets a personal link (by SMS) to **Peri's news**: a page with the last 7 days at a glance and a timeline of what Peri did ("warned about a WhatsApp message that looked like a scam", "paused them before a money app, and they chose to call family") and the approvals asked. Only the kind of event travels (level and channel, or the pause's answer); never text, numbers, names, calls, location or apps. The person sees exactly the same list on their own phone, and turning sharing off makes every link stop working at once. Links (only their hash) and the news are saved in `backend/data/`, so they survive a restart. A weekly summary sent to guardians is still on the roadmap (`avisos-familia`).
 
 ## iPhone
 
 Not built yet: iOS needs a Mac to build, and it doesn't let apps read other apps' notifications or draw over them. [`docs/IPHONE.md`](docs/IPHONE.md) (in Spanish) maps each feature to its iOS equivalent: the shared Kotlin core via Kotlin Multiplatform, an SMS filter extension, the safety pause with the Screen Time API, Peri in a Live Activity, and "Share it with Peri".
+
+## Peri
+
+Nine moods in soft 3D clay, every one made with Muse Image from one base so she's always the same character, each with 13 frames (blinks, mouth shapes, glances, steps, hand gestures, a wink):
+
+<p align="center"><img src="docs/media/moods.png" width="860" alt="Peri's nine moods: calm, listening, thinking, worried, protective, calling, waiting for family, happy and sleeping"></p>
+
+Tap her and she answers where you touched: her leaf, her tummy (a tip, a joke, a fact or a kind word in turn, each with its own move) or her feet; three quick taps make her dizzy and spin, five and she gives up laughing and dances.
 
 ## Meta models
 
