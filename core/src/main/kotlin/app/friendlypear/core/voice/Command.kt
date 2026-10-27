@@ -5,6 +5,9 @@ sealed interface Command {
     /** "llama al chico", "ponme con Pablito": [target] is the spoken words left after the verb. */
     data class Call(val target: String) : Command
 
+    /** "dile a Laura que llego tarde": [text] keeps the person's own words, accents included. */
+    data class SendMessage(val target: String, val text: String) : Command
+
     /** "léeme los mensajes"; [onlyLast] for "léeme el último". */
     data class ReadMessages(val onlyLast: Boolean = false) : Command
 

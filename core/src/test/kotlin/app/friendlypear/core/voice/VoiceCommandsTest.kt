@@ -23,6 +23,18 @@ class VoiceCommandsTest {
     }
 
     @Test
+    fun `sending a message keeps the person's own words`() {
+        assertEquals(Command.SendMessage("laura", "llego tarde"), parse("Dile a Laura que llego tarde"))
+        assertEquals(Command.SendMessage("pablito", "mañana no voy"), parse("mándale un mensaje a Pablito diciendo que mañana no voy, por favor"))
+        assertEquals(Command.SendMessage("mi hija", "Me llame"), parse("escribe a mi hija que Me llame."))
+    }
+
+    @Test
+    fun `a fall inside a dictated message still starts the emergency`() {
+        assertEquals(Command.Emergency, parse("dile a Laura que me he caído"))
+    }
+
+    @Test
     fun `reading messages`() {
         assertEquals(Command.ReadMessages(), parse("Léeme los mensajes"))
         assertEquals(Command.ReadMessages(), parse("¿Qué mensajes tengo?"))

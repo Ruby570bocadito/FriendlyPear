@@ -12,6 +12,11 @@ object VoiceCommands {
     private val callVerbs = Regex(
         "\\b(llamame|llamale|llamala|llama|llamar|llames|telefonea|marca|ponme con|pasame con|quiero hablar con|habla con|hablar con)\\b(.*)",
     )
+    private val send = Regex(
+        "\\b(?:dile|di|manda|mandale|envia|enviale|escribe|escribele)\\s+(?:un\\s+(?:mensaje|whatsapp|sms)\\s+)?(?:a|al)\\s+(.+?)" +
+            "\\s+(?:que|diciendo que|diciendole que|poniendo que|poniendole que)\\s+(.+)$",
+    )
+    private val trailingPlease = Regex("(?i)[,\\s]*por favor[.!\\s]*$")
     private val emergency = Text.anyOf(
         listOf("me he caido", "me caido", "me he caio", "socorro", "auxilio", "emergencia", "me encuentro mal", "no me puedo levantar"),
     )
@@ -33,6 +38,7 @@ object VoiceCommands {
         if (clean in no) return Command.No
         if (cancel.containsMatchIn(clean) && clean.split(" ").size <= 3) return Command.Cancel
 
+        sendMessage(utterance, folded)?.let { return it }
         callVerbs.find(clean)?.let { m ->
             val target = m.groupValues[2].trim()
             if (target.isNotEmpty()) return Command.Call(target)
@@ -42,5 +48,15 @@ object VoiceCommands {
         }
         if (repeat.containsMatchIn(clean) && clean.split(" ").size <= 4) return Command.Repeat
         return Command.Unknown(utterance)
+    }
+
+    /** The body is cut from the original words: folding keeps the length, so the match ranges line up. */
+    private fun sendMessage(utterance: String, folded: String): Command.SendMessage? {
+        val m = send.find(folded) ?: return null
+        val bodyRange = m.groups[2]!!.range
+        val body = if (folded.length == utterance.length) utterance.substring(bodyRange.first, bodyRange.last + 1) else m.groupValues[2]
+        val text = trailingPlease.replace(body, "").trim().trimEnd('.', '!')
+        if (text.isEmpty()) return null
+        return Command.SendMessage(m.groupValues[1].trim(), text)
     }
 }
