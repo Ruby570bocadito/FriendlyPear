@@ -70,27 +70,29 @@ function render(svg: string, code: string, server: string, expiresAt: number, pe
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex"><title>Connect a phone to Peri</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#1f2a1a;background:linear-gradient(#fff8ec,#eaf4dc) fixed;min-height:100vh}
-main{max-width:980px;margin:0 auto;padding:28px 20px 40px}
-header{display:flex;align-items:center;gap:14px}header img{width:92px;height:92px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.12))}
-.eyebrow{margin:0;font-weight:600;color:#25541a;letter-spacing:.02em}h1{margin:2px 0 0;font-size:clamp(26px,4vw,38px);line-height:1.1}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#1f2a1a;background:#fff8ec;min-height:100vh}
+main{max-width:980px;margin:0 auto;padding:24px 20px 40px}
+.brand{margin:0 0 8px;font-size:19px;font-weight:800;color:#25541a}
+header{display:flex;align-items:center;gap:14px}header img{width:92px;height:92px}
+h1{margin:0;font-size:clamp(26px,3.4vw,32px);line-height:1.15}
 .lead{font-size:19px;line-height:1.45;margin:14px 0 22px;max-width:700px}
-.lang{margin-left:auto;display:flex;gap:6px}.lang button{font:inherit;font-weight:600;border:0;border-radius:999px;padding:8px 14px;cursor:pointer;background:#e1f0cf;color:#25541a}.lang button[aria-pressed=true]{background:#25541a;color:#fff}
+.lang{margin-left:auto;display:flex;gap:6px}.lang button{font:inherit;font-size:15px;font-weight:600;border:1.5px solid #d8ccb2;border-radius:999px;padding:8px 14px;cursor:pointer;background:#fff;color:#25541a}.lang button[aria-pressed=true]{background:#25541a;border-color:#25541a;color:#fff}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}@media (max-width:760px){.grid{grid-template-columns:1fr}header .lang{display:none}}
-.card{background:#fff;border-radius:26px;padding:22px;border:2px solid #e1f0cf;box-shadow:0 4px 14px rgba(37,84,26,.08)}
+.card{background:#fff;border-radius:24px;padding:22px;border:1px solid #ede4d0}
 .qr{text-align:center;position:relative}.qr svg{display:block;width:100%;max-width:400px;height:auto;margin:0 auto;transition:filter .3s,opacity .3s}
 .expired .qr svg{filter:blur(6px) grayscale(1);opacity:.35}
-.code{font-size:clamp(34px,5vw,48px);font-weight:800;letter-spacing:.12em;color:#25541a;margin:14px 0 4px;font-variant-numeric:tabular-nums}
-.timer{display:inline-flex;align-items:center;gap:8px;background:#e1f0cf;color:#25541a;font-weight:700;border-radius:999px;padding:8px 16px;font-size:18px}
+.code{font-size:clamp(30px,4vw,40px);font-weight:800;letter-spacing:.1em;color:#25541a;margin:14px 0 6px;font-variant-numeric:tabular-nums}
+.timer{display:inline-flex;align-items:center;gap:8px;background:#e1f0cf;color:#25541a;font-weight:700;border-radius:999px;padding:8px 16px;font-size:19px;font-variant-numeric:tabular-nums}
 .expired .timer{background:#fff1d6;color:#6b3e00}.dot{width:10px;height:10px;border-radius:50%;background:#7cc242}.expired .dot{background:#9c1f17}
 ol{list-style:none;padding:0;margin:0;counter-reset:s}ol li{counter-increment:s;position:relative;padding:4px 0 18px 56px;font-size:19px;line-height:1.4}
-ol li:before{content:counter(s);position:absolute;left:0;top:0;width:40px;height:40px;border-radius:50%;background:#25541a;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
-.alt{background:#f6f9f1;border-radius:16px;padding:12px 14px;font-size:17px}
-.note{margin-top:14px;font-size:16px;color:#3f4d39;line-height:1.45}.note b{color:#6b3e00}.server{font-size:15px;color:#3f4d39;margin-top:8px;word-break:break-all}
+ol li:before{content:counter(s);position:absolute;left:0;top:0;width:38px;height:38px;border-radius:50%;border:1.5px solid #d8ccb2;color:#25541a;font-weight:800;display:flex;align-items:center;justify-content:center}
+.alt{background:#fbf6ea;border-radius:16px;padding:12px 14px;font-size:19px;line-height:1.4}
+.note{margin-top:14px;font-size:15px;color:#3f4d39;line-height:1.45}.note b{color:#6b3e00}.server{font-size:15px;color:#3f4d39;margin-top:8px;word-break:break-all}
 .gone{display:none;margin-top:12px;font-weight:600;color:#6b3e00}.expired .gone{display:block}
 code{background:#f1efe8;border-radius:6px;padding:1px 6px}
 </style></head><body><main id="main">
-<header>${peri ? `<img src="${peri}" alt="">` : ""}<div><p class="eyebrow">FriendlyPear · Peri</p><h1 data-t="title"></h1></div>
+<p class="brand">FriendlyPear</p>
+<header>${peri ? `<img src="${peri}" alt="">` : ""}<h1 data-t="title"></h1>
 <div class="lang"><button data-l="en">English</button><button data-l="es">Español</button></div></header>
 <p class="lead" data-t="lead"></p>
 <div class="grid">

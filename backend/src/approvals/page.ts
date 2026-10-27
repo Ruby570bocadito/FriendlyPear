@@ -8,7 +8,6 @@ import type { Approval, Lang } from "./store";
 const T = {
   es: {
     title: "Peri te pide permiso",
-    eyebrow: "FriendlyPear · aviso de familia",
     heading: "Tu familiar te necesita",
     send_code: (name: string) => `Tu familiar quiere mandar a ${esc(name)} un mensaje con un código.`,
     circle_change: (name: string) => `Se ha pedido un cambio en los guardianes de tu familiar: ${esc(name)}.`,
@@ -47,7 +46,6 @@ const T = {
   },
   en: {
     title: "Peri is asking for your OK",
-    eyebrow: "FriendlyPear · family request",
     heading: "Your relative needs you",
     send_code: (name: string) => `Your relative wants to send ${esc(name)} a message with a code.`,
     circle_change: (name: string) => `Someone asked to change your relative's guardians: ${esc(name)}.`,
@@ -109,26 +107,28 @@ export function esc(s: string): string {
 const peri = (name: string, size = 112) => `<img class="peri" src="/p/${name}.webp" width="${size}" height="${size}" alt="">`;
 
 /**
- * Peri's colours: cream and pear green, ink text at 7:1 or more. Big type and big targets (at least 56 px),
- * for guardians who are older too.
+ * Peri's look, the same as in the app: one flat cream ground, white cards set apart by a thin edge (no shadows),
+ * green for the one safe answer, ink text at 7:1 or more. Three type sizes, big targets (at least 56 px), for
+ * guardians who are older too.
  */
 const CSS = `*{box-sizing:border-box}
-body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:linear-gradient(#fff8ec,#eaf4dc) fixed;color:#1f2a1a;margin:0;padding:20px 16px 32px;font-size:19px;line-height:1.45}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#fff8ec;color:#1f2a1a;margin:0;padding:16px 16px 32px;font-size:19px;line-height:1.45}
 main{max-width:520px;margin:0 auto}
-.hero{display:flex;align-items:center;gap:10px;margin:0 0 12px}.peri{flex:none;filter:drop-shadow(0 6px 8px rgba(0,0,0,.12))}
-.eyebrow{margin:0 0 2px;font-size:15px;font-weight:600;color:#25541a;letter-spacing:.02em}
-h1{font-size:28px;line-height:1.15;margin:0}h2{font-size:17px;margin:0 0 4px;color:#25541a}p{margin:0 0 10px}
-.card{background:#fff;border-radius:22px;padding:16px 18px;margin:0 0 12px;border:2px solid #e1f0cf;box-shadow:0 2px 6px rgba(37,84,26,.06)}
-.ask{font-size:22px;font-weight:700;line-height:1.3}
-.alert{background:#fff1d6;border-color:#f2c46d;display:flex;gap:12px;align-items:flex-start;font-size:17px}
-.alert .icon{flex:none;width:34px;height:34px;border-radius:50%;background:#9c1f17;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:22px}
-.alert strong{display:block;color:#6b3e00;font-size:19px}.alert p{margin:2px 0 0;color:#4a2b00}
+.brand{margin:0 0 6px;font-size:19px;font-weight:800;color:#25541a}
+.hero{display:flex;align-items:center;gap:10px;margin:0 0 14px}.peri{flex:none}
+h1{font-size:26px;line-height:1.15;margin:0}h2{font-size:19px;margin:0 0 4px;color:#25541a}p{margin:0 0 10px}
+.card{background:#fff;border-radius:24px;padding:16px 18px;margin:0 0 12px;border:1px solid #ede4d0}
+.ask{font-weight:700;line-height:1.35}
+.alert{background:#fff1d6;border:1.5px solid #f2c46d;display:flex;gap:12px;align-items:flex-start}
+.alert .icon{flex:none;width:32px;height:32px;border-radius:50%;background:#9c1f17;color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+.alert strong{display:block;color:#6b3e00}.alert p{margin:2px 0 0;color:#4a2b00;font-size:15px}
 .card p:last-child{margin-bottom:0}.row{display:flex;gap:10px;align-items:flex-start}.row+.row{margin-top:10px}
 form{display:flex;flex-direction:column;gap:12px;margin:18px 0 14px}
-button,.button{font:inherit;font-size:21px;font-weight:600;min-height:60px;padding:14px 18px;border-radius:999px;border:0;cursor:pointer;text-align:center;text-decoration:none;display:block}
-.no{background:#25541a;color:#fff;box-shadow:0 3px 8px rgba(37,84,26,.25)}
-.call{background:#e1f0cf;color:#25541a}
-.yes{background:#fff;color:#8a2b1f;border:2px solid #8a2b1f;font-size:18px;min-height:56px}
+button,.button{font:inherit;font-weight:600;min-height:60px;padding:14px 18px;border-radius:999px;border:0;cursor:pointer;text-align:center;text-decoration:none;display:block}
+.no{background:#25541a;color:#fff}
+.call{background:#fff;color:#25541a;border:1.5px solid #d8ccb2}
+.yes{background:#fff;color:#8a2b1f;border:1.5px solid #8a2b1f;min-height:56px}
+button:active{transform:scale(.98)}
 button:focus-visible,.button:focus-visible{outline:4px solid #f2c46d;outline-offset:3px}
 .check{list-style:none;padding:0;margin:8px 0 0}.check li{padding:8px 0 8px 36px;position:relative}
 .check li:before{content:"";position:absolute;left:0;top:10px;width:22px;height:22px;border-radius:7px;border:3px solid #25541a}
@@ -138,7 +138,7 @@ button:focus-visible,.button:focus-visible{outline:4px solid #f2c46d;outline-off
 export function layout(lang: Lang, body: string, title: string = T[lang].title, css = ""): string {
   return `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex"><meta name="theme-color" content="#fff8ec"><title>${title}</title>
-<style>${CSS}${css}</style></head><body><main>${body}</main></body></html>`;
+<style>${CSS}${css}</style></head><body><main><p class="brand">FriendlyPear</p>${body}</main></body></html>`;
 }
 
 export function askPage(a: Approval, token: string, now: number): string {
@@ -150,16 +150,16 @@ export function askPage(a: Approval, token: string, now: number): string {
     : "";
   return layout(
     a.lang,
-    `<header class="hero">${peri(a.onCall ? ART.alert : ART.ask)}<div><p class="eyebrow">${t.eyebrow}</p><h1>${t.heading}</h1></div></header>
+    `<header class="hero">${peri(a.onCall ? ART.alert : ART.ask)}<h1>${t.heading}</h1></header>
 <section class="card ask"><p>${t[a.kind](a.toName)}</p></section>${alert}
 <form method="post" action="${action}">
 <button class="no" name="decision" value="reject">${t[`no_${a.kind}`]}</button>
 <button class="call" name="decision" value="callback">${t.ask_call}</button>
 <button class="yes" name="decision" value="approve">${t.yes}</button>
 </form>
-<p class="small center">${t.expires(minutes)}</p>
+<p class="small">${t.expires(minutes)}</p>
 <section class="card"><h2>${t.why_title}</h2><p>${t[`why_${a.kind}`]}</p><h2>${t.meanwhile_title}</h2><p>${t.meanwhile} ${t.advice}</p></section>
-<p class="small center">${t.never_code}</p><p class="small center">${t.in_app}</p>`,
+<p class="small">${t.never_code}</p><p class="small">${t.in_app}</p>`,
   );
 }
 
@@ -169,13 +169,13 @@ export function confirmPage(a: Approval, token: string): string {
   const action = `/a/${encodeURIComponent(token)}`;
   return layout(
     a.lang,
-    `<header class="hero">${peri(ART.confirm)}<div><p class="eyebrow">${t.eyebrow}</p><h1>${t.confirm_title}</h1></div></header>
+    `<header class="hero">${peri(ART.confirm)}<h1>${t.confirm_title}</h1></header>
 <section class="card"><p>${t.confirm_intro}</p><ul class="check"><li>${t.confirm_1}</li><li>${t.confirm_2(a.toName)}</li><li>${t.confirm_3}</li></ul></section>
 <form method="post" action="${action}">
 <button class="no" name="decision" value="reject">${t.confirm_no}</button>
 <input type="hidden" name="confirm" value="yes">
 <button class="yes" name="decision" value="approve">${t.confirm_yes}</button>
-</form><p class="center"><a class="small" href="${action}">${t.back}</a></p>`,
+</form><p><a class="small" href="${action}">${t.back}</a></p>`,
   );
 }
 

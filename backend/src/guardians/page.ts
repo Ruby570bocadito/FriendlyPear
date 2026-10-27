@@ -22,7 +22,7 @@ const T = {
     warnings: "avisos",
     pauses: "pausas de seguridad",
     approvals: "permisos que pidió",
-    calm: "Todo tranquilo: no hay nada que contarte por ahora. 🍐",
+    calm: "Todo tranquilo: no hay nada que contarte por ahora.",
     scam: (ch: string) => `Peri avisó de ${ch} que parecía un timo, y le dijo qué hacer sin tocar nada.`,
     doubt: (ch: string) => `Peri le propuso comprobar juntos ${ch} que no le cuadraba.`,
     call_family: "Peri le paró un momento al abrir una app de dinero después de algo raro, y decidió llamar a la familia para comprobarlo.",
@@ -43,7 +43,7 @@ const T = {
     warnings: "warnings",
     pauses: "safety pauses",
     approvals: "approvals asked",
-    calm: "All calm: nothing to tell you for now. 🍐",
+    calm: "All calm: nothing to tell you for now.",
     scam: (ch: string) => `Peri warned about ${ch} that looked like a scam, and told them what to do without touching anything.`,
     doubt: (ch: string) => `Peri suggested checking ${ch} together because something didn't feel right.`,
     call_family: "Peri paused them for a moment when they opened a money app after something worrying, and they chose to call family to check.",
@@ -101,17 +101,21 @@ export function guardianPage(link: GuardianLink, events: FamilyEvent[], approval
     .join("");
 
   const list = items.length
-    ? `<ul>${items.map((i) => `<li class="${i.tone}"><span class="when">${t.ago(now - i.at)}</span>${i.text}</li>`).join("")}</ul>`
+    ? `<ul>${items.map((i) => `<li class="${i.tone}"><div><span class="when">${t.ago(now - i.at)}</span>${i.text}</div></li>`).join("")}</ul>`
     : `<p class="calm">${t.calm}</p>`;
 
   return layout(
     link.lang,
-    `<h1>🍐 ${t.title}</h1><p>${t.hello(link.name)} ${t.intro}</p>
+    `<h1>${t.title}</h1><p>${t.hello(link.name)} ${t.intro}</p>
 <h2>${t.week}</h2><div class="stats">${summary}</div>${list}<p class="small">${t.privacy}</p>`,
     t.title,
-    `h2{font-size:20px;margin:22px 0 10px}.stats{display:flex;gap:10px}.stat{flex:1;background:#fff;border-radius:14px;padding:12px;text-align:center}
-.stat strong{display:block;font-size:30px;color:#25541a}.stat span{font-size:15px;color:#3f4d39}
-ul{list-style:none;padding:0;margin:20px 0}li{background:#fff;border-radius:14px;padding:14px 16px;margin:0 0 10px;border-left:6px solid #7cc242}
-li.red{border-left-color:#c2412d}li.amber{border-left-color:#d08a00}.when{display:block;font-size:15px;color:#6b665c}.calm{background:#fff;border-radius:14px;padding:16px}`,
+    // The week's numbers in one card split by thin lines; the news as one list, a small dot for how serious.
+    `h1{margin:4px 0 8px}h2{margin:22px 0 10px;color:#1f2a1a}
+.stats{display:flex;background:#fff;border:1px solid #ede4d0;border-radius:24px}.stat{flex:1;min-width:0;padding:14px 16px}.stat+.stat{border-left:1px solid #ede4d0}
+.stat strong{display:block;font-size:26px;line-height:1.2;font-variant-numeric:tabular-nums}.stat span{font-size:15px;color:#3f4d39}
+ul{list-style:none;padding:0;margin:16px 0;background:#fff;border:1px solid #ede4d0;border-radius:24px}
+li{display:flex;gap:12px;align-items:baseline;padding:14px 18px}li+li{border-top:1px solid #f3ecdd}
+li:before{content:"";flex:none;width:10px;height:10px;border-radius:50%;background:#7cc242}li.red:before{background:#c2412d}li.amber:before{background:#d08a00}
+.when{display:block;font-size:15px;color:#5e5a50}.calm{background:#fff;border:1px solid #ede4d0;border-radius:24px;padding:16px 18px}`,
   );
 }
