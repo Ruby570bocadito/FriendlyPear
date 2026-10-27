@@ -512,7 +512,7 @@ class PeriActivity : Activity() {
 
     private fun showShieldCount(total: Int, pop: Boolean) {
         shieldsChip.visibility = if (total > 0) View.VISIBLE else View.GONE
-        shieldsChip.text = total.toString()
+        shieldsChip.text = java.text.NumberFormat.getIntegerInstance().format(total)
         shieldsChip.contentDescription = resources.getQuantityString(R.plurals.shields_chip, total, total)
         if (!pop || !animationsOn()) return
         shieldsChip.scaleX = 0.5f

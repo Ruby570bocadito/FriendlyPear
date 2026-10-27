@@ -344,7 +344,7 @@
     <string name="settings_device_unpaired">Disconnected. This phone no longer has a key for Peri\'s server.</string>
     <string name="access_title">What Peri can do</string>
     <string name="access_intro">Everything Peri may do on this phone, what for, and what she never does. You can switch anything off: she tells you what still works.</string>
-    <string name="access_summary">%1$d of %2$d switched on</string>
+    <string name="access_summary">Switched on: %1$d of %2$d</string>
     <string name="access_on">On</string>
     <string name="access_off">Off</string>
     <string name="access_turn_on">Turn on</string>

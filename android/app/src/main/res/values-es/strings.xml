@@ -343,7 +343,7 @@
     <string name="settings_device_unpaired">Desconectado. Este móvil ya no tiene clave para el servidor de Peri.</string>
     <string name="access_title">Lo que Peri puede hacer</string>
     <string name="access_intro">Todo lo que Peri puede hacer en este móvil, para qué y lo que nunca hace. Puedes apagar lo que quieras: te dice qué sigue funcionando.</string>
-    <string name="access_summary">%1$d de %2$d encendidos</string>
+    <string name="access_summary">Encendidos: %1$d de %2$d</string>
     <string name="access_on">Sí</string>
     <string name="access_off">No</string>
     <string name="access_turn_on">Encender</string>
@@ -393,10 +393,12 @@
     <plurals name="shields_new">
         <item quantity="one">Por cierto, has ganado un escudo nuevo. ¡Bien hecho por tener cuidado!</item>
         <item quantity="other">Por cierto, has ganado %d escudos nuevos. ¡Bien hecho por tener cuidado!</item>
+        <item quantity="many">Por cierto, has ganado %d escudos nuevos. ¡Bien hecho por tener cuidado!</item>
     </plurals>
     <plurals name="shields_chip">
         <item quantity="one">%d escudo. Tócalo para verlo.</item>
         <item quantity="other">%d escudos. Toca para verlos.</item>
+        <item quantity="many">%d escudos. Toca para verlos.</item>
     </plurals>
     <string name="report_card_title">¿Quieres denunciarlo?</string>
     <string name="report_card_text">Te lo dejo escrito para la policía o el 017, en un toque.</string>
