@@ -11,6 +11,7 @@ object RelationWords {
         listOf("sobrino", "sobrina", "sobrinos", "sobrinas").forEach { put(it, Relation.NEPHEW_NIECE) }
         listOf("hermano", "hermana", "hermanos", "hermanas").forEach { put(it, Relation.SIBLING) }
         listOf("marido", "mujer", "esposo", "esposa", "pareja", "novio", "novia").forEach { put(it, Relation.PARTNER) }
+        listOf("madre", "mama", "mami", "padre", "papa", "papi").forEach { put(it, Relation.PARENT) }
         listOf("amigo", "amiga").forEach { put(it, Relation.FRIEND) }
         listOf("cuidador", "cuidadora").forEach { put(it, Relation.CAREGIVER) }
         listOf("son", "daughter", "sons", "daughters", "child", "children", "kids").forEach { put(it, Relation.CHILD) }
@@ -18,6 +19,7 @@ object RelationWords {
         listOf("nephew", "niece", "nephews", "nieces").forEach { put(it, Relation.NEPHEW_NIECE) }
         listOf("brother", "sister", "brothers", "sisters").forEach { put(it, Relation.SIBLING) }
         listOf("husband", "wife", "partner", "boyfriend", "girlfriend").forEach { put(it, Relation.PARTNER) }
+        listOf("mother", "mum", "mom", "mummy", "mommy", "father", "dad", "daddy").forEach { put(it, Relation.PARENT) }
         listOf("friend").forEach { put(it, Relation.FRIEND) }
         listOf("carer", "caregiver").forEach { put(it, Relation.CAREGIVER) }
     }

@@ -7,6 +7,11 @@ import kotlin.test.assertNull
 
 class RelationWordsTest {
     @Test
+    fun `mum and dad are parents`() {
+        for (w in listOf("madre", "mama", "papa", "mother", "mum", "mom", "dad")) assertEquals(Relation.PARENT, RelationWords.of(w))
+    }
+
+    @Test
     fun `relation words in saved contact names`() {
         assertEquals(Relation.CHILD to "Laura", RelationWords.inSavedName("Laura hija"))
         assertEquals(Relation.GRANDCHILD to "Pablo", RelationWords.inSavedName("Mi nieto Pablo"))

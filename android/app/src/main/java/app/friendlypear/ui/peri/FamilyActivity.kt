@@ -237,6 +237,7 @@ class FamilyActivity : Activity() {
             Relation.NEPHEW_NIECE to R.string.relation_nephew_niece,
             Relation.SIBLING to R.string.relation_sibling,
             Relation.PARTNER to R.string.relation_partner,
+            Relation.PARENT to R.string.relation_parent,
             Relation.FRIEND to R.string.relation_friend,
             Relation.CAREGIVER to R.string.relation_caregiver,
             Relation.OTHER to R.string.relation_other,

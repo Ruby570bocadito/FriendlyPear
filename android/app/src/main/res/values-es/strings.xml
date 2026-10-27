@@ -36,6 +36,7 @@
     <string name="relation_nephew_niece">Sobrino o sobrina</string>
     <string name="relation_sibling">Hermano o hermana</string>
     <string name="relation_partner">Pareja</string>
+    <string name="relation_parent">Madre o padre</string>
     <string name="relation_friend">Amigo o amiga</string>
     <string name="relation_caregiver">Cuidador o cuidadora</string>
     <string name="relation_other">Otra</string>

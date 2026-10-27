@@ -9,7 +9,7 @@ enum class Lang { ES, EN }
 enum class Level { OK, DOUBT, SCAM }
 
 /** How a contact relates to the protected person, seen from the person. */
-enum class Relation { CHILD, GRANDCHILD, NEPHEW_NIECE, SIBLING, PARTNER, FRIEND, CAREGIVER, OTHER }
+enum class Relation { CHILD, GRANDCHILD, NEPHEW_NIECE, SIBLING, PARTNER, PARENT, FRIEND, CAREGIVER, OTHER }
 
 /** Trust levels of the family circle, from most to least trusted. */
 enum class TrustLevel { GUARDIAN, VERIFIED_CONTACT, OFFICIAL_ENTITY, ACQUAINTANCE, UNKNOWN }

@@ -9,7 +9,7 @@ import { TOOLS, type ToolContext, runTool } from "./tools";
 
 export const MAX_ROUNDS = 3;
 export const MAX_CALLS = 6;
-export const RELATIONS = ["CHILD", "GRANDCHILD", "NEPHEW_NIECE", "SIBLING", "PARTNER", "FRIEND", "CAREGIVER"];
+export const RELATIONS = ["CHILD", "GRANDCHILD", "NEPHEW_NIECE", "SIBLING", "PARTNER", "PARENT", "FRIEND", "CAREGIVER"];
 
 export interface InvestigationInput extends OpinionInput {
   familyRelations: string[];

@@ -41,10 +41,10 @@ export const TOOLS: Tool[] = [
     type: "function",
     function: {
       name: "family_has",
-      description: "Whether the person's family circle includes someone with this relation, e.g. CHILD, GRANDCHILD, SIBLING, PARTNER.",
+      description: "Whether the person's family circle includes someone with this relation, e.g. CHILD, GRANDCHILD, SIBLING, PARTNER, PARENT.",
       parameters: {
         type: "object",
-        properties: { relation: { type: "string", enum: ["CHILD", "GRANDCHILD", "NEPHEW_NIECE", "SIBLING", "PARTNER", "FRIEND", "CAREGIVER"] } },
+        properties: { relation: { type: "string", enum: ["CHILD", "GRANDCHILD", "NEPHEW_NIECE", "SIBLING", "PARTNER", "PARENT", "FRIEND", "CAREGIVER"] } },
         required: ["relation"],
       },
     },

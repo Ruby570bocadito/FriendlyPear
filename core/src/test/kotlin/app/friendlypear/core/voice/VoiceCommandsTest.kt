@@ -98,6 +98,15 @@ class VoiceCommandsTest {
     }
 
     @Test
+    fun `asking someone for help calls them`() {
+        assertEquals(Command.Call("mama"), parse("Peri, pide ayuda a mamá"))
+        assertEquals(Command.Call("a mama"), parse("llama a mamá, que necesito ayuda"))
+        assertEquals(Command.Call("mi hija"), parse("avisa a mi hija"))
+        assertEquals(Command.Call("my daughter"), parse("ask my daughter for help"))
+        assertEquals(Command.Call("mum"), parse("call mum, I need help"))
+    }
+
+    @Test
     fun `help inside an order is not an emergency`() {
         assertEquals(Command.Call("laura"), parse("help me call Laura"))
     }

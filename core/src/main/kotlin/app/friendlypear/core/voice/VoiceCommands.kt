@@ -24,6 +24,18 @@ object VoiceCommands {
             "\\s+(?:que|diciendo que|diciendole que|poniendo que|poniendole que)\\s+(.+)$" +
             "|\\b(?:tell|text|message|write to|send a (?:text|message) to)\\s+(.+?)\\s+(?:that|saying)\\s+(.+)$",
     )
+    /** "Pide ayuda a mamá", "ask my daughter for help": a call to that person, after Peri's usual "shall I?". */
+    private val askForHelp = Regex(
+        "\\b(?:pide|pidele|pedir|pideles|busca|buscame)\\s+ayuda\\s+(?:a|al|de)\\s+(.+)$" +
+            "|\\b(?:avisa|avisale|avisar)\\s+(?:a|al)\\s+(.+)$" +
+            "|\\b(?:ask|get)\\s+(.+?)\\s+(?:for help|to help me)$" +
+            "|\\b(?:get help from|alert)\\s+(.+)$",
+    )
+    /** What follows the person in a call for help: "llama a mamá, que necesito ayuda" calls mamá. */
+    private val helpTail = Regex(
+        "\\s+(?:que|para que|porque|for|because|i)\\s+(?:me ayude|me ayuden|necesito ayuda|me encuentro mal|help|need help|help me|i need help).*$" +
+            "|\\s+(?:for help|to help me|please help)$",
+    )
     private val trailingPlease = Regex("(?i)[,\\s]*(por favor|please)[.!\\s]*$")
     private val emergency = Text.anyOf(
         listOf(
@@ -67,8 +79,12 @@ object VoiceCommands {
         if (cancel.containsMatchIn(clean) && clean.split(" ").size <= 3) return Command.Cancel
 
         sendMessage(utterance, folded)?.let { return it }
+        askForHelp.find(clean)?.let { m ->
+            val target = helpTail.replace(m.groupValues.drop(1).first { it.isNotEmpty() }, "").trim()
+            if (target.isNotEmpty()) return Command.Call(target)
+        }
         callVerbs.find(clean)?.let { m ->
-            val target = m.groupValues[2].trim()
+            val target = helpTail.replace(m.groupValues[2], "").trim()
             if (target.isNotEmpty()) return Command.Call(target)
         }
         if (messageWords.containsMatchIn(clean) && (readVerbs.containsMatchIn(clean) || clean.split(" ").size <= 3)) {

@@ -37,6 +37,7 @@
     <string name="relation_nephew_niece">Nephew or niece</string>
     <string name="relation_sibling">Brother or sister</string>
     <string name="relation_partner">Partner</string>
+    <string name="relation_parent">Mother or father</string>
     <string name="relation_friend">Friend</string>
     <string name="relation_caregiver">Carer</string>
     <string name="relation_other">Other</string>
