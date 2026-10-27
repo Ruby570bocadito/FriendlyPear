@@ -16,6 +16,9 @@ android {
         versionCode = 1
         versionName = "0.1.0"
         buildConfigField("String", "BACKEND_URL", "\"${localProperty("friendlypear.backendUrl", "http://10.0.2.2:8787")}\"")
+        // Shared secret with the backend (DEVICE_TOKEN). Lives in ~/.gradle/gradle.properties, never in this repo;
+        // empty means the second opinion is off and the rules decide alone.
+        buildConfigField("String", "DEVICE_TOKEN", "\"${localProperty("friendlypear.deviceToken", "")}\"")
     }
 
     buildFeatures {

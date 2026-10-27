@@ -12,12 +12,17 @@ import app.friendlypear.config.PhoneContacts
 import app.friendlypear.core.agent.PeriAgent
 import app.friendlypear.core.model.Contact
 import app.friendlypear.core.model.IncomingMessage
+import app.friendlypear.core.model.Level
+import app.friendlypear.core.shield.Verdict
 import app.friendlypear.device.AndroidDevice
 import app.friendlypear.device.phoneLang
+import app.friendlypear.net.OpinionClient
+import java.util.concurrent.Executors
 
 /**
  * Owns the one [PeriAgent] of the app and feeds it on the main thread: messages from [MessageListener],
- * call state from [CallStateWatcher] and voice from the screen.
+ * call state from [CallStateWatcher] and voice from the screen. Doubtful messages get Muse Spark Open's
+ * second opinion through the backend when it is configured.
  */
 class PeriHub(context: Context) {
     private val context = context.applicationContext
@@ -52,6 +57,8 @@ class PeriHub(context: Context) {
         }
     }
     private val countdownEnd = Runnable { agent.onEmergencyTimeout() }
+    private val opinion = OpinionClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
+    private val network = Executors.newSingleThreadExecutor()
 
     val isWaitingForAnswer: Boolean get() = agent.isWaitingForAnswer
 
@@ -71,9 +78,24 @@ class PeriHub(context: Context) {
 
     fun onMessage(message: IncomingMessage) = main.post {
         if (contacts == null) refreshNow()
-        val verdict = agent.onMessage(message)
+        val asking = opinion.enabled
+        val verdict = agent.onMessage(message, secondOpinion = asking)
         // Never the text or the sender: only what Peri decided.
         Log.i(TAG, "message channel=${message.channel} level=${verdict.level} hardRule=${verdict.hardRule}")
+        if (asking && verdict.level == Level.DOUBT) askModel(message, verdict)
+    }
+
+    /** Off the main thread; the agent hears back on it, with the vote or with null if anything failed. */
+    private fun askModel(message: IncomingMessage, verdict: Verdict) {
+        val waitingAgent = agent
+        val call = callActive
+        network.execute {
+            val delta = opinion.ask(message, verdict, call, lang)
+            main.post {
+                val after = waitingAgent.onModelOpinion(message, delta)
+                Log.i(TAG, "second opinion delta=${delta ?: "none"} level=${after?.level}")
+            }
+        }
     }
 
     fun heard(utterance: String) = main.post {
