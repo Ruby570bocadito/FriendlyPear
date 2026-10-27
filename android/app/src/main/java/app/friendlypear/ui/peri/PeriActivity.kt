@@ -46,6 +46,8 @@ class PeriActivity : Activity() {
     private lateinit var status: TextView
     private lateinit var shieldsChip: TextView
     private lateinit var report: View
+    private lateinit var web: View
+    private lateinit var webText: TextView
     private lateinit var setup: LinearLayout
     private lateinit var access: View
     private lateinit var usage: View
@@ -215,6 +217,45 @@ class PeriActivity : Activity() {
             })
         }
 
+        // A website's junk notice: it isn't the phone talking, and its notices can be switched off in one tap.
+        webText = body("", TextSize.SMALL)
+        web = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = cardBackground()
+            setPadding(dp(16), dp(12), dp(8), dp(14))
+            visibility = View.GONE
+            addView(LinearLayout(this@PeriActivity).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                addView(ImageView(this@PeriActivity).apply {
+                    setImageResource(R.drawable.peri_shield)
+                    importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                }, LinearLayout.LayoutParams(dp(44), dp(44)))
+                addView(LinearLayout(this@PeriActivity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(dp(10), 0, dp(4), 0)
+                    addView(heading(getString(R.string.web_card_title), TextSize.BODY))
+                    addView(webText)
+                }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+                addView(ImageView(this@PeriActivity).apply {
+                    setImageResource(R.drawable.ic_close)
+                    setColorFilter(Palette.INK_SOFT)
+                    contentDescription = getString(R.string.report_hide)
+                    background = pressable(rounded(0, dp(20).toFloat()), Palette.RIPPLE_DARK)
+                    setPadding(dp(10), dp(10), dp(10), dp(10))
+                    setOnClickListener {
+                        hub.webNotices.hide()
+                        showSetup()
+                    }
+                }, LinearLayout.LayoutParams(dp(44), dp(44)))
+            })
+            addView(Pill(this@PeriActivity, getString(R.string.web_card_button), R.drawable.ic_notifications, primary = false).apply {
+                setOnClickListener { silenceWebsite() }
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply {
+                topMargin = dp(10)
+                marginEnd = dp(8)
+            })
+        }
+
         val wordmark = TextView(this).apply {
             text = getString(R.string.app_name)
             sizeSp(TextSize.TITLE)
@@ -273,6 +314,7 @@ class PeriActivity : Activity() {
                 ).apply { bottomMargin = dp(10) })
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(4) })
             addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            addView(web, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
             addView(report, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
             addView(setup, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
             addView(talk, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(80)).apply { topMargin = dp(16) })
@@ -502,6 +544,26 @@ class PeriActivity : Activity() {
         }
     }
 
+    /**
+     * The browser's own switch for that one website's notices (browsers give each site a channel), or, if this
+     * phone can't open it, the browser's notification settings. Peri says what to do there first.
+     */
+    private fun silenceWebsite() {
+        val notice = hub.webNotices.offer() ?: return showSetup()
+        hub.show(getString(R.string.web_how_off, notice.site ?: getString(R.string.web_unknown_site)))
+        val channel = notice.channel?.let {
+            Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+                .putExtra(Settings.EXTRA_APP_PACKAGE, notice.browser)
+                .putExtra(Settings.EXTRA_CHANNEL_ID, it)
+        }
+        val browser = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, notice.browser)
+        val opened = listOfNotNull(channel, browser).any { runCatching { startActivity(it) }.isSuccess }
+        if (opened) {
+            hub.webNotices.hide()
+            hub.earn(app.friendlypear.config.Shields.Kind.STOPPED)
+        }
+    }
+
     /** "By the way, you've earned a new shield": only when all is calm, never right after a warning. */
     private fun shieldsLine(): String? {
         val n = hub.shields.unseen
@@ -652,10 +714,13 @@ class PeriActivity : Activity() {
         val steps = listOf(noBasics to basics, noAccess to access, noSms to sms, noUsage to usage, noLocation to location)
         val first = steps.firstOrNull { it.first }?.second
         steps.forEach { (_, row) -> row.visibility = if (row == first) View.VISIBLE else View.GONE }
-        // A scam to report comes first: one card at a time, so Peri keeps her room.
-        val reporting = hub.lastScam.offer() != null
+        // A website to silence first, then a scam to report: one card at a time, so Peri keeps her room.
+        val site = hub.webNotices.offer()
+        web.visibility = if (site != null) View.VISIBLE else View.GONE
+        if (site != null) webText.text = getString(R.string.web_card_text, site.site ?: getString(R.string.web_unknown_site))
+        val reporting = site == null && hub.lastScam.offer() != null
         report.visibility = if (reporting) View.VISIBLE else View.GONE
-        setup.visibility = if (first != null && !reporting) View.VISIBLE else View.GONE
+        setup.visibility = if (first != null && !reporting && site == null) View.VISIBLE else View.GONE
         // Contacts and calls, plus a way to see messages (texts or alerts): that's enough to protect.
         val seesMessages = hub.permissions.granted(Need.READ_SMS) || !noAccess
         val protecting = !noBasics && seesMessages

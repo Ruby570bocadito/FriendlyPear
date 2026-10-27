@@ -439,4 +439,19 @@
     <string name="trap_prize_1">Un mensaje dice que has ganado un premio, o te ofrece una inversión que no puede fallar.</string>
     <string name="trap_prize_2">Para soltarlo te piden un pago o tus datos. El premio no existe.</string>
     <string name="trap_prize_3">Si parece demasiado bueno para ser verdad, no lo es. No pagues nada y bórralo.</string>
+    <string name="web_card_title">Eso lo mandó una web</string>
+    <string name="web_card_text">No es tu móvil quien avisa: esos avisos los manda %1$s. Apágalos para que no te vuelva a asustar.</string>
+    <string name="web_card_button">Silenciar esta web</string>
+    <string name="web_how_off">En la siguiente pantalla, apaga los avisos de %1$s.</string>
+    <string name="web_unknown_site">esa web</string>
+    <string name="settings_web">Internet más seguro en todo el móvil</string>
+    <string name="settings_web_note">Android puede comprobar cada dirección web con un servicio protector, Quad9 (sin ánimo de lucro), que bloquea webs conocidas de timos y virus en todas las apps. No hay que instalar nada.</string>
+    <string name="settings_web_on">Activado: %1$s</string>
+    <string name="settings_web_off">Desactivado</string>
+    <string name="settings_web_setup">Configurarlo</string>
+    <string name="web_dns_title">Activar internet más seguro</string>
+    <string name="web_dns_steps">1. Toca Abrir ajustes y luego DNS privado (en algunos móviles está en Conexiones, Más ajustes de conexión).\n\n2. Elige «Nombre de host del proveedor de DNS privado».\n\n3. Pega %1$s (ya te lo he copiado) y toca Guardar.</string>
+    <string name="web_dns_copy">Copiar el nombre</string>
+    <string name="web_dns_open">Abrir ajustes</string>
+    <string name="web_dns_copied">Copiado: %1$s. Pégalo en DNS privado.</string>
 </resources>

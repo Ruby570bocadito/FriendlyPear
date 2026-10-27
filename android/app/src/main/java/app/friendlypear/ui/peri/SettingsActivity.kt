@@ -22,6 +22,11 @@ import app.friendlypear.R
  * Spanish or English stay put whatever the phone says (families mix them). Peri still understands both.
  */
 class SettingsActivity : Activity() {
+    private companion object {
+        /** Quad9: a non-profit resolver that refuses known scam and malware sites, and keeps no personal data. */
+        const val SAFE_DNS = "dns.quad9.net"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val list = LinearLayout(this).apply {
@@ -149,6 +154,23 @@ class SettingsActivity : Activity() {
             }
         }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
 
+        // Safer web for the whole phone: Android's Private DNS with a protective resolver, step by step.
+        val dns = privateDns()
+        list.addView(LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = cardBackground()
+            setPadding(dp(18), dp(16), dp(18), dp(18))
+            addView(heading(getString(R.string.settings_web), TextSize.BODY))
+            addView(body(getString(R.string.settings_web_note), TextSize.SMALL).apply { setPadding(0, dp(4), 0, dp(6)) })
+            addView(body(if (dns != null) getString(R.string.settings_web_on, dns) else getString(R.string.settings_web_off), TextSize.SMALL).apply {
+                typeface = weight(700)
+                setTextColor(if (dns != null) Palette.GREEN_DARK else Palette.AMBER_INK)
+            })
+            if (dns == null) addView(Pill(this@SettingsActivity, getString(R.string.settings_web_setup), R.drawable.ic_shield, primary = false).apply {
+                setOnClickListener { saferWeb() }
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply { topMargin = dp(10) })
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
+
         // Every permission, what for and how to switch it off, and what Peri did with them.
         list.addView(Pill(this, getString(R.string.settings_access), R.drawable.ic_shield, primary = false).apply {
             setOnClickListener { startActivity(android.content.Intent(this@SettingsActivity, AccessActivity::class.java)) }
@@ -185,6 +207,35 @@ class SettingsActivity : Activity() {
         else android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=${app.friendlypear.device.GOOGLE_TTS}"))
         runCatching { startActivity(intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
             .onFailure { runCatching { startActivity(android.content.Intent(android.provider.Settings.ACTION_SETTINGS)) } }
+    }
+
+    /** The Private DNS name the phone uses, if it's set to one ("strict" mode); null when it's off or automatic. */
+    private fun privateDns(): String? {
+        val connectivity = getSystemService(android.net.ConnectivityManager::class.java) ?: return null
+        return runCatching { connectivity.getLinkProperties(connectivity.activeNetwork)?.privateDnsServerName }.getOrNull()
+    }
+
+    /**
+     * Android has no switch an app can flip for this: Peri explains the three steps, copies the name to paste and
+     * opens the network settings, where "Private DNS" lives.
+     */
+    private fun saferWeb() {
+        // Copied at once, as the steps say, so it's ready to paste whichever button is tapped.
+        getSystemService(android.content.ClipboardManager::class.java)?.setPrimaryClip(android.content.ClipData.newPlainText("DNS", SAFE_DNS))
+        android.app.AlertDialog.Builder(this)
+            .setTitle(R.string.web_dns_title)
+            .setMessage(getString(R.string.web_dns_steps, SAFE_DNS))
+            .setNeutralButton(R.string.web_dns_copy) { _, _ ->
+                getSystemService(android.content.ClipboardManager::class.java)?.setPrimaryClip(android.content.ClipData.newPlainText("DNS", SAFE_DNS))
+                android.widget.Toast.makeText(this, getString(R.string.web_dns_copied, SAFE_DNS), android.widget.Toast.LENGTH_LONG).show()
+            }
+            .setPositiveButton(R.string.web_dns_open) { _, _ ->
+                runCatching { startActivity(android.content.Intent(android.provider.Settings.ACTION_WIRELESS_SETTINGS)) }
+                    .onFailure { runCatching { startActivity(android.content.Intent(android.provider.Settings.ACTION_SETTINGS)) } }
+            }
+            .setNegativeButton(R.string.pair_not_now, null)
+            .show()
+            .friendly()
     }
 
     /** Typing the code `bun pair` printed, for when there's no camera at hand. */

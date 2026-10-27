@@ -438,4 +438,19 @@
     <string name="trap_prize_1">A message says you\'ve won a prize, or offers an investment that can\'t fail.</string>
     <string name="trap_prize_2">To release it, they ask for a fee or your details. The prize doesn\'t exist.</string>
     <string name="trap_prize_3">If it sounds too good to be true, it is. Don\'t pay anything, and delete it.</string>
+    <string name="web_card_title">A website sent that</string>
+    <string name="web_card_text">It isn\'t your phone talking: %1$s sends those notices. Switch them off so it can\'t scare you again.</string>
+    <string name="web_card_button">Silence this website</string>
+    <string name="web_how_off">In the next screen, switch off the notices from %1$s.</string>
+    <string name="web_unknown_site">that website</string>
+    <string name="settings_web">Safer web for the whole phone</string>
+    <string name="settings_web_note">Android can check every web address with a protective service, Quad9 (a non-profit), which refuses known scam and virus sites in every app. Nothing to install.</string>
+    <string name="settings_web_on">On: %1$s</string>
+    <string name="settings_web_off">Off</string>
+    <string name="settings_web_setup">Set it up</string>
+    <string name="web_dns_title">Turn on safer web</string>
+    <string name="web_dns_steps">1. Tap Open settings, then Private DNS (on some phones it\'s under Connections, More connection settings).\n\n2. Choose \"Private DNS provider hostname\".\n\n3. Paste %1$s (I\'ve copied it for you) and tap Save.</string>
+    <string name="web_dns_copy">Copy the name</string>
+    <string name="web_dns_open">Open settings</string>
+    <string name="web_dns_copied">Copied: %1$s. Paste it in Private DNS.</string>
 </resources>

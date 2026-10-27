@@ -30,6 +30,7 @@ import app.friendlypear.config.Shields
 import app.friendlypear.net.ReportClient
 import app.friendlypear.net.ScamReport
 import app.friendlypear.config.UseLog
+import app.friendlypear.config.WebNotice
 import app.friendlypear.config.NewsEntry
 import app.friendlypear.config.SharedNews
 import app.friendlypear.config.Need
@@ -46,6 +47,7 @@ import app.friendlypear.core.model.TrustLevel
 import app.friendlypear.core.trust.CircleRules
 import app.friendlypear.core.trust.FamilyConfig
 import app.friendlypear.core.trust.PendingCircleChange
+import app.friendlypear.core.model.Channel
 import app.friendlypear.core.model.IncomingMessage
 import app.friendlypear.core.model.Level
 import app.friendlypear.core.shield.Shield
@@ -123,6 +125,17 @@ class PeriHub(context: Context) {
     /** One for each scam stopped and each time the person asks before acting. */
     val shields = Shields(this.context)
 
+    /** A website's junk notice, to silence that site: [onWebNotice] keeps it until the verdict says it's junk. */
+    val webNotices = WebNotice(this.context)
+    private val pendingWeb = HashMap<String, WebNotice.Notice>()
+
+    /** A browser passed on a website's notice: checked like any message, and remembered in case it's junk. */
+    fun onWebNotice(message: IncomingMessage, notice: WebNotice.Notice) = main.post {
+        pendingWeb[message.text] = notice
+        if (pendingWeb.size > 20) pendingWeb.remove(pendingWeb.keys.first())
+        onMessage(message)
+    }
+
     /** The last scam Peri stopped, for "Report it"; it leaves the phone only if the person asks. */
     val lastScam = LastScam(this.context)
     private val reports = ReportClient(BuildConfig.BACKEND_URL, { app.friendlypear.net.DeviceKey.current(this.context) })
@@ -140,7 +153,7 @@ class PeriHub(context: Context) {
         }
     }
 
-    private fun earn(kind: Shields.Kind) = main.post {
+    fun earn(kind: Shields.Kind) = main.post {
         shields.add(kind)
         Log.i(TAG, "shield earned kind=$kind total=${shields.total}")
         views.forEach { it.shieldEarned(shields.total) }
@@ -489,6 +502,14 @@ class PeriHub(context: Context) {
     /** Only what Peri decided, never the message: a scam or a doubt, and the channel it came by. */
     private fun shareVerdict(message: IncomingMessage, verdict: Verdict) {
         val level = verdict.level
+        // A website's scary or scammy notice: offer to silence that site, the way back to a calm phone.
+        if (message.channel == Channel.BROWSER_NOTIFICATION) {
+            val notice = pendingWeb.remove(message.text)
+            if (notice != null && level != Level.OK) {
+                webNotices.save(notice)
+                views.forEach { it.scamToReport() }
+            }
+        }
         if (level == Level.SCAM) {
             earn(Shields.Kind.STOPPED)
             val signals = verdict.signals.map { it.name }
@@ -669,6 +690,11 @@ class PeriHub(context: Context) {
                 intent.getStringExtra("text")?.let { heard(it) }
                 intent.getStringExtra("installed")?.let { onAppInstalled(it) }
                 intent.getStringExtra("opened")?.let { onAppOpened(it) }
+                // A website's notice through Chrome: "--es web 'site|title|text'".
+                intent.getStringExtra("web")?.split("|", limit = 3)?.takeIf { it.size == 3 }?.let { (site, title, text) ->
+                    val now = System.currentTimeMillis()
+                    onWebNotice(IncomingMessage(Channel.BROWSER_NOTIFICATION, site, "$title. $text", now), WebNotice.Notice("com.android.chrome", null, site, now))
+                }
                 if (intent.getStringExtra("summary") == "now") weeklySummary(now = true)
                 // A WAV in the app's own files stands in for the microphone, through Muse Voice Transcribe.
                 intent.getStringExtra("wav")?.let { name ->
