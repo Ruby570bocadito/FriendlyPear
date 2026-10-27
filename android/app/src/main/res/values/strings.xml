@@ -99,4 +99,10 @@
     <string name="news_pause_call">Safety pause: you chose to call family</string>
     <string name="news_pause_leave">Safety pause: you left the app</string>
     <string name="news_pause_continue">Safety pause: you carried on</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_note">For the screens and Peri\'s voice. Peri understands Spanish and English whichever you choose.</string>
+    <string name="language_phone">Same as the phone</string>
+    <string name="settings_language_old_android">On this version of Android, change the language in the phone\'s own settings.</string>
+    <string name="language_changed">All right! From now on I\'ll speak English with you.</string>
 </resources>

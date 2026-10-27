@@ -6,6 +6,13 @@ plugins {
 fun localProperty(name: String, default: String) = (project.findProperty(name) as String?) ?: default
 
 android {
+    // The language is chosen inside the app (Settings), so every language must ship in the APK or bundle.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
+
     namespace = "app.friendlypear"
     compileSdk = 35
 

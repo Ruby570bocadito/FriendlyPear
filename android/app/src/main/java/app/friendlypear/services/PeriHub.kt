@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.Configuration
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
@@ -34,6 +35,7 @@ import app.friendlypear.core.shield.Shield
 import app.friendlypear.core.shield.Verdict
 import app.friendlypear.device.AndroidDevice
 import app.friendlypear.device.phoneLang
+import app.friendlypear.device.speechLocale
 import app.friendlypear.net.ApprovalClient
 import app.friendlypear.net.GuardianClient
 import app.friendlypear.net.OpinionClient
@@ -70,8 +72,9 @@ class PeriHub(context: Context) {
     fun attach(view: PeriView) = views.add(view)
     fun detach(view: PeriView) = views.remove(view)
 
-    /** Read once: Peri keeps one language for the whole session. */
-    val lang = phoneLang()
+    /** The app's language (Settings, or the phone's); Peri speaks it and still understands both. */
+    var lang = phoneLang()
+        private set
 
     private val device: AndroidDevice = AndroidDevice(
         this.context,
@@ -299,6 +302,20 @@ class PeriHub(context: Context) {
         if (contacts == null) refreshNow()
         agent.onIncomingCall(number)
         Log.i(TAG, "incoming call screened")
+    }
+
+    /**
+     * The app's language changed (Settings, or the phone's when following it): Peri's voice and her sentences
+     * switch at once, keeping what she knows about the family, and she says so in the new language.
+     */
+    fun languageChanged() = main.post {
+        val now = phoneLang()
+        if (now == lang) return@post
+        lang = now
+        device.lang = now
+        agent = newAgent(contacts ?: emptyList()).also { it.onCallStateChanged(callActive) }
+        val local = context.createConfigurationContext(Configuration(context.resources.configuration).apply { setLocale(speechLocale(now)) })
+        device.speak(local.getString(R.string.language_changed))
     }
 
     /** Peri says something outside the agent, e.g. why she needs a permission. */

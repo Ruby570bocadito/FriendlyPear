@@ -132,10 +132,22 @@ class PeriActivity : Activity() {
             typeface = weight(800)
             setTextColor(Palette.GREEN_DARK)
         }
+        val settings = ImageView(this).apply {
+            setImageResource(R.drawable.ic_settings)
+            setColorFilter(Palette.GREEN_DARK)
+            contentDescription = getString(R.string.settings_title)
+            background = pressable(GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Palette.GREEN_TINT)
+            }, Palette.RIPPLE_DARK)
+            setPadding(dp(12), dp(12), dp(12), dp(12))
+            setOnClickListener { startActivity(Intent(this@PeriActivity, SettingsActivity::class.java)) }
+        }
         val header = LinearLayout(this).apply {
             gravity = Gravity.CENTER_VERTICAL
             addView(wordmark, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             addView(status)
+            addView(settings, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginStart = dp(10) })
         }
         val secondary = LinearLayout(this).apply {
             addView(family, LinearLayout.LayoutParams(0, dp(60), 1f).apply { marginEnd = dp(6) })

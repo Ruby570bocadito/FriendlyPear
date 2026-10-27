@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class AndroidDevice(
     context: Context,
-    private val lang: Lang,
+    lang: Lang,
     private val onSpeech: (String) -> Unit,
     private val onSpeechDone: () -> Unit,
     private val ask: (Capability, (Boolean) -> Unit) -> Unit,
@@ -39,6 +39,13 @@ class AndroidDevice(
     }
 
     private val context = context.applicationContext
+
+    /** Peri's language; changing it switches her voice at once. */
+    var lang: Lang = lang
+        set(value) {
+            field = value
+            if (ready) useVoice()
+        }
     private val main = Handler(Looper.getMainLooper())
     private val queued = ArrayDeque<String>()
     private val ids = AtomicInteger()
@@ -47,9 +54,7 @@ class AndroidDevice(
 
     private fun onTtsReady(status: Int) {
         if (status != TextToSpeech.SUCCESS) return
-        val locale = speechLocale(lang)
-        tts.language = locale
-        bestOfflineVoice(locale)?.let { tts.voice = it }
+        useVoice()
         // A warm, unhurried voice (docs/PERI_VOZ.md): a little slower and a little higher than default.
         tts.setSpeechRate(0.9f)
         tts.setPitch(1.1f)
@@ -66,6 +71,12 @@ class AndroidDevice(
         })
         ready = true
         while (queued.isNotEmpty()) say(queued.removeFirst())
+    }
+
+    private fun useVoice() {
+        val locale = speechLocale(lang)
+        tts.language = locale
+        bestOfflineVoice(locale)?.let { tts.voice = it }
     }
 
     /** The best voice for the language that works without a connection, so Peri never goes silent. */

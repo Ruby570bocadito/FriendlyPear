@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The app's languages, so Android's own settings can offer them too (Settings > Apps > FriendlyPear > Language). -->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="en" />
+    <locale android:name="es" />
+</locale-config>
