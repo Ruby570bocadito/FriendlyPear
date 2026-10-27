@@ -10,6 +10,7 @@ import android.os.Handler
 import android.os.Looper
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
+import android.speech.tts.Voice
 import android.telephony.SmsManager
 import app.friendlypear.core.agent.DevicePort
 import app.friendlypear.core.model.Lang
@@ -35,8 +36,12 @@ class AndroidDevice(
 
     private fun onTtsReady(status: Int) {
         if (status != TextToSpeech.SUCCESS) return
-        tts.language = speechLocale(lang)
+        val locale = speechLocale(lang)
+        tts.language = locale
+        bestOfflineVoice(locale)?.let { tts.voice = it }
+        // A warm, unhurried voice (docs/PERI_VOZ.md): a little slower and a little higher than default.
         tts.setSpeechRate(0.9f)
+        tts.setPitch(1.1f)
         tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) = Unit
             override fun onDone(utteranceId: String?) {
@@ -51,6 +56,12 @@ class AndroidDevice(
         ready = true
         while (queued.isNotEmpty()) say(queued.removeFirst())
     }
+
+    /** The best voice for the language that works without a connection, so Peri never goes silent. */
+    private fun bestOfflineVoice(locale: Locale): Voice? = tts.voices.orEmpty()
+        .filter { it.locale.language == locale.language && !it.isNetworkConnectionRequired && "notInstalled" !in it.features }
+        .sortedWith(compareByDescending<Voice> { it.locale.country == locale.country }.thenByDescending { it.quality })
+        .firstOrNull()
 
     override fun speak(text: String) {
         onSpeech(text)

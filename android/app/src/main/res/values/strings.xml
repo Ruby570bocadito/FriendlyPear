@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- English is the default language (the jury's); Spanish lives in values-es. -->
+<!-- English is the default language (the jury's); Spanish lives in values-es. Tone: docs/PERI_VOZ.md. -->
 <resources>
     <string name="app_name">FriendlyPear</string>
-    <string name="peri_greeting">Hi, I\'m Peri. I\'m here to help you.</string>
+    <string name="peri_greeting">Hi! I\'m Peri, your friend. I\'m here to lend you a hand.</string>
     <string name="talk">Talk to Peri</string>
-    <string name="listening">I\'m listening…</string>
-    <string name="notification_access">Let Peri read message notifications</string>
-    <string name="no_recognizer">This phone has no speech recognition.</string>
-    <string name="permissions_why">To understand you, know who your family is, warn you during a call, call and send messages when you say yes and, only in an emergency, send your location, Peri will ask for your permission. Everything stays on your phone.</string>
+    <string name="listening">I\'m all ears…</string>
+    <string name="notification_access">Let Peri read your message alerts</string>
+    <string name="no_recognizer">Oh dear, this phone can\'t understand speech. You can still read what I say here.</string>
+    <string name="permissions_why">I\'m going to ask you for a few permissions so I can look after you: to understand you, to know who your family is, to warn you during a call, to call and send messages only when you say yes and, just in an emergency, to share where you are. Everything stays on your phone.</string>
     <string name="listener_name">Peri: message reader</string>
 </resources>
