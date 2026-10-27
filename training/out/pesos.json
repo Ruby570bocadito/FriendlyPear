@@ -9,69 +9,75 @@
     "scams": 102
   },
   "cv_log_loss_by_strength": {
-    "0.003": 0.23,
-    "0.01": 0.2389,
-    "0.03": 0.2546,
-    "0.1": 0.2728,
-    "0.3": 0.2832,
-    "1.0": 0.2884
+    "0.003": 0.1859,
+    "0.01": 0.196,
+    "0.03": 0.2124,
+    "0.1": 0.2306,
+    "0.3": 0.2413,
+    "1.0": 0.2466
   },
   "chosen_strength": 0.003,
   "weights": {
-    "bias": -3.55,
-    "UNKNOWN_SENDER": 0.92,
-    "LINK": 2.0,
-    "URL_SHORTENER": 1.9,
-    "INSECURE_LINK": 2.77,
-    "BRAND_LOOKALIKE": 4.02,
-    "URGENCY": 2.56,
-    "MONEY_REQUEST": 2.07,
-    "CREDENTIAL_REQUEST": 2.45,
-    "CODE_FORWARD_REQUEST": 2.0,
-    "NEW_NUMBER_CLAIM": 2.61,
-    "PRIZE_OR_PROFIT": 2.08,
-    "REMOTE_ACCESS_APP": 3.29,
+    "bias": -3.69,
+    "UNKNOWN_SENDER": 0.79,
+    "LINK": 2.24,
+    "URL_SHORTENER": 1.89,
+    "INSECURE_LINK": 2.78,
+    "BRAND_LOOKALIKE": 4.04,
+    "URGENCY": 2.12,
+    "MONEY_REQUEST": 1.96,
+    "CREDENTIAL_REQUEST": 2.57,
+    "CODE_FORWARD_REQUEST": 2.22,
+    "NEW_NUMBER_CLAIM": 2.82,
+    "PRIZE_OR_PROFIT": 2.09,
+    "SECRECY": 1.87,
+    "DEVICE_SCARE": 2.42,
+    "ROMANCE_BAIT": 2.09,
+    "REMOTE_ACCESS_APP": 3.11,
     "AI_INSTRUCTIONS": 3.0,
     "ONE_TIME_CODE": 0.0,
     "CODE_DURING_CALL": 4.0
   },
   "scratch_weights": {
-    "bias": -1.66,
-    "UNKNOWN_SENDER": 0.24,
-    "LINK": 1.59,
-    "URL_SHORTENER": 0.39,
-    "INSECURE_LINK": 0.69,
+    "bias": -1.7,
+    "UNKNOWN_SENDER": 0.23,
+    "LINK": 1.63,
+    "URL_SHORTENER": 0.4,
+    "INSECURE_LINK": 0.7,
     "BRAND_LOOKALIKE": 4.0,
-    "URGENCY": 1.16,
-    "MONEY_REQUEST": 1.19,
-    "CREDENTIAL_REQUEST": 0.46,
-    "CODE_FORWARD_REQUEST": 0.02,
-    "NEW_NUMBER_CLAIM": 0.53,
-    "PRIZE_OR_PROFIT": 0.2,
-    "REMOTE_ACCESS_APP": 0.33,
+    "URGENCY": 1.1,
+    "MONEY_REQUEST": 1.15,
+    "CREDENTIAL_REQUEST": 0.49,
+    "CODE_FORWARD_REQUEST": 0.17,
+    "NEW_NUMBER_CLAIM": 0.63,
+    "PRIZE_OR_PROFIT": 0.21,
+    "SECRECY": 0.39,
+    "DEVICE_SCARE": 0.46,
+    "ROMANCE_BAIT": 0.44,
+    "REMOTE_ACCESS_APP": 0.3,
     "AI_INSTRUCTIONS": 0.0,
     "ONE_TIME_CODE": 0.0,
     "CODE_DURING_CALL": 4.0
   },
   "auc_held_out": {
-    "provisional": 0.957,
-    "scratch": 0.942,
-    "learned": 0.965
+    "provisional": 0.964,
+    "scratch": 0.946,
+    "learned": 0.972
   },
   "provisional_on_held_out": {
-    "TPR_warn": "83.3% [74.9%, 89.3%]",
+    "TPR_warn": "88.2% [80.6%, 93.1%]",
     "FPR_warn": "4.1% [1.6%, 10.0%]",
-    "tp_warn": 85,
+    "tp_warn": 90,
     "fp_warn": 4,
-    "TPR_scam": "52.9% [43.3%, 62.3%]",
+    "TPR_scam": "59.8% [50.1%, 68.8%]",
     "FPR_scam": "1.0% [0.2%, 5.6%]",
-    "tp_scam": 54,
+    "tp_scam": 61,
     "fp_scam": 1
   },
   "scratch_on_held_out": {
-    "TPR_warn": "75.5% [66.3%, 82.8%]",
+    "TPR_warn": "80.4% [71.6%, 86.9%]",
     "FPR_warn": "3.1% [1.0%, 8.6%]",
-    "tp_warn": 77,
+    "tp_warn": 82,
     "fp_warn": 3,
     "TPR_scam": "41.2% [32.1%, 50.9%]",
     "FPR_scam": "0.0% [0.0%, 3.8%]",
@@ -79,37 +85,37 @@
     "fp_scam": 0
   },
   "learned_on_held_out": {
-    "TPR_warn": "78.4% [69.5%, 85.3%]",
+    "TPR_warn": "83.3% [74.9%, 89.3%]",
     "FPR_warn": "2.0% [0.6%, 7.1%]",
-    "tp_warn": 80,
+    "tp_warn": 85,
     "fp_warn": 2,
-    "TPR_scam": "66.7% [57.1%, 75.1%]",
-    "FPR_scam": "1.0% [0.2%, 5.6%]",
-    "tp_scam": 68,
-    "fp_scam": 1
+    "TPR_scam": "61.8% [52.1%, 70.6%]",
+    "FPR_scam": "0.0% [0.0%, 3.8%]",
+    "tp_scam": 63,
+    "fp_scam": 0
   },
   "learned_on_train": {
-    "TPR_warn": "84.7% [81.9%, 87.1%]",
-    "FPR_warn": "1.9% [1.0%, 3.3%]",
-    "tp_warn": 609,
-    "fp_warn": 11,
-    "TPR_scam": "70.2% [66.8%, 73.5%]",
-    "FPR_scam": "0.5% [0.2%, 1.5%]",
-    "tp_scam": 505,
-    "fp_scam": 3
+    "TPR_warn": "90.8% [88.5%, 92.7%]",
+    "FPR_warn": "2.0% [1.2%, 3.5%]",
+    "tp_warn": 653,
+    "fp_warn": 12,
+    "TPR_scam": "69.0% [65.5%, 72.3%]",
+    "FPR_scam": "0.3% [0.1%, 1.2%]",
+    "tp_scam": 496,
+    "fp_scam": 2
   },
   "auc_20_20": {
-    "provisional": 0.998,
-    "learned": 0.986
+    "provisional": 0.999,
+    "learned": 0.995
   },
   "provisional_on_20_20": {
     "TPR_warn": "100.0% [83.9%, 100.0%]",
     "FPR_warn": "5.0% [0.9%, 23.6%]",
     "tp_warn": 20,
     "fp_warn": 1,
-    "TPR_scam": "75.0% [53.1%, 88.8%]",
+    "TPR_scam": "90.0% [69.9%, 97.2%]",
     "FPR_scam": "0.0% [-0.0%, 16.1%]",
-    "tp_scam": 15,
+    "tp_scam": 18,
     "fp_scam": 0
   },
   "learned_on_20_20": {
@@ -117,18 +123,15 @@
     "FPR_warn": "5.0% [0.9%, 23.6%]",
     "tp_warn": 20,
     "fp_warn": 1,
-    "TPR_scam": "80.0% [58.4%, 91.9%]",
-    "FPR_scam": "5.0% [0.9%, 23.6%]",
-    "tp_scam": 16,
-    "fp_scam": 1
+    "TPR_scam": "85.0% [64.0%, 94.8%]",
+    "FPR_scam": "0.0% [-0.0%, 16.1%]",
+    "tp_scam": 17,
+    "fp_scam": 0
   },
   "firm_false_alarms": {
     "provisional": [
       "n-new-03"
     ],
-    "learned": [
-      "n-new-03",
-      "n20"
-    ]
+    "learned": []
   }
 }

@@ -17,6 +17,12 @@ enum class Signal {
     CODE_FORWARD_REQUEST,
     NEW_NUMBER_CLAIM,
     PRIZE_OR_PROFIT,
+    /** "Don't tell dad", "keep it a secret": cutting the person off from the family who would spot it. */
+    SECRECY,
+    /** "Your device is infected, call the technician": fear used to get a call or remote access. */
+    DEVICE_SCARE,
+    /** Affection or a far-away love story (a widower, a soldier, an oil rig) from someone not in the contacts. */
+    ROMANCE_BAIT,
     REMOTE_ACCESS_APP,
     AI_INSTRUCTIONS,
     ONE_TIME_CODE,

@@ -20,25 +20,27 @@ data class ShieldWeights(
         /**
          * Learned by logistic regression on 1,306 synthetic messages (training/fit.py), shrunk towards [PROVISIONAL]
          * with the strength cross-validation picked. On the hand-written held-out set (eval/reservado-200) it ranks
-         * scams better (AUC 0.965 vs 0.957) and warns firmly on 66.7% of scams instead of 52.9%; but on the 20/20
-         * set it makes a genuine gym reminder a firm scam. Not the default until real legitimate messages close
-         * that gap (eval/REPORT.md).
+         * scams better (AUC 0.972 vs 0.964) with no firm false alarm, but stays silent on more scams (83 % flagged vs
+         * 88 %). Not the default: a missed scam costs more than a doubt the model can still calm (eval/REPORT.md).
          */
         val LEARNED = ShieldWeights(
-            bias = -3.55,
+            bias = -3.69,
             perSignal = mapOf(
-                Signal.UNKNOWN_SENDER to 0.92,
-                Signal.LINK to 2.0,
-                Signal.URL_SHORTENER to 1.9,
-                Signal.INSECURE_LINK to 2.77,
-                Signal.BRAND_LOOKALIKE to 4.02,
-                Signal.URGENCY to 2.56,
-                Signal.MONEY_REQUEST to 2.07,
-                Signal.CREDENTIAL_REQUEST to 2.45,
-                Signal.CODE_FORWARD_REQUEST to 2.0,
-                Signal.NEW_NUMBER_CLAIM to 2.61,
-                Signal.PRIZE_OR_PROFIT to 2.08,
-                Signal.REMOTE_ACCESS_APP to 3.29,
+                Signal.UNKNOWN_SENDER to 0.79,
+                Signal.LINK to 2.24,
+                Signal.URL_SHORTENER to 1.89,
+                Signal.INSECURE_LINK to 2.78,
+                Signal.BRAND_LOOKALIKE to 4.04,
+                Signal.URGENCY to 2.12,
+                Signal.MONEY_REQUEST to 1.96,
+                Signal.CREDENTIAL_REQUEST to 2.57,
+                Signal.CODE_FORWARD_REQUEST to 2.22,
+                Signal.NEW_NUMBER_CLAIM to 2.82,
+                Signal.PRIZE_OR_PROFIT to 2.09,
+                Signal.SECRECY to 1.87,
+                Signal.DEVICE_SCARE to 2.42,
+                Signal.ROMANCE_BAIT to 2.09,
+                Signal.REMOTE_ACCESS_APP to 3.11,
                 Signal.AI_INSTRUCTIONS to 3.0,
                 Signal.ONE_TIME_CODE to 0.0,
                 Signal.CODE_DURING_CALL to 4.0,
@@ -60,6 +62,9 @@ data class ShieldWeights(
                 Signal.CODE_FORWARD_REQUEST to 2.0,
                 Signal.NEW_NUMBER_CLAIM to 2.5,
                 Signal.PRIZE_OR_PROFIT to 2.0,
+                Signal.SECRECY to 1.5,
+                Signal.DEVICE_SCARE to 2.0,
+                Signal.ROMANCE_BAIT to 1.5,
                 Signal.REMOTE_ACCESS_APP to 3.0,
                 Signal.AI_INSTRUCTIONS to 3.0,
                 Signal.ONE_TIME_CODE to 0.0,

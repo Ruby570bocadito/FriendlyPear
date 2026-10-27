@@ -94,7 +94,7 @@ class Shield(
         level == Level.OK -> SafeAction.NONE
         Signal.CODE_DURING_CALL in signals -> SafeAction.HANG_UP
         Signal.NEW_NUMBER_CLAIM in signals -> SafeAction.CALL_SAVED_CONTACT
-        Signal.REMOTE_ACCESS_APP in signals -> SafeAction.ASK_FAMILY
+        Signal.REMOTE_ACCESS_APP in signals || Signal.DEVICE_SCARE in signals -> SafeAction.ASK_FAMILY
         brand != null -> SafeAction.USE_OFFICIAL_APP
         Signal.LINK in signals -> SafeAction.DONT_TOUCH_LINK
         else -> SafeAction.ASK_FAMILY

@@ -52,6 +52,32 @@ class SignalDetectorTest {
     }
 
     @Test
+    fun `secrecy, scareware and romance are signs of their own`() {
+        assertTrue(Signal.SECRECY in signals("Abuela, necesito 900 € de fianza hoy. No se lo digas a papá, por favor"))
+        assertTrue(Signal.SECRECY in signals("Mum it's Josh, I need £350 now, please don't tell dad"))
+        assertTrue(Signal.DEVICE_SCARE in signals("ALERTA Microsoft: 3 virus graves en su Windows. Llame al técnico ahora"))
+        assertTrue(Signal.DEVICE_SCARE in signals("Su router ha sido hackeado. Llame urgente al soporte técnico"))
+        assertTrue(Signal.ROMANCE_BAIT in signals("Mi amor, soy Elena, viuda en León. ¿Me ayudas con 350 euros?"))
+        assertTrue(Signal.ROMANCE_BAIT in signals("Darling, I'm a soldier deployed abroad and I need help with my leave fee"))
+    }
+
+    @Test
+    fun `family and ordinary life don't trigger them`() {
+        assertFalse(Signal.ROMANCE_BAIT in signals("Mi amor, ¿compras pan al volver?", sender = "Laura"))
+        assertFalse(Signal.DEVICE_SCARE in signals("Tengo un virus estomacal, mañana no voy a comer", sender = "Laura"))
+        assertFalse(Signal.SECRECY in signals("El sábado es la fiesta sorpresa de papá, nos vemos a las 6", sender = "Laura"))
+    }
+
+    @Test
+    fun `new numbers and forwarded codes in other words`() {
+        assertTrue(Signal.NEW_NUMBER_CLAIM in signals("Mamá soy Carmen desde el móvil de una amiga, el mío se quedó sin pantalla"))
+        assertTrue(Signal.NEW_NUMBER_CLAIM in signals("Hola papá, se me cayó el móvil al agua. Tengo este número temporal"))
+        assertTrue(Signal.CODE_FORWARD_REQUEST in signals("Soy de seguridad del banco. Reenvíeme aquí el SMS con la clave para bloquear la operación"))
+        assertTrue(Signal.CODE_FORWARD_REQUEST in signals("No cuelgue y facilite al operador el código de verificación recibido"))
+        assertFalse(Signal.CODE_FORWARD_REQUEST in signals("Tu código es 4821. No lo compartas con nadie", sender = "BBVA"))
+    }
+
+    @Test
     fun `parcel fee with a shortened link`() {
         val s = signals("Correos: su paquete está retenido. Pague 1,99 € de tasas en bit.ly/3xYz", sender = "Correos")
         assertTrue(s.containsAll(setOf(Signal.LINK, Signal.URL_SHORTENER, Signal.URGENCY, Signal.MONEY_REQUEST)))
