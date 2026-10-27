@@ -10,8 +10,8 @@ import java.net.URL
  * that say what happened, never what it was about (a warning's level and channel, a pause and its answer).
  * Blocking: call it off the main thread. Any failure returns null or false; nothing is retried in a loop.
  */
-class GuardianClient(private val baseUrl: String, private val deviceToken: String) {
-    val enabled: Boolean get() = baseUrl.isNotBlank() && deviceToken.length >= 32
+class GuardianClient(private val baseUrl: String, private val deviceToken: () -> String) {
+    val enabled: Boolean get() = baseUrl.isNotBlank() && deviceToken().length >= 32
 
     fun createLink(name: String, lang: Lang): String? {
         val body = JSONObject().put("name", name).put("lang", if (lang == Lang.ES) "es" else "en")
@@ -34,7 +34,7 @@ class GuardianClient(private val baseUrl: String, private val deviceToken: Strin
                 requestMethod = method
                 connectTimeout = 3_000
                 readTimeout = 8_000
-                setRequestProperty("authorization", "Bearer $deviceToken")
+                setRequestProperty("authorization", "Bearer ${deviceToken()}")
                 if (body != null) {
                     doOutput = true
                     setRequestProperty("content-type", "application/json")

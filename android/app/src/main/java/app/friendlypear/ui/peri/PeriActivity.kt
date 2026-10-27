@@ -224,7 +224,17 @@ class PeriActivity : Activity() {
             answer = done
             requestPermissions(need.permissions.toTypedArray(), REQUEST_NEED)
         }
-        firstStart()
+        // The very first time, Peri introduces herself before asking for anything. Someone updating the app has
+        // already answered her questions: no welcome for them.
+        if (!asked.getBoolean(WelcomeActivity.WELCOMED, false) && asked.all.isNotEmpty()) {
+            asked.edit().putBoolean(WelcomeActivity.WELCOMED, true).apply()
+        }
+        if (!asked.getBoolean(WelcomeActivity.WELCOMED, false)) {
+            @Suppress("DEPRECATION")
+            startActivityForResult(Intent(this, WelcomeActivity::class.java), REQUEST_WELCOME)
+        } else {
+            firstStart()
+        }
     }
 
     /** What Peri says, at most about a quarter of the screen tall, so she always has room. */
@@ -359,6 +369,11 @@ class PeriActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_SCREENING) firstStart()
+        if (requestCode == REQUEST_WELCOME) {
+            // She already said hello in the welcome: no second greeting today.
+            asked.edit().putInt(GREETED_DAY, Calendar.getInstance().get(Calendar.DAY_OF_YEAR)).apply()
+            firstStart()
+        }
     }
 
     override fun onResume() {
@@ -375,7 +390,7 @@ class PeriActivity : Activity() {
         hub.appVisible = true
         showFace(hub.mood)
         face.speaking(hub.speaking)
-        if (!greeted) {
+        if (!greeted && asked.getBoolean(WelcomeActivity.WELCOMED, false)) {
             greeted = true
             face.greet()
             greet()
@@ -650,6 +665,7 @@ class PeriActivity : Activity() {
         const val TYPE_STEPS = 90
         const val BUBBLE_SHARE = 0.24f
         const val REQUEST_SCREENING = 2
+        const val REQUEST_WELCOME = 3
         const val SCREENING = "screening"
         const val NOTIFICATIONS = "notifications"
         const val LOCATION_ASKED = "location_setup"

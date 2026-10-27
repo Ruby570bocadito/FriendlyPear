@@ -15,8 +15,8 @@ data class PictureVerdict(val verdict: String, val kinds: List<String>, val mark
  * "Look at this picture": sends one picture the person chose to the backend (Muse Spark reads it, SAM 3.1 marks
  * what's risky). The picture is never stored, on the phone or the backend. Blocking: call it off the main thread.
  */
-class PictureClient(private val baseUrl: String, private val deviceToken: String) {
-    val enabled: Boolean get() = baseUrl.isNotBlank() && deviceToken.length >= 32
+class PictureClient(private val baseUrl: String, private val deviceToken: () -> String) {
+    val enabled: Boolean get() = baseUrl.isNotBlank() && deviceToken().length >= 32
 
     fun look(jpegBase64: String, lang: Lang): PictureVerdict? {
         if (!enabled) return null
@@ -28,7 +28,7 @@ class PictureClient(private val baseUrl: String, private val deviceToken: String
                 readTimeout = 45_000
                 doOutput = true
                 setRequestProperty("content-type", "application/json")
-                setRequestProperty("authorization", "Bearer $deviceToken")
+                setRequestProperty("authorization", "Bearer ${deviceToken()}")
             }
             connection.outputStream.use { it.write(body.toString().toByteArray()) }
             if (connection.responseCode != 200) return null

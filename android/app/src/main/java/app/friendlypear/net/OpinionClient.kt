@@ -19,8 +19,8 @@ data class Investigated(val delta: Double, val verdict: String, val evidence: Li
  * investigator, which relations the family has); the sender stays on the phone. Any failure returns null and
  * Peri keeps the rules' verdict.
  */
-class OpinionClient(private val baseUrl: String, private val deviceToken: String) {
-    val enabled: Boolean get() = baseUrl.isNotBlank() && deviceToken.length >= 32
+class OpinionClient(private val baseUrl: String, private val deviceToken: () -> String) {
+    val enabled: Boolean get() = baseUrl.isNotBlank() && deviceToken().length >= 32
 
     /** Blocking: call it off the main thread. Returns the vote in log-odds, at most ±2. */
     fun ask(message: IncomingMessage, verdict: Verdict, callActive: Boolean, lang: Lang): Double? =
@@ -56,7 +56,7 @@ class OpinionClient(private val baseUrl: String, private val deviceToken: String
                 readTimeout = readTimeoutMillis
                 doOutput = true
                 setRequestProperty("content-type", "application/json")
-                setRequestProperty("authorization", "Bearer $deviceToken")
+                setRequestProperty("authorization", "Bearer ${deviceToken()}")
             }
             connection.outputStream.use { it.write(body.toString().toByteArray()) }
             if (connection.responseCode != 200) return null

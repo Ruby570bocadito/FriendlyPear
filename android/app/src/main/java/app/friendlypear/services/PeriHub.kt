@@ -144,7 +144,7 @@ class PeriHub(context: Context) {
     private var contacts: List<Contact>? = null
     private val family = FamilyStore(this.context)
     private var familyWord = false
-    private val approvalClient = ApprovalClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
+    private val approvalClient = ApprovalClient(BuildConfig.BACKEND_URL, { app.friendlypear.net.DeviceKey.current(this.context) })
     /** Waiting for a guardian can take minutes, so it never shares a thread with second opinions. */
     private val waiting = Executors.newCachedThreadPool()
 
@@ -185,12 +185,12 @@ class PeriHub(context: Context) {
     private val countdownEnd = Runnable { agent.onEmergencyTimeout() }
     private val apps = AppWatcher(this.context) { packageName -> onAppInstalled(packageName) }
     val bank = BankWatcher(this.context, keepGoing = { agent.watchesApps }) { packageName -> onAppOpened(packageName) }
-    private val opinion = OpinionClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
+    private val opinion = OpinionClient(BuildConfig.BACKEND_URL, { app.friendlypear.net.DeviceKey.current(this.context) })
     private val network = Executors.newSingleThreadExecutor()
     private val investigations = InvestigationLog(this.context)
-    private val guardianClient = GuardianClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
-    private val pictures = PictureClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
-    private val transcriber = TranscribeClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
+    private val guardianClient = GuardianClient(BuildConfig.BACKEND_URL, { app.friendlypear.net.DeviceKey.current(this.context) })
+    private val pictures = PictureClient(BuildConfig.BACKEND_URL, { app.friendlypear.net.DeviceKey.current(this.context) })
+    private val transcriber = TranscribeClient(BuildConfig.BACKEND_URL, { app.friendlypear.net.DeviceKey.current(this.context) })
     private val settings = this.context.getSharedPreferences("settings", Context.MODE_PRIVATE)
 
     /** Whether voice orders go to Muse Voice Transcribe (the person's choice in Settings; off by default). */
@@ -271,6 +271,7 @@ class PeriHub(context: Context) {
     /** Reloads contacts and listeners after permissions change; the agent keeps its state if nothing changed. */
     fun refresh() = main.post {
         calls.start()
+        weeklySummary()
         family.loadPending()?.takeIf { !it.approved }?.let { awaitCircle(it) }
         val config = currentConfig()
         val fresh = config.applyTo(PhoneContacts.load(context))
@@ -404,6 +405,32 @@ class PeriHub(context: Context) {
                     done(sent > 0)
                 }
             }
+        }
+    }
+
+    /**
+     * The weekly summary for the guardians: only the counts they can already see on their page, once a week while
+     * sharing is on. Checked when the app opens and once a day by [app.friendlypear.services.SummaryReceiver]; [now]
+     * sends it at once (debug builds, to try it).
+     */
+    fun weeklySummary(now: Boolean = false) = main.post {
+        if (!news.sharing || !permissions.granted(Need.SEND_SMS)) return@post
+        val at = System.currentTimeMillis()
+        if (!now && !app.friendlypear.core.alerts.WeeklySummary.due(at, news.lastSummary, news.sharingSince)) return@post
+        val guardians = contacts.orEmpty().filter { it.trust == TrustLevel.GUARDIAN && it.phones.isNotEmpty() }
+        if (guardians.isEmpty()) return@post
+        val events = news.load().mapNotNull { e ->
+            when (e.kind) {
+                "warning" -> app.friendlypear.core.alerts.FamilyEvent.Warning(e.at, scam = e.level == "scam")
+                "pause" -> app.friendlypear.core.alerts.FamilyEvent.Pause(e.at, e.answer)
+                else -> null
+            }
+        }
+        val text = app.friendlypear.core.alerts.WeeklySummary.text(events, at, lang)
+        news.lastSummary = at
+        waiting.execute {
+            val sent = guardians.count { g -> runCatching { device.sendSms(g.phones.first(), text) }.isSuccess }
+            Log.i(TAG, "weekly summary sent to $sent of ${guardians.size} guardian(s)")
         }
     }
 
@@ -577,6 +604,7 @@ class PeriHub(context: Context) {
                 intent.getStringExtra("text")?.let { heard(it) }
                 intent.getStringExtra("installed")?.let { onAppInstalled(it) }
                 intent.getStringExtra("opened")?.let { onAppOpened(it) }
+                if (intent.getStringExtra("summary") == "now") weeklySummary(now = true)
                 // A WAV in the app's own files stands in for the microphone, through Muse Voice Transcribe.
                 intent.getStringExtra("wav")?.let { name ->
                     val file = java.io.File(context.filesDir, name)

@@ -17,7 +17,18 @@ class SharedNews(context: Context) {
     var sharing: Boolean
         get() = prefs.getBoolean(SHARING, false)
         set(value) {
+            // When sharing starts, the first weekly summary is a week later.
+            if (value && !sharing) prefs.edit().putLong(SINCE, System.currentTimeMillis()).apply()
             prefs.edit().putBoolean(SHARING, value).apply()
+        }
+
+    val sharingSince: Long get() = prefs.getLong(SINCE, 0L)
+
+    /** When the last weekly summary went to the guardians; null before the first. */
+    var lastSummary: Long?
+        get() = prefs.getLong(LAST_SUMMARY, -1L).takeIf { it >= 0 }
+        set(value) {
+            prefs.edit().apply { if (value == null) remove(LAST_SUMMARY) else putLong(LAST_SUMMARY, value) }.apply()
         }
 
     fun add(entry: NewsEntry) {
@@ -45,6 +56,8 @@ class SharedNews(context: Context) {
     private companion object {
         const val SHARING = "sharing"
         const val ENTRIES = "entries"
+        const val SINCE = "sharing_since"
+        const val LAST_SUMMARY = "last_summary"
         const val MAX_ENTRIES = 30
     }
 }

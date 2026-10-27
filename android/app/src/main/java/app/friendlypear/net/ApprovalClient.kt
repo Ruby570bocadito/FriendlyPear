@@ -11,8 +11,8 @@ import java.net.URL
  * Family MFA against the backend: creates a one-time approval link and waits for the guardian's answer.
  * Only the kind of action and a first name travel. Blocking: call it off the main thread.
  */
-class ApprovalClient(private val baseUrl: String, private val deviceToken: String) {
-    val enabled: Boolean get() = baseUrl.isNotBlank() && deviceToken.length >= 32
+class ApprovalClient(private val baseUrl: String, private val deviceToken: () -> String) {
+    val enabled: Boolean get() = baseUrl.isNotBlank() && deviceToken().length >= 32
 
     data class Created(val id: String, val url: String)
 
@@ -47,7 +47,7 @@ class ApprovalClient(private val baseUrl: String, private val deviceToken: Strin
             requestMethod = method
             connectTimeout = 3_000
             readTimeout = 8_000
-            setRequestProperty("authorization", "Bearer $deviceToken")
+            setRequestProperty("authorization", "Bearer ${deviceToken()}")
             if (body != null) {
                 doOutput = true
                 setRequestProperty("content-type", "application/json")

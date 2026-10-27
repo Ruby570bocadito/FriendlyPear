@@ -133,6 +133,31 @@ class SettingsActivity : Activity() {
             topMargin = dp(14)
         })
 
+        // This phone and Peri's server: its own key from pairing in person, or still the shared test one.
+        val paired = app.friendlypear.net.DeviceKey.paired(this)
+        list.addView(LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = cardBackground()
+            elevation = dp(2).toFloat()
+            setPadding(dp(18), dp(16), dp(18), dp(18))
+            addView(heading(getString(R.string.settings_device), 21f))
+            addView(body(getString(if (paired) R.string.settings_device_paired else R.string.settings_device_shared), 16f).apply { setPadding(0, dp(4), 0, dp(6)) })
+            if (paired) {
+                addView(Pill(this@SettingsActivity, getString(R.string.settings_device_unpair), R.drawable.ic_close, primary = false, size = 17f).apply {
+                    setOnClickListener { unpair() }
+                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply { topMargin = dp(8) })
+            } else {
+                addView(Pill(this@SettingsActivity, getString(R.string.settings_device_pair), R.drawable.ic_shield, primary = true, size = 17f).apply {
+                    setOnClickListener { askCode() }
+                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply { topMargin = dp(8) })
+            }
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
+
+        // Peri's welcome again, for whoever sets the phone up with the person.
+        list.addView(Pill(this, getString(R.string.settings_welcome_again), R.drawable.ic_pear, primary = false, size = 18f).apply {
+            setOnClickListener { startActivity(android.content.Intent(this@SettingsActivity, WelcomeActivity::class.java)) }
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(60)).apply { topMargin = dp(16) })
+
         val pad = dp(20)
         val scroll = ScrollView(this).apply {
             clipToPadding = false
@@ -159,6 +184,39 @@ class SettingsActivity : Activity() {
         else android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("market://details?id=${app.friendlypear.device.GOOGLE_TTS}"))
         runCatching { startActivity(intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }
             .onFailure { runCatching { startActivity(android.content.Intent(android.provider.Settings.ACTION_SETTINGS)) } }
+    }
+
+    /** Typing the code `bun pair` printed, for when there's no camera at hand. */
+    private fun askCode() {
+        val input = android.widget.EditText(this).apply {
+            hint = "ABCD-EFGH"
+            isSingleLine = true
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
+            sizeSp(22f)
+        }
+        android.app.AlertDialog.Builder(this)
+            .setTitle(R.string.settings_device_pair)
+            .setMessage(R.string.settings_device_code)
+            .setView(FrameLayout(this).apply {
+                setPadding(dp(22), 0, dp(22), 0)
+                addView(input)
+            })
+            .setNegativeButton(R.string.pair_not_now, null)
+            .setPositiveButton(R.string.pair_connect) { _, _ ->
+                startActivity(android.content.Intent(this, PairActivity::class.java).putExtra(PairActivity.EXTRA_CODE, input.text.toString()))
+                finish()
+            }
+            .show()
+    }
+
+    private fun unpair() {
+        java.util.concurrent.Executors.newSingleThreadExecutor().execute {
+            val ok = app.friendlypear.net.DeviceKey.unpair(this)
+            runOnUiThread {
+                app.friendlypear.PeriApp.hub(this).show(getString(if (ok) R.string.settings_device_unpaired else R.string.pair_failed))
+                if (ok) recreate()
+            }
+        }
     }
 
     /** "" when the app follows the phone, else "es" or "en". */
