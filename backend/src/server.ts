@@ -6,8 +6,10 @@ import { guardianPage } from "./guardians/page";
 import { type GuardianStore, readEvent } from "./guardians/store";
 import { investigate, readInvestigation } from "./investigator/investigate";
 import { readInput, secondOpinion } from "./investigator/opinion";
+import { lookAtPicture, MAX_IMAGE_BASE64, readPicture } from "./investigator/picture";
 import { LIMITS, RateLimiter, readLimited } from "./limits";
 import type { ChatClient } from "./models/chat";
+import type { SamClient } from "./models/sam";
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
@@ -50,6 +52,8 @@ export interface Services {
   opinion?: ChatClient | null;
   /** Muse Spark with read-only tools, for messages still doubtful after the second opinion. */
   investigator?: ChatClient | null;
+  /** "Look at this picture": SAM 3.1 marks what Muse Spark found risky. */
+  sam?: SamClient | null;
   approvals?: ApprovalStore | null;
   /** What guardians see, only when the person chose to share it. */
   guardians?: GuardianStore | null;
@@ -61,8 +65,8 @@ function fromDevice(req: Request, config: Config): boolean {
   return given.length === expected.length && timingSafeEqual(given, expected);
 }
 
-async function readJson(req: Request): Promise<unknown | Response> {
-  const raw = await readLimited(req, MAX_BODY);
+async function readJson(req: Request, max = MAX_BODY): Promise<unknown | Response> {
+  const raw = await readLimited(req, max);
   if (raw === "too_large") return json({ error: "too_large" }, 413);
   try {
     return JSON.parse(raw);
@@ -89,6 +93,10 @@ export function createHandler(config: Config, services: Services = {}, limiter =
     if (limit) {
       const key = `${page ? "link" : "device"}:${ip}`;
       if (limiter.hit(key, limit) > limit.max) return secure(tooMany(limiter.retryAfter(key, limit), page), https);
+    }
+    // Pictures cost model credits: a few an hour is plenty for a person.
+    if (pathname === "/v1/picture" && limiter.hit(`picture:${ip}`, LIMITS.picture) > LIMITS.picture.max) {
+      return secure(tooMany(limiter.retryAfter(`picture:${ip}`, LIMITS.picture), false), https);
     }
     const res = await route(req, pathname);
     if (api && res.status === 401) limiter.hit(`token:${ip}`, LIMITS.badToken);
@@ -127,6 +135,22 @@ function routes(config: Config, services: Services) {
       try {
         const { delta, verdict, confidence, reason, evidence, toolCalls, model } = await investigate(services.investigator, input);
         return json({ delta, verdict, confidence, reason, evidence, toolCalls, model });
+      } catch {
+        return json({ error: "model_failed" }, 502);
+      }
+    }
+
+    // "Look at this picture": a photo or screenshot the person chose to show Peri. It is never stored or logged.
+    if (req.method === "POST" && pathname === "/v1/picture") {
+      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      const body = await readJson(req, MAX_IMAGE_BASE64 + 1024);
+      if (body instanceof Response) return body;
+      const input = readPicture(body);
+      if (typeof input === "string") return json({ error: "bad_request", detail: input }, 400);
+      if (!services.investigator) return json({ error: "no_model" }, 503);
+      try {
+        const { verdict, confidence, kinds, marks, model } = await lookAtPicture(services.investigator, services.sam ?? null, input);
+        return json({ verdict, confidence, kinds, marks, model });
       } catch {
         return json({ error: "model_failed" }, 502);
       }

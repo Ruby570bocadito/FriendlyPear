@@ -10,8 +10,12 @@ export interface ToolCall {
   function: { name: string; arguments: string };
 }
 
+/** A user message can carry pictures: Muse Spark reads them as data URLs (jpeg, png, webp). */
+export type ContentPart = { type: "text"; text: string } | { type: "image_url"; image_url: { url: string } };
+
 export type Message =
-  | { role: "developer" | "system" | "user"; content: string }
+  | { role: "developer" | "system"; content: string }
+  | { role: "user"; content: string | ContentPart[] }
   | { role: "assistant"; content: string | null; tool_calls?: ToolCall[] }
   | { role: "tool"; tool_call_id: string; content: string };
 
@@ -25,6 +29,8 @@ export interface ChatRequest {
   tools?: Tool[];
   maxTokens?: number;
   reasoningEffort?: "minimal" | "low" | "medium" | "high";
+  /** Skip the response cache, e.g. for pictures: their data URLs would fill it up. */
+  noCache?: boolean;
 }
 
 export interface Usage {
@@ -102,7 +108,7 @@ export class ChatClient {
       ...(req.tools?.length ? { tools: req.tools } : {}),
     };
     const key = JSON.stringify(body);
-    const hit = this.cache.get(key);
+    const hit = req.noCache ? undefined : this.cache.get(key);
     if (hit) {
       this.cache.delete(key);
       this.cache.set(key, hit);
@@ -121,6 +127,7 @@ export class ChatClient {
     }
     const result = parse(await res.json());
 
+    if (req.noCache) return result;
     this.cache.set(key, result);
     if (this.cache.size > this.cacheSize) this.cache.delete(this.cache.keys().next().value!);
     return result;

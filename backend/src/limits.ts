@@ -14,6 +14,8 @@ export const LIMITS = {
   link: { max: 30, windowMs: 60_000 },
   /** The phone's API, `/v1/…`, with the device token. */
   device: { max: 240, windowMs: 60_000 },
+  /** "Look at this picture": each one costs model credits. */
+  picture: { max: 20, windowMs: 60 * 60_000 },
   /** Wrong device tokens; after this many the IP waits out the window, even with the right one. */
   badToken: { max: 10, windowMs: 15 * 60_000 },
 } satisfies Record<string, Limit>;
