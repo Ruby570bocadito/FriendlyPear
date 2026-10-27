@@ -53,3 +53,8 @@ Hecho (24 h) · En curso · Bloqueado · Peticiones · Propuestas para el roadma
 - La app es **bilingüe inglés/español** y sigue el idioma del móvil. En Android, `res/values/` es inglés (idioma por defecto) y `res/values-es/` es español; ninguna cadena de UI va escrita en el código.
 - Peri habla el idioma del móvil (`Lang.ES` o `Lang.EN`) y entiende órdenes en los dos; las señales de estafa se buscan siempre en los dos. Toda frase nueva de Peri se añade en `Phrases` (agente) o `PeriExplainer` (escudo) en las dos lenguas.
 - Código, comentarios y nombres: inglés. Documentación interna (`docs/`), estados y commits: español.
+
+## 10. Personalidad y tono de Peri
+- Toda frase de Peri (voz, pantalla, avisos a la familia) sigue `docs/PERI_VOZ.md`: cálida, cercana, paciente, nunca regaña ni culpa, celebra lo bueno y da calma.
+- La amabilidad nunca rebaja la seguridad: en un peligro inmediato la orden va primero y clara; las reglas del producto (§6) mandan sobre el tono.
+- Frases nuevas, siempre en español e inglés, en `Phrases` o `PeriExplainer`, y con test si cambian el comportamiento.
