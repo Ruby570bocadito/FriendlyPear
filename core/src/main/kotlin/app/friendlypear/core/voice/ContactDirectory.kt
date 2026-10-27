@@ -57,21 +57,11 @@ class ContactDirectory(private val contacts: List<Contact>) {
     }
 
     private fun relationOf(words: List<String>): Relation? =
-        words.firstNotNullOfOrNull { relationWords[it] }
+        words.firstNotNullOfOrNull { RelationWords.of(it) }
 
     private fun meaningful(folded: String): List<String> = Text.words(folded).filter { it !in stopWords }
 
     private companion object {
         val stopWords = setOf("a", "al", "el", "la", "los", "las", "mi", "mis", "de", "del", "con", "y", "que", "tu", "su", "nuestro", "nuestra")
-
-        val relationWords: Map<String, Relation> = buildMap {
-            listOf("hijo", "hija", "hijos", "hijas").forEach { put(it, Relation.CHILD) }
-            listOf("nieto", "nieta", "nietos", "nietas").forEach { put(it, Relation.GRANDCHILD) }
-            listOf("sobrino", "sobrina", "sobrinos", "sobrinas").forEach { put(it, Relation.NEPHEW_NIECE) }
-            listOf("hermano", "hermana", "hermanos", "hermanas").forEach { put(it, Relation.SIBLING) }
-            listOf("marido", "mujer", "esposo", "esposa", "pareja", "novio", "novia").forEach { put(it, Relation.PARTNER) }
-            listOf("amigo", "amiga").forEach { put(it, Relation.FRIEND) }
-            listOf("cuidador", "cuidadora").forEach { put(it, Relation.CAREGIVER) }
-        }
     }
 }
