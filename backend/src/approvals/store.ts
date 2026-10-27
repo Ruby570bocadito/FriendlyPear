@@ -8,7 +8,10 @@ import { createHash, randomBytes } from "node:crypto";
 export const TTL_MS = 15 * 60 * 1000;
 export const KINDS = ["send_code", "circle_change"] as const;
 export type Kind = (typeof KINDS)[number];
-export type Status = "pending" | "approved" | "rejected" | "expired";
+/** "callback": the guardian would rather talk first, so the person's Peri offers to call them. */
+export type Status = "pending" | "approved" | "rejected" | "callback" | "expired";
+export type Decision = "approve" | "reject" | "callback";
+export const DECISIONS: readonly Decision[] = ["approve", "reject", "callback"];
 export type Lang = "es" | "en";
 
 export interface Approval {
@@ -17,6 +20,8 @@ export interface Approval {
   /** Who the action is for, e.g. the contact the message would go to. A first name, nothing else. */
   toName: string;
   lang: Lang;
+  /** The person is on the phone with a number they haven't saved, right now: a yes or no, nothing about the call. */
+  onCall: boolean;
   createdAt: number;
   expiresAt: number;
   status: Status;
@@ -33,11 +38,11 @@ export class ApprovalStore {
 
   constructor(private readonly now: () => number = Date.now) {}
 
-  create(kind: Kind, toName: string, lang: Lang): { approval: Approval; token: string } {
+  create(kind: Kind, toName: string, lang: Lang, onCall = false): { approval: Approval; token: string } {
     this.sweep();
     const token = randomId(32);
     const at = this.now();
-    const approval: Approval = { id: randomId(12), kind, toName, lang, createdAt: at, expiresAt: at + TTL_MS, status: "pending" };
+    const approval: Approval = { id: randomId(12), kind, toName, lang, onCall, createdAt: at, expiresAt: at + TTL_MS, status: "pending" };
     this.byId.set(approval.id, approval);
     this.byToken.set(hash(token), approval.id);
     return { approval, token };
@@ -56,14 +61,14 @@ export class ApprovalStore {
   }
 
   /** One decision per link: afterwards, or after 15 minutes, the link no longer works. */
-  decide(token: string, approve: boolean): Approval | "used" | "expired" | "unknown" {
+  decide(token: string, decision: Decision): Approval | "used" | "expired" | "unknown" {
     const key = hash(token);
     const id = this.byToken.get(key);
     const a = id ? this.get(id) : undefined;
     if (!a) return "unknown";
     if (a.status === "expired") return "expired";
     if (a.status !== "pending") return "used";
-    a.status = approve ? "approved" : "rejected";
+    a.status = decision === "approve" ? "approved" : decision === "reject" ? "rejected" : "callback";
     a.decidedAt = this.now();
     this.byToken.delete(key);
     return a;

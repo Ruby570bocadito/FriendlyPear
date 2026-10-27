@@ -120,3 +120,34 @@ test("the store keeps only a hash of the link", () => {
   const { token: link } = store.create("send_code", "Pablo", "es");
   expect(JSON.stringify([...(store as any).byToken.keys()])).not.toContain(link);
 });
+
+test("the guardian can ask to talk first, and the phone hears it as callback", async () => {
+  const { handle } = setup();
+  const a = await newApproval(handle);
+  const page = await (await handle(new Request(a.url))).text();
+  // No first, then "call me", then yes: the safe answers are the easy ones.
+  expect(page.indexOf("No, que no lo mande")).toBeLessThan(page.indexOf("Que me llame primero"));
+  expect(page.indexOf("Que me llame primero")).toBeLessThan(page.indexOf("Sí, lo apruebo"));
+  const done = await (await handle(decide(a.url, "callback"))).text();
+  expect(done).toContain("le ofrece llamarte");
+  expect(await statusOf(handle, a.id)).toBe("callback");
+  expect((await handle(decide(a.url, "approve"))).status).toBe(404);
+});
+
+test("a scam in progress is flagged to the guardian, without any detail of the call", async () => {
+  const { handle } = setup();
+  const res = await handle(device("POST", "/v1/approvals", { kind: "send_code", toName: "Pablo", lang: "en", onCall: true }));
+  const { url } = (await res.json()) as { url: string };
+  const page = await (await handle(new Request(url))).text();
+  expect(page).toContain("They're on the phone, or just were, with a number they haven't saved.");
+  expect(page).not.toMatch(/\d{4,}/);
+  const calm = await newApproval(handle, "en");
+  expect(await (await handle(new Request(calm.url))).text()).not.toContain("on the phone with a number");
+});
+
+test("an unknown decision is refused", async () => {
+  const { handle } = setup();
+  const a = await newApproval(handle);
+  expect((await handle(decide(a.url, "maybe"))).status).toBe(400);
+  expect(await statusOf(handle, a.id)).toBe("pending");
+});

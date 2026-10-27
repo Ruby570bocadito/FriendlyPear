@@ -30,7 +30,7 @@ const T = {
     continue: "Peri le paró un momento al abrir una app de dinero después de algo raro, y decidió seguir. Quizá quieras llamarle.",
     send_code: (name: string, s: string) => `Pidió permiso para mandar un código a ${esc(name)}: ${s}.`,
     circle_change: (name: string, s: string) => `Se pidió un cambio de guardianes (${esc(name)}): ${s}.`,
-    status: { pending: "pendiente", approved: "aprobado", rejected: "rechazado", expired: "nadie respondió a tiempo" },
+    status: { pending: "pendiente", approved: "aprobado", rejected: "rechazado", callback: "pidió hablarlo antes", expired: "nadie respondió a tiempo" },
     privacy:
       "Nunca verás sus mensajes, llamadas, ubicación ni apps: solo que Peri ha avisado o ha hecho una pausa. Tu familiar puede dejar de compartir esto cuando quiera, y este enlace dejará de funcionar.",
     ago: (ms: number) => ago("es", ms),
@@ -51,7 +51,7 @@ const T = {
     continue: "Peri paused them for a moment when they opened a money app after something worrying, and they chose to carry on. You may want to give them a call.",
     send_code: (name: string, s: string) => `They asked for permission to send a code to ${esc(name)}: ${s}.`,
     circle_change: (name: string, s: string) => `A change of guardians was asked (${esc(name)}): ${s}.`,
-    status: { pending: "pending", approved: "approved", rejected: "declined", expired: "nobody answered in time" },
+    status: { pending: "pending", approved: "approved", rejected: "declined", callback: "asked to talk first", expired: "nobody answered in time" },
     privacy:
       "You will never see their messages, calls, location or apps: only that Peri warned them or paused them. Your relative can stop sharing this whenever they like, and this link will stop working.",
     ago: (ms: number) => ago("en", ms),

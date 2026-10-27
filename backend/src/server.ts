@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
 import { askPage, resultPage } from "./approvals/page";
-import { type ApprovalStore, KINDS, type Kind } from "./approvals/store";
+import { type ApprovalStore, DECISIONS, type Decision, KINDS, type Kind } from "./approvals/store";
 import type { Config } from "./config";
 import { guardianPage } from "./guardians/page";
 import { type GuardianStore, readEvent } from "./guardians/store";
@@ -190,7 +190,7 @@ function routes(config: Config, services: Services) {
       if (!KINDS.includes(body?.kind)) return json({ error: "bad_request", detail: "unknown kind" }, 400);
       if (typeof body.toName !== "string" || !NAME.test(body.toName)) return json({ error: "bad_request", detail: "bad name" }, 400);
       const lang = body.lang === "en" ? "en" : "es";
-      const { approval, token } = approvals.create(body.kind as Kind, body.toName, lang);
+      const { approval, token } = approvals.create(body.kind as Kind, body.toName, lang, body.onCall === true);
       return json({ id: approval.id, url: `${config.publicBaseUrl}/a/${token}`, expiresAt: approval.expiresAt }, 201);
     }
 
@@ -260,11 +260,11 @@ function routes(config: Config, services: Services) {
         const raw = await readLimited(req, 256);
         if (raw === "too_large") return html(resultPage("es", "unknown"), 413);
         const decision = new URLSearchParams(raw).get("decision");
-        if (decision !== "approve" && decision !== "reject") return html(resultPage("es", "unknown"), 400);
+        if (!DECISIONS.includes(decision as Decision)) return html(resultPage("es", "unknown"), 400);
         const lang = approvals.byLink(token)?.lang ?? "es";
-        const result = approvals.decide(token, decision === "approve");
+        const result = approvals.decide(token, decision as Decision);
         if (typeof result === "string") return html(resultPage(lang, result), result === "unknown" ? 404 : 410);
-        return html(resultPage(result.lang, result.status === "approved" ? "approved" : "rejected"));
+        return html(resultPage(result.lang, result.status === "approved" ? "approved" : result.status === "callback" ? "callback" : "rejected"));
       }
     }
 

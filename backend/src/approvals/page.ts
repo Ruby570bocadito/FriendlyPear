@@ -13,12 +13,15 @@ const T = {
     why_circle_change:
       "Los cambios en los guardianes necesitan el sí de un guardián y esperan 48 horas, para que nadie pueda quedarse con la protección de tu familiar. Si no lo reconoces, recházalo.",
     advice: "Si tienes dudas, llámale antes de decidir.",
+    on_call: "Está hablando, o acaba de hablar, por teléfono con un número que no tiene guardado. Así suelen actuar los estafadores.",
     no_send_code: "No, que no lo mande",
     no_circle_change: "No, que no cambie nada",
+    ask_call: "Que me llame primero",
     yes: "Sí, lo apruebo",
     expires: (min: number) => `Este enlace caduca en ${min} minutos y solo sirve una vez.`,
     approved: "Aprobado. Peri se lo dirá ahora mismo.",
     rejected: "Rechazado. Peri no lo mandará y se lo dirá con cariño.",
+    callback: "Peri no manda nada y le ofrece llamarte ahora mismo. Ten el teléfono a mano.",
     used: "Este enlace ya se usó. Si no fuiste tú, llama a tu familiar.",
     expired: "Este enlace ha caducado y no se aprobó nada. Si hace falta, Peri pedirá otro.",
     unknown: "Este enlace no es válido.",
@@ -32,12 +35,15 @@ const T = {
     why_circle_change:
       "Changes to the guardians need a guardian's yes and wait 48 hours, so nobody can take over your relative's protection. If you don't recognise it, decline it.",
     advice: "If you're unsure, give them a call before deciding.",
+    on_call: "They're on the phone, or just were, with a number they haven't saved. That's how scammers usually work.",
     no_send_code: "No, don't send it",
     no_circle_change: "No, don't change anything",
+    ask_call: "Ask them to call me first",
     yes: "Yes, I approve",
     expires: (min: number) => `This link expires in ${min} minutes and works only once.`,
     approved: "Approved. Peri will tell them right away.",
     rejected: "Declined. Peri won't send it and will let them know kindly.",
+    callback: "Peri sends nothing and offers to call you right now. Keep your phone close.",
     used: "This link has already been used. If it wasn't you, call your relative.",
     expired: "This link has expired and nothing was approved. Peri will ask again if needed.",
     unknown: "This link isn't valid.",
@@ -58,6 +64,7 @@ main{max-width:520px;margin:0 auto}h1{font-size:26px;margin:0 0 16px}p{margin:0 
 form{display:flex;flex-direction:column;gap:14px;margin-top:22px}
 button{font:inherit;font-size:22px;padding:18px;border-radius:14px;border:0;cursor:pointer}
 .no{background:#2f6b3a;color:#fff}.yes{background:#fff;color:#8a2b1f;border:2px solid #8a2b1f}.small{font-size:16px;color:#6b665c}
+.call{background:#e1f0cf;color:#2a5a1d}.alert{background:#ffebc7;color:#6b3e00;border-radius:14px;padding:14px 16px;font-weight:600}
 ${css}</style></head><body><main>${body}</main></body></html>`;
 }
 
@@ -67,14 +74,15 @@ export function askPage(a: Approval, token: string, now: number): string {
   const action = `/a/${encodeURIComponent(token)}`;
   return layout(
     a.lang,
-    `<h1>🍐 ${t.title}</h1><p><strong>${t[a.kind](a.toName)}</strong></p><p>${t[`why_${a.kind}`]}</p><p>${t.advice}</p>
+    `<h1>🍐 ${t.title}</h1><p><strong>${t[a.kind](a.toName)}</strong></p>${a.onCall ? `<p class="alert">⚠️ ${t.on_call}</p>` : ""}<p>${t[`why_${a.kind}`]}</p><p>${t.advice}</p>
 <form method="post" action="${action}">
 <button class="no" name="decision" value="reject">${t[`no_${a.kind}`]}</button>
+<button class="call" name="decision" value="callback">📞 ${t.ask_call}</button>
 <button class="yes" name="decision" value="approve">${t.yes}</button>
 </form><p class="small">${t.expires(minutes)}</p>`,
   );
 }
 
-export function resultPage(lang: Lang, outcome: "approved" | "rejected" | "used" | "expired" | "unknown" | "busy"): string {
+export function resultPage(lang: Lang, outcome: "approved" | "rejected" | "callback" | "used" | "expired" | "unknown" | "busy"): string {
   return layout(lang, `<h1>🍐 Peri</h1><p>${T[lang][outcome]}</p>`);
 }
