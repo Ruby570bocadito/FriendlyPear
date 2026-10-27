@@ -1,5 +1,6 @@
 package app.friendlypear.services
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -50,6 +51,8 @@ interface PeriView {
     fun mood(mood: Mood) = Unit
     /** While Peri's voice is playing, so her mouth can move. */
     fun speaking(on: Boolean) = Unit
+    /** The full app came to the front or left it: Mini Peri steps aside meanwhile, so Peri never shows twice. */
+    fun appShown(visible: Boolean) = Unit
 }
 
 /**
@@ -70,6 +73,13 @@ class PeriHub(context: Context) {
         private set
 
     fun attach(view: PeriView) = views.add(view)
+
+    /** Set by the app's screen while it's in front. */
+    var appVisible = false
+        set(value) {
+            field = value
+            views.forEach { it.appShown(value) }
+        }
     fun detach(view: PeriView) = views.remove(view)
 
     /** The app's language (Settings, or the phone's); Peri speaks it and still understands both. */
@@ -161,6 +171,9 @@ class PeriHub(context: Context) {
     val news = SharedNews(this.context)
 
     val isWaitingForAnswer: Boolean get() = agent.isWaitingForAnswer
+
+    /** A phone call is going on: the microphone stays closed so Peri never hears it. */
+    val inCall: Boolean get() = callActive
 
     /** Peri's face for the screens; it changes whenever she speaks. */
     val mood: Mood get() = agent.mood
@@ -413,7 +426,8 @@ class PeriHub(context: Context) {
                 intent.getStringExtra("opened")?.let { onAppOpened(it) }
             }
         }
-        context.registerReceiver(receiver, IntentFilter(DEBUG_HEAR), Context.RECEIVER_EXPORTED)
+        // Only adb's shell holds DUMP: no app on the phone can make Peri "hear" a "yes".
+        context.registerReceiver(receiver, IntentFilter(DEBUG_HEAR), Manifest.permission.DUMP, null, Context.RECEIVER_EXPORTED)
     }
 
     private companion object {
