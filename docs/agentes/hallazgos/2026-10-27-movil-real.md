@@ -12,3 +12,15 @@ Lo que contó la persona al instalar el APK de depuración en su móvil, y qué 
 | Configurar la familia era difícil con muchos contactos | Se listaban todos los contactos con todos sus controles | Buscador; sin buscar, solo la familia probable (guardianes, con relación o apodos, o guardados como "Laura hija"); filas creadas al mostrarse, 20 resultados como mucho |
 | "Dale personalidad" | — | Saludo según la hora con variaciones; al tocar a Peri salta, se ríe y da un consejito contra timos (8 distintos) |
 | "Aplicación dañina bloqueada por Google Play Protect" y SMS bloqueado | Android y Play Protect desconfían de las apps instaladas fuera de una tienda que leen SMS y notificaciones (es lo que hacen también las apps espía) | No se arregla desde el código. Instalar con "Más detalles → Instalar de todas formas" y permitir los ajustes restringidos (Ajustes → Aplicaciones → FriendlyPear → ⋮ → "Permitir ajustes restringidos"); Peri lo explica cuando Android lo bloquea. Publicar en Google Play lo evitaría |
+
+## Segunda ronda (APK descargado otra vez)
+
+| Qué pasó | Causa | Arreglo |
+|---|---|---|
+| El acceso a SMS seguía bloqueado y "me inhabilita mucho" | Ajustes restringidos de Android 13+ para apps instaladas desde un archivo | Los SMS son opcionales: Peri protege con contactos, llamadas y notificaciones. El paso de SMS (y el del banco) se puede ocultar con "×"; el chip dice "Protegiéndote" sin SMS |
+| La voz seguía robótica | Cada móvil trae varias voces y la elegida no tiene por qué ser la mejor | Ajustes → "La voz de Peri": todas las voces del idioma, se oye una frase al tocar y se recuerda; botón a los ajustes de voz de Android (o al motor de Google en Play Store). En el emulador: 8 voces, la elegida sigue marcada al volver |
+| Mini Peri "muy descuidada" | Aparecía de golpe, saltaba al borde, solo se quitaba desde la notificación | Sale con un bote; se desliza al lado más cercano; al arrastrarla aparece una "×" abajo (se pone roja, vibra y Peri encoge encima) y al soltarla se guarda; anillo verde que late mientras escucha; el bocadillo entra con suavidad y encoge la letra si la frase es larga |
+| "Más sprites" | — | 3 poses nuevas con Muse Image (idea al tocarla, perdón si no entendió, pulgar arriba al salir de una app de riesgo), 0,03 $ |
+| "8 modelos de pera nueva" | — | `assets/peri/concepts.ts`: barro, acuarela, pegatina, abuela, heroína, geométrica, peluche y anime (0,08 $), en `assets/peri/concepts/peri_concepts.webp` |
+
+Fallos encontrados probando, antes de subir: la etiqueta de la "×" salía cortada ("Drop"); la "×" se pintaba encima de Peri; soltar a Peri sobre la "×" no la guardaba (se olvidaba que estaba encima antes de mirarlo). Arreglados y comprobados en el emulador.
