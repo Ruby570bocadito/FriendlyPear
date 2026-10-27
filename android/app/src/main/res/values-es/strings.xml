@@ -27,7 +27,9 @@
     <string name="family_intro">Hacedlo juntos. Los guardianes reciben avisos y aprueban lo arriesgado, pero no pueden leer tus mensajes ni mover dinero. Todo se queda en este móvil.</string>
     <string name="family_word_agreed">Hemos acordado una palabra de la familia</string>
     <string name="family_word_note">Una palabra secreta que solo sabe tu familia, para distinguir una llamada de verdad de una voz clonada. Peri nunca la guarda ni la dice: solo te recuerda que la pidas.</string>
-    <string name="family_no_contacts">Todavía no veo tu agenda. Primero dale permiso a Peri para verla.</string>
+    <string name="family_no_contacts">Para elegir a tus guardianes, Peri necesita ver tus contactos. Nunca salen de este móvil.</string>
+    <string name="family_allow_contacts">Ver mis contactos</string>
+    <string name="family_contacts_empty">Aún no hay contactos en este móvil. Añade a tu familia en la app Contactos y aparecerán aquí.</string>
     <string name="family_guardian">Guardián: recibe avisos y aprueba lo arriesgado</string>
     <string name="family_aliases_hint">Apodos, separados por comas (el chico, Pablito)</string>
     <string name="relation_none">Relación: ninguna</string>
@@ -75,8 +77,8 @@
     <string name="mini_open">Abrir la app</string>
     <string name="family_short">Familia</string>
     <string name="status_protecting">Te estoy cuidando</string>
-    <string name="status_setup">Falta terminar</string>
-    <string name="setup_title">Un par de pasos para protegerte del todo</string>
+    <string name="status_setup">Casi listo</string>
+    <string name="setup_title">Siguiente paso para protegerte del todo</string>
     <string name="investigations_empty">Aún no hay nada. Cuando Peri investigue un mensaje dudoso, verás aquí lo que encontró.</string>
     <string name="setup_basics">Deja que Peri vea tus contactos y llamadas</string>
     <string name="pause_title">Espera un momento</string>
@@ -130,8 +132,8 @@
     <string name="setup_location">En una emergencia, compartir dónde estás (opcional)</string>
     <string name="settings_ears">Los oídos de Peri</string>
     <string name="settings_ears_muse">Entenderme mejor con Muse Voice Transcribe</string>
-    <string name="settings_ears_note">El modelo de voz de Meta, que entiende mejor a las personas mayores. Lo que le dices a Peri va al servidor de tu familia y a la API de Meta para pasarlo a texto, y no se guarda. Desactivado: el reconocedor del propio móvil.</string>
-    <string name="settings_ears_unavailable">Necesita el servidor de tu familia. Mientras tanto, Peri usa el reconocedor del propio móvil.</string>
+    <string name="settings_ears_note">El modelo de voz de Meta, que entiende mejor a las personas mayores. Lo que le dices a Peri va al servidor de Peri de tu familia y a Meta para pasarlo a texto, y no se guarda. Desactivado: el reconocedor del propio móvil.</string>
+    <string name="settings_ears_unavailable">Necesita el servidor de Peri de tu familia. Mientras tanto, Peri usa el reconocedor del propio móvil.</string>
     <string name="voice_missed">Perdona, no te he entendido. Pulsa el botón y dímelo otra vez, con calma.</string>
     <string name="setup_restricted">Si Android dice que es un ajuste restringido, abre FriendlyPear en los ajustes de aplicaciones del móvil, toca los tres puntos de arriba y elige «Permitir ajustes restringidos»; luego vuelve a intentarlo.</string>
     <string name="family_people_title">Quién es quién en tu familia</string>
@@ -142,21 +144,29 @@
         <item>¡Buenos días! ¿Has dormido bien? Aquí estoy para lo que necesites.</item>
         <item>¡Buenos días, solete! Vamos a tener un día tranquilo y bonito.</item>
         <item>¡Buenos días! Ya me he regado y estoy lista para ayudarte.</item>
+        <item>¡Buenos días! Un día nuevo, y aquí estoy contigo.</item>
+        <item>¡Buenos días! ¿Te leo algún mensaje que llegó por la noche?</item>
     </string-array>
     <string-array name="greet_afternoon">
         <item>¡Buenas tardes! ¿Qué tal va el día?</item>
         <item>¡Hola otra vez! ¿Te echo una mano esta tarde?</item>
         <item>¡Buenas tardes! Sigo atenta por ti.</item>
+        <item>¡Buenas tardes! Acuérdate de beber un poco de agua.</item>
+        <item>¡Hola! Qué alegría verte esta tarde.</item>
     </string-array>
     <string-array name="greet_evening">
         <item>¡Buenas tardes-noches! Hora de descansar un poquito. Aquí estoy.</item>
         <item>¡Buenas noches! ¿Te ha pasado algo bonito hoy?</item>
         <item>¡Buenas noches! ¿Miramos juntas tus mensajes?</item>
+        <item>¡Buenas noches! Si esta noche llega un mensaje raro, enséñamelo primero.</item>
+        <item>¡Buenas noches! Hora de descansar los pies. Yo vigilo.</item>
     </string-array>
     <string-array name="greet_night">
         <item>¡Qué tarde es! Yo vigilo mientras descansas.</item>
         <item>¡Hola, trasnochador! Aquí estoy si me necesitas.</item>
         <item>Shh… ya es de noche. Te hago compañía.</item>
+        <item>¿Todavía sin dormir? Lo que no sea urgente puede esperar a mañana.</item>
+        <item>¡Que descanses! Yo me quedo despierta para que tú no tengas que hacerlo.</item>
     </string-array>
     <string-array name="peri_taps">
         <item>¡Ji, ji, me haces cosquillas!</item>
@@ -210,6 +220,9 @@
         <item>¿Por qué la pera no va al gimnasio? ¡Porque ya tiene buena figura!</item>
         <item>Me han dicho que soy muy dulce. ¡Es que soy una pera de conferencia!</item>
         <item>¿Sabes cuál es mi baile favorito? ¡El que se baila por peras… digo, por parejas!</item>
+        <item>¿Qué dice una pera cuando tiene prisa? Nada, porque siempre es-pera.</item>
+        <item>Mi hoja me ha dado un consejo: ¡siempre hay que pasar página!</item>
+        <item>¿Por qué fue la pera al médico? Porque no se sentía muy madura.</item>
     </string-array>
     <string-array name="peri_facts">
         <item>¿Sabías que tu banco nunca te pedirá un código por teléfono? Si te lo piden, es un timo.</item>
@@ -218,6 +231,9 @@
         <item>¿Sabías que nadie de verdad te pedirá instalar AnyDesk o TeamViewer? Si te lo piden, cuelga.</item>
         <item>¿Sabías que las prisas son el truco favorito de los estafadores? Si te meten prisa, para y pregunta.</item>
         <item>¿Sabías que Hacienda nunca te pide la tarjeta por SMS?</item>
+        <item>¿Sabías que…? Un mensaje que dice que tu cuenta se cierra hoy quiere asustarte. Los bancos de verdad dan tiempo.</item>
+        <item>¿Sabías que…? Siempre puedes colgar. No es de mala educación llamar tú al número que ya tienes.</item>
+        <item>¿Sabías que…? Las tarjetas regalo son para regalar. Nadie de verdad te pide pagar una factura con ellas.</item>
     </string-array>
     <string-array name="peri_kind">
         <item>Me alegra mucho estar aquí contigo.</item>
@@ -226,27 +242,36 @@
         <item>Si algo te preocupa, cuéntamelo. Para eso estoy.</item>
         <item>Gracias por cuidarte. Tu familia también lo agradece.</item>
         <item>Un ratito juntos siempre me pone de buen humor.</item>
+        <item>Preguntar antes de actuar es lo más listo que se puede hacer. Me siento muy orgullosa.</item>
+        <item>Pase lo que pase, lo resolvemos en equipo.</item>
     </string-array>
     <string-array name="peri_tap_head">
         <item>¡Ay, mi hojita! Que la tengo recién peinada.</item>
         <item>¡Cuidado con el rabito, que es muy delicado!</item>
         <item>¡Eh, que me despeinas la hoja!</item>
+        <item>¡Jiji, has encontrado mi hoja! Es lo que más me gusta de mí.</item>
+        <item>¡Con cuidado! Soy una pera, no un tambor.</item>
     </string-array>
     <string-array name="peri_tap_feet">
         <item>¡Uy, que me haces cosquillas en los pies!</item>
         <item>¡Que me caigo! Menos mal que tengo buen equilibrio.</item>
         <item>¿Bailamos? ¡Mis pies ya están listos!</item>
+        <item>¡Mis piececitos! Están cansados de tanto andar.</item>
+        <item>¡Cosquillas! ¿Damos un paseíto?</item>
     </string-array>
     <string-array name="peri_dizzy">
         <item>¡Uy, uy, que me mareo!</item>
         <item>¡Para, para, que doy vueltas!</item>
+        <item>¡Vueltas y más vueltas! ¿Dónde estoy?</item>
+        <item>¡Todo da vueltas! Soy una pera peonza.</item>
     </string-array>
     <string-array name="peri_giveup">
         <item>¡Vale, vale, me rindo! Eres más rápido que yo.</item>
         <item>¡Jajaja! Me has ganado. ¿Seguimos otro ratito?</item>
+        <item>¡No puedo seguirte el ritmo! Eres de campeonato.</item>
+        <item>¡Uf! Déjame recuperar el aliento. ¡Qué divertido!</item>
     </string-array>
     <string name="guardian_channel">Peticiones de la familia</string>
-    <string name="guardian_eyebrow">Peri · aviso de familia</string>
     <string name="guardian_title">%1$s te pide permiso</string>
     <string name="guardian_send_code">Quiere mandar a %1$s un mensaje con un código.</string>
     <string name="guardian_circle">Se ha pedido un cambio en sus guardianes: %1$s.</string>
@@ -305,15 +330,15 @@
     <string name="pair_not_now">Ahora no</string>
     <string name="pair_working">Conectando…</string>
     <string name="pair_done">¡Listo! Este móvil ya tiene su propia clave para el servidor de Peri.</string>
-    <string name="pair_refused">Ese código no ha servido: puede que ya se usara o que haya caducado. Haz otro con bun pair.</string>
+    <string name="pair_refused">Ese código no ha servido: puede que ya se usara o que haya caducado. Pide otro en el ordenador.</string>
     <string name="pair_failed">No he podido hablar con el servidor de Peri. Mira la conexión e inténtalo otra vez.</string>
     <string name="pair_other_server">Este QR es de otro servidor, así que no me conecto. Usa solo el QR de la configuración de tu familia.</string>
     <string name="pair_bad_code">Esto no parece un código para conectar (es como ABCD-EFGH).</string>
     <string name="settings_device">Este móvil y el servidor de Peri</string>
     <string name="settings_device_paired">Conectado con su propia clave. Si pierdes el móvil, desconéctalo desde el servidor.</string>
-    <string name="settings_device_shared">Usa la clave de prueba compartida. Conéctalo con un código de bun pair para darle la suya.</string>
+    <string name="settings_device_shared">Usa la clave de prueba compartida. Conéctalo con el código que sale en el ordenador de la familia para darle la suya.</string>
     <string name="settings_device_pair">Conectar este móvil</string>
     <string name="settings_device_unpair">Desconectar este móvil</string>
-    <string name="settings_device_code">Escribe el código que bun pair mostró en el ordenador.</string>
+    <string name="settings_device_code">Escribe el código que sale en el ordenador (es como ABCD-EFGH).</string>
     <string name="settings_device_unpaired">Desconectado. Este móvil ya no tiene clave para el servidor de Peri.</string>
 </resources>

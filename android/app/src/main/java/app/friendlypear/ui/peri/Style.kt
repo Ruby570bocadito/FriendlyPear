@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Typeface
 import android.provider.Settings
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
@@ -19,12 +20,12 @@ import android.widget.TextView
 
 /**
  * FriendlyPear's look, shared by every screen: cream and pear green like Peri's illustrations, big rounded
- * shapes and ink text. Every text colour here has at least 7:1 contrast on its background (docs/DISENO.md).
+ * shapes and ink text. Flat on purpose: one cream ground, white cards set apart by a thin edge rather than a
+ * shadow, and green kept for the one main button and for what needs attention. Every text colour here has at
+ * least 7:1 contrast on its background (docs/DISENO.md).
  */
 internal object Palette {
     const val CREAM = 0xFFFFF8EC.toInt()
-    /** Bottom of the screen's background: the cream with a hint of green. */
-    const val MEADOW = 0xFFEAF4DC.toInt()
     const val WHITE = 0xFFFFFFFF.toInt()
     const val INK = 0xFF1F2A1A.toInt()
     const val INK_SOFT = 0xFF3F4D39.toInt()
@@ -36,6 +37,10 @@ internal object Palette {
     const val AMBER_INK = 0xFF6B3E00.toInt()
     /** "Put away" target when Peri is over it: white on it is 7.6:1. */
     const val DANGER = 0xFF9C1F17.toInt()
+    /** The edge of a white card on the cream: just enough to see where it ends. */
+    const val LINE = 0xFFEDE4D0.toInt()
+    /** The edge of a white button, one step stronger than a card's. */
+    const val LINE_STRONG = 0xFFD8CCB2.toInt()
     const val SHADOW = 0x33000000
     const val RIPPLE_LIGHT = 0x33FFFFFF
     const val RIPPLE_DARK = 0x1F25541A
@@ -52,6 +57,16 @@ internal fun TextView.sizeSp(sp: Float) {
 }
 
 internal const val MAX_FONT_SCALE = 1.15f
+
+/** Three sizes for every screen: titles, everything you read or press, and the small print. */
+internal object TextSize {
+    const val TITLE = 26f
+    const val BODY = 20f
+    const val SMALL = 16f
+}
+
+/** The ground of every screen: Peri's cream, flat. */
+internal fun ground(): Drawable = ColorDrawable(Palette.CREAM)
 
 /** One-line text that shrinks (down to [minSp]) until it fits its width. */
 internal fun TextView.fitWidth(baseSp: Float, minSp: Float) {
@@ -95,11 +110,19 @@ internal fun rounded(color: Int, radius: Float, strokeColor: Int = 0, strokeWidt
 internal fun pressable(background: Drawable, ripple: Int): Drawable = RippleDrawable(ColorStateList.valueOf(ripple), background, null)
 
 /**
- * A big pill button with its icon right beside the label, both centred; [primary] is the one main action of a
- * screen. It reads as a button to TalkBack, and its label can change (e.g. while the microphone is open).
+ * A big pill button with its icon right beside the label, both centred. [primary] is the one main action of a
+ * screen, filled green; the others are white with a thin edge. A [trailing] icon goes after the label ("Next >").
+ * It reads as a button to TalkBack, and its label can change (e.g. while the microphone is open).
  */
 @SuppressLint("ViewConstructor") // Built in code only, never from XML.
-internal class Pill(context: Context, label: CharSequence, icon: Int, primary: Boolean, size: Float = 20f) : LinearLayout(context) {
+internal class Pill(
+    context: Context,
+    label: CharSequence,
+    icon: Int,
+    primary: Boolean,
+    size: Float = TextSize.BODY,
+    trailing: Boolean = false,
+) : LinearLayout(context) {
     private val text = TextView(context)
 
     var label: CharSequence
@@ -115,17 +138,18 @@ internal class Pill(context: Context, label: CharSequence, icon: Int, primary: B
         isFocusable = true
         val fg = if (primary) Palette.WHITE else Palette.GREEN_DARK
         background = pressable(
-            rounded(if (primary) Palette.GREEN_DARK else Palette.GREEN_TINT, context.dp(40).toFloat()),
+            if (primary) rounded(Palette.GREEN_DARK, PILL_RADIUS)
+            else rounded(Palette.WHITE, PILL_RADIUS, Palette.LINE_STRONG, context.dp(1.5f)),
             if (primary) Palette.RIPPLE_LIGHT else Palette.RIPPLE_DARK,
         )
-        elevation = if (primary) context.dp(3).toFloat() else 0f
         setPadding(context.dp(18), 0, context.dp(18), 0)
-        val s = context.dp(if (primary) 30 else 24)
-        addView(ImageView(context).apply {
+        val s = context.dp(if (primary) 28 else 24)
+        val image = ImageView(context).apply {
             setImageResource(icon)
             setColorFilter(fg)
             importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
-        }, LayoutParams(s, s).apply { marginEnd = context.dp(12) })
+        }
+        if (!trailing) addView(image, LayoutParams(s, s).apply { marginEnd = context.dp(12) })
         addView(text.apply {
             sizeSp(size)
             typeface = weight(600)
@@ -133,11 +157,12 @@ internal class Pill(context: Context, label: CharSequence, icon: Int, primary: B
             isSingleLine = true
             importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
         })
+        if (trailing) addView(image, LayoutParams(s, s).apply { marginStart = context.dp(10) })
         this.label = label
     }
 
     private val baseSp = size
-    private val iconRoom = context.dp(if (primary) 30 else 24) + context.dp(12)
+    private val iconRoom = context.dp(if (primary) 28 else 24) + context.dp(12)
 
     /** The label shrinks to fit beside its icon (large text on the phone) instead of being cut off. */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -157,22 +182,25 @@ internal class Pill(context: Context, label: CharSequence, icon: Int, primary: B
     override fun getAccessibilityClassName(): CharSequence = Button::class.java.name
 }
 
-internal fun Context.heading(value: CharSequence, size: Float = 24f) = TextView(this).apply {
+/** Every button is fully round: decided once, for the whole app. */
+private const val PILL_RADIUS = 999f
+
+internal fun Context.heading(value: CharSequence, size: Float = TextSize.TITLE) = TextView(this).apply {
     text = value
     sizeSp(size)
     typeface = weight(700)
     setTextColor(Palette.INK)
 }
 
-internal fun Context.body(value: CharSequence, size: Float = 18f) = TextView(this).apply {
+internal fun Context.body(value: CharSequence, size: Float = TextSize.BODY) = TextView(this).apply {
     text = value
     sizeSp(size)
     setTextColor(Palette.INK_SOFT)
     setLineSpacing(0f, 1.15f)
 }
 
-/** A white card with soft corners, a whisper of green around it and a gentle shadow. */
-internal fun Context.cardBackground(): Drawable = rounded(Palette.WHITE, dp(24).toFloat(), Palette.GREEN_TINT, dp(2))
+/** A white card with soft corners and a thin edge: no shadow, it rests on the cream. */
+internal fun Context.cardBackground(): Drawable = rounded(Palette.WHITE, dp(24).toFloat(), Palette.LINE, dp(1))
 
 /**
  * A gentle entrance: the view rises into place as it fades in. With animations off it just appears.

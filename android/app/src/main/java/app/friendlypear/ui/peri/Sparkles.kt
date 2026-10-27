@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.Typeface
 import android.os.SystemClock
 import android.view.View
 import kotlin.math.PI
@@ -12,10 +13,15 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 /**
- * Little bursts of joy around Peri: stars and dots that pop out, float up and fade, when she has an idea, gives
- * a thumbs up, gets happy or lands from her entrance. Drawn over her, never touchable; nothing runs between bursts.
+ * Little effects around Peri, drawn in code: stars and dots that pop out and fall when she has an idea, gives a
+ * thumbs up, gets happy or lands from her entrance; hearts that float up when she holds her heart; and a sleepy
+ * "z z z" when she yawns or dozes. Drawn over her, never touchable; nothing runs between effects.
  */
 internal class Sparkles(context: Context) : View(context) {
+    enum class Effect { SPARKLE, HEARTS, SLEEPY }
+
+    private enum class Shape { STAR, DOT, HEART, ZED }
+
     private class Bit(
         var x: Float,
         var y: Float,
@@ -23,16 +29,20 @@ internal class Sparkles(context: Context) : View(context) {
         var vy: Float,
         val size: Float,
         val color: Int,
-        val star: Boolean,
+        val shape: Shape,
         var spin: Float,
         val spinSpeed: Float,
+        /** Part of the effect's life to wait before showing up, so the z's come one after another. */
+        val delay: Float = 0f,
     )
 
     private val bits = ArrayList<Bit>()
-    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { typeface = Typeface.create(Typeface.DEFAULT, 800, false) }
     private val path = Path()
     private var start = 0L
     private var last = 0L
+    private var effect = Effect.SPARKLE
+    private var life = LIFE_MS
 
     init {
         isClickable = false
@@ -40,8 +50,24 @@ internal class Sparkles(context: Context) : View(context) {
     }
 
     /** A burst from about her head: [count] bits flying up and out. */
-    fun burst(count: Int = 16) {
+    fun burst(count: Int = 16) = play(Effect.SPARKLE, count)
+
+    fun play(effect: Effect, count: Int = 16) {
         if (width == 0 || height == 0) return
+        bits.clear()
+        this.effect = effect
+        when (effect) {
+            Effect.SPARKLE -> sparkle(count)
+            Effect.HEARTS -> hearts()
+            Effect.SLEEPY -> sleepy()
+        }
+        life = if (effect == Effect.SPARKLE) LIFE_MS else FLOAT_LIFE_MS
+        start = SystemClock.uptimeMillis()
+        last = start
+        postInvalidateOnAnimation()
+    }
+
+    private fun sparkle(count: Int) {
         val d = resources.displayMetrics.density
         val cx = width / 2f
         val cy = height * 0.32f
@@ -55,14 +81,49 @@ internal class Sparkles(context: Context) : View(context) {
                 vy = sin(angle) * speed,
                 size = (4 + Random.nextFloat() * 6) * d,
                 color = COLORS.random(),
-                star = Random.nextInt(3) != 0,
+                shape = if (Random.nextInt(3) != 0) Shape.STAR else Shape.DOT,
                 spin = Random.nextFloat() * 360f,
                 spinSpeed = (Random.nextFloat() - 0.5f) * 540f,
             )
         }
-        start = SystemClock.uptimeMillis()
-        last = start
-        postInvalidateOnAnimation()
+    }
+
+    /** Six or seven hearts rising slowly from her chest, swaying a little as they go. */
+    private fun hearts() {
+        val d = resources.displayMetrics.density
+        repeat(6 + Random.nextInt(2)) { i ->
+            bits += Bit(
+                x = width / 2f + (Random.nextFloat() - 0.5f) * width * 0.3f,
+                y = height * 0.55f,
+                vx = (Random.nextFloat() - 0.5f) * 50 * d,
+                vy = -(70 + Random.nextFloat() * 60) * d,
+                size = (7 + Random.nextFloat() * 6) * d,
+                color = HEARTS.random(),
+                shape = Shape.HEART,
+                spin = Random.nextFloat() * 6.3f,
+                spinSpeed = 2.5f + Random.nextFloat() * 2f,
+                delay = i * 0.08f,
+            )
+        }
+    }
+
+    /** Three z's drifting up from beside her head, each a little bigger than the one before. */
+    private fun sleepy() {
+        val d = resources.displayMetrics.density
+        repeat(3) { i ->
+            bits += Bit(
+                x = width * 0.62f,
+                y = height * 0.3f,
+                vx = 22 * d,
+                vy = -38 * d,
+                size = (9 + i * 4) * d,
+                color = Palette.INK_SOFT,
+                shape = Shape.ZED,
+                spin = 0f,
+                spinSpeed = 0f,
+                delay = i * 0.22f,
+            )
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -70,27 +131,47 @@ internal class Sparkles(context: Context) : View(context) {
         val now = SystemClock.uptimeMillis()
         val dt = ((now - last).coerceIn(1, 50)) / 1000f
         last = now
-        val age = (now - start) / LIFE_MS
+        val age = (now - start) / life
         if (age >= 1f) {
             bits.clear()
             return
         }
-        val gravity = 380f * resources.displayMetrics.density
-        paint.alpha = 255
+        // Sparkles fall; hearts and z's float up gently.
+        val gravity = if (effect == Effect.SPARKLE) 380f * resources.displayMetrics.density else 0f
         for (b in bits) {
             b.vy += gravity * dt
             b.vx *= 0.985f
             b.x += b.vx * dt
             b.y += b.vy * dt
             b.spin += b.spinSpeed * dt
+            val own = ((age - b.delay) / (1f - b.delay)).coerceAtMost(1f)
+            if (own <= 0f) continue
             paint.color = b.color
             // Grow in quickly, fade out slowly.
-            val scale = (age * 6f).coerceAtMost(1f)
-            paint.alpha = (255 * (1f - age * age)).toInt()
+            val scale = (own * 6f).coerceAtMost(1f)
+            paint.alpha = (255 * (1f - own * own)).toInt()
             val r = b.size * scale
-            if (b.star) drawStar(canvas, b.x, b.y, r, b.spin) else canvas.drawCircle(b.x, b.y, r * 0.55f, paint)
+            when (b.shape) {
+                Shape.STAR -> drawStar(canvas, b.x, b.y, r, b.spin)
+                Shape.DOT -> canvas.drawCircle(b.x, b.y, r * 0.55f, paint)
+                Shape.HEART -> drawHeart(canvas, b.x + sin(b.spin) * r * 0.6f, b.y, r)
+                Shape.ZED -> {
+                    paint.textSize = r * 2f
+                    canvas.drawText("z", b.x, b.y, paint)
+                }
+            }
         }
         postInvalidateOnAnimation()
+    }
+
+    /** A plump little heart, its point down. */
+    private fun drawHeart(canvas: Canvas, x: Float, y: Float, r: Float) {
+        path.reset()
+        path.moveTo(x, y + r * 0.9f)
+        path.cubicTo(x - r * 1.6f, y - r * 0.1f, x - r * 0.7f, y - r * 1.3f, x, y - r * 0.45f)
+        path.cubicTo(x + r * 0.7f, y - r * 1.3f, x + r * 1.6f, y - r * 0.1f, x, y + r * 0.9f)
+        path.close()
+        canvas.drawPath(path, paint)
     }
 
     /** A soft four-point star, like a twinkle. */
@@ -110,6 +191,8 @@ internal class Sparkles(context: Context) : View(context) {
 
     private companion object {
         const val LIFE_MS = 1_300f
+        const val FLOAT_LIFE_MS = 2_200f
         val COLORS = listOf(Palette.GREEN, 0xFFFFC94D.toInt(), 0xFFFF8A80.toInt(), 0xFFFFFFFF.toInt(), 0xFFB7E07A.toInt())
+        val HEARTS = listOf(0xFFFF8A80.toInt(), 0xFFF26B6B.toInt(), 0xFFFFB3A7.toInt())
     }
 }

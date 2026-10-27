@@ -51,9 +51,9 @@ class UnlockActivity : Activity() {
                 setImageResource(R.drawable.peri_shield)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
             }, LinearLayout.LayoutParams(dp(96), dp(96)))
-            addView(heading(getString(R.string.unlock_title), 26f).apply { setPadding(dp(12), 0, 0, 0) })
+            addView(heading(getString(R.string.unlock_title)).apply { setPadding(dp(12), 0, 0, 0) })
         })
-        list.addView(body(getString(R.string.unlock_why), 17f).apply { setPadding(dp(4), dp(8), dp(4), dp(4)) })
+        list.addView(body(getString(R.string.unlock_why), TextSize.SMALL).apply { setPadding(dp(4), dp(8), dp(4), dp(4)) })
 
         steps = listOf(
             step(list, 1, R.string.unlock_step1, R.string.unlock_step1_button, { prefs.getBoolean(TRIED, false) || unlocked(this) }) {
@@ -80,13 +80,13 @@ class UnlockActivity : Activity() {
                 setImageResource(R.drawable.peri_calm_thumbsup)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
             }, LinearLayout.LayoutParams(dp(120), dp(120)))
-            addView(heading(getString(R.string.unlock_done), 22f).apply { gravity = Gravity.CENTER })
-            addView(Pill(this@UnlockActivity, getString(R.string.unlock_done_button), R.drawable.ic_shield, primary = true, size = 19f).apply {
+            addView(heading(getString(R.string.unlock_done), TextSize.BODY).apply { gravity = Gravity.CENTER })
+            addView(Pill(this@UnlockActivity, getString(R.string.unlock_done_button), R.drawable.ic_shield, primary = true).apply {
                 setOnClickListener { finishWithTexts() }
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(64)).apply { topMargin = dp(12) })
         }
         list.addView(done, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
-        list.addView(body(getString(R.string.unlock_brands), 15f).apply { setPadding(dp(4), dp(14), dp(4), 0) })
+        list.addView(body(getString(R.string.unlock_brands), TextSize.SMALL).apply { setPadding(dp(4), dp(14), dp(4), 0) })
 
         val pad = dp(20)
         val scroll = ScrollView(this).apply {
@@ -94,7 +94,7 @@ class UnlockActivity : Activity() {
             addView(list)
         }
         setContentView(FrameLayout(this).apply {
-            background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(Palette.CREAM, Palette.MEADOW))
+            background = ground()
             addView(scroll)
             setOnApplyWindowInsetsListener { _, insets ->
                 val bars = insets.getInsets(WindowInsets.Type.systemBars())
@@ -127,7 +127,7 @@ class UnlockActivity : Activity() {
     private fun step(list: LinearLayout, n: Int, text: Int, button: Int, isDone: () -> Boolean, open: () -> Unit): Step {
         val badge = TextView(this).apply {
             this.text = "$n"
-            sizeSp(18f)
+            sizeSp(TextSize.BODY)
             typeface = weight(800)
             gravity = Gravity.CENTER
             background = GradientDrawable().apply {
@@ -136,18 +136,17 @@ class UnlockActivity : Activity() {
             }
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
-        val pill = Pill(this, getString(button), R.drawable.ic_chevron, primary = true, size = 18f).apply {
+        val pill = Pill(this, getString(button), R.drawable.ic_chevron, primary = true).apply {
             setOnClickListener { open() }
         }
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
-            elevation = dp(2).toFloat()
             setPadding(dp(16), dp(14), dp(16), dp(16))
             addView(LinearLayout(this@UnlockActivity).apply {
                 gravity = Gravity.CENTER_VERTICAL
                 addView(badge, LinearLayout.LayoutParams(dp(40), dp(40)))
-                addView(body(getText(text), 17f).apply {
+                addView(body(getText(text), TextSize.SMALL).apply {
                     setTextColor(Palette.INK)
                     setPadding(dp(14), 0, 0, 0)
                 }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))

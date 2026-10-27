@@ -74,33 +74,31 @@ class PeriActivity : Activity() {
 
         said = TextView(this).apply {
             text = hub.lastSaid.ifEmpty { getString(R.string.peri_greeting) }
-            sizeSp(22f)
+            sizeSp(SAID_SP)
             typeface = weight(500)
             setTextColor(Palette.INK)
-            setLineSpacing(0f, 1.12f)
-            gravity = Gravity.CENTER
+            setLineSpacing(0f, 1.15f)
             maxLines = 7
             ellipsize = TextUtils.TruncateAt.END
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
             val tail = dp(14).toFloat()
-            background = BubbleDrawable(Palette.WHITE, 0, 0f, dp(26).toFloat(), tail, BubbleDrawable.Tail.TOP)
-            elevation = dp(4).toFloat()
+            background = BubbleDrawable(Palette.WHITE, Palette.LINE, dp(1).toFloat(), dp(24).toFloat(), tail, BubbleDrawable.Tail.TOP)
             setPadding(dp(22), dp(16) + tail.toInt(), dp(22), dp(18))
         }
-        talk = Pill(this, getString(R.string.talk), R.drawable.ic_mic, primary = true, size = 24f).apply {
+        talk = Pill(this, getString(R.string.talk), R.drawable.ic_mic, primary = true, size = TextSize.TITLE).apply {
             setOnClickListener { listen() }
         }
-        val family = Pill(this, getString(R.string.family_short), R.drawable.ic_family, primary = false, size = 19f).apply {
+        val family = Pill(this, getString(R.string.family_short), R.drawable.ic_family, primary = false).apply {
             setOnClickListener { startActivity(Intent(this@PeriActivity, FamilyActivity::class.java)) }
         }
-        val mini = Pill(this, getString(R.string.mini_mode), R.drawable.ic_mini, primary = false, size = 19f).apply {
+        val mini = Pill(this, getString(R.string.mini_mode), R.drawable.ic_mini, primary = false).apply {
             setOnClickListener { goMini() }
         }
-        val look = Pill(this, getString(R.string.picture_button), R.drawable.ic_image_search, primary = false, size = 19f).apply {
+        val look = Pill(this, getString(R.string.picture_button), R.drawable.ic_image_search, primary = false).apply {
             setOnClickListener { startActivity(Intent(this@PeriActivity, PictureActivity::class.java)) }
         }
         status = TextView(this).apply {
-            sizeSp(15f)
+            sizeSp(TextSize.SMALL)
             maxLines = 1
             ellipsize = TextUtils.TruncateAt.END
             typeface = weight(600)
@@ -132,7 +130,6 @@ class PeriActivity : Activity() {
         setup = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
-            elevation = dp(2).toFloat()
             setPadding(dp(16), dp(12), dp(12), dp(8))
             addView(LinearLayout(this@PeriActivity).apply {
                 gravity = Gravity.CENTER_VERTICAL
@@ -140,7 +137,7 @@ class PeriActivity : Activity() {
                     setImageResource(R.drawable.peri_shield)
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 }, LinearLayout.LayoutParams(dp(40), dp(40)))
-                addView(heading(getString(R.string.setup_title), 16f).apply { setPadding(dp(8), 0, 0, 0) })
+                addView(heading(getString(R.string.setup_title), TextSize.SMALL).apply { setPadding(dp(8), 0, 0, 0) })
             })
             addView(basics)
             addView(sms)
@@ -151,7 +148,7 @@ class PeriActivity : Activity() {
 
         val wordmark = TextView(this).apply {
             text = getString(R.string.app_name)
-            sizeSp(24f)
+            sizeSp(TextSize.TITLE)
             maxLines = 1
             typeface = weight(800)
             setTextColor(Palette.GREEN_DARK)
@@ -166,11 +163,8 @@ class PeriActivity : Activity() {
             setImageResource(R.drawable.ic_settings)
             setColorFilter(Palette.GREEN_DARK)
             contentDescription = getString(R.string.settings_title)
-            background = pressable(GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(Palette.GREEN_TINT)
-            }, Palette.RIPPLE_DARK)
-            setPadding(dp(12), dp(12), dp(12), dp(12))
+            background = pressable(rounded(0, dp(24).toFloat()), Palette.RIPPLE_DARK)
+            setPadding(dp(10), dp(10), dp(10), dp(10))
             setOnClickListener { startActivity(Intent(this@PeriActivity, SettingsActivity::class.java)) }
         }
         val header = LinearLayout(this).apply {
@@ -179,7 +173,7 @@ class PeriActivity : Activity() {
             addView(wordmark, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             // The name shrinks to fit beside the chip; if it still can't, Peri's round face stands in for it.
             wordmark.post {
-                wordmark.fitWidth(24f, 17f)
+                wordmark.fitWidth(TextSize.TITLE, 17f)
                 if (wordmark.paint.measureText(wordmark.text.toString()) > wordmark.width) {
                     wordmark.visibility = View.GONE
                     logo.visibility = View.VISIBLE
@@ -196,16 +190,16 @@ class PeriActivity : Activity() {
         }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            // Cream like Peri's world, with a hint of meadow at the bottom; ink text on it is 14:1.
-            background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(Palette.CREAM, Palette.MEADOW))
+            // Cream like Peri's world; ink text on it is 14:1.
+            background = ground()
             clipChildren = false
             addView(header)
             addView(face, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(4) })
             addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
             addView(setup, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
-            addView(talk, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(84)).apply { topMargin = dp(18) })
+            addView(talk, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(80)).apply { topMargin = dp(16) })
             addView(look, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(60)).apply { topMargin = dp(12) })
-            addView(secondary, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
+            addView(secondary, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) })
         }
         // Edge to edge: the cream goes under the status and navigation bars, the content stays clear of them.
         val pad = dp(20)
@@ -243,7 +237,7 @@ class PeriActivity : Activity() {
         said.text = text
         said.post {
             val root = said.rootView.height.takeIf { it > 0 } ?: return@post
-            said.fitInto((root * BUBBLE_SHARE).toInt(), SAID_SP)
+            said.fitInto((root * BUBBLE_SHARE).toInt(), SAID_SP, TextSize.SMALL)
             // New words appear bit by bit, as if she were saying them; the same sentence again just shows.
             if (text.toString() != typed && animationsOn()) type(text)
             typed = text.toString()
@@ -306,13 +300,9 @@ class PeriActivity : Activity() {
         addView(ImageView(this@PeriActivity).apply {
             setImageResource(icon)
             setColorFilter(Palette.GREEN_DARK)
-            background = GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(Palette.GREEN_TINT)
-            }
-            setPadding(dp(10), dp(10), dp(10), dp(10))
-        }, LinearLayout.LayoutParams(dp(44), dp(44)))
-        addView(body(label, 17f).apply {
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, LinearLayout.LayoutParams(dp(26), dp(26)).apply { marginStart = dp(6) })
+        addView(body(label).apply {
             setTextColor(Palette.INK)
             setPadding(dp(14), 0, dp(8), 0)
         }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
@@ -421,6 +411,8 @@ class PeriActivity : Activity() {
             else -> R.array.greet_night
         }
         val text = resources.getStringArray(list).random()
+        // At night she says hello with a yawn instead of a wave.
+        if (list == R.array.greet_night) face.postDelayed({ face.moment(app.friendlypear.services.PeriMoment.YAWN) }, YAWN_DELAY_MS)
         val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
         if (asked.getInt(GREETED_DAY, -1) != today) {
             asked.edit().putInt(GREETED_DAY, today).apply()
@@ -464,6 +456,8 @@ class PeriActivity : Activity() {
             }
             taps.size == 3 -> {
                 face.play(PeriFace.Trick.SPIN)
+                // Once the spin is over, her eyes are still going round.
+                face.postDelayed({ face.moment(app.friendlypear.services.PeriMoment.DIZZY) }, SPIN_SETTLE_MS)
                 hub.say(next(R.array.peri_dizzy))
             }
             taps.size == 2 -> face.play(PeriFace.Trick.HOP)
@@ -489,8 +483,7 @@ class PeriActivity : Activity() {
                     hub.say(next(R.array.peri_taps) + " " + next(R.array.peri_tips))
                 }
                 1 -> {
-                    face.cheer()
-                    face.play(PeriFace.Trick.WINK)
+                    face.moment(app.friendlypear.services.PeriMoment.LAUGH)
                     hub.say(next(R.array.peri_jokes))
                 }
                 2 -> {
@@ -498,8 +491,7 @@ class PeriActivity : Activity() {
                     hub.say(next(R.array.peri_facts))
                 }
                 else -> {
-                    face.play(PeriFace.Trick.HOP)
-                    face.sparkle()
+                    face.moment(app.friendlypear.services.PeriMoment.LOVE)
                     hub.say(next(R.array.peri_kind))
                 }
             }
@@ -656,10 +648,13 @@ class PeriActivity : Activity() {
 
     private companion object {
         const val REQUEST_NEED = 1
-        const val SAID_SP = 22f
+        const val SAID_SP = TextSize.BODY
         const val TAP_STREAK_MS = 1_600L
         /** A single tap waits this long for a second one before Peri answers it. */
         const val TAP_WAIT_MS = 380L
+        /** About when her spin ends and she can stand there, dizzy. */
+        const val SPIN_SETTLE_MS = 950L
+        const val YAWN_DELAY_MS = 700L
         const val TYPE_MS = 22L
         /** However long the sentence, it's all there in about this many steps (~2 s). */
         const val TYPE_STEPS = 90

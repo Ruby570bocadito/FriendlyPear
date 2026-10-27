@@ -45,8 +45,8 @@ class PairActivity : Activity() {
             setImageResource(if (ours && valid) R.drawable.peri_shield else R.drawable.peri_worried)
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }, LinearLayout.LayoutParams(dp(170), dp(170)))
-        list.addView(heading(getString(R.string.pair_title), 28f).apply { gravity = Gravity.CENTER })
-        list.addView(body(getString(R.string.pair_text), 18f).apply {
+        list.addView(heading(getString(R.string.pair_title)).apply { gravity = Gravity.CENTER })
+        list.addView(body(getString(R.string.pair_text)).apply {
             gravity = Gravity.CENTER
             setPadding(0, dp(8), 0, dp(4))
         })
@@ -54,8 +54,8 @@ class PairActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
             setPadding(dp(18), dp(14), dp(18), dp(14))
-            addView(body(getString(R.string.pair_server, Uri.parse(server).host ?: server), 17f).apply { setTextColor(Palette.INK) })
-            addView(heading(code.ifEmpty { "—" }, 30f).apply {
+            addView(body(getString(R.string.pair_server, Uri.parse(server).host ?: server), TextSize.SMALL).apply { setTextColor(Palette.INK) })
+            addView(heading(code.ifEmpty { "—" }).apply {
                 gravity = Gravity.CENTER
                 letterSpacing = 0.08f
                 setTextColor(Palette.GREEN_DARK)
@@ -63,17 +63,17 @@ class PairActivity : Activity() {
             })
         }
         list.addView(details, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
-        status = body("", 17f).apply {
+        status = body("", TextSize.SMALL).apply {
             gravity = Gravity.CENTER
             setPadding(0, dp(12), 0, 0)
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
         }
         list.addView(status)
-        connect = Pill(this, getString(R.string.pair_connect), R.drawable.ic_shield, primary = true, size = 21f).apply {
+        connect = Pill(this, getString(R.string.pair_connect), R.drawable.ic_shield, primary = true).apply {
             setOnClickListener { pair(code) }
         }
         list.addView(connect, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(70)).apply { topMargin = dp(14) })
-        later = Pill(this, getString(R.string.pair_not_now), R.drawable.ic_close, primary = false, size = 18f).apply {
+        later = Pill(this, getString(R.string.pair_not_now), R.drawable.ic_close, primary = false).apply {
             setOnClickListener { finish() }
         }
         list.addView(later, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(58)).apply { topMargin = dp(12) })
@@ -86,7 +86,7 @@ class PairActivity : Activity() {
         val pad = dp(22)
         val scroll = ScrollView(this).apply { addView(list) }
         setContentView(FrameLayout(this).apply {
-            background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(Palette.CREAM, Palette.MEADOW))
+            background = ground()
             addView(scroll)
             setOnApplyWindowInsetsListener { _, insets ->
                 val bars = insets.getInsets(WindowInsets.Type.systemBars())

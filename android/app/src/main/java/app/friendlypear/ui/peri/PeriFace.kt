@@ -2,6 +2,7 @@ package app.friendlypear.ui.peri
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.ImageDecoder
 import android.graphics.Paint
 import android.graphics.RadialGradient
 import android.graphics.Shader
@@ -21,6 +22,7 @@ import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sin
 import kotlin.random.Random
+import java.util.concurrent.Executors
 
 /**
  * Peri on screen, cut out of her Muse Image illustrations (assets/peri/) so she stands on any background.
@@ -140,6 +142,14 @@ class PeriFace(context: Context) : FrameLayout(context) {
         shadowWidth = side * 0.44f
         rig.pivotX = w / 2f
         rig.pivotY = feetY
+        // Frames are decoded for her size: a new size (Mini Peri, a turned phone) decodes them again.
+        // Only for a clearly different size: the bubble growing a line resizes her a little, and that's fine.
+        val target = targetSide()
+        if (target > decodedSide || target < decodedSide * 3 / 4) {
+            decodedSide = target
+            loaded.clear()
+            if (shown != null) preload()
+        }
         // A view squeezed to nothing (a crowded screen) has no room for a shadow: a zero radius would crash.
         shadow.shader = if (shadowWidth > 1f) RadialGradient(0f, 0f, shadowWidth / 2, Palette.SHADOW, 0x00000000, Shader.TileMode.CLAMP) else null
     }
@@ -158,7 +168,40 @@ class PeriFace(context: Context) : FrameLayout(context) {
         super.dispatchDraw(canvas)
     }
 
-    private fun drawable(res: Int): Drawable = loaded.getOrPut(res) { context.getDrawable(res)!! }
+    private fun drawable(res: Int): Drawable = loaded.getOrPut(res) { decode(res) }
+
+    private var decodedSide = 0
+
+    /** The square she's drawn in, with room for her pop and squish, in steps of 128 px; 0 before the first layout. */
+    private fun targetSide(): Int {
+        val raw = (min(width, height) * 1.12f).toInt()
+        return if (raw <= 0) 0 else min(1024, (raw + 127) / 128 * 128)
+    }
+
+    /**
+     * An illustration decoded at the size she's drawn at, not its full 1024 px: Mini Peri needs a fraction of
+     * the memory, and the big Peri a half, with no loss of sharpness.
+     */
+    private fun decode(res: Int, side: Int = decodedSide): Drawable {
+        if (side <= 0) return context.getDrawable(res)!!
+        return ImageDecoder.decodeDrawable(ImageDecoder.createSource(context.resources, res)) { decoder, info, _ ->
+            if (info.size.width > side) decoder.setTargetSize(side, side * info.size.height / info.size.width)
+        }
+    }
+
+    /** The mood's other frames decode in the background, so a change of mood never stutters. */
+    private fun preload() {
+        val wanted = frames.all.filter { it !in loaded }
+        if (wanted.isEmpty()) return
+        val side = decodedSide
+        DECODER.execute {
+            val ready = wanted.mapNotNull { res -> runCatching { res to decode(res, side) }.getOrNull() }
+            main.post {
+                // Only if she's still that size, and the frames still belong to her mood.
+                if (side == decodedSide) ready.forEach { (res, d) -> if (res in frames.all) loaded.putIfAbsent(res, d) }
+            }
+        }
+    }
 
     fun show(mood: Mood) {
         if (mood == shown) return
@@ -194,8 +237,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
             if (mood != Mood.SLEEPING) act(Idle.HOP)
             if (mood == Mood.HAPPY) sparkles.burst(22)
         }
-        // The other frames decode a moment later, so the change itself is instant.
-        main.post { frames.all.forEach { drawable(it) } }
+        // The other frames decode in the background, so the change itself is instant.
+        preload()
     }
 
     /** The mouth moves while Peri's voice plays. */
@@ -213,6 +256,11 @@ class PeriFace(context: Context) : FrameLayout(context) {
             app.friendlypear.services.PeriMoment.IDEA -> R.drawable.peri_calm_idea
             app.friendlypear.services.PeriMoment.SORRY -> R.drawable.peri_calm_sorry
             app.friendlypear.services.PeriMoment.THUMBS_UP -> R.drawable.peri_calm_thumbsup
+            app.friendlypear.services.PeriMoment.LAUGH -> R.drawable.peri_calm_laugh
+            app.friendlypear.services.PeriMoment.LOVE -> R.drawable.peri_calm_love
+            app.friendlypear.services.PeriMoment.DIZZY -> R.drawable.peri_calm_dizzy
+            app.friendlypear.services.PeriMoment.YAWN -> R.drawable.peri_calm_yawn
+            app.friendlypear.services.PeriMoment.LETTER -> R.drawable.peri_calm_letter
         }
         front.animate().cancel()
         back.animate().cancel()
@@ -221,9 +269,15 @@ class PeriFace(context: Context) : FrameLayout(context) {
         fading = false
         posing = true
         action = null
-        front.setImageDrawable(context.getDrawable(res))
+        front.setImageDrawable(decode(res))
         popStart = SystemClock.uptimeMillis()
-        if (moves && moment != app.friendlypear.services.PeriMoment.SORRY) sparkles.burst()
+        if (moves) when (moment) {
+            app.friendlypear.services.PeriMoment.SORRY, app.friendlypear.services.PeriMoment.LETTER -> Unit
+            app.friendlypear.services.PeriMoment.LOVE -> sparkles.play(Sparkles.Effect.HEARTS)
+            app.friendlypear.services.PeriMoment.YAWN -> sparkles.play(Sparkles.Effect.SLEEPY)
+            app.friendlypear.services.PeriMoment.DIZZY -> sparkles.burst(8)
+            else -> sparkles.burst()
+        }
         main.removeCallbacks(endPose)
         main.postDelayed(endPose, POSE_MILLIS)
     }
@@ -249,8 +303,22 @@ class PeriFace(context: Context) : FrameLayout(context) {
         main.postDelayed({ if (shown == Mood.CALM && !talking) put(frames.still) }, WAVE_START + steps.size * WAVE_STEP)
     }
 
+    /**
+     * Hidden (the app in the background, Mini Peri out instead), she lets go of her frames, all but the one on
+     * show; back on screen, they decode again in the background.
+     */
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        if (visibility == VISIBLE) {
+            if (shown != null) preload()
+        } else {
+            loaded.clear()
+        }
+    }
+
     /** Swaps the frame at once: blinks and the mouth are quick, and a swap never blends two pictures. */
     private fun put(res: Int) {
+        if (windowVisibility != VISIBLE) return
         // A blink or wave scheduled before a mood change never shows a frame of the old mood.
         val waving = shown == Mood.CALM && (res == R.drawable.peri_calm_wave1 || res == R.drawable.peri_calm_wave2)
         if (fading || posing || (res !in frames.all && !waving)) return
@@ -312,6 +380,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
             val mood = shown
             if (mood != null && !talking && !posing && !fading && action == null) {
                 MOTIONS.getValue(mood).idles.randomOrNull()?.let { act(it) }
+                // Asleep, she breathes out a little "z z z" now and then.
+                if (mood == Mood.SLEEPING && moves) sparkles.play(Sparkles.Effect.SLEEPY)
             }
             main.postDelayed(this, Random.nextLong(IDLE_MIN, IDLE_MAX))
         }
@@ -545,6 +615,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
         const val MOOD_FADE = 200L
         const val CHEER_MILLIS = 2_200L
         const val POSE_MILLIS = 2_800L
+        /** One background thread for every Peri on screen: decoding is quick, and never on the main thread. */
+        val DECODER = Executors.newSingleThreadExecutor { r -> Thread(r, "peri-frames").apply { isDaemon = true; priority = Thread.NORM_PRIORITY - 1 } }
         const val POP_MS = 420f
         const val IDLE_FIRST = 3_500L
         const val IDLE_MIN = 7_000L

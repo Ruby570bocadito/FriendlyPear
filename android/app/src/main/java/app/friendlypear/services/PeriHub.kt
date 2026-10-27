@@ -17,7 +17,9 @@ import android.util.Log
 import app.friendlypear.BuildConfig
 import app.friendlypear.R
 import app.friendlypear.core.trust.FamilyRequestLink
+import app.friendlypear.core.voice.Command
 import app.friendlypear.core.voice.ContactDirectory
+import app.friendlypear.core.voice.VoiceCommands
 import app.friendlypear.net.FamilyRequestClient
 import app.friendlypear.ui.peri.GuardianActivity
 import app.friendlypear.config.FamilyStore
@@ -70,7 +72,8 @@ interface PeriView {
     fun moment(moment: PeriMoment) = Unit
 }
 
-enum class PeriMoment { IDEA, SORRY, THUMBS_UP }
+/** A pose Peri strikes for a couple of seconds: an idea, sorry, a thumbs up, a laugh, her heart, dizzy, a yawn, a letter. */
+enum class PeriMoment { IDEA, SORRY, THUMBS_UP, LAUGH, LOVE, DIZZY, YAWN, LETTER }
 
 /**
  * Owns the one [PeriAgent] of the app and feeds it on the main thread: messages from [MessageListener],
@@ -515,7 +518,10 @@ class PeriHub(context: Context) {
     }
 
     fun heard(utterance: String) = main.post {
+        // "Read my messages": she holds up a letter while she reads.
+        val reading = !agent.isWaitingForAnswer && VoiceCommands.parse(utterance) is Command.ReadMessages
         agent.onHeard(utterance)
+        if (reading) views.forEach { it.moment(PeriMoment.LETTER) }
         main.removeCallbacks(countdownEnd)
         if (agent.isCountingDown) main.postDelayed(countdownEnd, COUNTDOWN_MILLIS)
     }

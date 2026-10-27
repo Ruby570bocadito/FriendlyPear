@@ -43,27 +43,26 @@ class PictureActivity : Activity() {
         picture = MarkedPicture(this)
         face = PeriFace(this).apply { show(Mood.CALM) }
         said = TextView(this).apply {
-            sizeSp(20f)
+            sizeSp(TextSize.BODY)
             typeface = weight(500)
             setTextColor(Palette.INK)
             setLineSpacing(0f, 1.1f)
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
             val tail = dp(12).toFloat()
-            background = BubbleDrawable(Palette.WHITE, 0, 0f, dp(22).toFloat(), tail, BubbleDrawable.Tail.BOTTOM_START, tailInset = dp(44).toFloat())
-            elevation = dp(3).toFloat()
+            background = BubbleDrawable(Palette.WHITE, Palette.LINE, dp(1).toFloat(), dp(22).toFloat(), tail, BubbleDrawable.Tail.BOTTOM_START, tailInset = dp(44).toFloat())
             setPadding(dp(18), dp(14), dp(18), dp(16) + tail.toInt())
         }
-        val again = Pill(this, getString(R.string.picture_another), R.drawable.ic_image_search, primary = false, size = 18f).apply {
+        val again = Pill(this, getString(R.string.picture_another), R.drawable.ic_image_search, primary = false).apply {
             setOnClickListener { pick() }
         }
-        val done = Pill(this, getString(R.string.picture_done), R.drawable.ic_chevron, primary = true, size = 18f).apply {
+        val done = Pill(this, getString(R.string.picture_done), R.drawable.ic_chevron, primary = true).apply {
             setOnClickListener { finish() }
         }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(Palette.CREAM, Palette.MEADOW))
+            background = ground()
             clipChildren = false
-            addView(heading(getString(R.string.picture_title), 26f))
+            addView(heading(getString(R.string.picture_title)))
             addView(picture, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(10) })
             addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
             addView(face, LinearLayout.LayoutParams(dp(110), dp(110)).apply { gravity = Gravity.START })

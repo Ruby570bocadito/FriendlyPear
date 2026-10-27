@@ -369,7 +369,7 @@ class MiniPeriService : Service(), PeriView {
         }
         val label = TextView(this).apply {
             text = getString(R.string.mini_drop_here)
-            sizeSp(15f)
+            sizeSp(TextSize.SMALL)
             typeface = weight(600)
             setTextColor(Palette.WHITE)
             setShadowLayer(dp(4).toFloat(), 0f, dp(1).toFloat(), SHADE_TEXT)

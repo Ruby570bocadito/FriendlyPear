@@ -12,7 +12,7 @@ import android.graphics.drawable.Drawable
 
 /**
  * A speech bubble with a small tail pointing at Peri: up to her in the app, down to her in Mini Peri.
- * Its outline follows the shape, so the view's elevation casts a matching soft shadow.
+ * Its outline follows the shape, so where the bubble floats (Mini Peri, over other apps) its shadow matches.
  */
 class BubbleDrawable(
     private val fill: Int,

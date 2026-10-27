@@ -35,17 +35,16 @@ class SettingsActivity : Activity() {
                 setImageResource(R.drawable.peri_calm_wave1)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
             }, LinearLayout.LayoutParams(dp(96), dp(96)))
-            addView(heading(getString(R.string.settings_title), 28f).apply { setPadding(dp(12), 0, 0, 0) })
+            addView(heading(getString(R.string.settings_title)).apply { setPadding(dp(12), 0, 0, 0) })
         })
 
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
-            elevation = dp(2).toFloat()
             setPadding(dp(18), dp(16), dp(18), dp(18))
         }
-        card.addView(heading(getString(R.string.settings_language), 21f))
-        card.addView(body(getString(R.string.settings_language_note), 16f).apply { setPadding(0, dp(4), 0, dp(6)) })
+        card.addView(heading(getString(R.string.settings_language), TextSize.BODY))
+        card.addView(body(getString(R.string.settings_language_note), TextSize.SMALL).apply { setPadding(0, dp(4), 0, dp(6)) })
         val options = listOf("" to getString(R.string.language_phone), "es" to "Español", "en" to "English")
         val group = RadioGroup(this)
         val supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
@@ -54,7 +53,7 @@ class SettingsActivity : Activity() {
             group.addView(RadioButton(this).apply {
                 id = View.generateViewId()
                 text = label
-                sizeSp(20f)
+                sizeSp(TextSize.BODY)
                 typeface = weight(600)
                 setTextColor(Palette.INK)
                 minHeight = dp(56)
@@ -65,7 +64,7 @@ class SettingsActivity : Activity() {
             })
         }
         card.addView(group)
-        if (!supported) card.addView(body(getString(R.string.settings_language_old_android), 16f).apply { setPadding(0, dp(6), 0, 0) })
+        if (!supported) card.addView(body(getString(R.string.settings_language_old_android), TextSize.SMALL).apply { setPadding(0, dp(6), 0, 0) })
         list.addView(card, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
             topMargin = dp(14)
         })
@@ -75,19 +74,18 @@ class SettingsActivity : Activity() {
         val ears = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
-            elevation = dp(2).toFloat()
             setPadding(dp(18), dp(16), dp(18), dp(18))
-            addView(heading(getString(R.string.settings_ears), 21f))
+            addView(heading(getString(R.string.settings_ears), TextSize.BODY))
             addView(android.widget.CheckBox(this@SettingsActivity).apply {
                 text = getString(R.string.settings_ears_muse)
-                sizeSp(19f)
+                sizeSp(TextSize.BODY)
                 typeface = weight(600)
                 setTextColor(Palette.INK)
                 isChecked = hub.museVoice
                 isEnabled = hub.museVoiceAvailable
                 setOnCheckedChangeListener { _, on -> hub.museVoice = on }
             })
-            addView(body(getString(if (hub.museVoiceAvailable) R.string.settings_ears_note else R.string.settings_ears_unavailable), 16f).apply {
+            addView(body(getString(if (hub.museVoiceAvailable) R.string.settings_ears_note else R.string.settings_ears_unavailable), TextSize.SMALL).apply {
                 setPadding(dp(6), dp(4), 0, 0)
             })
         }
@@ -99,10 +97,9 @@ class SettingsActivity : Activity() {
         val voiceCard = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
-            elevation = dp(2).toFloat()
             setPadding(dp(18), dp(16), dp(18), dp(18))
-            addView(heading(getString(R.string.settings_voice), 21f))
-            addView(body(getString(if (hub.googleVoice) R.string.settings_voice_note else R.string.settings_voice_no_google), 16f).apply { setPadding(0, dp(4), 0, dp(6)) })
+            addView(heading(getString(R.string.settings_voice), TextSize.BODY))
+            addView(body(getString(if (hub.googleVoice) R.string.settings_voice_note else R.string.settings_voice_no_google), TextSize.SMALL).apply { setPadding(0, dp(4), 0, dp(6)) })
             val voices = hub.voices()
             val picker = RadioGroup(this@SettingsActivity)
             voices.forEachIndexed { i, v ->
@@ -116,16 +113,16 @@ class SettingsActivity : Activity() {
                     )
                     text = if (notes.isEmpty()) getString(R.string.voice_label, i + 1)
                     else getString(R.string.voice_label_notes, i + 1, notes.joinToString(" · "))
-                    sizeSp(18f)
+                    sizeSp(TextSize.BODY)
                     setTextColor(Palette.INK)
                     minHeight = dp(52)
                     isChecked = v.name == hub.voiceName
                     setOnClickListener { hub.chooseVoice(v.name) }
                 })
             }
-            if (voices.isEmpty()) addView(body(getString(R.string.settings_voice_none), 16f))
+            if (voices.isEmpty()) addView(body(getString(R.string.settings_voice_none), TextSize.SMALL))
             addView(picker)
-            addView(Pill(this@SettingsActivity, getString(R.string.settings_voice_more), R.drawable.ic_mic, primary = false, size = 17f).apply {
+            addView(Pill(this@SettingsActivity, getString(R.string.settings_voice_more), R.drawable.ic_mic, primary = false).apply {
                 setOnClickListener { moreVoices() }
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply { topMargin = dp(10) })
         }
@@ -138,23 +135,22 @@ class SettingsActivity : Activity() {
         list.addView(LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
-            elevation = dp(2).toFloat()
             setPadding(dp(18), dp(16), dp(18), dp(18))
-            addView(heading(getString(R.string.settings_device), 21f))
-            addView(body(getString(if (paired) R.string.settings_device_paired else R.string.settings_device_shared), 16f).apply { setPadding(0, dp(4), 0, dp(6)) })
+            addView(heading(getString(R.string.settings_device), TextSize.BODY))
+            addView(body(getString(if (paired) R.string.settings_device_paired else R.string.settings_device_shared), TextSize.SMALL).apply { setPadding(0, dp(4), 0, dp(6)) })
             if (paired) {
-                addView(Pill(this@SettingsActivity, getString(R.string.settings_device_unpair), R.drawable.ic_close, primary = false, size = 17f).apply {
+                addView(Pill(this@SettingsActivity, getString(R.string.settings_device_unpair), R.drawable.ic_close, primary = false).apply {
                     setOnClickListener { unpair() }
                 }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply { topMargin = dp(8) })
             } else {
-                addView(Pill(this@SettingsActivity, getString(R.string.settings_device_pair), R.drawable.ic_shield, primary = true, size = 17f).apply {
+                addView(Pill(this@SettingsActivity, getString(R.string.settings_device_pair), R.drawable.ic_shield, primary = true).apply {
                     setOnClickListener { askCode() }
                 }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply { topMargin = dp(8) })
             }
         }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
 
         // Peri's welcome again, for whoever sets the phone up with the person.
-        list.addView(Pill(this, getString(R.string.settings_welcome_again), R.drawable.ic_pear, primary = false, size = 18f).apply {
+        list.addView(Pill(this, getString(R.string.settings_welcome_again), R.drawable.ic_pear, primary = false).apply {
             setOnClickListener { startActivity(android.content.Intent(this@SettingsActivity, WelcomeActivity::class.java)) }
         }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(60)).apply { topMargin = dp(16) })
 
@@ -164,7 +160,7 @@ class SettingsActivity : Activity() {
             addView(list)
         }
         setContentView(FrameLayout(this).apply {
-            background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(Palette.CREAM, Palette.MEADOW))
+            background = ground()
             addView(scroll)
             setOnApplyWindowInsetsListener { _, insets ->
                 val bars = insets.getInsets(WindowInsets.Type.systemBars())
@@ -192,7 +188,7 @@ class SettingsActivity : Activity() {
             hint = "ABCD-EFGH"
             isSingleLine = true
             inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
-            sizeSp(22f)
+            sizeSp(TextSize.BODY)
         }
         android.app.AlertDialog.Builder(this)
             .setTitle(R.string.settings_device_pair)

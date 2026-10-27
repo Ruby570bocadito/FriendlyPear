@@ -35,22 +35,21 @@ class PauseOverlay(context: Context, private val onAnswer: (PauseAnswer) -> Unit
         val face = PeriFace(c).apply { show(Mood.PROTECTIVE) }
         val said = TextView(c).apply {
             this.text = text
-            sizeSp(21f)
+            sizeSp(TextSize.BODY)
             typeface = weight(500)
             setTextColor(Palette.INK)
             setLineSpacing(0f, 1.12f)
             gravity = Gravity.CENTER
             val tail = c.dp(14).toFloat()
-            background = BubbleDrawable(Palette.WHITE, 0, 0f, c.dp(26).toFloat(), tail, BubbleDrawable.Tail.TOP)
-            elevation = c.dp(4).toFloat()
+            background = BubbleDrawable(Palette.WHITE, Palette.LINE, c.dp(1).toFloat(), c.dp(24).toFloat(), tail, BubbleDrawable.Tail.TOP)
             setPadding(c.dp(22), c.dp(16) + tail.toInt(), c.dp(22), c.dp(18))
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_ASSERTIVE
         }
-        val title = c.heading(c.getString(R.string.pause_title), 28f).apply { gravity = Gravity.CENTER }
+        val title = c.heading(c.getString(R.string.pause_title)).apply { gravity = Gravity.CENTER }
         val root = LinearLayout(c).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(Palette.CREAM, Palette.MEADOW))
+            background = ground()
             setPadding(c.dp(20), c.dp(48), c.dp(20), c.dp(32))
             clipChildren = false
             addView(title)
@@ -59,14 +58,14 @@ class PauseOverlay(context: Context, private val onAnswer: (PauseAnswer) -> Unit
         }
         if (callName != null) {
             root.addView(
-                Pill(c, c.getString(R.string.pause_call, callName), R.drawable.ic_family, primary = true, size = 22f).apply {
+                Pill(c, c.getString(R.string.pause_call, callName), R.drawable.ic_family, primary = true).apply {
                     setOnClickListener { answer(PauseAnswer.CALL_FAMILY) }
                 },
                 buttonParams(80, top = 18),
             )
         }
         root.addView(
-            Pill(c, c.getString(R.string.pause_leave), R.drawable.ic_shield, primary = callName == null, size = 20f).apply {
+            Pill(c, c.getString(R.string.pause_leave), R.drawable.ic_shield, primary = callName == null).apply {
                 setOnClickListener {
                     context.startActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                     answer(PauseAnswer.LEAVE)
@@ -76,12 +75,12 @@ class PauseOverlay(context: Context, private val onAnswer: (PauseAnswer) -> Unit
         )
         // A speed bump, not a wall: "continue" unlocks after a few seconds.
         val carryOn = TextView(c).apply {
-            sizeSp(18f)
+            sizeSp(TextSize.BODY)
             typeface = weight(600)
             setTextColor(Palette.INK_SOFT)
             gravity = Gravity.CENTER
             isEnabled = false
-            alpha = 0.5f
+            alpha = 0.75f
             setPadding(0, c.dp(14), 0, c.dp(6))
             setOnClickListener { answer(PauseAnswer.CONTINUE) }
         }

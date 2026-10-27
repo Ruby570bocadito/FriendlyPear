@@ -74,32 +74,22 @@ class GuardianActivity : Activity() {
             setImageResource(if (onCall) R.drawable.peri_guardian_alert else R.drawable.peri_guardian)
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
-        val eyebrow = TextView(this).apply {
-            text = getString(R.string.guardian_eyebrow)
-            sizeSp(15f)
-            typeface = weight(600)
-            setTextColor(Palette.GREEN_DARK)
-        }
         val header = LinearLayout(this).apply {
             gravity = Gravity.CENTER_VERTICAL
             addView(peri, LinearLayout.LayoutParams(dp(120), dp(120)))
-            addView(LinearLayout(this@GuardianActivity).apply {
-                orientation = LinearLayout.VERTICAL
-                setPadding(dp(10), 0, 0, 0)
-                addView(eyebrow)
-                addView(heading(getString(R.string.guardian_title, from), 26f))
-            }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            addView(heading(getString(R.string.guardian_title, from)).apply { setPadding(dp(10), 0, 0, 0) },
+                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         }
         val ask = card().apply {
             val what = if (kind == KIND_CIRCLE) getString(R.string.guardian_circle, toName) else getString(R.string.guardian_send_code, toName)
-            addView(heading(what, 22f))
+            addView(heading(what, TextSize.BODY))
         }
         val alert = LinearLayout(this).apply {
-            background = rounded(ALERT_FILL, dp(22).toFloat(), ALERT_LINE, dp(2))
+            background = rounded(ALERT_FILL, dp(24).toFloat(), ALERT_LINE, dp(1.5f))
             setPadding(dp(16), dp(14), dp(16), dp(16))
             addView(TextView(this@GuardianActivity).apply {
                 text = "!"
-                sizeSp(20f)
+                sizeSp(TextSize.BODY)
                 typeface = weight(800)
                 gravity = Gravity.CENTER
                 setTextColor(Palette.WHITE)
@@ -112,24 +102,24 @@ class GuardianActivity : Activity() {
             addView(LinearLayout(this@GuardianActivity).apply {
                 orientation = LinearLayout.VERTICAL
                 setPadding(dp(12), 0, 0, 0)
-                addView(heading(getString(R.string.guardian_alert_title), 18f).apply { setTextColor(Palette.AMBER_INK) })
-                addView(body(getString(R.string.guardian_alert), 16f).apply { setTextColor(Palette.AMBER_INK) })
+                addView(heading(getString(R.string.guardian_alert_title), TextSize.BODY).apply { setTextColor(Palette.AMBER_INK) })
+                addView(body(getString(R.string.guardian_alert), TextSize.SMALL).apply { setTextColor(Palette.AMBER_INK) })
             }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             visibility = if (onCall) View.VISIBLE else View.GONE
         }
-        val no = Pill(this, getString(R.string.guardian_no), R.drawable.ic_shield, primary = true, size = 20f).apply {
+        val no = Pill(this, getString(R.string.guardian_no), R.drawable.ic_shield, primary = true).apply {
             setOnClickListener { send(Answer.REJECT) }
         }
-        val call = Pill(this, getString(R.string.guardian_call, from), R.drawable.ic_call, primary = false, size = 19f).apply {
+        val call = Pill(this, getString(R.string.guardian_call, from), R.drawable.ic_call, primary = false).apply {
             setOnClickListener { send(Answer.CALLBACK) }
         }
         val yes = TextView(this).apply {
             text = getString(R.string.guardian_yes)
-            sizeSp(17f)
+            sizeSp(TextSize.BODY)
             typeface = weight(600)
             gravity = Gravity.CENTER
             setTextColor(YES_INK)
-            background = pressable(rounded(Palette.WHITE, dp(40).toFloat(), YES_INK, dp(2)), Palette.RIPPLE_DARK)
+            background = pressable(rounded(Palette.WHITE, 999f, YES_INK, dp(1.5f)), Palette.RIPPLE_DARK)
             isClickable = true
             isFocusable = true
             setOnClickListener { confirmYes() }
@@ -140,12 +130,12 @@ class GuardianActivity : Activity() {
             addView(call, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(60)).apply { topMargin = dp(12) })
             addView(yes, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply { topMargin = dp(12) })
         }
-        result = heading("", 20f).apply {
+        result = heading("", TextSize.BODY).apply {
             gravity = Gravity.CENTER
             visibility = View.GONE
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
         }
-        back = Pill(this, getString(R.string.guardian_back), R.drawable.ic_pear, primary = true, size = 19f).apply {
+        back = Pill(this, getString(R.string.guardian_back), R.drawable.ic_pear, primary = true).apply {
             visibility = View.GONE
             setOnClickListener {
                 startActivity(Intent(this@GuardianActivity, PeriActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP))
@@ -153,17 +143,17 @@ class GuardianActivity : Activity() {
             }
         }
         val minutes = if (expiresAt > 0) maxOf(1L, (expiresAt - System.currentTimeMillis() + 59_999) / 60_000) else 15L
-        expiry = body(getString(R.string.guardian_expires, minutes), 15f).apply { gravity = Gravity.CENTER }
+        expiry = body(getString(R.string.guardian_expires, minutes), TextSize.SMALL)
         why = card().apply {
-            addView(heading(getString(R.string.guardian_why_title), 17f).apply { setTextColor(Palette.GREEN_DARK) })
-            addView(body(getString(if (kind == KIND_CIRCLE) R.string.guardian_why_circle else R.string.guardian_why), 16f))
-            addView(heading(getString(R.string.guardian_meanwhile_title), 17f).apply {
+            addView(heading(getString(R.string.guardian_why_title), TextSize.BODY).apply { setTextColor(Palette.GREEN_DARK) })
+            addView(body(getString(if (kind == KIND_CIRCLE) R.string.guardian_why_circle else R.string.guardian_why), TextSize.SMALL))
+            addView(heading(getString(R.string.guardian_meanwhile_title), TextSize.BODY).apply {
                 setTextColor(Palette.GREEN_DARK)
                 setPadding(0, dp(8), 0, 0)
             })
-            addView(body(getString(R.string.guardian_meanwhile), 16f))
+            addView(body(getString(R.string.guardian_meanwhile), TextSize.SMALL))
         }
-        val privacy = body(getString(R.string.guardian_privacy), 14f).apply { gravity = Gravity.CENTER }
+        val privacy = body(getString(R.string.guardian_privacy), TextSize.SMALL)
 
         val list = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -187,7 +177,7 @@ class GuardianActivity : Activity() {
         }
         val pad = dp(20)
         setContentView(FrameLayout(this).apply {
-            background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(Palette.CREAM, Palette.MEADOW))
+            background = ground()
             addView(scroll)
             setOnApplyWindowInsetsListener { _, insets ->
                 val bars = insets.getInsets(WindowInsets.Type.systemBars())
@@ -209,7 +199,6 @@ class GuardianActivity : Activity() {
     private fun card() = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL
         background = cardBackground()
-        elevation = dp(2).toFloat()
         setPadding(dp(18), dp(16), dp(18), dp(16))
     }
 

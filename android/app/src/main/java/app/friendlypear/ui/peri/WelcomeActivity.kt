@@ -6,7 +6,9 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.LocaleList
+import android.view.GestureDetector
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowInsets
 import android.widget.LinearLayout
@@ -16,6 +18,7 @@ import app.friendlypear.R
 import app.friendlypear.core.agent.Mood
 import app.friendlypear.services.PeriMoment
 import app.friendlypear.services.PeriView
+import kotlin.math.abs
 
 /**
  * Peri's welcome, before any permission: who she is, what she does, that the family never spies, and that every
@@ -51,21 +54,21 @@ class WelcomeActivity : Activity() {
             isClickable = true
             setOnClickListener { listen() }
         }
-        title = heading("", 30f).apply { gravity = Gravity.CENTER }
-        text = body("", 20f).apply {
+        title = heading("").apply { gravity = Gravity.CENTER }
+        text = body("").apply {
             gravity = Gravity.CENTER
             setTextColor(Palette.INK)
             setLineSpacing(0f, 1.2f)
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
         }
         dots = LinearLayout(this).apply { gravity = Gravity.CENTER }
-        next = Pill(this, "", R.drawable.ic_chevron, primary = true, size = 22f).apply { setOnClickListener { forward() } }
-        val hear = Pill(this, getString(R.string.welcome_listen), R.drawable.ic_mic, primary = false, size = 18f).apply {
+        next = Pill(this, "", R.drawable.ic_chevron, primary = true, trailing = true).apply { setOnClickListener { forward() } }
+        val hear = Pill(this, getString(R.string.welcome_listen), R.drawable.ic_mic, primary = false).apply {
             setOnClickListener { listen() }
         }
         skip = TextView(this).apply {
             text = getString(R.string.welcome_skip)
-            sizeSp(17f)
+            sizeSp(TextSize.SMALL)
             typeface = weight(600)
             setTextColor(Palette.GREEN_DARK)
             setPadding(dp(16), dp(10), dp(16), dp(10))
@@ -80,15 +83,15 @@ class WelcomeActivity : Activity() {
         }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            background = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(Palette.CREAM, Palette.MEADOW))
+            background = ground()
             clipChildren = false
             addView(top)
             addView(face, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(4) })
             addView(title, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
             addView(text, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) })
             addView(dots, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(28)).apply { topMargin = dp(18) })
-            addView(next, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(76)).apply { topMargin = dp(14) })
-            addView(hear, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(58)).apply { topMargin = dp(12) })
+            addView(next, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(72)).apply { topMargin = dp(14) })
+            addView(hear, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(58)).apply { topMargin = dp(10) })
         }
         val pad = dp(20)
         root.setOnApplyWindowInsetsListener { v, insets ->
@@ -124,10 +127,13 @@ class WelcomeActivity : Activity() {
             val on = current == tag
             addView(TextView(this@WelcomeActivity).apply {
                 text = label
-                sizeSp(16f)
+                sizeSp(TextSize.SMALL)
                 typeface = weight(if (on) 700 else 500)
                 setTextColor(if (on) Palette.WHITE else Palette.GREEN_DARK)
-                background = pressable(rounded(if (on) Palette.GREEN_DARK else Palette.GREEN_TINT, dp(18).toFloat()), Palette.RIPPLE_DARK)
+                background = pressable(
+                    if (on) rounded(Palette.GREEN_DARK, dp(20).toFloat()) else rounded(Palette.WHITE, dp(20).toFloat(), Palette.LINE_STRONG, dp(1.5f)),
+                    Palette.RIPPLE_DARK,
+                )
                 setPadding(dp(14), dp(8), dp(14), dp(8))
                 isClickable = true
                 textLocale = java.util.Locale(tag)
@@ -164,6 +170,28 @@ class WelcomeActivity : Activity() {
 
     private fun listen() = hub.say(title.text.toString() + ". " + text.text)
 
+    /** A swipe turns the page, like a book: left for the next one, right to go back. Never past the last. */
+    private val swipe by lazy {
+        GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+                val dx = e2.x - (e1 ?: return false).x
+                if (abs(dx) < dp(72) || abs(velocityX) < abs(velocityY)) return false
+                if (dx < 0 && index < pages.lastIndex) forward() else if (dx > 0 && index > 0) back()
+                return true
+            }
+        })
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        swipe.onTouchEvent(ev)
+        return super.dispatchTouchEvent(ev)
+    }
+
+    private fun back() {
+        index--
+        show()
+    }
+
     private fun forward() {
         if (index == pages.lastIndex) return done()
         index++
@@ -179,8 +207,7 @@ class WelcomeActivity : Activity() {
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (index > 0) {
-            index--
-            show()
+            back()
         } else {
             @Suppress("DEPRECATION")
             super.onBackPressed()
