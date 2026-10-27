@@ -31,5 +31,5 @@ interface DevicePort {
 /** What the person chose on the safety pause. */
 enum class PauseAnswer { CALL_FAMILY, LEAVE, CONTINUE }
 
-/** What happened a moment ago that makes Peri pause the person: a scam, a doubtful message, a stranger's call. */
-enum class RecentKind { SCAM, DOUBT, CALL }
+/** What happened a moment ago that makes Peri pause the person: a scam, a doubtful message, a stranger's call, a picture. */
+enum class RecentKind { SCAM, DOUBT, CALL, PICTURE }

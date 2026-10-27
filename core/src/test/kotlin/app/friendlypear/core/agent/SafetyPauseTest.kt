@@ -113,6 +113,16 @@ class SafetyPauseTest {
     }
 
     @Test
+    fun `a scam picture also makes the next money app pause`() {
+        val (d, a) = agent()
+        a.onOutsideWarning()
+        assertTrue(a.watchesApps)
+        a.onAppOpened(bbva)
+        assertEquals("Ana", d.pauses.single().second)
+        assertTrue("me enseñaste algo que parecía una trampa" in d.pauses.single().first)
+    }
+
+    @Test
     fun `nothing worrying, no pause`() {
         val (d, a) = agent()
         assertFalse(a.watchesApps)

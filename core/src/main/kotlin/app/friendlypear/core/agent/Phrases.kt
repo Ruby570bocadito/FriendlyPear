@@ -146,6 +146,7 @@ internal object Spanish : Phrases {
             RecentKind.SCAM -> "hace un rato te llegó un mensaje que parecía una trampa"
             RecentKind.DOUBT -> "hace un rato te llegó un mensaje que no me cuadraba"
             RecentKind.CALL -> "hace un rato te llamó un número que no está en tu agenda"
+            RecentKind.PICTURE -> "hace un rato me enseñaste algo que parecía una trampa"
         }
         val now = if (remoteApp != null) "abres $remoteApp, un programa para manejar el móvil desde lejos" else "abres una app de dinero"
         return "Espera un momentito, por favor: $before y ahora $now. Antes de seguir, vamos a comprobarlo con calma."
@@ -243,6 +244,7 @@ internal object English : Phrases {
             RecentKind.SCAM -> "a little while ago you got a message that looked like a trap"
             RecentKind.DOUBT -> "a little while ago you got a message that didn't feel right to me"
             RecentKind.CALL -> "a little while ago a number that isn't in your contacts called you"
+            RecentKind.PICTURE -> "a little while ago you showed me something that looked like a trap"
         }
         val now = if (remoteApp != null) "now you're opening $remoteApp, a program to control the phone from far away" else "now you're opening a money app"
         return "Wait just a moment, please: $before, and $now. Before you go on, let's check it calmly."

@@ -164,6 +164,14 @@ class PeriAgent(
         device.showPause(lastSaid, who.name)
     }
 
+    /**
+     * Something worrying Peri saw outside the messages, e.g. a scam letter the person showed her in a picture:
+     * for a while, opening a money app gets the safety pause too.
+     */
+    fun onOutsideWarning() {
+        recent = RecentRisk(RecentKind.PICTURE, clock() + RISK_WINDOW_MILLIS, null)
+    }
+
     /** The person's choice on the safety pause. Calling is a choice they made, like a spoken "yes". */
     fun onPauseAnswer(answer: PauseAnswer) {
         val offered = (pending as? Pending.Confirm)?.takeIf { it === pauseOffer }
