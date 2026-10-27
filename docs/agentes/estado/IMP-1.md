@@ -12,8 +12,12 @@
 
 - glimmer-servido (preparado, sin medir): cliente `backend/src/models/glimmer.ts` sobre el cliente común `chat.ts`, script `models/glimmer/latencia.ts` y pasos en `models/glimmer/README.md`.
 
+- voz-y-agenda: `core/.../voice/` + 17 tests.
+  - `VoiceCommands.parse`: llamar ("llama al chico", "ponme con mi hija"), leer mensajes (todos o el último), emergencia aunque vaya dentro de una frase, sí/no/cancelar/repetir. Quita muletillas ("oye Peri, por favor") y acepta texto sin tildes.
+  - `ContactDirectory.resolve`: alias de la familia > nombre exacto > diminutivo o apodo ("Pablito", "Pepe") > parecido a una letra (fallos del transcriptor) > relación ("mi nieta"). Dos candidatos → `Ambiguous` para que Peri pregunte. `byPhone` compara números sin prefijo.
+
 ## En curso
-- voz-y-agenda.
+- Nada.
 
 ## Bloqueado
 - glimmer-servido, aparcado (P1) el 2026-10-27: los 150 $ de Meta Model API no incluyen Glimmer (solo se aloja en Together AI o en hardware propio). Créditos de Baseten solicitados el 27 oct: si llegan, la capa abierta será Muse Spark Open (`meta-models/muse-spark-open-1026`) en Baseten, que también cuenta para el premio de pesos abiertos; si no, Glimmer en el PC con Ollama (GGUF Q4, ~17 GB, 16 GB de VRAM). Se retoma el 30 oct.
