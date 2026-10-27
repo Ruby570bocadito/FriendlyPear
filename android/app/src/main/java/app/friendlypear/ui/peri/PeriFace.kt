@@ -100,12 +100,13 @@ class PeriFace(context: Context) : FrameLayout(context) {
         shadowWidth = side * 0.44f
         rig.pivotX = w / 2f
         rig.pivotY = feetY
-        shadow.shader = RadialGradient(0f, 0f, shadowWidth / 2, Palette.SHADOW, 0x00000000, Shader.TileMode.CLAMP)
+        // A view squeezed to nothing (a crowded screen) has no room for a shadow: a zero radius would crash.
+        shadow.shader = if (shadowWidth > 1f) RadialGradient(0f, 0f, shadowWidth / 2, Palette.SHADOW, 0x00000000, Shader.TileMode.CLAMP) else null
     }
 
     /** Her shadow on the ground, under the picture: smaller and lighter as she rises. */
     override fun dispatchDraw(canvas: Canvas) {
-        if (shadowWidth > 0) {
+        if (shadow.shader != null) {
             val scale = 1 - rise * 0.22f
             canvas.save()
             canvas.translate(width / 2f, feetY)
