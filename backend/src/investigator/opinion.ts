@@ -72,7 +72,7 @@ export function parseOpinion(content: string | null): Pick<Opinion, "verdict" | 
 }
 
 /** Peri never reads links or codes aloud, even if a model wrote them. */
-function cleanReason(reason: string): string {
+export function cleanReason(reason: string): string {
   return reason
     .replace(/\b(?:https?:\/\/|www\.)\S+/gi, "")
     .replace(/\S+\.(?:com|es|net|org|info|top|xyz|ly|io|co|uk)\b\S*/gi, "")
