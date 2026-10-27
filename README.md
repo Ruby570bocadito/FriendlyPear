@@ -45,7 +45,7 @@ Peri speaks the phone's language (English or Spanish) and understands orders in 
 | Muse Spark Open (open weights, on Baseten) | Second opinion on doubtful messages: a vote of at most ±2 on the rules' score | Working end to end on the emulator |
 | Muse Voice Transcribe | Voice input from older people | Planned |
 | Muse Spark (multimodal) + SAM 3.1 | "Look at this picture": letters, invoices, QR codes | Planned |
-| Muse Image | Peri's illustrated states | Planned |
+| Muse Image | Peri's nine illustrated states (calm, listening, thinking, worried, protective, calling, waiting, happy, sleeping), each an edit of one base so she stays the same character | In the app; prompts in `assets/peri/prompts.json` |
 
 ## How it decides
 

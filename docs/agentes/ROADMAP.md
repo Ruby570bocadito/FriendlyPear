@@ -30,7 +30,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 
 ## Día 3 · 29 oct — primer flujo en el móvil
 - [ ] (IMP-2) ui-compose — [M] pasar la UI a Jetpack Compose + Material 3 con la paleta de `docs/DISENO.md` — android/app/
-- [ ] (IMP-2) peri-animada — [L] Peri vectorial con estados tranquila, escuchando, pensando, preocupada y protectora; respeta "quitar animaciones" — android/.../ui/peri/
+- [ ] (IMP-2) peri-animada — [L] Peri vectorial con estados tranquila, escuchando, pensando, preocupada y protectora; respeta "quitar animaciones" — android/.../ui/peri/ · a medias: fundido entre estados y respiración con las ilustraciones; falta la Peri vectorial
 - [x] (IMP-2) permisos-progresivos — [M] pedir cada permiso al usarlo por primera vez con la explicación de Peri; degradar funciones si se deniega — android/.../ui/peri/, config/ · hecho 2026-10-27 (primer arranque: agenda, SMS y estado de llamada de uno en uno; micrófono, llamadas, envío de SMS y ubicación al usarlos)
 - [x] (IMP-2) momento-1 — [M] "he cambiado de número" → llamada a la hija real en un móvil — android/ · hecho 2026-10-27 (en el emulador, en español e inglés; falta grabarlo en un móvil real)
 - [x] (IMP-2) momento-2 — [S] código durante llamada → "cuelga" — android/ · hecho 2026-10-27 (en el emulador, en español e inglés; falta grabarlo en un móvil real)
@@ -65,7 +65,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [x] (IMP-1) glimmer-primera-opinion — [M] Glimmer como primera opinión privada en dudosos — backend/src/models/ · hecho 2026-10-27 (resuelta con Muse Spark Open en Baseten en lugar de Glimmer)
 - [ ] (IMP-2) peri-estados-extra — [M] llamando, esperando a la familia, contenta (confeti) y dormida; vibraciones y sonidos suaves — android/.../ui/peri/
 - [ ] (IMP-2) escudos-ganados — [S] P1: escuditos por estafas frenadas y por preguntar antes — android/, core/
-- [ ] (IMP-2) peri-ilustrada — [M] estados de Peri con Muse Image — assets/peri/, android/app/src/main/res/drawable/
+- [x] (IMP-2) peri-ilustrada — [M] estados de Peri con Muse Image — assets/peri/, android/app/src/main/res/drawable/ · hecho 2026-10-27 (9 estados con Muse Image, misma Peri por edición de una base; 0,11 $)
 - [ ] (IMP-2) web-basica — [S] P2: notificaciones basura de webs y DNS privado guiado — android/
 
 ## Día 7 · 2 nov — evaluación

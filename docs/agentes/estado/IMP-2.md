@@ -13,6 +13,7 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
 - te-estan-guiando: `AppWatcher` + `RemoteApps` (15 apps de control remoto, solo visibles por `<queries>`) → aviso, "cuelga" si hay llamada y oferta de avisar al guardián tras un "sí". `BankWatcher` + `BankApps` (22 apps de bancos) solo durante una llamada descolgada de un desconocido, con acceso al uso explicado.
   - Probado con el puente de depuración (`--es installed`, `--es opened`); el vigilante real detectó el cambio de app durante la llamada. Sin apps reales instaladas.
 - config-familia: `FamilyConfig` en core (aplicada sobre la agenda) + `FamilyStore` (solo en el móvil) + `FamilyActivity` (guardián, relación, apodos, "hemos acordado una palabra"; la palabra nunca se guarda). Probado: apodo "the neighbour" → Marisa; llamada desconocida → "…ask them for the family word".
+- peri-ilustrada: 9 estados con Muse Image (`assets/peri/generate.ts`, base + ediciones; 0,11 $); `core` `Mood` según lo que dice Peri; `ui/peri/PeriFace.kt` con fundido y respiración (sin movimiento si se quitan las animaciones), fondo crema y texto tinta. Probado: tranquila en reposo, protectora con la estafa de Correos.
 
 ## Cómo probar sin micrófono (solo builds de depuración)
 - `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`; también `--es installed <paquete>` y `--es opened <paquete>`.
