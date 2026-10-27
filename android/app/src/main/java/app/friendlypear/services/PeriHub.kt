@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import app.friendlypear.BuildConfig
 import app.friendlypear.R
@@ -36,6 +37,7 @@ import app.friendlypear.device.phoneLang
 import app.friendlypear.net.ApprovalClient
 import app.friendlypear.net.GuardianClient
 import app.friendlypear.net.OpinionClient
+import app.friendlypear.ui.peri.MiniPeriService
 import app.friendlypear.ui.peri.PauseOverlay
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executors
@@ -89,6 +91,7 @@ class PeriHub(context: Context) {
         },
         ask = { capability, then -> permissions.ask(Need.of(capability), then) },
         pause = { text, callName -> pauseScreen.show(text, callName) },
+        onCalling = { miniBesideCall() },
     )
 
     /** The safety pause over a money app; the person's choice goes back to the agent. */
@@ -138,7 +141,9 @@ class PeriHub(context: Context) {
             Log.i(TAG, "call active=$active answered=$answered")
             callActive = active
             agent.onCallStateChanged(active, answered)
+            views.forEach { it.mood(mood) }
             watchApps()
+            if (agent.strangerOnLine) miniBesideCall() else if (!active) MiniPeriService.endCall(context)
         }
     }
     private val countdownEnd = Runnable { agent.onEmergencyTimeout() }
@@ -274,6 +279,14 @@ class PeriHub(context: Context) {
             val ok = if (entry.kind == "warning") guardianClient.warning(entry.level, entry.channel) else guardianClient.pause(entry.answer)
             if (ok) main.post { news.add(entry) }
         }
+    }
+
+    /**
+     * During a call Peri placed, or a picked-up call from a stranger, Peri stays small beside the call screen
+     * instead of the full app, and goes away when the call ends (unless the person had Mini Peri on already).
+     */
+    private fun miniBesideCall() {
+        if (Settings.canDrawOverlays(context)) MiniPeriService.startForCall(context)
     }
 
     /** Only while there's a reason: a stranger's call, or a while after something worrying. */

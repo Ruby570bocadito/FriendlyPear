@@ -15,6 +15,23 @@ private class Quiet : DevicePort {
 }
 
 class MoodTest {
+    @Test
+    fun `after the call she puts the phone down`() {
+        val d = object : DevicePort {
+            override fun speak(text: String) = Unit
+            override fun call(phone: String) = Unit
+            override fun sendSms(phone: String, text: String) = Unit
+            override fun lastKnownLocation(): String? = null
+        }
+        val a = PeriAgent(d, listOf(Contact("1", "Ana", listOf("600111222"), Relation.CHILD)))
+        a.onHeard("llama a Ana")
+        a.onHeard("sí")
+        assertEquals(Mood.CALLING, a.mood)
+        a.onCallStateChanged(active = true)
+        a.onCallStateChanged(active = false)
+        assertEquals(Mood.CALM, a.mood)
+    }
+
     private val laura = Contact("1", "Laura", listOf("600111222"), Relation.CHILD)
     private fun agent() = PeriAgent(Quiet(), listOf(laura))
     private fun sms(text: String) = IncomingMessage(Channel.SMS, "+34 699 000 111", text, 0)

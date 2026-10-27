@@ -29,6 +29,8 @@ class AndroidDevice(
     private val onSpeechDone: () -> Unit,
     private val ask: (Capability, (Boolean) -> Unit) -> Unit,
     private val pause: (text: String, callName: String?) -> Unit = { _, _ -> },
+    /** Right after Peri places a call, so Mini Peri can stay beside the call screen. */
+    private val onCalling: () -> Unit = {},
 ) : DevicePort {
     override fun prepare(capability: Capability, then: (Boolean) -> Unit) = ask(capability, then)
 
@@ -85,6 +87,7 @@ class AndroidDevice(
         require(granted(Manifest.permission.CALL_PHONE)) { "CALL_PHONE not granted" }
         val intent = Intent(Intent.ACTION_CALL, Uri.fromParts("tel", phone, null)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
+        main.post(onCalling)
     }
 
     override fun sendSms(phone: String, text: String) {

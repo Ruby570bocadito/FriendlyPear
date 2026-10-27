@@ -238,10 +238,11 @@ class PeriActivity : Activity() {
         resumed = true
         // Peri may have spoken while the screen was hidden, e.g. during a call.
         if (hub.lastSaid.isNotEmpty()) said.text = hub.lastSaid
-        // Two modes, never both: opening the app puts Mini Peri away, unless she's about to come out.
+        // Two modes, never both: opening the app puts Mini Peri away, unless she's about to come out or is
+        // beside a call (the call screen brings the app to the front for a moment as it opens).
         if (wantsMini && Settings.canDrawOverlays(this)) return goMini()
         wantsMini = false
-        if (MiniPeriService.running && !leaving) MiniPeriService.stop(this)
+        if (MiniPeriService.running && !leaving && !MiniPeriService.forCall) MiniPeriService.stop(this)
         hub.attach(view)
         showFace(hub.mood)
         face.speaking(hub.speaking)

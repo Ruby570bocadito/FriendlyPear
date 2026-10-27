@@ -64,12 +64,17 @@ class MiniPeriService : Service(), PeriView {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == ACTION_STOP) stopSelf()
+        when (intent?.action) {
+            ACTION_STOP -> stopSelf()
+            // Only a Mini Peri that came out for the call goes away with it.
+            ACTION_CALL_ENDED -> if (forCall) stopSelf()
+        }
         return START_NOT_STICKY
     }
 
     override fun onDestroy() {
         running = false
+        forCall = false
         hub.detach(this)
         main.removeCallbacksAndMessages(null)
         if (::root.isInitialized) runCatching { windows.removeView(root) }
@@ -93,7 +98,12 @@ class MiniPeriService : Service(), PeriView {
             .setOngoing(true)
             .build()
         val type = if (hub.permissions.granted(Need.MIC)) ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE else ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-        startForeground(NOTIFICATION_ID, notification, type)
+        // Started while another app is in front (a call), Android may refuse the microphone type: she still shows.
+        try {
+            startForeground(NOTIFICATION_ID, notification, type)
+        } catch (e: SecurityException) {
+            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+        }
     }
 
     private fun buildWindow() {
@@ -271,7 +281,13 @@ class MiniPeriService : Service(), PeriView {
         var running = false
             private set
 
+        /** True when this Mini Peri came out only for a call, so she leaves when it ends. */
+        @Volatile
+        var forCall = false
+            private set
+
         const val ACTION_STOP = "app.friendlypear.mini.STOP"
+        private const val ACTION_CALL_ENDED = "app.friendlypear.mini.CALL_ENDED"
         private const val CHANNEL = "mini_peri"
         private const val NOTIFICATION_ID = 7
         private const val SIZE_DP = 128
@@ -283,5 +299,21 @@ class MiniPeriService : Service(), PeriView {
         fun start(context: Context) = context.startForegroundService(Intent(context, MiniPeriService::class.java))
 
         fun stop(context: Context) = context.stopService(Intent(context, MiniPeriService::class.java))
+
+        /** Beside the call screen. If Mini Peri is already out, she just stays (and stays after the call). */
+        fun startForCall(context: Context) {
+            if (running) return
+            forCall = true
+            try {
+                start(context)
+            } catch (e: IllegalStateException) {
+                // Android didn't allow starting it from the background right now; Peri still speaks.
+                forCall = false
+            }
+        }
+
+        fun endCall(context: Context) {
+            if (running && forCall) context.startService(Intent(context, MiniPeriService::class.java).setAction(ACTION_CALL_ENDED))
+        }
     }
 }

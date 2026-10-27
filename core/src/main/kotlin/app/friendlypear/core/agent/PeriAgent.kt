@@ -71,6 +71,9 @@ class PeriAgent(
      * Whether Peri should notice which app comes to the front: during a picked-up call with a stranger, and for
      * [RISK_WINDOW_MILLIS] after a doubtful message, a scam or a stranger's call. Never otherwise.
      */
+    /** A picked-up call with a number that isn't in the contacts is going on right now. */
+    val strangerOnLine: Boolean get() = callActive && strangeCall?.answered == true
+
     val watchesApps: Boolean
         get() = (callActive && strangeCall?.answered == true) || (recent?.let { clock() < it.until } == true)
 
@@ -103,6 +106,8 @@ class PeriAgent(
         if (active && answered) call?.answered = true
         if (wasActive && !active) {
             strangeCall = null
+            // The call is over: Peri puts the phone down.
+            if (mood == Mood.CALLING) mood = Mood.CALM
             if (call?.answered == true) recent = RecentRisk(RecentKind.CALL, clock() + RISK_WINDOW_MILLIS, null)
             if (call?.answered == true && pending == null) {
                 pending = Pending.WhoClaimed(call.number)
