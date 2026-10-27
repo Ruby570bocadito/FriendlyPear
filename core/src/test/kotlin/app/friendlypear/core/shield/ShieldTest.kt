@@ -152,6 +152,19 @@ class ShieldTest {
     }
 
     @Test
+    fun `the learned weights keep the app's promises`() {
+        val learned = ShieldWeights.LEARNED
+        // An insecure link reaches "doubt" even from a saved contact.
+        assertTrue(learned.bias + learned.of(Signal.LINK) + learned.of(Signal.INSECURE_LINK) >= learned.doubtAt)
+        // Hard-rule signals stay at least as strong as set by hand; every risk sign adds risk.
+        assertTrue(learned.of(Signal.CODE_DURING_CALL) >= 4.0 && learned.of(Signal.BRAND_LOOKALIKE) >= 4.0)
+        assertTrue(Signal.entries.all { learned.of(it) >= 0.0 })
+        val shield = Shield(learned)
+        val v = shield.evaluate(IncomingMessage(Channel.SMS, "Laura", "Mira las fotos: http://fotos-boda.com/album", 0), family)
+        assertEquals(Level.DOUBT, v.level)
+    }
+
+    @Test
     fun `english scams are caught too`() {
         val v = check("Hi Mum, I broke my phone, this is my new number. Can you send me money?", channel = Channel.WHATSAPP)
         assertTrue(v.level != Level.OK)
