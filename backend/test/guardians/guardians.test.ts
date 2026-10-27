@@ -1,4 +1,7 @@
 import { expect, test } from "bun:test";
+import { mkdtempSync, readFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { ApprovalStore } from "../../src/approvals/store";
 import { loadConfig } from "../../src/config";
 import { GuardianStore, KEEP_MS, readEvent } from "../../src/guardians/store";
@@ -86,4 +89,17 @@ test("news older than 30 days is forgotten", () => {
   now = KEEP_MS + 1;
   store.add({ kind: "warning", level: "doubt", channel: "SMS" });
   expect(store.recent().map((e) => e.kind)).toEqual(["warning"]);
+});
+
+test("links and news survive a restart, and the file never holds a link itself", () => {
+  const file = join(mkdtempSync(join(tmpdir(), "peri-")), "guardians.json");
+  const first = new GuardianStore(Date.now, file);
+  const { token } = first.createLink("Ana", "es");
+  first.add({ kind: "warning", level: "scam", channel: "SMS" });
+  expect(readFileSync(file, "utf8")).not.toContain(token);
+  const again = new GuardianStore(Date.now, file);
+  expect(again.byLink(token)?.name).toBe("Ana");
+  expect(again.recent()).toHaveLength(1);
+  again.revokeAll();
+  expect(new GuardianStore(Date.now, file).byLink(token)).toBeUndefined();
 });

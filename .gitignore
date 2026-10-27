@@ -22,6 +22,9 @@ node_modules/
 # Agent scratch space
 .agent-tmp/
 
+# The backend's saved data (guardians' link hashes and Peri's news)
+backend/data/
+
 # Evaluation data with real (even anonymised) messages stays local
 eval/data/
 training/data/

@@ -2,8 +2,11 @@
  * What a guardian can see about their relative, only if the relative chose to share it: that Peri warned about
  * a message (scam or doubtful, and the channel), and safety pauses with what the person chose. Never the text,
  * a number, a name or anything about calls. Each guardian has their own long-lived link; only its hash is kept.
+ * With a [file], links and news survive a restart of the backend; each save replaces the file in one step.
  */
 import { createHash, randomBytes } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import type { Lang } from "../approvals/store";
 
 export const CHANNELS = ["SMS", "WHATSAPP", "EMAIL", "BROWSER_NOTIFICATION"] as const;
@@ -29,12 +32,36 @@ export class GuardianStore {
   private readonly links = new Map<string, GuardianLink>();
   private events: FamilyEvent[] = [];
 
-  constructor(private readonly now: () => number = Date.now) {}
+  constructor(
+    private readonly now: () => number = Date.now,
+    private readonly file?: string,
+  ) {
+    if (file && existsSync(file)) this.load(file);
+  }
+
+  private load(file: string) {
+    try {
+      const data = JSON.parse(readFileSync(file, "utf8")) as { links?: [string, GuardianLink][]; events?: FamilyEvent[] };
+      for (const [key, link] of data.links ?? []) if (/^[0-9a-f]{64}$/.test(key)) this.links.set(key, link);
+      this.events = (data.events ?? []).filter((e) => typeof e?.at === "number");
+    } catch {
+      // A damaged file starts empty rather than stopping the backend.
+    }
+  }
+
+  private save() {
+    if (!this.file) return;
+    mkdirSync(dirname(this.file), { recursive: true });
+    const tmp = `${this.file}.tmp`;
+    writeFileSync(tmp, JSON.stringify({ links: [...this.links], events: this.events }));
+    renameSync(tmp, this.file);
+  }
 
   createLink(name: string, lang: Lang): { link: GuardianLink; token: string } {
     const token = randomBytes(32).toString("base64url");
     const link: GuardianLink = { id: randomBytes(9).toString("base64url"), name, lang, createdAt: this.now() };
     this.links.set(hash(token), link);
+    this.save();
     return { link, token };
   }
 
@@ -46,6 +73,7 @@ export class GuardianStore {
   revokeAll() {
     this.links.clear();
     this.events = [];
+    this.save();
   }
 
   /** The time is the backend's own: the phone only says what happened. */
@@ -53,6 +81,7 @@ export class GuardianStore {
     this.events.push({ ...event, at: this.now() } as FamilyEvent);
     const cutoff = this.now() - KEEP_MS;
     this.events = this.events.filter((e) => e.at >= cutoff).slice(-MAX_EVENTS);
+    this.save();
   }
 
   /** Newest first. */
