@@ -2,6 +2,8 @@ import { timingSafeEqual } from "node:crypto";
 import { askPage, resultPage } from "./approvals/page";
 import { type ApprovalStore, KINDS, type Kind } from "./approvals/store";
 import type { Config } from "./config";
+import { guardianPage } from "./guardians/page";
+import { type GuardianStore, readEvent } from "./guardians/store";
 import { investigate, readInvestigation } from "./investigator/investigate";
 import { readInput, secondOpinion } from "./investigator/opinion";
 import type { ChatClient } from "./models/chat";
@@ -30,6 +32,8 @@ export interface Services {
   /** Muse Spark with read-only tools, for messages still doubtful after the second opinion. */
   investigator?: ChatClient | null;
   approvals?: ApprovalStore | null;
+  /** What guardians see, only when the person chose to share it. */
+  guardians?: GuardianStore | null;
 }
 
 function fromDevice(req: Request, config: Config): boolean {
@@ -107,6 +111,46 @@ export function createHandler(config: Config, services: Services = {}) {
       const a = approvals?.get(status[1]);
       if (!a) return json({ error: "not_found" }, 404);
       return json({ status: a.status });
+    }
+
+    const guardians = services.guardians;
+
+    // The phone shares a guardian's personal link, when the person turns sharing on.
+    if (req.method === "POST" && pathname === "/v1/guardians/links") {
+      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      if (!guardians) return json({ error: "no_guardians" }, 503);
+      const body = (await readJson(req)) as any;
+      if (body instanceof Response) return body;
+      if (typeof body?.name !== "string" || !NAME.test(body.name)) return json({ error: "bad_request", detail: "bad name" }, 400);
+      const { token } = guardians.createLink(body.name, body.lang === "en" ? "en" : "es");
+      return json({ url: `${config.publicBaseUrl}/g/${token}` }, 201);
+    }
+
+    // Turning sharing off: every guardian link stops working and the news is forgotten.
+    if (req.method === "DELETE" && pathname === "/v1/guardians/links") {
+      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      guardians?.revokeAll();
+      return json({ ok: true });
+    }
+
+    // What happened, never what it was about: a warning's level and channel, or a pause and its answer.
+    if (req.method === "POST" && pathname === "/v1/events") {
+      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      if (!guardians) return json({ error: "no_guardians" }, 503);
+      const body = await readJson(req);
+      if (body instanceof Response) return body;
+      const event = readEvent(body);
+      if (typeof event === "string") return json({ error: "bad_request", detail: event }, 400);
+      guardians.add(event);
+      return json({ ok: true }, 201);
+    }
+
+    // The guardian's page: the link is the secret, kept until the person stops sharing.
+    const news = pathname.match(/^\/g\/([A-Za-z0-9_-]{20,64})$/);
+    if (req.method === "GET" && news && guardians) {
+      const link = guardians.byLink(news[1]);
+      if (!link) return html(resultPage("es", "unknown"), 404);
+      return html(guardianPage(link, guardians.recent(), approvals?.recent() ?? [], Date.now()));
     }
 
     // The guardian's link: no device token, the link itself is the secret, and it works once.

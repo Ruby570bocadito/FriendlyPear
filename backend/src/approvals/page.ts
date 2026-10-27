@@ -43,20 +43,20 @@ const T = {
   },
 };
 
-function esc(s: string): string {
+export function esc(s: string): string {
   return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
 }
 
-function layout(lang: Lang, body: string): string {
+export function layout(lang: Lang, body: string, title: string = T[lang].title, css = ""): string {
   return `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${T[lang].title}</title>
+<meta name="robots" content="noindex"><title>${title}</title>
 <style>
 body{font-family:system-ui,sans-serif;background:#fbf7ee;color:#2c2a26;margin:0;padding:24px 16px;font-size:20px;line-height:1.45}
 main{max-width:520px;margin:0 auto}h1{font-size:26px;margin:0 0 16px}p{margin:0 0 14px}
 form{display:flex;flex-direction:column;gap:14px;margin-top:22px}
 button{font:inherit;font-size:22px;padding:18px;border-radius:14px;border:0;cursor:pointer}
 .no{background:#2f6b3a;color:#fff}.yes{background:#fff;color:#8a2b1f;border:2px solid #8a2b1f}.small{font-size:16px;color:#6b665c}
-</style></head><body><main>${body}</main></body></html>`;
+${css}</style></head><body><main>${body}</main></body></html>`;
 }
 
 export function askPage(a: Approval, token: string, now: number): string {

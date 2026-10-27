@@ -69,6 +69,12 @@ export class ApprovalStore {
     return a;
   }
 
+  /** The last day's requests, newest first, for the guardians' page. */
+  recent(): Approval[] {
+    this.sweep();
+    return [...this.byId.values()].map((a) => (this.expireIfDue(a), a)).sort((x, y) => y.createdAt - x.createdAt);
+  }
+
   private expireIfDue(a: Approval) {
     if (a.status === "pending" && this.now() >= a.expiresAt) a.status = "expired";
   }
