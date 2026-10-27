@@ -1,0 +1,32 @@
+package app.friendlypear.core.shield
+
+internal object Links {
+    private val withScheme = Regex("""(?:https?://|www\.)([\p{L}\p{N}.-]+)""")
+    private val bare = Regex("""(?<![@\p{L}\p{N}._-])((?:[\p{L}\p{N}-]+\.)+([a-z]{2,24}))(?![\p{L}\p{N}-])""")
+    private val emailDomain = Regex("""@([\p{L}\p{N}-]+(?:\.[\p{L}\p{N}-]+)+)""")
+
+    /** Without a scheme or "www", a word with a dot only counts as a link on these TLDs ("p.ej." is not a link). */
+    private val bareTlds = setOf(
+        "com", "es", "net", "org", "info", "eu", "cat", "gal", "eus", "io", "co", "me", "ly", "gl", "gd", "at", "cc", "id",
+        "app", "site", "online", "link", "click", "shop", "store", "top", "xyz", "icu", "vip", "live", "biz", "sbs",
+        "cfd", "bond", "buzz", "fun", "life", "work", "support", "help", "ru", "cn", "tk", "ml", "ga", "cf", "gq", "de", "fr",
+    )
+
+    private val shorteners = setOf(
+        "bit.ly", "bitly.com", "tinyurl.com", "t.co", "goo.gl", "ow.ly", "is.gd", "cutt.ly", "rebrand.ly", "shorturl.at",
+        "t.ly", "tiny.cc", "rb.gy", "s.id", "buff.ly", "acortar.link", "shorturl.ly", "v.gd", "lnkd.in", "qr.link",
+    )
+
+    /** Hosts of every link in the text, lowercase and without "www.". */
+    fun hosts(text: String): List<String> {
+        val lower = text.lowercase()
+        val found = withScheme.findAll(lower).map { it.groupValues[1] } +
+            bare.findAll(lower).filter { it.groupValues[2] in bareTlds }.map { it.groupValues[1] }
+        return found.map { it.trim('.', '-').removePrefix("www.") }.filter { '.' in it }.distinct().toList()
+    }
+
+    /** The domain of an email address in the sender, as in "Correos <info@correos-envio.com>". */
+    fun senderDomain(sender: String): String? = emailDomain.find(sender.lowercase())?.groupValues?.get(1)
+
+    fun isShortener(host: String): Boolean = host in shorteners
+}
