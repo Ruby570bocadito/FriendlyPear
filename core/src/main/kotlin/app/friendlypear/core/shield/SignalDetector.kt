@@ -35,6 +35,13 @@ internal object SignalDetector {
     )
     private val secrets = Regex("""\b(codigo|clave|contrasena|pin|cvv|credenciales|identidad|datos bancarios|numero de tarjeta|datos de (su|tu) tarjeta|""" +
         """code|password|passcode|credentials|bank details|card number|security number)\b""")
+    /** A code that was, or is about to be, sent to the person: asking for it back is how codes are stolen. */
+    private val codeSent = Regex(
+        """\b(codigo|clave|pin|code|passcode)\b.{0,40}\b(hemos enviado|acabamos de enviar|ha llegado|ha recibido|has recibido|""" +
+            """va a llegar|vas a recibir|va a recibir|llegara|le llegue|te llegue|we just sent|we sent|we have sent|we.?ve sent|""" +
+            """sent you|texted you|you just got|you received|you.?ve received|you will receive|you.?ll receive)\b""" +
+            """|\b(le|te) (va|van) a llegar un (codigo|sms)\b""",
+    )
     private val negations = setOf("no", "nunca", "jamas", "nadie", "never", "not", "dont", "don", "nobody", "anyone")
     private val newNumber = Regex(
         """\b(numero nuevo|nuevo numero|cambiado de numero|cambie de numero|cambiado el numero|este es mi numero|""" +
@@ -84,6 +91,7 @@ internal object SignalDetector {
         if (urgency.containsMatchIn(folded)) signals += Signal.URGENCY
         if (money.containsMatchIn(folded)) signals += Signal.MONEY_REQUEST
         if (asksForSecret(folded)) signals += Signal.CREDENTIAL_REQUEST
+        if (asksToForwardCode(folded)) signals += Signal.CODE_FORWARD_REQUEST
         if (newNumber.containsMatchIn(folded)) signals += Signal.NEW_NUMBER_CLAIM
         if (prizeOrProfit.containsMatchIn(folded)) signals += Signal.PRIZE_OR_PROFIT
         if (remoteApps.containsMatchIn(folded)) signals += Signal.REMOTE_ACCESS_APP
@@ -102,6 +110,24 @@ internal object SignalDetector {
             words[i] in askVerbs && words.subList(maxOf(0, i - 3), i).none { it in negations }
         }
     }
+
+    /** "Díganos el código que le ha llegado", "reply with the code we sent you"; "never share the code we sent" is a warning. */
+    private fun asksToForwardCode(folded: String): Boolean {
+        val sentences = Text.sentences(folded)
+        val anySentenceWithCode = sentences.any { codeSent.containsMatchIn(it) }
+        return anySentenceWithCode && sentences.any { sentence ->
+            val words = Text.words(sentence)
+            words.indices.any { i -> words[i] in forwardVerbs && words.subList(maxOf(0, i - 3), i).none { it in negations } }
+        }
+    }
+
+    /** Giving the code to someone; entering it in the official app ("introduce", "enter") is fine. */
+    private val forwardVerbs = setOf(
+        "dime", "digame", "diganos", "dinos", "dimelo", "digamelo", "diganoslo", "diga", "digas", "facilite", "facilitenos",
+        "envie", "envia", "enviame", "envienos", "mande", "manda", "mandame", "reenvie", "reenvia", "comparta", "comparte",
+        "pasame", "dicte", "dicta", "responda", "responde", "conteste", "contesta",
+        "tell", "send", "share", "give", "forward", "reply", "read", "say",
+    )
 
     private fun claimedRelation(folded: String): Relation? {
         val opening = Text.words(folded).take(6)

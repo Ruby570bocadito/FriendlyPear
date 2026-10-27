@@ -27,6 +27,7 @@ data class ShieldWeights(
                 Signal.URGENCY to 1.0,
                 Signal.MONEY_REQUEST to 1.5,
                 Signal.CREDENTIAL_REQUEST to 2.0,
+                Signal.CODE_FORWARD_REQUEST to 2.0,
                 Signal.NEW_NUMBER_CLAIM to 2.5,
                 Signal.PRIZE_OR_PROFIT to 2.0,
                 Signal.REMOTE_ACCESS_APP to 3.0,

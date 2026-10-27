@@ -11,6 +11,8 @@ enum class Signal {
     URGENCY,
     MONEY_REQUEST,
     CREDENTIAL_REQUEST,
+    /** "Tell us the code we just sent you": the classic way to steal a one-time code. */
+    CODE_FORWARD_REQUEST,
     NEW_NUMBER_CLAIM,
     PRIZE_OR_PROFIT,
     REMOTE_ACCESS_APP,

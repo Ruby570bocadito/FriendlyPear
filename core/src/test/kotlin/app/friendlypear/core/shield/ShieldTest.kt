@@ -164,5 +164,33 @@ class ShieldTest {
         val v = en.evaluate(IncomingMessage(Channel.SMS, "BBVA", "Your code is 482913", 0), family.copy(callActive = true))
         assertTrue(v.explanation.startsWith("Please hang up right now: you got a code"))
     }
-}
 
+    @Test
+    fun `uk and us brands are recognised when imitated`() {
+        assertEquals(HardRule.BRAND_LOOKALIKE, check("Royal Mail: pay the £1.45 fee at royalmail-redelivery.top").hardRule)
+        assertEquals(HardRule.BRAND_LOOKALIKE, check("HMRC: claim your refund at hmrc-refund.info").hardRule)
+        assertEquals(HardRule.BRAND_LOOKALIKE, check("Barclays: verify your account at barc1ays-secure.com").hardRule)
+    }
+
+    @Test
+    fun `official uk and us domains are not lookalikes`() {
+        assertEquals(null, check("Track your parcel at royalmail.com", sender = "Royal Mail").hardRule)
+        assertEquals(null, check("Your tax account is ready at www.gov.uk/hmrc", sender = "HMRC").hardRule)
+    }
+
+    @Test
+    fun `asking you to pass on a code you were sent is a scam`() {
+        val en = check("Your bank account has been locked after a suspicious login. Reply with the code we just sent you so we can unlock it.")
+        assertTrue(Signal.CODE_FORWARD_REQUEST in en.signals, "en: ${en.signals}")
+        assertEquals(Level.SCAM, en.level, "en: ${en.signals}")
+        val es = check("Le llamamos del banco. Le va a llegar un código por SMS: díganoslo para anular la operación.")
+        assertTrue(Signal.CODE_FORWARD_REQUEST in es.signals, "es: ${es.signals}")
+    }
+
+    @Test
+    fun `entering a code in the app or a warning not to share it is not forwarding`() {
+        assertFalse(Signal.CODE_FORWARD_REQUEST in check("Introduce en la app el código que te hemos enviado.").signals)
+        assertFalse(Signal.CODE_FORWARD_REQUEST in check("Enter the code we sent you in the app to finish signing in.").signals)
+        assertFalse(Signal.CODE_FORWARD_REQUEST in check("We sent you a code. Never share the code we sent you with anyone.").signals)
+    }
+}

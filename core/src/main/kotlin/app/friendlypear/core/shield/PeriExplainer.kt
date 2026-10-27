@@ -9,6 +9,7 @@ internal object PeriExplainer {
     private val order = listOf(
         Signal.AI_INSTRUCTIONS,
         Signal.REMOTE_ACCESS_APP,
+        Signal.CODE_FORWARD_REQUEST,
         Signal.CREDENTIAL_REQUEST,
         Signal.MONEY_REQUEST,
         Signal.PRIZE_OR_PROFIT,
@@ -21,6 +22,7 @@ internal object PeriExplainer {
     private val reasonsEs = mapOf(
         Signal.AI_INSTRUCTIONS to "trae instrucciones escondidas para engañar a las máquinas",
         Signal.REMOTE_ACCESS_APP to "te pide instalar un programa para controlar tu móvil",
+        Signal.CODE_FORWARD_REQUEST to "te pide que le pases un código que te han mandado",
         Signal.CREDENTIAL_REQUEST to "te pide un código o una clave",
         Signal.MONEY_REQUEST to "te pide dinero",
         Signal.PRIZE_OR_PROFIT to "promete premios o ganancias",
@@ -33,6 +35,7 @@ internal object PeriExplainer {
     private val reasonsEn = mapOf(
         Signal.AI_INSTRUCTIONS to "it hides instructions meant to fool machines",
         Signal.REMOTE_ACCESS_APP to "it asks you to install a program to control your phone",
+        Signal.CODE_FORWARD_REQUEST to "it asks you to pass on a code you were sent",
         Signal.CREDENTIAL_REQUEST to "it asks for a code or a password",
         Signal.MONEY_REQUEST to "it asks for money",
         Signal.PRIZE_OR_PROFIT to "it promises prizes or profits",
