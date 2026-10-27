@@ -1,5 +1,8 @@
 package app.friendlypear.ui.peri
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ValueAnimator
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -9,43 +12,62 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.provider.Settings
 import android.view.Gravity
+import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityNodeInfo
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.OvershootInterpolator
+import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import app.friendlypear.PeriApp
 import app.friendlypear.R
 import app.friendlypear.config.Need
 import app.friendlypear.core.agent.Mood
 import app.friendlypear.device.VoiceInput
 import app.friendlypear.services.PeriHub
+import app.friendlypear.services.PeriMoment
 import app.friendlypear.services.PeriView
 import kotlin.math.abs
+import kotlin.math.hypot
 
 /**
  * Mini Peri: only the pear, small, floating over other apps, with a speech bubble for what she says.
- * Tap to talk, drag to move (she settles on the nearest side), long press to open the full app.
- * The app and Mini Peri are two modes: opening the app puts Mini Peri away.
+ * Tap to talk, drag to move (she glides to the nearest side), drag onto the "×" at the bottom to put her away,
+ * long press to open the full app. The app and Mini Peri are two modes: opening the app puts Mini Peri away.
  */
 class MiniPeriService : Service(), PeriView {
     private lateinit var hub: PeriHub
     private lateinit var windows: WindowManager
     private lateinit var root: LinearLayout
+    /** Peri and, behind her, the ring that pulses while she listens. */
+    private lateinit var holder: FrameLayout
+    private lateinit var ring: View
     private lateinit var face: PeriFace
     private lateinit var bubble: TextView
     private lateinit var voice: VoiceInput
     private lateinit var params: WindowManager.LayoutParams
+    /** The "drop here to put Peri away" target, in its own window, shown only while she is dragged. */
+    private var target: LinearLayout? = null
+    private var targetCircle: FrameLayout? = null
+    private var overTarget = false
+    private var snap: ValueAnimator? = null
+    private var pulse: ValueAnimator? = null
     private val main = Handler(Looper.getMainLooper())
-    private val hideBubble = Runnable { if (!hub.isWaitingForAnswer) bubble.visibility = View.GONE }
+    private val hideBubble = Runnable { if (!hub.isWaitingForAnswer) fadeBubble() }
     private var listening = false
     /** Which side she sits on; the window is anchored there and to the bottom, so the bubble grows towards the middle and upwards. */
     private var onRight = true
@@ -78,7 +100,10 @@ class MiniPeriService : Service(), PeriView {
         forCall = false
         hub.detach(this)
         main.removeCallbacksAndMessages(null)
+        snap?.cancel()
+        pulse?.cancel()
         if (::root.isInitialized) runCatching { windows.removeView(root) }
+        target?.let { runCatching { windows.removeView(it) } }
         if (::voice.isInitialized) voice.destroy()
         super.onDestroy()
     }
@@ -112,16 +137,32 @@ class MiniPeriService : Service(), PeriView {
     private fun buildWindow() {
         // Only the pear: her illustrations are cut out, and she brings her own soft shadow.
         face = PeriFace(this)
+        ring = View(this).apply {
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(RING_FILL)
+                setStroke(dp(4), Palette.GREEN)
+            }
+            alpha = 0f
+        }
+        holder = FrameLayout(this).apply {
+            clipChildren = false
+            addView(ring, FrameLayout.LayoutParams(dp(RING_DP), dp(RING_DP), Gravity.CENTER))
+            addView(face, FrameLayout.LayoutParams(dp(SIZE_DP), dp(SIZE_DP)))
+            // She grows out of the ground and shrinks back into it.
+            pivotX = dp(SIZE_DP) / 2f
+            pivotY = dp(SIZE_DP).toFloat()
+        }
         bubble = TextView(this).apply {
-            sizeSp(18f)
+            sizeSp(BUBBLE_SP)
             typeface = weight(500)
             setTextColor(Palette.INK)
             setLineSpacing(0f, 1.1f)
-            maxWidth = dp(250)
+            maxWidth = bubbleWidth()
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
             elevation = dp(4).toFloat()
             visibility = View.GONE
-            setOnClickListener { visibility = View.GONE }
+            setOnClickListener { fadeBubble() }
         }
         onRight = prefs.getBoolean(KEY_RIGHT, true)
         shapeBubble()
@@ -134,15 +175,9 @@ class MiniPeriService : Service(), PeriView {
             val edge = dp(10)
             setPadding(edge, edge, edge, edge)
             addView(bubble, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = -dp(6) })
-            addView(face, LinearLayout.LayoutParams(dp(SIZE_DP), dp(SIZE_DP)))
+            addView(holder, LinearLayout.LayoutParams(dp(SIZE_DP), dp(SIZE_DP)))
         }
-        params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            PixelFormat.TRANSLUCENT,
-        ).apply {
+        params = overlay().apply {
             gravity = Gravity.BOTTOM or (if (onRight) Gravity.END else Gravity.START)
             x = 0
             y = prefs.getInt(KEY_Y, resources.displayMetrics.heightPixels / 3)
@@ -150,13 +185,27 @@ class MiniPeriService : Service(), PeriView {
         voice = VoiceInput(this, hub.lang, onText = { hub.heard(it) }, onListening = { on ->
             listening = on
             showFace(hub.mood)
+            pulseRing(on)
         }, mayListen = { !hub.inCall }, ears = hub.ears, onMissed = { hub.missedVoice() })
         listenToTouches()
+        // The target's window goes in first, so Peri, dragged over it, stays in front.
+        buildTarget()
         windows.addView(root, params)
         appShown(hub.appVisible)
         showFace(hub.mood)
         if (hub.lastSaid.isNotEmpty()) said(hub.lastSaid)
     }
+
+    private fun overlay(flags: Int = 0) = WindowManager.LayoutParams(
+        WindowManager.LayoutParams.WRAP_CONTENT,
+        WindowManager.LayoutParams.WRAP_CONTENT,
+        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or flags,
+        PixelFormat.TRANSLUCENT,
+    )
+
+    /** Wide enough for a sentence, never more than about two thirds of the screen. */
+    private fun bubbleWidth() = minOf(dp(260), (resources.displayMetrics.widthPixels * 0.68f).toInt())
 
     private fun listenToTouches() {
         val slop = ViewConfiguration.get(this).scaledTouchSlop
@@ -173,6 +222,8 @@ class MiniPeriService : Service(), PeriView {
         face.setOnTouchListener { _, e ->
             when (e.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
+                    // A glide still going ends where it was headed, so the numbers below start from a settled Peri.
+                    snap?.cancel()
                     downX = e.rawX
                     downY = e.rawY
                     startX = if (onRight) resources.displayMetrics.widthPixels - root.width - params.x else params.x
@@ -189,18 +240,23 @@ class MiniPeriService : Service(), PeriView {
                         main.removeCallbacks(longPress)
                         // While moving, measured from the left whatever side she was on.
                         params.gravity = Gravity.BOTTOM or Gravity.START
+                        pickUp(true)
                     }
                     if (dragging) {
                         params.x = startX + dx.toInt()
                         params.y = startY - dy.toInt()
                         windows.updateViewLayout(root, params)
+                        hover(e.rawX, e.rawY)
                     }
                 }
                 MotionEvent.ACTION_UP -> {
                     main.removeCallbacks(longPress)
-                    if (dragging) settle() else if (!longPressed) face.performClick()
+                    if (dragging) drop() else if (!longPressed) face.performClick()
                 }
-                MotionEvent.ACTION_CANCEL -> main.removeCallbacks(longPress)
+                MotionEvent.ACTION_CANCEL -> {
+                    main.removeCallbacks(longPress)
+                    if (dragging) drop()
+                }
             }
             true
         }
@@ -220,17 +276,174 @@ class MiniPeriService : Service(), PeriView {
         }
     }
 
-    /** She goes to the nearest side, out of the way, and remembers where she was. */
+    /** Lifted a little while dragged, with the target to put her away showing at the bottom. */
+    private fun pickUp(on: Boolean) {
+        val s = if (on) 1.08f else 1f
+        holder.animate().scaleX(s).scaleY(s).setInterpolator(DecelerateInterpolator()).setDuration(140).start()
+        showTarget(on)
+    }
+
+    private fun drop() {
+        // Read before the target goes, which forgets it was hovered.
+        val over = overTarget
+        pickUp(false)
+        if (over) putAway() else settle()
+    }
+
+    /** She glides to the nearest side, out of the way, and remembers where she was. */
     private fun settle() {
-        val faceCenter = params.x + face.left + face.width / 2
-        onRight = faceCenter > resources.displayMetrics.widthPixels / 2
+        val screenW = resources.displayMetrics.widthPixels
+        val faceCenter = params.x + holder.left + holder.width / 2
+        onRight = faceCenter > screenW / 2
+        val toX = if (onRight) screenW - root.width else 0
+        params.y = params.y.coerceIn(0, resources.displayMetrics.heightPixels - root.height)
+        snap = ValueAnimator.ofInt(params.x, toX).apply {
+            duration = SNAP_MILLIS
+            interpolator = DecelerateInterpolator(1.6f)
+            addUpdateListener {
+                params.x = it.animatedValue as Int
+                if (root.isAttachedToWindow) windows.updateViewLayout(root, params)
+            }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    snap = null
+                    anchor()
+                }
+            })
+            start()
+        }
+    }
+
+    /** Anchored to her side again, so a bubble grows towards the middle of the screen. */
+    private fun anchor() {
+        if (!root.isAttachedToWindow) return
         params.gravity = Gravity.BOTTOM or (if (onRight) Gravity.END else Gravity.START)
         params.x = 0
-        params.y = params.y.coerceIn(0, resources.displayMetrics.heightPixels - root.height)
         root.gravity = if (onRight) Gravity.END else Gravity.START
         shapeBubble()
         windows.updateViewLayout(root, params)
         prefs.edit().putBoolean(KEY_RIGHT, onRight).putInt(KEY_Y, params.y).apply()
+    }
+
+    /** Dropped on the "×": she shrinks into the ground and Mini Peri stops, until it's turned on again. */
+    private fun putAway() {
+        overTarget = false
+        holder.animate().cancel()
+        holder.animate().scaleX(0f).scaleY(0f).alpha(0f).setInterpolator(AccelerateInterpolator()).setDuration(220).withEndAction {
+            Toast.makeText(this, R.string.mini_put_away, Toast.LENGTH_LONG).show()
+            stopSelf()
+        }.start()
+    }
+
+    private fun showTarget(on: Boolean) {
+        val view = target ?: return
+        overTarget = false
+        targetCircle?.let { highlight(it, false) }
+        view.animate().cancel()
+        if (on) {
+            view.visibility = View.VISIBLE
+            view.translationY = dp(24).toFloat()
+            view.animate().alpha(1f).translationY(0f).setDuration(180).start()
+        } else {
+            view.animate().alpha(0f).translationY(dp(24).toFloat()).setDuration(160).withEndAction { view.visibility = View.GONE }.start()
+        }
+    }
+
+    /** A round "×" with a label, centred near the bottom: the same gesture as closing a chat bubble. */
+    private fun buildTarget(): LinearLayout {
+        val circle = FrameLayout(this).apply {
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.OVAL
+                setColor(Palette.INK)
+                setStroke(dp(2), Palette.WHITE)
+            }
+            elevation = dp(6).toFloat()
+            addView(ImageView(this@MiniPeriService).apply {
+                setImageResource(R.drawable.ic_close)
+                setColorFilter(Palette.WHITE)
+            }, FrameLayout.LayoutParams(dp(30), dp(30), Gravity.CENTER))
+        }
+        val label = TextView(this).apply {
+            text = getString(R.string.mini_drop_here)
+            sizeSp(15f)
+            typeface = weight(600)
+            setTextColor(Palette.WHITE)
+            background = rounded(Palette.INK, dp(16).toFloat())
+            setPadding(dp(14), dp(6), dp(14), dp(7))
+            gravity = Gravity.CENTER
+        }
+        val view = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            clipChildren = false
+            setPadding(dp(16), dp(16), dp(16), dp(16))
+            alpha = 0f
+            visibility = View.GONE
+            addView(circle, LinearLayout.LayoutParams(dp(TARGET_DP), dp(TARGET_DP)).apply { bottomMargin = dp(10) })
+            addView(label, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        }
+        // As wide as the screen (it can't be touched anyway), so the label is never cut.
+        val p = overlay(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE).apply {
+            width = WindowManager.LayoutParams.MATCH_PARENT
+            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            y = dp(40)
+        }
+        windows.addView(view, p)
+        target = view
+        targetCircle = circle
+        return view
+    }
+
+    /** Close to the "×", it grows and turns red, with a little buzz, so it's clear letting go puts her away. */
+    private fun hover(x: Float, y: Float) {
+        val circle = targetCircle ?: return
+        if (!circle.isAttachedToWindow || circle.width == 0) return
+        val at = IntArray(2).also { circle.getLocationOnScreen(it) }
+        val near = hypot(x - (at[0] + circle.width / 2f), y - (at[1] + circle.height / 2f)) < dp(HIT_DP)
+        if (near == overTarget) return
+        overTarget = near
+        highlight(circle, near)
+        // She shrinks a little over it, as if about to go in.
+        val s = if (near) 0.8f else 1.08f
+        holder.animate().scaleX(s).scaleY(s).setInterpolator(DecelerateInterpolator()).setDuration(120).start()
+        if (near) circle.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+    }
+
+    private fun highlight(circle: FrameLayout, on: Boolean) {
+        (circle.background as? GradientDrawable)?.setColor(if (on) Palette.DANGER else Palette.INK)
+        val s = if (on) 1.25f else 1f
+        circle.animate().scaleX(s).scaleY(s).setDuration(120).start()
+    }
+
+    /** She pops up, with a little bounce, whenever she (re)appears. */
+    private fun popIn() {
+        holder.animate().cancel()
+        holder.scaleX = 0.3f
+        holder.scaleY = 0.3f
+        holder.alpha = 0f
+        holder.animate().scaleX(1f).scaleY(1f).alpha(1f).setInterpolator(OvershootInterpolator(2.2f)).setDuration(POP_MILLIS).start()
+    }
+
+    /** While she listens, a soft green ring breathes out from behind her, like ripples. */
+    private fun pulseRing(on: Boolean) {
+        pulse?.cancel()
+        pulse = null
+        if (!on) {
+            ring.animate().alpha(0f).setDuration(150).start()
+            return
+        }
+        ring.animate().cancel()
+        pulse = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = PULSE_MILLIS
+            repeatCount = ValueAnimator.INFINITE
+            addUpdateListener {
+                val f = it.animatedFraction
+                ring.scaleX = 0.82f + 0.36f * f
+                ring.scaleY = 0.82f + 0.36f * f
+                ring.alpha = 0.9f * (1 - f)
+            }
+            start()
+        }
     }
 
     /** The bubble's tail points down at Peri, on whichever side she sits. */
@@ -246,6 +459,31 @@ class MiniPeriService : Service(), PeriView {
             tailInset = dp(SIZE_DP / 2).toFloat(),
         )
         bubble.setPadding(dp(16), dp(12), dp(16), dp(14) + tail)
+        bubble.pivotX = if (onRight) bubbleWidth().toFloat() else 0f
+    }
+
+    /** A long sentence gets slightly smaller letters, so the bubble never covers more than about a third of the screen. */
+    private fun fitBubble() {
+        val most = View.MeasureSpec.makeMeasureSpec(bubbleWidth(), View.MeasureSpec.AT_MOST)
+        val free = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        val room = (resources.displayMetrics.heightPixels * 0.32f).toInt()
+        var sp = BUBBLE_SP
+        bubble.sizeSp(sp)
+        bubble.measure(most, free)
+        while (bubble.measuredHeight > room && sp > BUBBLE_MIN_SP) {
+            sp -= 1f
+            bubble.sizeSp(sp)
+            bubble.measure(most, free)
+        }
+    }
+
+    private fun fadeBubble() {
+        if (bubble.visibility != View.VISIBLE) return
+        bubble.animate().cancel()
+        bubble.animate().alpha(0f).translationY(dp(8).toFloat()).setDuration(180).withEndAction {
+            bubble.visibility = View.GONE
+            bubble.translationY = 0f
+        }.start()
     }
 
     private fun talk() {
@@ -261,17 +499,30 @@ class MiniPeriService : Service(), PeriView {
 
     override fun said(text: String) {
         bubble.text = text
-        bubble.visibility = View.VISIBLE
+        fitBubble()
+        bubble.animate().cancel()
+        if (bubble.visibility != View.VISIBLE || bubble.alpha < 1f) {
+            // It rises out of Peri, from the tail's side.
+            bubble.visibility = View.VISIBLE
+            bubble.pivotY = bubble.measuredHeight.toFloat()
+            bubble.alpha = 0f
+            bubble.scaleX = 0.92f
+            bubble.scaleY = 0.92f
+            bubble.translationY = dp(10).toFloat()
+            bubble.animate().alpha(1f).scaleX(1f).scaleY(1f).translationY(0f).setInterpolator(DecelerateInterpolator()).setDuration(220).start()
+        }
         main.removeCallbacks(hideBubble)
         main.postDelayed(hideBubble, BUBBLE_MILLIS)
     }
 
     override fun mood(mood: Mood) = showFace(mood)
 
-    override fun moment(moment: app.friendlypear.services.PeriMoment) = face.moment(moment)
+    override fun moment(moment: PeriMoment) = face.moment(moment)
 
     override fun appShown(visible: Boolean) {
+        val wasHidden = root.visibility != View.VISIBLE
         root.visibility = if (visible) View.GONE else View.VISIBLE
+        if (!visible && (wasHidden || holder.alpha < 1f)) popIn()
     }
 
     override fun speaking(on: Boolean) {
@@ -301,8 +552,18 @@ class MiniPeriService : Service(), PeriView {
         private const val CHANNEL = "mini_peri"
         private const val NOTIFICATION_ID = 7
         private const val SIZE_DP = 128
+        private const val RING_DP = 112
+        private const val TARGET_DP = 64
+        /** How close (from the finger to the "×") counts as dropping her on it. */
+        private const val HIT_DP = 72
+        private const val RING_FILL = 0x267CC242
+        private const val BUBBLE_SP = 18f
+        private const val BUBBLE_MIN_SP = 14f
         private const val BUBBLE_MILLIS = 9_000L
         private const val LONG_PRESS_EXTRA = 300L
+        private const val SNAP_MILLIS = 260L
+        private const val POP_MILLIS = 420L
+        private const val PULSE_MILLIS = 1_300L
         private const val KEY_RIGHT = "right"
         private const val KEY_Y = "y"
 

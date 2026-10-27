@@ -186,4 +186,6 @@
     <string name="voice_best">recomendada</string>
     <string name="voice_online">necesita internet</string>
     <string name="voice_sample">¡Hola! Así sonaré a partir de ahora. ¿Te gusta?</string>
+    <string name="mini_drop_here">Suelta aquí para guardar a Peri</string>
+    <string name="mini_put_away">Peri descansa. Abre FriendlyPear para que vuelva.</string>
 </resources>

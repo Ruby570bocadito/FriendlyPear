@@ -32,6 +32,8 @@ internal object Palette {
     const val GREEN_TINT = 0xFFE1F0CF.toInt()
     const val AMBER_TINT = 0xFFFFEBC7.toInt()
     const val AMBER_INK = 0xFF6B3E00.toInt()
+    /** "Put away" target when Peri is over it: white on it is 7.6:1. */
+    const val DANGER = 0xFF9C1F17.toInt()
     const val SHADOW = 0x33000000
     const val RIPPLE_LIGHT = 0x33FFFFFF
     const val RIPPLE_DARK = 0x1F25541A
