@@ -108,8 +108,11 @@ internal object PeriExplainer {
         }
     }
 
-    private fun top(signals: Set<Signal>, n: Int, reasons: Map<Signal, String>): List<String> =
-        order.filter { it in signals }.take(n).map { reasons.getValue(it) }
+    /** A plain "it has a link" says nothing more once a shortened or unsafe link was named: it's left out then. */
+    private fun top(signals: Set<Signal>, n: Int, reasons: Map<Signal, String>): List<String> {
+        val linkSaid = Signal.URL_SHORTENER in signals || Signal.INSECURE_LINK in signals
+        return order.filter { it in signals && !(it == Signal.LINK && linkSaid) }.take(n).map { reasons.getValue(it) }
+    }
 
     private fun adviceEs(action: SafeAction, brand: String?): String = when (action) {
         SafeAction.USE_OFFICIAL_APP -> "No toques nada y, si te quedas con dudas, entra tú en la app oficial de ${brand ?: "la empresa"}"

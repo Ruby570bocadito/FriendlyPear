@@ -42,6 +42,16 @@ class SignalDetectorTest {
     }
 
     @Test
+    fun `money asked the way texts write it`() {
+        // Found sending real SMS to the emulator: "200 EUR" and "me prestas" weren't seen as money.
+        assertTrue(Signal.MONEY_REQUEST in signals("Hola, soy tu sobrino, me he quedado sin bateria. Me prestas 200 EUR hoy mismo?"))
+        assertTrue(Signal.MONEY_REQUEST in signals("Necesito 150e para el taller"))
+        assertTrue(Signal.MONEY_REQUEST in signals("Can you lend me GBP 80 until Friday?"))
+        assertFalse(Signal.MONEY_REQUEST in signals("Nos vemos a las 2 e iremos al parque", sender = "Laura"))
+        assertFalse(Signal.MONEY_REQUEST in signals("Llego el día 14 a las 10", sender = "Laura"))
+    }
+
+    @Test
     fun `parcel fee with a shortened link`() {
         val s = signals("Correos: su paquete está retenido. Pague 1,99 € de tasas en bit.ly/3xYz", sender = "Correos")
         assertTrue(s.containsAll(setOf(Signal.LINK, Signal.URL_SHORTENER, Signal.URGENCY, Signal.MONEY_REQUEST)))

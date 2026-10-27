@@ -33,6 +33,9 @@ class ShieldTest {
         assertEquals(Level.DOUBT, v.level)
         assertTrue(Signal.INSECURE_LINK in v.signals)
         assertTrue("padlock" in Shield(lang = Lang.EN).evaluate(IncomingMessage(Channel.SMS, stranger, "Pay at http://pago.top", 0), family).explanation)
+        // Seen on the emulator: "…isn't safe and it has a link" said the link twice.
+        val en = Shield(lang = Lang.EN).evaluate(IncomingMessage(Channel.SMS, "Laura", "Mira las fotos: http://fotos-boda.net/album", 0), family)
+        assertFalse("it has a link" in en.explanation, en.explanation)
     }
 
     @Test

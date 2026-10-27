@@ -23,8 +23,11 @@ internal object SignalDetector {
     ))
     private val money = Regex(
         """\b(bizum|transferencia|transfiere|transferir|ingresa|ingresar|ingreso|pague|pagar|paga|pago|abone|abonar|""" +
-            """tasas?|aduana|dinero|prestame|prestarme|me dejas|tarjeta|transfer|wire|send money|pay|payment|fees?|""" +
-            """customs|money|lend me|gift cards?|card details)\b|\d+([.,]\d+)?\s?(€|euros?|pounds?|dollars?)|[£$]\s?\d""",
+            """tasas?|aduana|dinero|prestame|prestarme|me prestas|me puedes prestar|me dejas|tarjeta|transfer|wire|send money|""" +
+            """pay|payment|fees?|customs|money|lend me|can you lend|gift cards?|card details)\b|""" +
+            // Amounts, also written the way texts often do it: "200 EUR", "200e", "EUR 200", "200 GBP".
+            // A symbol needs no word boundary after it ("1,99 €"); letters do ("200 EUR", not "200 eurovision").
+            """\d+([.,]\d+)?(\s?€|\s?(euros?|eur|pounds?|gbp|dollars?|usd)\b|e\b)|\b(eur|gbp)\s?\d|[£$€]\s?\d""",
     )
     private val askVerbs = setOf(
         "dime", "digame", "diganos", "dinos", "facilite", "facilitenos", "facilitanos", "facilita", "envie", "envia",
