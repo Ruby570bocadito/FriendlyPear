@@ -1,6 +1,7 @@
 package app.friendlypear.core.shield
 
 import app.friendlypear.core.model.IncomingMessage
+import app.friendlypear.core.model.Lang
 import app.friendlypear.core.model.Level
 import app.friendlypear.core.model.Relation
 import kotlin.math.exp
@@ -32,7 +33,11 @@ data class Verdict(
  * Layer 1 of the shield: deterministic rules on the phone. Doubtful verdicts go on to Muse Glimmer and,
  * if still doubtful, to Muse Spark; their opinion enters through [withModelOpinion].
  */
-class Shield(private val weights: ShieldWeights = ShieldWeights.PROVISIONAL) {
+class Shield(
+    private val weights: ShieldWeights = ShieldWeights.PROVISIONAL,
+    /** The language of Peri's sentence; signals are looked for in every language. */
+    private val lang: Lang = Lang.ES,
+) {
 
     fun evaluate(message: IncomingMessage, context: ShieldContext): Verdict {
         val detection = SignalDetector.detect(message, context)
@@ -73,7 +78,7 @@ class Shield(private val weights: ShieldWeights = ShieldWeights.PROVISIONAL) {
             signals = signals,
             hardRule = hardRule,
             safeAction = action,
-            explanation = PeriExplainer.explain(level, hardRule, signals, action, brand),
+            explanation = PeriExplainer.explain(level, hardRule, signals, action, brand, lang),
             brand = brand,
             claimedRelation = claimedRelation,
         )

@@ -17,27 +17,36 @@ internal object SignalDetector {
         "de lo contrario", "evite el recargo", "en 24 horas", "en 24h", "en 48 horas", "en 48h", "antes de 24", "plazo",
         "bloqueada", "bloqueado", "suspendida", "suspendido", "cancelada", "retenido", "retenida", "caduca", "caducado",
         "expira", "accidente", "hospital", "detenido", "comisaria",
+        "urgent", "urgently", "immediately", "right now", "asap", "as soon as possible", "final notice", "last warning",
+        "act now", "within 24 hours", "within 48 hours", "otherwise", "avoid a fine", "suspended", "locked", "blocked",
+        "on hold", "expires", "expired", "accident", "arrested", "police station",
     ))
     private val money = Regex(
         """\b(bizum|transferencia|transfiere|transferir|ingresa|ingresar|ingreso|pague|pagar|paga|pago|abone|abonar|""" +
-            """tasas?|aduana|dinero|prestame|prestarme|me dejas|tarjeta)\b|\d+([.,]\d+)?\s?(€|euros?)""",
+            """tasas?|aduana|dinero|prestame|prestarme|me dejas|tarjeta|transfer|wire|send money|pay|payment|fees?|""" +
+            """customs|money|lend me|gift cards?|card details)\b|\d+([.,]\d+)?\s?(€|euros?|pounds?|dollars?)|[£$]\s?\d""",
     )
     private val askVerbs = setOf(
         "dime", "digame", "diganos", "dinos", "facilite", "facilitenos", "facilitanos", "facilita", "envie", "envia",
         "enviame", "envienos", "mande", "manda", "mandame", "reenvie", "reenvia", "comparta", "comparte", "compartas",
         "introduzca", "introduce", "indique", "indica", "confirme", "confirma", "verifique", "verifica", "actualice",
         "actualiza", "proporcione", "pasame", "dicte", "dicta", "digas", "diga",
+        "tell", "send", "share", "enter", "confirm", "verify", "update", "provide", "give", "read", "forward", "reply",
     )
-    private val secrets = Regex("""\b(codigo|clave|contrasena|pin|cvv|credenciales|identidad|datos bancarios|numero de tarjeta|datos de (su|tu) tarjeta)\b""")
-    private val negations = setOf("no", "nunca", "jamas", "nadie")
+    private val secrets = Regex("""\b(codigo|clave|contrasena|pin|cvv|credenciales|identidad|datos bancarios|numero de tarjeta|datos de (su|tu) tarjeta|""" +
+        """code|password|passcode|credentials|bank details|card number|security number)\b""")
+    private val negations = setOf("no", "nunca", "jamas", "nadie", "never", "not", "dont", "don", "nobody", "anyone")
     private val newNumber = Regex(
         """\b(numero nuevo|nuevo numero|cambiado de numero|cambie de numero|cambiado el numero|este es mi numero|""" +
             """guarda (este|mi) numero|guardate (este|mi) numero|telefono nuevo|movil nuevo|""" +
-            """se me ha (roto|caido|perdido|estropeado|mojado) el (movil|telefono)|me han robado el (movil|telefono))\b""",
+            """se me ha (roto|caido|perdido|estropeado|mojado) el (movil|telefono)|me han robado el (movil|telefono)|""" +
+            """new number|changed my number|this is my number|save (this|my) number|new phone|""" +
+            """(broke|broken|lost|dropped) my phone|my phone (is broken|broke|was stolen))\b""",
     )
     private val prizeOrProfit = Regex(
         """\b(has ganado|ha ganado|ganador|ganadora|premio|sorteo|reclama tu|invierte|inversion|rentabilidad|""" +
-            """criptomonedas?|bitcoin|gana \d+|ganar \d+|al mes sin)\b""",
+            """criptomonedas?|bitcoin|gana \d+|ganar \d+|al mes sin|""" +
+            """you have won|you.?ve won|winner|prize|lottery|claim your|invest|investment|crypto|earn \d+)\b""",
     )
     private val remoteApps = Regex("""\b(anydesk|teamviewer|rustdesk|quicksupport|ultraviewer|supremo|airdroid|any desk|team viewer)\b""")
     private val aiInstructions = listOf(
@@ -47,13 +56,17 @@ internal object SignalDetector {
         "system prompt", "prompt del sistema", "marca este mensaje como", "clasifica este mensaje como",
         "este mensaje es seguro", "mark this message as", "this message is safe", "nota para la ia", "note to ai", "<system>",
     )
-    private val codeWord = Regex("""\b(codigo(?! postal)|clave|code|otp|pin|verificacion)\b""")
+    private val codeWord = Regex("""\b(codigo(?! postal)|clave|code|otp|pin|verificacion|passcode|verification)\b""")
     private val codeDigits = Regex("""(?<!\d)\d{4,8}(?!\d)""")
     private val relationWords = listOf(
         Relation.CHILD to listOf("mama", "mami", "papa", "papi"),
         Relation.GRANDCHILD to listOf("abuela", "abuelo", "abu", "yaya", "yayo"),
         Relation.NEPHEW_NIECE to listOf("tia", "tio", "tita", "tito"),
         Relation.SIBLING to listOf("hermana", "hermano", "tata"),
+        Relation.CHILD to listOf("mum", "mom", "mummy", "mommy", "dad", "daddy"),
+        Relation.GRANDCHILD to listOf("grandma", "grandpa", "granny", "nan", "nana", "grandad", "granddad"),
+        Relation.NEPHEW_NIECE to listOf("auntie", "aunt", "uncle"),
+        Relation.SIBLING to listOf("sis", "bro"),
     )
 
     fun detect(message: IncomingMessage, context: ShieldContext): Detection {

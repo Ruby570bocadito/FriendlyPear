@@ -3,6 +3,7 @@ package app.friendlypear.core.shield
 import app.friendlypear.core.model.Channel
 import app.friendlypear.core.model.Contact
 import app.friendlypear.core.model.IncomingMessage
+import app.friendlypear.core.model.Lang
 import app.friendlypear.core.model.Level
 import app.friendlypear.core.model.Relation
 import kotlin.test.Test
@@ -141,4 +142,27 @@ class ShieldTest {
         val strict = Shield(ShieldWeights.PROVISIONAL.copy(bias = 0.0))
         assertEquals(Level.DOUBT, strict.evaluate(IncomingMessage(Channel.SMS, "Laura", "Hola", 0), family).level)
     }
+
+    @Test
+    fun `english scams are caught too`() {
+        val v = check("Hi Mum, I broke my phone, this is my new number. Can you send me money?", channel = Channel.WHATSAPP)
+        assertTrue(v.level != Level.OK)
+        assertEquals(SafeAction.CALL_SAVED_CONTACT, v.safeAction)
+        assertEquals(Relation.CHILD, v.claimedRelation)
+        assertTrue(Signal.CREDENTIAL_REQUEST in check("Your account is locked. Reply with the code we sent you").signals)
+        assertTrue(Signal.PRIZE_OR_PROFIT in check("Congratulations, you've won a prize! Claim your iPhone").signals)
+    }
+
+    @Test
+    fun `an english bank warning not to share the code stays quiet`() {
+        assertEquals(Level.OK, check("Barclays: your code is 482913. Don't share it with anyone.", sender = "Barclays").level)
+    }
+
+    @Test
+    fun `peri explains in english when asked`() {
+        val en = Shield(lang = Lang.EN)
+        val v = en.evaluate(IncomingMessage(Channel.SMS, "BBVA", "Your code is 482913", 0), family.copy(callActive = true))
+        assertTrue(v.explanation.startsWith("You got a code while you're on the phone"))
+    }
 }
+

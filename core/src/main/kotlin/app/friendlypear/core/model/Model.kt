@@ -2,6 +2,9 @@ package app.friendlypear.core.model
 
 enum class Channel { SMS, WHATSAPP, EMAIL, BROWSER_NOTIFICATION }
 
+/** The language Peri speaks: the phone's. Messages are checked in both, since scams arrive in either. */
+enum class Lang { ES, EN }
+
 /** Shield verdict levels: Peri stays quiet, asks to check, or warns. */
 enum class Level { OK, DOUBT, SCAM }
 
