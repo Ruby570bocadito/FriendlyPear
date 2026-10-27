@@ -93,13 +93,21 @@ class PeriHub(context: Context) {
         }
     }
     private val countdownEnd = Runnable { agent.onEmergencyTimeout() }
+    private val apps = AppWatcher(this.context) { packageName -> onAppInstalled(packageName) }
     private val opinion = OpinionClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
     private val network = Executors.newSingleThreadExecutor()
 
     val isWaitingForAnswer: Boolean get() = agent.isWaitingForAnswer
 
     init {
+        apps.start()
         if (BuildConfig.DEBUG) registerDebugVoice()
+    }
+
+    /** From [AppWatcher]. Only the package name is looked at, and only remote-control apps make Peri speak. */
+    fun onAppInstalled(packageName: String) = main.post {
+        if (contacts == null) refreshNow()
+        agent.onAppInstalled(packageName)
     }
 
     /** Reloads contacts and listeners after permissions change; the agent keeps its state if nothing changed. */
@@ -166,6 +174,7 @@ class PeriHub(context: Context) {
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(c: Context, intent: Intent) {
                 intent.getStringExtra("text")?.let { heard(it) }
+                intent.getStringExtra("installed")?.let { onAppInstalled(it) }
             }
         }
         context.registerReceiver(receiver, IntentFilter(DEBUG_HEAR), Context.RECEIVER_EXPORTED)

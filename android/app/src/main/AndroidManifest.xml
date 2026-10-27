@@ -25,6 +25,22 @@
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
     <queries>
+        <!-- Remote-control apps scammers ask people to install (same list as core RemoteApps). -->
+        <package android:name="com.anydesk.anydeskandroid" />
+        <package android:name="com.teamviewer.quicksupport.market" />
+        <package android:name="com.teamviewer.host.market" />
+        <package android:name="com.teamviewer.teamviewer.market.mobile" />
+        <package android:name="com.rustdesk.rustdesk" />
+        <package android:name="com.carriez.flutter_hbb" />
+        <package android:name="com.sand.airdroid" />
+        <package android:name="com.sand.airdroidbiz" />
+        <package android:name="com.sand.airmirror" />
+        <package android:name="com.splashtop.sos" />
+        <package android:name="com.splashtop.streamer.addon.knox" />
+        <package android:name="com.zoho.assist.agent" />
+        <package android:name="com.logmein.rescuemobile" />
+        <package android:name="com.realvnc.server" />
+        <package android:name="com.supremocontrol.supremo" />
         <intent>
             <action android:name="android.speech.RecognitionService" />
         </intent>
