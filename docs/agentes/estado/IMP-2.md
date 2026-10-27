@@ -39,5 +39,4 @@
 - SEG: revisar los permisos nuevos del manifiesto (RECORD_AUDIO, READ_CONTACTS, READ_PHONE_STATE, CALL_PHONE, SEND_SMS, RECEIVE_SMS, ubicación) y el receptor de depuración exportado.
 
 ## Propuestas para el roadmap
-- permisos-progresivos: hoy se piden todos al abrir la app, con una frase; hay que pedirlos de uno en uno.
 - momento-1 y momento-2: hechos en el emulador; falta grabarlos en un móvil real.
