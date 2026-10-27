@@ -2,10 +2,14 @@
  * Peri's illustrated states with Muse Image (muse-image-1.0, $0.01 per image).
  * 1. One base Peri from the description in docs/DISENO.md.
  * 2. Each state as an edit of that base, so it stays the same character.
- * Writes assets/peri/peri_<state>.webp and copies them to android/app/src/main/res/drawable-nodpi/.
+ * 3. Animation frames: small edits of each state's own image (a blink, talking, the leaf swaying), so the
+ *    app can move between them smoothly.
+ * Writes assets/peri/peri_<state>[_<frame>].webp and copies them to android/app/src/main/res/drawable-nodpi/.
  *
- *   cd backend; bun ../assets/peri/generate.ts            all states (10 images, about $0.10)
- *   cd backend; bun ../assets/peri/generate.ts happy      only the named states, from the saved base
+ *   cd backend; bun ../assets/peri/generate.ts                  all states (10 images, about $0.10)
+ *   cd backend; bun ../assets/peri/generate.ts happy            only the named states, from the saved base
+ *   cd backend; bun ../assets/peri/generate.ts frames           4 frames per state (36 images, about $0.36)
+ *   cd backend; bun ../assets/peri/generate.ts frames calm      only the named states' frames
  */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -36,6 +40,14 @@ export const STATES: Record<string, string> = {
   sleeping: "Peri sleeping peacefully with closed eyes, a tiny night cap, small floating 'z' shapes, on a dark night background (#141B12) instead of cream.",
 };
 
+/** Each frame changes one small thing and keeps everything else, so frames line up when they cross-fade. */
+export const FRAMES: Record<string, string> = {
+  blink: "Only change: the eyes are gently closed, as in the middle of a blink. If the eyes are already closed, make the chest rise slightly as if breathing in.",
+  talk: "Only change: the mouth is open in a friendly rounded shape, as if saying a word. If sleeping, the mouth makes a tiny soft 'o'.",
+  swayleft: "Only change: the leaf on top bends a little to the left and the whole body tilts very slightly (about 3 degrees) to the left.",
+  swayright: "Only change: the leaf on top bends a little to the right and the whole body tilts very slightly (about 3 degrees) to the right.",
+};
+
 async function call(path: string, body: unknown): Promise<Buffer> {
   const res = await fetch(`${base}${path}`, {
     method: "POST",
@@ -58,18 +70,30 @@ function save(name: string, image: Buffer, prompt: string) {
   return { name, prompt };
 }
 
-const only = process.argv.slice(2);
+const args = process.argv.slice(2);
+const framesMode = args[0] === "frames";
+const only = framesMode ? args.slice(1) : args;
 const prompts: { name: string; prompt: string }[] = [];
 const baseFile = join(here, "peri_base.webp");
 
-if (only.length === 0 || !existsSync(baseFile)) {
+if (framesMode) {
+  for (const state of Object.keys(STATES)) {
+    if (only.length && !only.includes(state)) continue;
+    const reference = `data:image/webp;base64,${readFileSync(join(here, `peri_${state}.webp`)).toString("base64")}`;
+    for (const [frame, change] of Object.entries(FRAMES)) {
+      const prompt = `Exactly the same image: same character, same pose, same framing, same size and position, same background and props. ${change} ${STYLE}`;
+      const image = await call("/images/edits", { model: "muse-image-1.0", prompt, images: [{ image_url: reference }], n: 1, size: "1024x1024", output_format: "webp" });
+      prompts.push(save(`${state}_${frame}`, image, prompt));
+    }
+  }
+} else if (only.length === 0 || !existsSync(baseFile)) {
   const prompt = `${STYLE} ${CHARACTER} Peri standing and smiling, full body, front view.`;
   prompts.push(save("base", await call("/images/generations", { model: "muse-image-1.0", prompt, n: 1, size: "1024x1024", output_format: "webp" }), prompt));
 }
 
-const reference = `data:image/webp;base64,${readFileSync(baseFile).toString("base64")}`;
+const reference = framesMode ? "" : `data:image/webp;base64,${readFileSync(baseFile).toString("base64")}`;
 for (const [name, pose] of Object.entries(STATES)) {
-  if (only.length && !only.includes(name)) continue;
+  if (framesMode || (only.length && !only.includes(name))) continue;
   const prompt = `Same character as in the image, same style, same colours and proportions. ${pose} ${STYLE}`;
   const image = await call("/images/edits", {
     model: "muse-image-1.0",
