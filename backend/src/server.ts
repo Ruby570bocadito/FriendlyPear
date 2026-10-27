@@ -9,6 +9,7 @@ import { type GuardianStore, readEvent } from "./guardians/store";
 import { investigate, readInvestigation } from "./investigator/investigate";
 import { readInput, secondOpinion } from "./investigator/opinion";
 import { lookAtPicture, MAX_IMAGE_BASE64, readPicture } from "./investigator/picture";
+import { readReport, writeReport } from "./investigator/report";
 import { LIMITS, RateLimiter, readBytesLimited, readLimited } from "./limits";
 import type { ChatClient } from "./models/chat";
 import type { SamClient } from "./models/sam";
@@ -121,6 +122,9 @@ export function createHandler(config: Config, services: Services = {}, limiter =
     // Pictures cost model credits: a few an hour is plenty for a person.
     if (pathname === "/v1/picture" && limiter.hit(`picture:${ip}`, LIMITS.picture) > LIMITS.picture.max) {
       return secure(tooMany(limiter.retryAfter(`picture:${ip}`, LIMITS.picture), false), https);
+    }
+    if (pathname === "/v1/report" && limiter.hit(`report:${ip}`, LIMITS.report) > LIMITS.report.max) {
+      return secure(tooMany(limiter.retryAfter(`report:${ip}`, LIMITS.report), false), https);
     }
     const res = await route(req, pathname);
     if (api && res.status === 401) limiter.hit(`token:${ip}`, LIMITS.badToken);
@@ -235,6 +239,22 @@ function routes(config: Config, services: Services) {
         const { verdict, confidence, kinds, marks, model } = await lookAtPicture(services.investigator, services.sam ?? null, input);
         return json({ verdict, confidence, kinds, marks, model });
       } catch {
+        return json({ error: "model_failed" }, 502);
+      }
+    }
+
+    // "Report it": a scam Peri stopped, written up for the police or a helpline, only when the person asks.
+    if (req.method === "POST" && pathname === "/v1/report") {
+      if (!fromDevice(req, config, services.devices)) return json({ error: "unauthorized" }, 401);
+      const body = await readJson(req);
+      if (body instanceof Response) return body;
+      const input = readReport(body);
+      if (typeof input === "string") return json({ error: "bad_request", detail: input }, 400);
+      if (!services.investigator) return json({ error: "no_model" }, 503);
+      try {
+        return json(await writeReport(services.investigator, input));
+      } catch {
+        // Neither the message nor the report is logged.
         return json({ error: "model_failed" }, 502);
       }
     }

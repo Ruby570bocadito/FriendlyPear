@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { MAX_TOKENS_CAP, ModelError, untrusted } from "../../src/models/chat";
-import { SparkClient, sparkFromEnv } from "../../src/models/spark";
+import { SPARK_MAX_TOKENS, SparkClient, sparkFromEnv } from "../../src/models/spark";
 
 type Seen = { url: string; init: RequestInit };
 
@@ -49,10 +49,11 @@ test("sends a chat completion with a low token limit and minimal reasoning", asy
   expect(result.usage).toEqual({ promptTokens: 20, completionTokens: 2, cachedTokens: 0, reasoningTokens: 0 });
 });
 
-test("caps the token limit", async () => {
+test("caps the token limit at Spark's ceiling, above the general one so a report has room to think and write", async () => {
   const { fn, seen } = fakeFetch(textReply);
   await client(fn).chat({ messages: [{ role: "user", content: "x" }], maxTokens: 10_000 });
-  expect(JSON.parse(seen[0].init.body as string).max_completion_tokens).toBe(MAX_TOKENS_CAP);
+  expect(JSON.parse(seen[0].init.body as string).max_completion_tokens).toBe(SPARK_MAX_TOKENS);
+  expect(SPARK_MAX_TOKENS).toBeGreaterThan(MAX_TOKENS_CAP);
 });
 
 test("returns tool calls and an assistant message ready to send back", async () => {

@@ -16,6 +16,8 @@ export const LIMITS = {
   device: { max: 240, windowMs: 60_000 },
   /** "Look at this picture": each one costs model credits. */
   picture: { max: 20, windowMs: 60 * 60_000 },
+  /** "Report it": a scam written up for the police; each one costs model credits, and a person needs very few. */
+  report: { max: 10, windowMs: 60 * 60_000 },
   /** Voice orders through Muse Voice Transcribe: a busy day is a few dozen. */
   voice: { max: 120, windowMs: 60 * 60_000 },
   /** Redeeming pairing codes: a family pairs a phone or two; guessing a code takes far more tries than this. */
