@@ -60,6 +60,39 @@ cross-validation chose the edge of its grid. The next step is **real legitimate 
 permission and anonymized, as `docs/ENTRENAMIENTO.md` plans. `ShieldWeights.LEARNED` ships in `core` and a test
 checks that it keeps the app's promises, so switching is a one-line change once the data is there.
 
+## Round 2: new situations (Oct 27, evening)
+
+Error analysis on the **training** set only (never the held-out sets) showed which kinds of scam the rules missed:
+romance (50 % flagged), fake tech support (67 %), "new number" (68 %), "tell us the code" (71 %). Three new signals and
+wider patterns, each written as a general rule, not a copy of a message:
+
+- **Secrecy**: "don't tell dad", "keep it a secret", "que quede entre nosotros".
+- **Scareware**: a virus or a hack on a device, or "call the technician", "remote access".
+- **Romance bait**: affection or a far-away love story (a widower, a soldier, an oil rig) from someone not saved.
+- "New number" said differently ("from a friend's phone", "temporary number", "it fell in the water"), and "forward
+  me the SMS", "give the agent the code you received".
+- A "no" no longer reaches past a "y"/"and": *"No cuelgue y facilite el código"* asks for the code.
+
+On the training set those kinds went to 85 %, 94 %, 82 % and 75 % flagged, with no new false alarm among family,
+social or payment-reminder messages. Then, once, on the held-out sets:
+
+**`reservado-200`, hand-set weights (in use)**
+
+| | Before | After |
+|---|---|---|
+| Any warning on scams | 83.3 % | **88.2 %** [80.6–93.1] |
+| Firm warning on scams | 52.9 % | **59.8 %** [50.1–68.8] |
+| Any false alarm | 4.1 % | 4.1 % [1.6–10.0] |
+| Firm false alarm | 1.0 % | 1.0 % [0.2–5.6] |
+| AUC | 0.956 | **0.964** |
+
+On `prueba-20-20` firm warnings went from 75 % to 90 %, with the same single doubtful false alarm.
+
+**Learned weights, refitted with the new signals:** AUC 0.972, firm warnings 61.8 %, no firm false alarm on either
+set and 2.0 % doubtful ones; but 83.3 % of scams flagged instead of 88.2 %. The shield keeps the hand-set weights: a
+scam Peri stays silent about is the worst outcome for an older person, and a doubtful message still goes to Muse Spark
+Open, which usually calms the genuine ones.
+
 ## Errors found on the way
 
 - Lloyds' real domain `lloydsbank.co.uk` was missing from the brand list, so a genuine Lloyds email tripped the

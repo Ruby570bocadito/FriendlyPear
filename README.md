@@ -57,6 +57,8 @@ Peri speaks the phone's language (English or Spanish), or the one chosen in **Se
 
 ## For the family
 
+<p align="center"><img src="docs/media/guardian-page.jpg" width="300" alt="The guardian's page: Peri holding a phone with an exclamation mark, the request, a 'possible scam in progress' alert and three answers"></p>
+
 There is no app for the family to install, and nothing to watch. A guardian (for example a daughter) is a saved contact the person marks as guardian. When the person asks for something risky (dictating a code, or changing who the guardians are), the guardian gets an SMS with a **one-time link valid for 15 minutes** to a simple page with three answers: **"No"** first, then **"Ask them to call me first"**, then "Yes, I approve". Silence counts as no. If the person is on the phone with a number they haven't saved, or has just hung up on one, the SMS starts with **"URGENT"** and the page says it may be a scam in progress; it never says which number or what was said.
 
 **Tested end to end with two phones** (two emulators, Oct 27): a "bank" calls Mum from an unknown number; after hanging up she asks Peri to send Marisa the code. Peri stops, texts Ana *"URGENT: your relative wants to send Marisa a code right after a call with an unknown number"* (the SMS never contains the code), Ana opens the link on her phone and taps **"Ask them to call me first"**. Three seconds later, on Mum's phone, Peri says *"Ana would rather talk to you before anything is sent. If you say yes, I'll call her right now"*; Mum says yes and Peri calls Ana, with Mini Peri beside the call. Nothing was sent.
@@ -64,6 +66,14 @@ There is no app for the family to install, and nothing to watch. A guardian (for
 <p align="center"><img src="docs/media/family-approval.gif" width="660" alt="Mum's phone and Ana's phone side by side, step by step: the stranger's call, the code request stopped, Ana's urgent approval page, and Peri calling Ana"></p>
 
 If the person turns on **"Let my guardians see Peri's news"** in the family setup, each guardian gets a personal link (by SMS) to **Peri's news**: a page with the last 7 days at a glance and a timeline of what Peri did ("warned about a WhatsApp message that looked like a scam", "paused them before a money app, and they chose to call family") and the approvals asked. Only the kind of event travels (level and channel, or the pause's answer); never text, numbers, names, calls, location or apps. The person sees exactly the same list on their own phone, and turning sharing off makes every link stop working at once. Links (only their hash) and the news are saved in `backend/data/`, so they survive a restart. A weekly summary sent to guardians is still on the roadmap (`avisos-familia`).
+
+### Peri to Peri
+
+If the guardian also has FriendlyPear, the request opens **in their own Peri**: she reads it aloud, shows it with the same three answers ("No", "Call Mamá now", "Yes"), and a yes needs three checks and the phone's own lock (fingerprint or PIN). "Call Mamá now" tells Mum's Peri to send nothing and offer a call, and dials Mum on the guardian's phone: they meet halfway. The guardian's Peri trusts the request only if it comes from a saved contact and points at Peri's own server, and it reads the details from the server, not from the SMS; a text that talks like Peri but links elsewhere gets *"Careful: this message pretends to be from me"*. Tested with two emulators on Oct 27, Mum's Peri in Spanish and Ana's in English:
+
+<p align="center"><img src="docs/media/peri-to-peri.gif" width="660" alt="Mum's Peri and Ana's Peri side by side: the stranger's call, Ana's Peri opening the urgent request, Ana calling Mum, and a fake Peri text caught"></p>
+
+How the family features are protected, and what is still open: [`docs/SECURITY.md`](docs/SECURITY.md).
 
 ## iPhone
 
@@ -110,10 +120,12 @@ Measured on **200 hand-written messages** the rules were never tuned on (`eval/r
 
 | | Scams caught | False alarms |
 |---|---|---|
-| Peri warns or checks (doubt or scam) | **83 %** [75–89] | 4 % [2–10] |
-| Peri warns firmly (scam) | 53 % [43–62] | **1 %** [0.2–6] |
+| Peri warns or checks (doubt or scam) | **88 %** [81–93] | 4 % [2–10] |
+| Peri warns firmly (scam) | 60 % [50–69] | **1 %** [0.2–6] |
 
-Doubtful messages then go to Muse Spark Open and the investigator. Weights learned by logistic regression on 1,306 synthetic messages rank scams better (AUC 0.965 vs 0.957) and would warn firmly on 67 % of scams, but they turn one genuine gym reminder into a firm scam, so the shield keeps the hand-set weights until real legitimate messages are collected. Full method, numbers and reasoning: [`eval/REPORT.md`](eval/REPORT.md).
+Up from 83 % and 53 % after a second round of rules found by error analysis on the *training* set only: secrecy ("don't tell dad"), scareware ("your PC has a virus, call the technician"), romance bait, and new ways of saying "new number" and "forward me the code". False alarms didn't move.
+
+Doubtful messages then go to Muse Spark Open and the investigator. Weights learned by logistic regression on 1,306 synthetic messages rank scams better (AUC 0.972 vs 0.964) and make no firm false alarm, but stay silent on more scams (83 % vs 88 %), so the shield keeps the hand-set weights: a missed scam costs more than a doubt the model can still calm. Full method, numbers and reasoning: [`eval/REPORT.md`](eval/REPORT.md).
 
 ## Layout
 

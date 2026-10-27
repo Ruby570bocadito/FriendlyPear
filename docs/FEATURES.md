@@ -11,7 +11,7 @@ ColorOS) · 🧪 unit tests in `core/` or `backend/`.
 
 | Feature | What it does | How it decides | Status |
 |---|---|---|---|
-| **Message shield** | Every SMS, WhatsApp and email notification is checked the moment it arrives | On-phone rules find signals (unknown sender, lookalike domain, urgency, money, "tell us the code", new-number claim, prize, remote-control app, hidden AI instructions) and add log-odds weights. ≥ 0 is doubt, ≥ 2 is scam | ✅ 📱 🧪 |
+| **Message shield** | Every SMS, WhatsApp and email notification is checked the moment it arrives | On-phone rules find signals (unknown sender, lookalike domain, urgency, money, "tell us the code", new-number claim, prize, secrecy, scareware, romance bait, remote-control app, hidden AI instructions) and add log-odds weights. ≥ 0 is doubt, ≥ 2 is scam. Measured: 88 % of 200 unseen scams flagged, 4 % false alarms (`eval/REPORT.md`) | ✅ 📱 🧪 |
 | **Hard rules** | Two cases are a scam whatever any model says | A one-time code arriving during a call; a known brand on a lookalike domain (`correos-envio.top`) | ✅ 🧪 |
 | **Insecure links** | A link without a padlock (`http://`, or a port other than 443) is always mentioned, even from family | Its own signal, weighted so it reaches "doubt" alone | ✅ 🧪 |
 | **Second opinion** | Doubtful messages only, never the clear ones | **Muse Spark Open** (Baseten) votes scam / doubt / ok; the vote moves the score by at most ±2, so models tip the balance and rules decide | ✅ 🧪 |
@@ -29,6 +29,9 @@ ColorOS) · 🧪 unit tests in `core/` or `backend/`.
 | Feature | What it does | Status |
 |---|---|---|
 | **Family approval** | Something risky (dictating a code, changing guardians) sends the guardian an SMS with a one-time link valid for 15 minutes. Three answers: "No" first, "Ask them to call me first" (Peri sends nothing and offers to call the guardian; a spoken "yes" calls), "Yes, I approve". Silence counts as no; only the link's hash is stored | ✅ (two emulators: Mum and "Ana hija") 🧪 |
+| **Peri to Peri** | A guardian who has FriendlyPear gets the request in their own Peri: read aloud, a screen with the guardian art and the three answers, a notification if the app is closed. Trusted only from a saved contact and with a link to Peri's own server; the details come from the server. "Call them now" answers "call me first" and dials them | ✅ (two emulators, Spanish and English) |
+| **Fake Peri** | A text that talks like Peri but links elsewhere is a firm scam with its own sentence; no model is asked | ✅ 🧪 |
+| **Approving safely** | Web: a second "are you sure?" page with three checks. App: the same checks and the phone's own lock. Opening the family setup also needs the lock once there is a guardian | ✅ 🧪 |
 | **Scam in progress** | If the person is on the phone with an unsaved number, or hung up on one in the last 30 minutes, the guardian's SMS starts with "URGENT" and the page says so, without the number, the call or the message | ✅ 🧪 |
 | **Circle rules** | The first guardian is set at once; later changes need a current guardian's yes and wait 48 h, and the person can cancel | ✅ 🧪 |
 | **Peri's news for guardians** | Optional. Each guardian gets a personal page with the last 7 days: "warned about a message that looked like a scam", "paused them before a money app". Only the kind of event travels, never text, numbers, names, calls, location or apps | ✅ 🧪 |
@@ -102,6 +105,8 @@ open it from the Files app.
 | Muse Voice Transcribe | Peri's ears | Only if turned on in Settings |
 | Muse Image | Every illustration of Peri (122 in the app; about 240 generated in all, ~$2.40) and the 8 designs she was chosen from | Offline, when making the app |
 | Muse Spark 1.3 contributor | 1,306 synthetic training messages for the learned weights | Offline, never for evaluation |
+
+Security and privacy in detail, with what is still open: [`SECURITY.md`](SECURITY.md).
 
 ## 8. Known limits
 
