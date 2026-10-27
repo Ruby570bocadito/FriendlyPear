@@ -70,6 +70,16 @@ export class RateLimiter {
  * The request body as text, or "too_large" past [max] bytes. A declared length over the limit is refused
  * before reading; otherwise the stream is read only until it goes over.
  */
+/**
+ * The client's IP for the limits. Behind one trusted proxy (the tunnel, TRUST_PROXY=1) it is the LAST address in
+ * X-Forwarded-For: that one the proxy added itself, while anything before it the client could have written to dodge
+ * the limits. Without a trusted proxy the header is ignored and the socket's address counts.
+ */
+export function clientIp(forwardedFor: string | null, trustProxy: boolean, socketIp: string | undefined): string {
+  const last = trustProxy ? forwardedFor?.split(",").at(-1)?.trim() : undefined;
+  return last || socketIp || "unknown";
+}
+
 export async function readLimited(req: Request, max: number): Promise<string | "too_large"> {
   const bytes = await readBytesLimited(req, max);
   return bytes === "too_large" ? bytes : new TextDecoder().decode(bytes);

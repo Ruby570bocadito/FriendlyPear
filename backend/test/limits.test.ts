@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { loadConfig } from "../src/config";
 import { GuardianStore } from "../src/guardians/store";
-import { LIMITS, RateLimiter, readLimited } from "../src/limits";
+import { clientIp, LIMITS, RateLimiter, readLimited } from "../src/limits";
 import { createHandler } from "../src/server";
 
 const token = "x".repeat(32);
@@ -65,4 +65,14 @@ test("bodies past the limit are refused, whether the length is declared or not",
   });
   expect(await readLimited(new Request("http://x", { method: "POST", body: stream }), 8 * 1024)).toBe("too_large");
   expect(await readLimited(new Request("http://x", { method: "POST", body: "decision=approve" }), 256)).toBe("decision=approve");
+});
+
+test("behind the tunnel the client's IP is the one the proxy added, so a forged header can't dodge the limits", () => {
+  // A client sends its own X-Forwarded-For; the proxy appends the real address at the end.
+  expect(clientIp("1.2.3.4, 203.0.113.9", true, "127.0.0.1")).toBe("203.0.113.9");
+  expect(clientIp("203.0.113.9", true, "127.0.0.1")).toBe("203.0.113.9");
+  expect(clientIp(null, true, "127.0.0.1")).toBe("127.0.0.1");
+  // Without a trusted proxy the header means nothing.
+  expect(clientIp("1.2.3.4", false, "198.51.100.7")).toBe("198.51.100.7");
+  expect(clientIp(null, false, undefined)).toBe("unknown");
 });
