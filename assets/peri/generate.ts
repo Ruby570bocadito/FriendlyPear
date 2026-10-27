@@ -70,6 +70,8 @@ export const EXTRAS: Record<string, { from: string; prompt: string }> = {
   calm_thumbsup: { from: "calm", prompt: "Only change: Peri gives a big thumbs up with one hand and a proud, warm smile." },
   family: { from: "calm", prompt: "Peri hugging a big warm coral heart with both arms, happy and caring, two small leaves floating around." },
   report: { from: "calm", prompt: "Peri holding a clipboard with a big green check mark, proud and kind expression." },
+  guardian: { from: "calm", prompt: "Peri holding a small phone in both hands in front of her, its screen showing a soft coral heart, looking up warmly and attentively, as if a loved one just asked her something. Same big round dark eyes." },
+  guardian_alert: { from: "calm", prompt: "Peri holding a small phone in both hands in front of her, its screen showing a bold amber exclamation mark, with a serious but caring, alert expression and slightly raised eyebrows, ready to help a loved one. Same big round dark eyes." },
   shield: { from: "calm", prompt: "Peri holding a big green shield with a white leaf emblem in front of the body, confident and friendly smile." },
 };
 
