@@ -7,7 +7,7 @@ Peri, a friendly pear that lives in your phone, reads your messages aloud, calls
 Built for the **Meta Global AI Developer Hackathon** · Indie track · *Build for Your World*.
 
 > All product code was written Oct 27 – Nov 4, 2026. Concept and design documents were drafted before the building period.
-> The app is bilingual (English and Spanish) and follows the phone's language. Internal planning docs under `docs/` are in Spanish.
+> The app is bilingual (English and Spanish): it follows the phone's language, or the one chosen in Settings. Internal planning docs under `docs/` are in Spanish.
 
 ## A companion, not a watchdog
 
@@ -43,7 +43,7 @@ Also working, with unit tests:
 - **Second opinion with Muse Spark Open** (`POST /v1/opinion`, device token): only messages the rules left as doubtful are accepted; the model answers scam / doubt / ok with a confidence, turned into a vote of at most ±2. On the emulator, end to end: a fake "nephew" asking for money → doubtful for the rules, +1.9 from the model → Peri warns, 2.6 s after the SMS; a gym reminder → doubtful, −1.9 → Peri stays quiet, 2.1 s. Peri always speaks her own sentence, never the model's, so a message cannot talk the model into saying something unsafe.
 - **Investigator with Muse Spark** (`POST /v1/investigate`, device token, doubtful messages only): an agent that looks things up before judging, with read-only tools: how old a web domain is (public RDAP registry), cards of known scam scripts, and whether the family has a relation the sender claims (relations only, never names or numbers). At most 3 rounds and 6 lookups. The phone calls it only when a message is still doubtful after the second opinion; both votes together stay within ±2, and the evidence (never the message) is kept on the phone for the family to see in the family setup. Tested on the real API: a fake Correos parcel fee → it checked the domain and the scam cards → scam, +1.9; a pharmacy pickup notice → ok, −1.3.
 
-Peri speaks the phone's language (English or Spanish) and understands orders in both, since families mix them. Scam signals are looked for in both languages whatever the phone's language is. See [`docs/agentes/ROADMAP.md`](docs/agentes/ROADMAP.md) for everything else.
+Peri speaks the phone's language (English or Spanish), or the one chosen in **Settings → Language**, which switches the screens and her voice at once without restarting; she understands orders in both, since families mix them. Scam signals are looked for in both languages whatever the phone's language is. See [`docs/agentes/ROADMAP.md`](docs/agentes/ROADMAP.md) for everything else.
 
 ## For the family
 

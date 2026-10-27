@@ -50,7 +50,7 @@ Hecho (24 h) · En curso · Bloqueado · Peticiones · Propuestas para el roadma
 
 ## 9. Idiomas (D7)
 - El jurado habla inglés. Todo lo que ve va en **inglés**: UI, `README.md`, vídeo, post y textos de la entrega.
-- La app es **bilingüe inglés/español** y sigue el idioma del móvil. En Android, `res/values/` es inglés (idioma por defecto) y `res/values-es/` es español; ninguna cadena de UI va escrita en el código.
+- La app es **bilingüe inglés/español** y sigue el idioma del móvil, o el elegido en Ajustes → Idioma (`LocaleManager`, idioma por app; el APK lleva siempre los dos). En Android, `res/values/` es inglés (idioma por defecto) y `res/values-es/` es español; ninguna cadena de UI va escrita en el código.
 - Peri habla el idioma del móvil (`Lang.ES` o `Lang.EN`) y entiende órdenes en los dos; las señales de estafa se buscan siempre en los dos. Toda frase nueva de Peri se añade en `Phrases` (agente) o `PeriExplainer` (escudo) en las dos lenguas.
 - Código, comentarios y nombres: inglés. Documentación interna (`docs/`), estados y commits: español.
 

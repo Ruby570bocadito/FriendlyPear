@@ -49,6 +49,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [x] (IMP-1) aprobaciones — [M] enlace de un solo uso, 15 min, página del guardián — backend/src/approvals/ · hecho 2026-10-27
 - [x] (IMP-2) mfa-punta-a-punta — [M] MFA familiar con dos móviles — android/ · hecho 2026-10-27 (dos emuladores; SMS entre ellos entregado con adb)
 - [ ] (IMP-1) avisos-familia — [M] inmediatos, ataque en curso, resumen semanal — core/.../alerts/ · a medias: la página del guardián muestra avisos y pausas al momento; falta el resumen semanal por SMS
+- [x] (IMP-2) ajustes-idioma — [S] pantalla de Ajustes (rueda en la cabecera) con Idioma: igual que el móvil, español o inglés; cambia pantallas y voz de Peri sin reiniciar — android/.../ui/peri/SettingsActivity.kt · hecho 2026-10-27
 - [x] (IMP-2) mini-en-llamadas — [S] Mini Peri sale sola junto a la pantalla de la llamada (llamadas que hace Peri y llamadas descolgadas de desconocidos) y se va al colgar — android/.../ui/peri/MiniPeriService.kt · hecho 2026-10-27
 - [x] (IMP-1) novedades-en-disco — [S] enlaces de guardianes (solo hash) y novedades en `backend/data/guardians.json`, escritura atómica — backend/src/guardians/ · hecho 2026-10-27
 - [ ] (IMP-2) iphone — [L] app de iPhone según `docs/IPHONE.md`: `core` con Kotlin Multiplatform, SwiftUI, filtro de SMS, pausa con Screen Time, Live Activity, compartir con Peri — necesita un Mac con Xcode y cuenta de Apple Developer
