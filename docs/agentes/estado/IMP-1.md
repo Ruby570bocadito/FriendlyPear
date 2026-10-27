@@ -15,7 +15,8 @@
   - Dos emuladores (5554 protegido, 5556 guardiana "Ana hija"): abrir el enlace solo hace GET; pulsar "Yes, I approve" → `APPROVED` → se manda "the code is 7350" a Marisa.
   - Registro de auditoría de `/a/` con método y navegador, nunca el enlace.
 - circulo-reglas: `trust/CircleRules.kt`. El primer guardián se pone en el momento; después, cambiar guardianes pide el sí de un guardián actual (enlace de MFA, tipo `circle_change`, a todos los guardianes) y espera 48 h; la persona puede cancelar. La espera se retoma si la app se reinicia (`approvalId`). Probado: "add Marisa" aprobado → "It applies on Oct 29".
-- Tests: core y backend en verde (45 en el backend).
+- investigador: `investigator/` (`tools.ts`, `knowledge.ts`, `investigate.ts`), `POST /v1/investigate` (token, solo DOUBT). Muse Spark con 3 herramientas de solo lectura: `domain_age` (RDAP), `scam_patterns` (10 fichas es/en) y `family_has` (solo relaciones, nunca nombres). Máx. 3 rondas y 6 consultas; la última va sin herramientas. Prueba real: paquete de Correos → scam +1,9; farmacia → ok −1,3; 4 llamadas, ~5,4 k tokens.
+- Tests: core y backend en verde (52 en el backend).
 
 ## En curso
 - Nada.
