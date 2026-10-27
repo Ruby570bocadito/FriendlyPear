@@ -10,6 +10,7 @@ import app.friendlypear.core.shield.SafeAction
 import app.friendlypear.core.shield.Shield
 import app.friendlypear.core.shield.ShieldContext
 import app.friendlypear.core.shield.ShieldWeights
+import app.friendlypear.core.shield.CallStory
 import app.friendlypear.core.shield.Text
 import app.friendlypear.core.shield.Verdict
 import app.friendlypear.core.trust.Risk
@@ -54,6 +55,9 @@ class PeriAgent(
         data object Emergency : Pending
         /** After a call from an unknown number: "who did they say they were?" */
         data class WhoClaimed(val number: String) : Pending
+
+        /** A bank, the police or a company called: what did they ask for? */
+        data object WhatAsked : Pending
     }
 
     /** An incoming call from a number not in the contacts, whether it was answered, and if Peri already warned about the bank. */
@@ -284,6 +288,11 @@ class PeriAgent(
                 }
                 else -> say(p.sayCancelIfFine, Mood.WORRIED)
             }
+            Pending.WhatAsked -> {
+                pending = null
+                if (command == Command.No || command == Command.Cancel) return say(p.callerAdvice)
+                tellStory(CallStory.read(utterance))
+            }
             is Pending.WhoClaimed -> {
                 pending = null
                 answerWhoClaimed(w.number, utterance, command)
@@ -348,7 +357,13 @@ class PeriAgent(
      */
     private fun answerWhoClaimed(number: String, utterance: String, command: Command) {
         if (command == Command.No || command == Command.Cancel) return say(p.callerAdvice)
-        if (officialCaller.containsMatchIn(Text.fold(utterance))) return say(p.officialCaller, Mood.PROTECTIVE)
+        // "The bank, they wanted the code": what they asked for already says it's a scam.
+        val story = CallStory.read(utterance)
+        if (story.asks.isNotEmpty()) return tellStory(story)
+        if (officialCaller.containsMatchIn(Text.fold(utterance))) {
+            pending = Pending.WhatAsked
+            return say("${p.officialCaller} ${p.whatDidTheyAsk}", Mood.PROTECTIVE)
+        }
         when (val r = directory.resolve(utterance)) {
             is Resolution.Found -> {
                 val contact = r.contact
@@ -366,6 +381,32 @@ class PeriAgent(
                 say(question)
             }
             Resolution.NotFound -> say(p.callerAdvice)
+        }
+    }
+
+    /**
+     * What the caller asked for, against the scripts of phone scams: what to do now about that very trick, and,
+     * for a scam, an offer to call the family. A doubt gets the call-back advice; nothing worrying, the usual one.
+     */
+    private fun tellStory(story: CallStory.Reading) {
+        when (story.level) {
+            Level.SCAM -> {
+                val trick = when (story.mainAsk) {
+                    CallStory.Ask.CODE -> p.storyCode
+                    CallStory.Ask.MOVE_MONEY -> p.storyMoney
+                    CallStory.Ask.HAND_OVER -> p.storyHandOver
+                    CallStory.Ask.INSTALL_APP -> p.storyApp
+                    CallStory.Ask.CARD_DETAILS -> p.storyCard
+                    CallStory.Ask.PERSONAL_DATA, null -> p.storyData
+                }
+                val family = emergencyContacts().firstOrNull { it.phones.isNotEmpty() }
+                if (family == null) return say(trick, Mood.PROTECTIVE)
+                val question = p.callFamilyAbout(family.name)
+                pending = Pending.Confirm(Action.Call(family), question)
+                say("$trick $question", Mood.PROTECTIVE)
+            }
+            Level.DOUBT -> say(p.storyDoubt, Mood.PROTECTIVE)
+            else -> say(p.callerAdvice)
         }
     }
 

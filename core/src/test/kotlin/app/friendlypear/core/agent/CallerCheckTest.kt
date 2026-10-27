@@ -108,13 +108,52 @@ class CallerCheckTest {
     }
 
     @Test
-    fun `a bank on the phone - hang up and call the official number yourself`() {
+    fun `a bank on the phone - hang up and call the official number yourself, then what did they ask`() {
+        val d = CallDevice()
+        val a = agent(d, contacts = listOf(laura))
+        a.answeredCall(stranger)
+        a.onHeard("del banco")
+        assertTrue(d.said.last().startsWith("Si decía ser del banco"))
+        assertTrue(d.said.last().endsWith("¿Qué te pidieron?"))
+        assertTrue(a.isWaitingForAnswer)
+        a.onHeard("que les dijera el código que me llegó por SMS")
+        assertTrue(d.said.last().startsWith("Pedirte un código es el truco"))
+        assertTrue(d.said.last().endsWith("¿Llamo a Laura para contárselo?"))
+        a.onHeard("sí")
+        assertEquals(listOf("600111222"), d.calls)
+    }
+
+    @Test
+    fun `what they asked for, told at once, is enough`() {
+        val d = CallDevice()
+        val a = agent(d)
+        a.answeredCall(stranger)
+        a.onHeard("de la policía, que pasara mi dinero a una cuenta segura")
+        assertTrue(d.said.last().startsWith("Mover el dinero a una «cuenta segura» es el truco"))
+    }
+
+    @Test
+    fun `a bank that only wanted to talk is a doubt, and no answer gets the usual advice`() {
         val d = CallDevice()
         val a = agent(d)
         a.answeredCall(stranger)
         a.onHeard("del banco")
-        assertTrue(d.said.last().startsWith("Si decía ser del banco"))
-        assertFalse(a.isWaitingForAnswer)
+        a.onHeard("no me pidieron nada, solo que esperara")
+        assertTrue(d.said.last().startsWith("Vale. Si alguien te pide dinero"))
+        a.answeredCall(stranger)
+        a.onHeard("de Hacienda")
+        a.onHeard("no")
+        assertTrue(d.said.last().startsWith("Vale. Si alguien te pide dinero"))
+    }
+
+    @Test
+    fun `phone-scam scripts in english`() {
+        val d = CallDevice()
+        val a = agent(d, contacts = listOf(laura), lang = Lang.EN)
+        a.answeredCall(stranger)
+        a.onHeard("Microsoft support, they wanted me to install AnyDesk")
+        assertTrue(d.said.last().startsWith("Installing an app they ask for on the phone is the trick"))
+        assertTrue(d.said.last().endsWith("Shall I call Laura to tell them?"))
     }
 
     @Test

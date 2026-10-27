@@ -43,6 +43,17 @@ internal interface Phrases {
     fun notAnyOf(names: String): String
     val officialCaller: String
     val callerAdvice: String
+    /** After "the bank" or "a company": what did they want? */
+    val whatDidTheyAsk: String
+    /** What to do now about the trick the caller tried (a code, a transfer, handing something over, an app, the card, data). */
+    val storyCode: String
+    val storyMoney: String
+    val storyHandOver: String
+    val storyApp: String
+    val storyCard: String
+    val storyData: String
+    val storyDoubt: String
+    fun callFamilyAbout(name: String): String
     fun askingGuardian(names: String): String
     val guardianApproved: String
     val guardianRejected: String
@@ -131,6 +142,22 @@ internal object Spanish : Phrases {
     override val officialCaller =
         "Si decía ser del banco o de una empresa, lo más seguro es colgar y llamar tú al número oficial, el de tu tarjeta o tu factura. Nunca des claves por teléfono."
     override val callerAdvice = "Vale. Si alguien te pide dinero o códigos por teléfono, cuelga y llámale tú a su número de siempre."
+    override val whatDidTheyAsk = "¿Qué te pidieron?"
+    override val storyCode =
+        "Pedirte un código es el truco: ningún banco ni empresa lo pide nunca. No lo des. Si ya lo diste, llama ahora a tu banco al número de tu tarjeta."
+    override val storyMoney =
+        "Mover el dinero a una «cuenta segura» es el truco: ni los bancos ni la policía lo piden nunca. No muevas nada. Si ya lo hiciste, llama ahora a tu banco."
+    override val storyHandOver =
+        "Nadie de verdad manda a alguien a recoger tu tarjeta, dinero o joyas. No entregues nada, y si vienen, no abras y llama a la policía."
+    override val storyApp =
+        "Instalar una app que te piden por teléfono es el truco: con ella entran en tu móvil. No instales nada. Si ya lo hiciste, apaga el móvil y avisa a tu familia."
+    override val storyCard =
+        "Dar los datos de tu tarjeta es el truco. No los des. Si ya los diste, llama a tu banco para bloquearla."
+    override val storyData =
+        "Buscaban tus datos. No des más, y ten cuidado con las llamadas de estos días: pueden usarlos para parecer de verdad."
+    override val storyDoubt =
+        "Puede ser una trampa. No des códigos, dinero ni datos, y llama tú al número oficial para comprobarlo."
+    override fun callFamilyAbout(name: String) = "¿Llamo a $name para contárselo?"
     override fun askingGuardian(names: String) =
         "Mandar un código es delicado, así que se lo pregunto a $names. En cuanto me conteste, te digo. Mientras, aquí sigo."
     override val guardianApproved = "¡Buenas noticias! Tu familia lo ha aprobado."
@@ -234,6 +261,22 @@ internal object English : Phrases {
     override val officialCaller =
         "If they said they were your bank or a company, the safest thing is to hang up and call the official number yourself, the one on your card or bill. Never give passwords over the phone."
     override val callerAdvice = "OK. If anyone asks you for money or codes on the phone, hang up and call them back on their usual number."
+    override val whatDidTheyAsk = "What did they ask you for?"
+    override val storyCode =
+        "Asking for a code is the trick: no bank or company ever does. Don't give it. If you already did, call your bank now on the number on your card."
+    override val storyMoney =
+        "Moving your money to a \"safe account\" is the trick: banks and the police never ask that. Don't move anything. If you already did, call your bank now."
+    override val storyHandOver =
+        "Nobody genuine sends someone to collect your card, cash or jewellery. Don't hand anything over, and if they come, don't open the door and call the police."
+    override val storyApp =
+        "Installing an app they ask for on the phone is the trick: it lets them into your phone. Don't install anything. If you already did, switch the phone off and tell your family."
+    override val storyCard =
+        "Giving your card details is the trick. Don't give them. If you already did, call your bank to block the card."
+    override val storyData =
+        "They were after your details. Don't give any more, and be careful with calls in the next few days: they can use them to sound genuine."
+    override val storyDoubt =
+        "It could be a trap. Don't give codes, money or details, and call the official number yourself to check."
+    override fun callFamilyAbout(name: String) = "Shall I call $name to tell them?"
     override fun askingGuardian(names: String) =
         "Sending a code is delicate, so I'm asking $names. As soon as they answer, I'll tell you. I'm still here meanwhile."
     override val guardianApproved = "Good news! Your family has approved it."
