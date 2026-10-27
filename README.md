@@ -19,6 +19,8 @@ Scams work because they **isolate** the victim and **rush** them: "Mum, I broke 
 
 ## What already works
 
+Every feature, how it decides, how it was tested and how to try it: [`docs/FEATURES.md`](docs/FEATURES.md).
+
 Tested on the Android emulator (API 37) on Oct 27, in English and in Spanish:
 
 | Moment | What happens |
@@ -145,7 +147,7 @@ Secrets never go in the repo: the backend reads `backend/.env` (see `.env.exampl
 
 ## Privacy
 
-Only doubtful messages ever leave the phone, plus what the person chooses to send: a picture they show Peri, and their voice orders if they turn on Muse Voice Transcribe in Settings (off by default; Android's own recognizer otherwise). None of it is stored. Contacts are read on the phone and never sent anywhere. Permissions are asked one at a time, the first time they are needed, and Peri first says what each one is for and what she won't do with it. Reading texts is optional: Android locks it for apps installed from a file, so Peri also protects from notifications alone, and the step can be hidden. A "no" is respected: Peri says what still works (for example, she gives you the number to dial yourself) and never asks again on every start. Peri never accesses call audio, and the microphone stays closed during any phone call, even on speaker.
+Only doubtful messages ever leave the phone, plus what the person chooses to send: a picture they show Peri, and their voice orders if they turn on Muse Voice Transcribe in Settings (off by default; Android's own recognizer otherwise). None of it is stored. Contacts are read on the phone and never sent anywhere. Permissions are asked one at a time, the first time they are needed, and Peri first says what each one is for and what she won't do with it. Reading texts is optional: Android locks it for apps installed from a file, so Peri also protects from notifications alone, and the step can be hidden. For those locked settings, Peri's **unlock guide** walks through Android's own three steps (try once, allow restricted settings, turn it on). A "no" is respected: Peri says what still works (for example, she gives you the number to dial yourself) and never asks again on every start. Peri never accesses call audio, and the microphone stays closed during any phone call, even on speaker.
 
 Security of the backend, whose guardian links are public URLs: requests are limited per IP (30 a minute on `/a/` and `/g/`, 240 on the phone's API), an IP that keeps sending wrong device tokens is shut out for 15 minutes, bodies are capped and read only up to the limit, and every answer carries security headers (no sniffing, no referrer, no embedding, CSP on pages, HSTS over HTTPS). Link tokens are stored only as hashes. Release builds speak HTTPS only; plain HTTP to the developer's machine exists in debug builds alone, and the debug voice bridge only answers `adb`.
 

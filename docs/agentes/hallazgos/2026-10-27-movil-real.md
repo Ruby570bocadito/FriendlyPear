@@ -32,3 +32,13 @@ La persona eligió el diseño de plastilina 3D. Se rehizo toda Peri con ese dise
 ## Peri menos estática
 
 "Es muy estático, mejora las animaciones de piernas o idle": 16 fotogramas nuevos con un pie en alto (todos los estados despiertos, 0,16 $) y un sistema de acciones en reposo en `PeriFace`: cada 7–13 s, si está libre, un saltito (con impulso y aplastamiento al caer), unos pasitos en el sitio, mirar a los lados, estirarse o saludar, según el estado. Además: peso de lado a lado con la inclinación, aplastamiento al aterrizar cada bote cuando está contenta (corre en el sitio) y un cabeceo con cada palabra. Mini Peri baja de 128 a 100 dp ("la pera es muy grande como mascota") y la pantalla entra con un fundido escalonado; las tarjetas llevan un borde verde suave. Probado 20 s en el emulador: pasitos y balanceo visibles, sin fotogramas de otro estado.
+
+## Tercera ronda: el muro de las notificaciones
+
+| Qué pasó | Causa | Arreglo |
+|---|---|---|
+| "No me deja poner el permiso de notificaciones" | Ajustes restringidos (Android 13+, app instalada desde un archivo): el interruptor sale gris ("Controlado por ajuste restringido") y "Permitir ajustes restringidos" solo aparece en el menú ⋮ después de intentarlo una vez | `UnlockActivity`: guía de 3 pasos en ese orden, cada uno abre la pantalla exacta y se marca; se detecta por `packageSource` (archivo local o descargado). Probado instalando desde Descargas en el emulador: interruptor gris → "Se ha denegado el acceso" → ⋮ → permitido → diálogo normal de acceso |
+| Al abrir la app por primera vez salía "Se ha denegado el acceso a SMS… información personal y financiera" | El primer arranque pedía SMS, y estando bloqueada Android responde con ese aviso | Si está bloqueada, no se piden SMS al arrancar; el bocadillo y la tarjeta llevan a la guía |
+| La "×" para guardar a Mini Peri "es como un muro" | Disco oscuro con borde y etiqueta oscura | Degradado suave abajo, disco blanco con "×" gris, texto blanco con sombra; encima se pone rojo y dice "Suelta para guardarla" |
+| SMS reales en el emulador | — | 7 casos (`adb emu sms send` y llamada con `adb emu gsm`): Correos falso, "número nuevo", hija, código de Google, sobrino, enlace `http://` de un contacto, código durante llamada. Fallos encontrados: "200 EUR" y "me prestas" no contaban como dinero; la frase del enlace decía "tiene un enlace" dos veces. Arreglados con tests |
+| "Dale más vida" | — | Chispas al tener una idea, pulgar arriba, contenta o al aterrizar; mira hacia donde tocas la pantalla; el bocadillo se escribe mientras habla; se aplasta al tocarla (ahora dentro de `PeriFace`, sin aviso de lint) |

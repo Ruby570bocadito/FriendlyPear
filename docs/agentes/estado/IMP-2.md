@@ -4,8 +4,7 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
 
 ## Hecho (24 h)
 - android-servicios: `AndroidDevice` (TTS cálida, llamadas, SMS, ubicación; un fallo lanza excepción → plan B), `VoiceInput` (2 s de silencio), `MessageListener` (WhatsApp y correo), `SmsReceiver` (`RECEIVE_SMS`: Android 15 oculta los códigos a los lectores de notificaciones), `CallStateWatcher` (sonando/descolgada, nunca el audio), `PeriHub` (un solo agente; registro sin texto ni remitente), `PhoneContacts` ("Laura hija" → relación hija).
-  - Momentos 1 y 2 en español e inglés: número nuevo → llamada a la hija; código durante llamada → "cuelga".
-- filtro-llamadas: `CallScreener` (`CallScreeningService`, nunca bloquea ni escucha): aviso al sonar y verificación al colgar.
+  - Momentos 1 y 2 en español e inglés: número nuevo → llamada a la hija; código durante llamada → "cuelga". filtro-llamadas: `CallScreener` (`CallScreeningService`, nunca bloquea ni escucha): aviso al sonar y verificación al colgar.
 - permisos-progresivos: `config/Need.kt` + `config/PermissionGate.kt`, uno a uno y con la frase de Peri.
   - Primer arranque: agenda → SMS entrantes → estado de llamada → rol de filtro → notificaciones, una sola vez cada uno.
   - Al usarlos: micrófono ("Hablar"), llamar y enviar SMS (`DevicePort.prepare`), ubicación (cuenta atrás de emergencia).
@@ -19,6 +18,7 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
 - mira-esta-imagen (móvil): `PictureActivity` (selector de fotos o compartir), `MarkedPicture` (anillo rojo y etiqueta), frase propia de Peri por tipo de riesgo; tras un timo se activa la pausa. Con `adb` no se puede compartir una foto (no tiene permiso): probado con el selector.
 - ajustes-idioma: `SettingsActivity` + `LocaleManager` (Android 13+; `localeConfig`, `bundle.language.enableSplit = false`); `PeriApp.onConfigurationChanged` → `PeriHub.languageChanged()` cambia voz y agente y Peri lo dice en el nuevo idioma. Probado: español ↔ igual que el móvil.
 - peri-mini y mini-en-llamadas: `MiniPeriService` (primer plano tipo micrófono o `specialUse`), ventana `TYPE_APPLICATION_OVERLAY`: solo la pera (128 dp), bocadillo con cola que encoge la letra, sale con un bote, se desliza al lado más cercano, "×" abajo para guardarla, anillo al escuchar; sale sola junto a la llamada y se va al colgar. Abrir la app la guarda.
+- movil-real-3: `UnlockActivity` (ajustes restringidos en 3 pasos; `restricted()` por `packageSource` 3/4), sin pedir SMS al arrancar si está bloqueada; "×" de Mini Peri ligera; `Sparkles`, `lookToward`, bocadillo que se escribe; dinero "200 EUR"/"me prestas"; `docs/FEATURES.md`.
 - peri-plastilina y peri-viva: Peri en plastilina 3D (base `concepts/concept_clay.webp`), 98 imágenes (0,98 $; `cutout.py` quita el suelo); fotogramas de pasos y acciones solas cada pocos segundos (saltito, pasitos, mirar, estirarse, saludar), peso al lado, aplastamiento al aterrizar, cabeceo al hablar; contenta corre en el sitio. Mini Peri a 100 dp; entrada suave de la pantalla y tarjetas con borde verde. movil-real-2: SMS opcional (pasos con "×"), "La voz de Peri" en Ajustes (`AndroidDevice.voices`/`chooseVoice`), poses idea/perdón/pulgar (`PeriMoment`), 8 diseños en `assets/peri/concepts/`.
 
 ## Cómo probar sin micrófono (solo builds de depuración)
