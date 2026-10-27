@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FriendlyPear</string>
+    <string name="peri_greeting">Hola, soy Peri. Estoy aquí para ayudarte.</string>
+    <string name="talk">Hablar con Peri</string>
+    <string name="listening">Te escucho…</string>
+    <string name="notification_access">Dejar que Peri lea los avisos de mensajes</string>
+    <string name="no_recognizer">Este móvil no tiene reconocimiento de voz.</string>
+    <string name="permissions_why">Para entenderte, saber quién es de tu familia, avisarte durante una llamada, llamar y mandar mensajes cuando tú digas que sí y, solo en una emergencia, mandar tu ubicación, Peri te va a pedir permiso. Todo se queda en tu móvil.</string>
+    <string name="listener_name">Peri: lector de mensajes</string>
+</resources>
