@@ -47,3 +47,9 @@ Cada agente en su `git worktree --detach`. Puerto del backend: IMP-1 8711 · IMP
 
 ## 8. Estado vivo `estado/<ID>.md`
 Hecho (24 h) · En curso · Bloqueado · Peticiones · Propuestas para el roadmap.
+
+## 9. Idiomas (D7)
+- El jurado habla inglés. Todo lo que ve va en **inglés**: UI, `README.md`, vídeo, post y textos de la entrega.
+- La app es **bilingüe inglés/español** y sigue el idioma del móvil. En Android, `res/values/` es inglés (idioma por defecto) y `res/values-es/` es español; ninguna cadena de UI va escrita en el código.
+- Peri (escudo, agente, voz) se escribe con las dos lenguas desde la tarea `peri-bilingue`; hasta entonces habla español.
+- Código, comentarios y nombres: inglés. Documentación interna (`docs/`), estados y commits: español.
