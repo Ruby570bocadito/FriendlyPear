@@ -67,6 +67,10 @@ class PeriAgent(
     private var strangeCall: StrangeCall? = null
     private var lastSaid = ""
 
+    /** How Peri looks right now; the screen shows the matching illustration. */
+    var mood: Mood = Mood.CALM
+        private set
+
     /** True while Peri waits for a "yes", a name or a "cancel"; Android keeps the microphone open. */
     val isWaitingForAnswer: Boolean get() = pending != null
 
@@ -86,7 +90,7 @@ class PeriAgent(
             strangeCall = null
             if (call?.answered == true && pending == null) {
                 pending = Pending.WhoClaimed(call.number)
-                say(p.whoClaimed)
+                say(p.whoClaimed, Mood.WORRIED)
             }
         }
     }
@@ -99,10 +103,10 @@ class PeriAgent(
         val app = RemoteApps.nameOf(packageName) ?: return
         val warning = p.remoteAppInstalled(app, onCall = callActive)
         val guardian = emergencyContacts().firstOrNull()
-        if (guardian == null || pending == Pending.Emergency) return say(warning)
+        if (guardian == null || pending == Pending.Emergency) return say(warning, Mood.PROTECTIVE)
         val question = p.tellFamily(guardian.name)
         pending = Pending.Confirm(Action.SendSms(guardian, p.remoteAppFamilyText(app)), question)
-        say("$warning $question")
+        say("$warning $question", Mood.PROTECTIVE)
     }
 
     /**
@@ -113,7 +117,7 @@ class PeriAgent(
         val call = strangeCall ?: return
         if (!callActive || !call.answered || call.bankWarned || !BankApps.isBank(packageName)) return
         call.bankWarned = true
-        say(p.bankDuringCall)
+        say(p.bankDuringCall, Mood.PROTECTIVE)
     }
 
     /** Before picking up: warns when the number isn't in the contacts. Never blocks or answers the call. */
@@ -123,7 +127,7 @@ class PeriAgent(
             return
         }
         strangeCall = StrangeCall(number)
-        say(p.unknownCaller(hasFamilyWord))
+        say(p.unknownCaller(hasFamilyWord), Mood.WORRIED)
     }
 
     /**
@@ -136,6 +140,7 @@ class PeriAgent(
         if (unread.size > MAX_UNREAD) unread.removeFirst()
         if (secondOpinion && verdict.level == Level.DOUBT) {
             awaitingOpinion += message
+            if (pending != Pending.Emergency) mood = Mood.THINKING
             return verdict
         }
         announce(verdict)
@@ -153,24 +158,26 @@ class PeriAgent(
         val before = if (index >= 0) unread[index].verdict else shield.evaluate(message, ShieldContext(contacts, callActive))
         val after = if (delta == null) before else shield.withModelOpinion(before, delta)
         if (index >= 0) unread[index] = Received(message, after)
+        if (after.level == Level.OK && mood == Mood.THINKING) mood = Mood.CALM
         announce(after)
         return after
     }
 
     private fun announce(verdict: Verdict) {
         if (verdict.level == Level.OK || pending == Pending.Emergency) return
+        val warned = if (verdict.level == Level.SCAM) Mood.PROTECTIVE else Mood.WORRIED
 
         val real = if (verdict.safeAction == SafeAction.CALL_SAVED_CONTACT) family(verdict.claimedRelation) else emptyList()
         when (real.size) {
-            0 -> say(verdict.explanation)
+            0 -> say(verdict.explanation, warned)
             1 -> {
                 pending = Pending.Confirm(Action.Call(real[0]), p.callUsual(real[0].name))
-                say(p.offerCall(verdict.explanation, real[0].name))
+                say(p.offerCall(verdict.explanation, real[0].name), warned)
             }
             else -> {
                 val question = p.whoToCall(speech.names(real.map { it.name }))
                 pending = Pending.Choose(real, { Action.Call(it) }, question)
-                say("${verdict.explanation} $question")
+                say("${verdict.explanation} $question", warned)
             }
         }
     }
@@ -186,9 +193,9 @@ class PeriAgent(
             Pending.Emergency -> when (command) {
                 Command.Cancel, Command.No -> {
                     pending = null
-                    say(p.emergencyCancelled)
+                    say(p.emergencyCancelled, Mood.HAPPY)
                 }
-                else -> say(p.sayCancelIfFine)
+                else -> say(p.sayCancelIfFine, Mood.WORRIED)
             }
             is Pending.WhoClaimed -> {
                 pending = null
@@ -236,15 +243,15 @@ class PeriAgent(
         pending = null
         val family = emergencyContacts()
         if (family.isEmpty()) {
-            say(p.noFamily)
+            say(p.noFamily, Mood.WORRIED)
             return
         }
         val location = device.lastKnownLocation()
         val text = p.emergencySms(location)
         family.forEach { c -> c.phones.firstOrNull()?.let { phone -> attempt { device.sendSms(phone, text) } } }
-        say(p.alerting(family.first().name))
+        say(p.alerting(family.first().name), Mood.CALLING)
         if (family.none { c -> c.phones.any { attempt { device.call(it) } } }) {
-            say(p.couldNotCallAnyone)
+            say(p.couldNotCallAnyone, Mood.WORRIED)
         }
     }
 
@@ -254,7 +261,7 @@ class PeriAgent(
      */
     private fun answerWhoClaimed(number: String, utterance: String, command: Command) {
         if (command == Command.No || command == Command.Cancel) return say(p.callerAdvice)
-        if (officialCaller.containsMatchIn(Text.fold(utterance))) return say(p.officialCaller)
+        if (officialCaller.containsMatchIn(Text.fold(utterance))) return say(p.officialCaller, Mood.PROTECTIVE)
         when (val r = directory.resolve(utterance)) {
             is Resolution.Found -> {
                 val contact = r.contact
@@ -262,7 +269,7 @@ class PeriAgent(
                     return say(p.callerAdvice)
                 }
                 pending = Pending.Confirm(Action.Call(contact), p.callUsual(contact.name))
-                say(p.notTheirNumber(contact.name, hasFamilyWord))
+                say(p.notTheirNumber(contact.name, hasFamilyWord), Mood.PROTECTIVE)
             }
             is Resolution.Ambiguous -> {
                 val reachable = r.candidates.filter { it.phones.isNotEmpty() }
@@ -282,7 +289,7 @@ class PeriAgent(
             is Command.ReadMessages -> readMessages(command.onlyLast)
             Command.Emergency -> {
                 pending = Pending.Emergency
-                say(p.countdown(emergencyContacts().firstOrNull()?.name))
+                say(p.countdown(emergencyContacts().firstOrNull()?.name), Mood.WORRIED)
                 // Whatever is still missing is asked during the countdown; when it ends, Peri uses what it has.
                 device.prepare(Capability.CALL) { device.prepare(Capability.SEND_SMS) { device.prepare(Capability.LOCATION) {} } }
             }
@@ -347,7 +354,7 @@ class PeriAgent(
             if (!allowed) return@prepare say(p.couldNotAsk)
             val ticket = "approval-${++tickets}"
             awaitingGuardian = AwaitingGuardian(ticket, action)
-            say(p.askingGuardian(speech.names(guardians.take(3).map { it.name })))
+            say(p.askingGuardian(speech.names(guardians.take(3).map { it.name })), Mood.WAITING)
             approvals.request(ticket, ApprovalKind.SEND_CODE, action.contact.name, guardians.take(3)) { url ->
                 p.guardianSms(action.contact.name, url)
             }
@@ -360,7 +367,7 @@ class PeriAgent(
         awaitingGuardian = null
         when (result) {
             ApprovalResult.APPROVED -> {
-                say(p.guardianApproved)
+                say(p.guardianApproved, Mood.HAPPY)
                 perform(waiting.action)
             }
             ApprovalResult.REJECTED -> say(p.guardianRejected)
@@ -391,14 +398,14 @@ class PeriAgent(
         val phones = action.contact.phones
         when (action) {
             is Action.Call -> {
-                say(p.calling(name))
+                say(p.calling(name), Mood.CALLING)
                 if (phones.none { attempt { device.call(it) } }) {
                     say(p.callFailed(name, SafeSpeech.phone(phones.first())))
                 }
             }
             is Action.SendSms -> {
                 if (phones.any { attempt { device.sendSms(it, action.text) } }) {
-                    say(p.smsSent(name))
+                    say(p.smsSent(name), Mood.HAPPY)
                 } else {
                     val question = p.smsFailedOfferCall(name)
                     pending = Pending.Confirm(Action.Call(action.contact), question)
@@ -451,7 +458,9 @@ class PeriAgent(
         false
     }
 
-    private fun say(text: String) {
+    /** Peri speaks and her face follows: most sentences are calm, warnings and waits say so. */
+    private fun say(text: String, mood: Mood = Mood.CALM) {
+        this.mood = mood
         lastSaid = text
         device.speak(text)
     }
