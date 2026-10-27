@@ -1,6 +1,6 @@
 /**
  * Peri's illustrated states with Muse Image (muse-image-1.0, $0.01 per image).
- * 1. One base Peri from the description in docs/DISENO.md.
+ * 1. One base Peri: the clay design the person chose (concepts/concept_clay.webp, copied to peri_base.webp).
  * 2. Each state as an edit of that base, so it stays the same character.
  * 3. Animation frames: small edits of each state's own image (a blink, talking, the leaf swaying), so the
  *    app can move between them smoothly.
@@ -8,7 +8,7 @@
  *
  *   cd backend; bun ../assets/peri/generate.ts                  all states (10 images, about $0.10)
  *   cd backend; bun ../assets/peri/generate.ts happy            only the named states, from the saved base
- *   cd backend; bun ../assets/peri/generate.ts frames           4 frames per state (36 images, about $0.36)
+ *   cd backend; bun ../assets/peri/generate.ts frames           7 frames per state (63 images, about $0.63)
  *   cd backend; bun ../assets/peri/generate.ts frames calm      only the named states' frames
  *   cd backend; bun ../assets/peri/generate.ts frames --frame=blinkhalf,talkwide   only those frames
  *   cd backend; bun ../assets/peri/generate.ts extras           the app icon and the illustrations for screens
@@ -23,12 +23,13 @@ const base = process.env.META_API_BASE ?? "https://api.meta.ai/v1";
 const key = process.env.META_API_KEY;
 if (!key) throw new Error("META_API_KEY is missing in backend/.env");
 
+// Clay 3D, chosen by the person among eight designs (assets/peri/concepts/); the base is concepts/concept_clay.webp.
 const STYLE =
-  "Flat vector illustration for a friendly phone app, clean shapes, soft shading, thick rounded outlines, no text, no letters, " +
-  "centered character with space around it, plain warm cream background (#FFF8EC).";
+  "Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, " +
+  "centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.";
 
 const CHARACTER =
-  "Peri, a cute round green pear mascot (#7CC242) with a small yellow highlight, one leaf on top of a short brown stem, " +
+  "Peri, a cute round green pear mascot (#7CC242) made of clay, one leaf on top of a short brown stem, " +
   "big friendly dark eyes, rosy cheeks, small arms and legs, kind and gentle look, suitable for older adults.";
 
 export const STATES: Record<string, string> = {
@@ -52,8 +53,6 @@ export const FRAMES: Record<string, string> = {
   glanceleft: "Only change: both pupils look towards the left side of the image, as if glancing at something there; head, body, mouth and everything else stay exactly the same. If the eyes are closed, keep them closed.",
   glanceright: "Only change: both pupils look towards the right side of the image, as if glancing at something there; head, body, mouth and everything else stay exactly the same. If the eyes are closed, keep them closed.",
   talko: "Only change: the mouth is a small round 'o' shape, as if saying 'oh', keeping the same eyes and expression. If sleeping, the mouth is a tiny relaxed line.",
-  swayleft: "Only change: the leaf on top bends a little to the left and the whole body tilts very slightly (about 3 degrees) to the left.",
-  swayright: "Only change: the leaf on top bends a little to the right and the whole body tilts very slightly (about 3 degrees) to the right.",
 };
 
 /** Illustrations made from one state, for the app icon and the screens around Peri. */
@@ -103,8 +102,10 @@ if (framesMode) {
   for (const state of Object.keys(STATES)) {
     if (only.length && !only.includes(state)) continue;
     const reference = `data:image/webp;base64,${readFileSync(join(here, `peri_${state}.webp`)).toString("base64")}`;
-    for (const [frame, change] of Object.entries(FRAMES)) {
+    for (const [frame, plain] of Object.entries(FRAMES)) {
       if (pickedFrames && !pickedFrames.includes(frame)) continue;
+      // A worried Peri talks worried: the wide mouth otherwise comes out as a happy grin.
+      const change = state === "worried" ? `${plain.replace("happy rounded", "concerned rounded")} Keep the worried eyebrows and the concerned look; she is not smiling.` : plain;
       const prompt = `Exactly the same image: same character, same pose, same framing, same size and position, same background and props. ${change} ${STYLE}`;
       const image = await call("/images/edits", { model: "muse-image-1.0", prompt, images: [{ image_url: reference }], n: 1, size: "1024x1024", output_format: "webp" });
       prompts.push(save(`${state}_${frame}`, image, prompt));

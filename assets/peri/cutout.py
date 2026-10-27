@@ -19,7 +19,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "..", "android", "app", "src", "main", "res", "drawable-nodpi")
 
 STATES = ["calm", "listening", "thinking", "worried", "protective", "calling", "waiting", "happy", "sleeping"]
-# Frames the app animates with; the sway frames stay in assets/ (the app sways her with a smooth tilt instead).
+# Frames the app animates with (the app sways her with a smooth tilt, so there are no sway frames).
 FRAMES = ["", "_blink", "_blinkhalf", "_talk", "_talkwide", "_talko", "_glanceleft", "_glanceright"]
 EXTRAS = ["calm_wave1", "calm_wave2", "calm_idea", "calm_sorry", "calm_thumbsup", "family", "report", "shield", "icon"]
 
@@ -62,8 +62,16 @@ def cut(path: str) -> Image.Image:
     step = 8
     seeds = [(x, 0) for x in range(0, w, step)] + [(x, h - 1) for x in range(0, w, step)]
     seeds += [(0, y) for y in range(0, h, step)] + [(w - 1, y) for y in range(0, h, step)]
+    # Clay renders light the floor differently from the wall: each edge is compared with its own colour too.
+    edges = {"top": np.median(rgb[0], axis=0), "bottom": np.median(rgb[-1], axis=0),
+             "left": np.median(rgb[:, 0], axis=0), "right": np.median(rgb[:, -1], axis=0)}
+
+    def near_edge(x: int, y: int) -> bool:
+        edge = "top" if y == 0 else "bottom" if y == h - 1 else "left" if x == 0 else "right"
+        return np.abs(rgb[y, x] - edges[edge]).sum() < FILL_THRESHOLD
+
     for x, y in seeds:
-        if diff[y, x] < FILL_THRESHOLD and filled.getpixel((x, y)) != SENTINEL:
+        if (diff[y, x] < FILL_THRESHOLD or near_edge(x, y)) and filled.getpixel((x, y)) != SENTINEL:
             ImageDraw.floodfill(filled, (x, y), SENTINEL, thresh=FILL_THRESHOLD)
     outside = np.all(np.asarray(filled) == SENTINEL, axis=2)
 
@@ -71,6 +79,12 @@ def cut(path: str) -> Image.Image:
     pockets = Image.fromarray(((diff < POCKET_THRESHOLD) & ~outside).astype(np.uint8) * 255)
     pockets = pockets.filter(ImageFilter.MinFilter(7)).filter(ImageFilter.MaxFilter(7))
     transparent = outside | large_regions(pockets)
+    # The floor and its shadow under her feet: warm beige or brown (never her green, nor bright confetti), in the bottom fifth.
+    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    top, low = rgb.max(axis=2), rgb.min(axis=2)
+    floor = (r >= g) & (g > b) & (top > 80) & ((top - low) < 0.55 * top)
+    floor[: int(h * 0.8)] = False
+    transparent |= floor
 
     alpha = Image.fromarray(np.where(transparent, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(0.8))
     a = np.asarray(alpha).astype(np.float32) / 255.0
