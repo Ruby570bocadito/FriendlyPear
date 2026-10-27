@@ -9,4 +9,5 @@
     <string name="no_recognizer">Oh dear, this phone can\'t understand speech. You can still read what I say here.</string>
     <string name="permissions_why">I\'m going to ask you for a few permissions so I can look after you: to understand you, to know who your family is, to warn you during a call, to call and send messages only when you say yes and, just in an emergency, to share where you are. Everything stays on your phone.</string>
     <string name="listener_name">Peri: message reader</string>
+    <string name="calls_why">To warn you before you pick up a call from a number that isn\'t in your contacts, I\'ll ask to check incoming calls. I only see the number: I never block or listen to your calls.</string>
 </resources>

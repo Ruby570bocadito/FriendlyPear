@@ -59,6 +59,16 @@
             </intent-filter>
         </service>
 
+        <!-- Sees incoming numbers before pickup to warn about strangers; never blocks or hears the call. -->
+        <service
+            android:name=".services.CallScreener"
+            android:exported="true"
+            android:permission="android.permission.BIND_SCREENING_SERVICE">
+            <intent-filter>
+                <action android:name="android.telecom.CallScreeningService" />
+            </intent-filter>
+        </service>
+
         <receiver
             android:name=".services.SmsReceiver"
             android:exported="true"

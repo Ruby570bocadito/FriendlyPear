@@ -49,11 +49,11 @@ class PeriHub(context: Context) {
     private var contacts: List<Contact>? = null
     private var agent = PeriAgent(device, emptyList(), lang)
     private var callActive = false
-    private val calls = CallStateWatcher(this.context) { active ->
+    private val calls = CallStateWatcher(this.context) { active, answered ->
         main.post {
-            Log.i(TAG, "call active=$active")
+            Log.i(TAG, "call active=$active answered=$answered")
             callActive = active
-            agent.onCallStateChanged(active)
+            agent.onCallStateChanged(active, answered)
         }
     }
     private val countdownEnd = Runnable { agent.onEmergencyTimeout() }
@@ -96,6 +96,13 @@ class PeriHub(context: Context) {
                 Log.i(TAG, "second opinion delta=${delta ?: "none"} level=${after?.level}")
             }
         }
+    }
+
+    /** From [CallScreener], before the call is picked up. The number itself is never logged. */
+    fun onIncomingCall(number: String) = main.post {
+        if (contacts == null) refreshNow()
+        agent.onIncomingCall(number)
+        Log.i(TAG, "incoming call screened")
     }
 
     fun heard(utterance: String) = main.post {

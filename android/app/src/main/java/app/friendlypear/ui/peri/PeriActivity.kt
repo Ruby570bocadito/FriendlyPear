@@ -2,6 +2,7 @@ package app.friendlypear.ui.peri
 
 import android.Manifest
 import android.app.Activity
+import android.app.role.RoleManager
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -70,7 +71,23 @@ class PeriActivity : Activity() {
         if (missing.isNotEmpty()) {
             said.text = getString(R.string.permissions_why)
             requestPermissions(missing.toTypedArray(), REQUEST_PERMISSIONS)
+        } else {
+            askToScreenCalls()
         }
+    }
+
+    /** The call-screening role shows Peri the number before pickup. Asked once, with a sentence that says what for. */
+    private fun askToScreenCalls() {
+        val roles = getSystemService(RoleManager::class.java) ?: return
+        if (!roles.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING) || roles.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)) return
+        said.text = getString(R.string.calls_why)
+        startActivityForResult(roles.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING), REQUEST_SCREENING)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_SCREENING) said.text = hub.lastSaid.ifEmpty { getString(R.string.peri_greeting) }
     }
 
     override fun onResume() {
@@ -100,6 +117,7 @@ class PeriActivity : Activity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         hub.refresh()
         said.text = hub.lastSaid.ifEmpty { getString(R.string.peri_greeting) }
+        askToScreenCalls()
     }
 
     private fun listen() {
@@ -117,6 +135,7 @@ class PeriActivity : Activity() {
 
     private companion object {
         const val REQUEST_PERMISSIONS = 1
+        const val REQUEST_SCREENING = 2
         val PERMISSIONS = listOf(
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.READ_CONTACTS,

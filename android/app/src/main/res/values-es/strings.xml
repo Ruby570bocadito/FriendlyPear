@@ -8,4 +8,5 @@
     <string name="no_recognizer">Vaya, este móvil no entiende la voz. Aun así, aquí puedes leer lo que te digo.</string>
     <string name="permissions_why">Te voy a pedir unos permisos para poder cuidarte: para entenderte, saber quién es de tu familia, avisarte durante una llamada, llamar y mandar mensajes solo cuando tú digas que sí y, únicamente en una emergencia, decir dónde estás. Todo se queda en tu móvil.</string>
     <string name="listener_name">Peri: lector de mensajes</string>
+    <string name="calls_why">Para avisarte antes de descolgar cuando te llame un número que no está en tu agenda, te voy a pedir revisar las llamadas entrantes. Solo veo el número: nunca bloqueo ni escucho tus llamadas.</string>
 </resources>

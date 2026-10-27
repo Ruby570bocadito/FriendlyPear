@@ -7,12 +7,13 @@ import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 
 /** Tells the agent when a call starts or ends; it never touches the call's audio. */
-class CallStateWatcher(context: Context, private val onChange: (active: Boolean) -> Unit) {
+class CallStateWatcher(context: Context, private val onChange: (active: Boolean, answered: Boolean) -> Unit) {
     private val context = context.applicationContext
     private var started = false
 
     private val callback = object : TelephonyCallback(), TelephonyCallback.CallStateListener {
-        override fun onCallStateChanged(state: Int) = onChange(state != TelephonyManager.CALL_STATE_IDLE)
+        override fun onCallStateChanged(state: Int) =
+            onChange(state != TelephonyManager.CALL_STATE_IDLE, state == TelephonyManager.CALL_STATE_OFFHOOK)
     }
 
     /** Returns false while the phone-state permission is missing; call again once it is granted. */
