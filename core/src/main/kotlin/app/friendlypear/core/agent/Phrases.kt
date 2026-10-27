@@ -49,6 +49,8 @@ internal interface Phrases {
     val guardianSilent: String
     val couldNotAsk: String
     fun guardianSms(toName: String, url: String): String
+    fun callWithoutPermission(name: String, phone: String): String
+    fun smsWithoutPermission(name: String): String
     val or: String
     fun quote(text: String): String
     val link: String
@@ -126,6 +128,10 @@ internal object Spanish : Phrases {
     override val couldNotAsk = "No he podido preguntar a tu familia ahora mismo, así que no lo mando. Lo intentamos más tarde."
     override fun guardianSms(toName: String, url: String) =
         "Peri: tu familiar quiere mandar a $toName un mensaje con un código y te pide permiso. Decide aquí (caduca en 15 minutos): $url"
+    override fun callWithoutPermission(name: String, phone: String) =
+        "Vale, sin ese permiso no llamo yo. El número de $name es $phone; si quieres, márcalo tú. Puedes darme el permiso cuando quieras."
+    override fun smsWithoutPermission(name: String) =
+        "Vale, sin ese permiso no mando mensajes. Puedes escribir a $name desde tu app de mensajes. Puedes darme el permiso cuando quieras."
     override val or = "o"
     override fun quote(text: String) = "«$text»"
     override val link = "un enlace"
@@ -193,6 +199,10 @@ internal object English : Phrases {
     override val couldNotAsk = "I couldn't ask your family right now, so I won't send it. Let's try again later."
     override fun guardianSms(toName: String, url: String) =
         "Peri: your relative wants to send $toName a message with a code and asks for your OK. Decide here (expires in 15 minutes): $url"
+    override fun callWithoutPermission(name: String, phone: String) =
+        "OK, without that permission I won't call. $name's number is $phone, if you'd like to dial it yourself. You can give me the permission any time."
+    override fun smsWithoutPermission(name: String) =
+        "OK, without that permission I won't send messages. You can write to $name from your messages app. You can give me the permission any time."
     override val or = "or"
     override fun quote(text: String) = "\"$text\""
     override val link = "a link"

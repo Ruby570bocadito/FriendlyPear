@@ -258,6 +258,8 @@ class PeriAgent(
             Command.Emergency -> {
                 pending = Pending.Emergency
                 say(p.countdown(emergencyContacts().firstOrNull()?.name))
+                // Whatever is still missing is asked during the countdown; when it ends, Peri uses what it has.
+                device.prepare(Capability.CALL) { device.prepare(Capability.SEND_SMS) { device.prepare(Capability.LOCATION) {} } }
             }
             Command.Yes -> say(p.whatToDo)
             Command.No, Command.Cancel ->
@@ -315,11 +317,15 @@ class PeriAgent(
     private fun askGuardian(action: Action) {
         val guardians = emergencyContacts()
         if (approvals == null || guardians.isEmpty() || awaitingGuardian != null) return say(p.needsGuardian)
-        val ticket = "approval-${++tickets}"
-        awaitingGuardian = AwaitingGuardian(ticket, action)
-        say(p.askingGuardian(speech.names(guardians.take(3).map { it.name })))
-        approvals.request(ticket, ApprovalKind.SEND_CODE, action.contact.name, guardians.take(3)) { url ->
-            p.guardianSms(action.contact.name, url)
+        // The link reaches the guardian by SMS, so that permission comes first.
+        device.prepare(Capability.SEND_SMS) { allowed ->
+            if (!allowed) return@prepare say(p.couldNotAsk)
+            val ticket = "approval-${++tickets}"
+            awaitingGuardian = AwaitingGuardian(ticket, action)
+            say(p.askingGuardian(speech.names(guardians.take(3).map { it.name })))
+            approvals.request(ticket, ApprovalKind.SEND_CODE, action.contact.name, guardians.take(3)) { url ->
+                p.guardianSms(action.contact.name, url)
+            }
         }
     }
 
@@ -339,7 +345,23 @@ class PeriAgent(
     }
 
     /** Acts and checks the result: tries each saved number, then tells the person what to do instead. */
+    /** Asks for the phone permission the first time it's needed; without it, says how to do it by hand. */
     private fun perform(action: Action) {
+        val capability = when (action) {
+            is Action.Call -> Capability.CALL
+            is Action.SendSms -> Capability.SEND_SMS
+        }
+        device.prepare(capability) { allowed ->
+            when {
+                allowed -> carryOut(action)
+                action is Action.Call ->
+                    say(p.callWithoutPermission(action.contact.name, SafeSpeech.phone(action.contact.phones.first())))
+                else -> say(p.smsWithoutPermission(action.contact.name))
+            }
+        }
+    }
+
+    private fun carryOut(action: Action) {
         val name = action.contact.name
         val phones = action.contact.phones
         when (action) {
