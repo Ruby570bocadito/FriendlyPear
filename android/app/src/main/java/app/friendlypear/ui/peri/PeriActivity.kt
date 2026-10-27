@@ -64,7 +64,7 @@ class PeriActivity : Activity() {
             listening = on
             showListening(on)
             showFace(hub.mood)
-        })
+        }, mayListen = { !hub.inCall })
         face = PeriFace(this)
 
         said = TextView(this).apply {
@@ -256,6 +256,7 @@ class PeriActivity : Activity() {
         wantsMini = false
         if (MiniPeriService.running && !leaving && !MiniPeriService.forCall) MiniPeriService.stop(this)
         hub.attach(view)
+        hub.appVisible = true
         showFace(hub.mood)
         face.speaking(hub.speaking)
         if (!greeted) {
@@ -304,6 +305,7 @@ class PeriActivity : Activity() {
     override fun onPause() {
         resumed = false
         hub.detach(view)
+        hub.appVisible = false
         face.speaking(false)
         super.onPause()
     }
@@ -396,7 +398,7 @@ class PeriActivity : Activity() {
             said.text = getString(R.string.no_recognizer)
             return
         }
-        hub.permissions.ask(Need.MIC) { allowed -> if (allowed) voice.listen() }
+        hub.permissions.ask(Need.MIC) { allowed -> if (allowed && !voice.listen()) hub.say(getString(R.string.no_mic_in_call)) }
     }
 
     private fun hasNotificationAccess(): Boolean {

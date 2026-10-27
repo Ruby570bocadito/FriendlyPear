@@ -150,9 +150,10 @@ class MiniPeriService : Service(), PeriView {
         voice = VoiceInput(this, hub.lang, onText = { hub.heard(it) }, onListening = { on ->
             listening = on
             showFace(hub.mood)
-        })
+        }, mayListen = { !hub.inCall })
         listenToTouches()
         windows.addView(root, params)
+        appShown(hub.appVisible)
         showFace(hub.mood)
         if (hub.lastSaid.isNotEmpty()) said(hub.lastSaid)
     }
@@ -251,7 +252,7 @@ class MiniPeriService : Service(), PeriView {
         if (!voice.available) return said(getString(R.string.no_recognizer))
         // Asking for the microphone needs the app's screen: open it there.
         if (!hub.permissions.granted(Need.MIC)) return openApp()
-        voice.listen()
+        if (!voice.listen()) hub.say(getString(R.string.no_mic_in_call))
     }
 
     private fun openApp() {
@@ -266,6 +267,10 @@ class MiniPeriService : Service(), PeriView {
     }
 
     override fun mood(mood: Mood) = showFace(mood)
+
+    override fun appShown(visible: Boolean) {
+        root.visibility = if (visible) View.GONE else View.VISIBLE
+    }
 
     override fun speaking(on: Boolean) {
         face.speaking(on)

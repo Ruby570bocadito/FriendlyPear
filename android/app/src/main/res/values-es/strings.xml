@@ -104,4 +104,5 @@
     <string name="language_phone">Igual que el móvil</string>
     <string name="settings_language_old_android">En esta versión de Android, cambia el idioma en los ajustes del propio móvil.</string>
     <string name="language_changed">¡Vale! A partir de ahora te hablo en español.</string>
+    <string name="no_mic_in_call">Mientras hablas por teléfono no escucho, así nunca oigo a la otra persona. Aquí estoy cuando cuelgues.</string>
 </resources>
