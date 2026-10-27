@@ -16,6 +16,8 @@ export const LIMITS = {
   device: { max: 240, windowMs: 60_000 },
   /** "Look at this picture": each one costs model credits. */
   picture: { max: 20, windowMs: 60 * 60_000 },
+  /** Voice orders through Muse Voice Transcribe: a busy day is a few dozen. */
+  voice: { max: 120, windowMs: 60 * 60_000 },
   /** Wrong device tokens; after this many the IP waits out the window, even with the right one. */
   badToken: { max: 10, windowMs: 15 * 60_000 },
 } satisfies Record<string, Limit>;
@@ -69,9 +71,15 @@ export class RateLimiter {
  * before reading; otherwise the stream is read only until it goes over.
  */
 export async function readLimited(req: Request, max: number): Promise<string | "too_large"> {
+  const bytes = await readBytesLimited(req, max);
+  return bytes === "too_large" ? bytes : new TextDecoder().decode(bytes);
+}
+
+/** The same, as bytes: for audio. */
+export async function readBytesLimited(req: Request, max: number): Promise<Uint8Array | "too_large"> {
   const declared = Number(req.headers.get("content-length") ?? "0");
   if (declared > max) return "too_large";
-  if (!req.body) return "";
+  if (!req.body) return new Uint8Array();
   const reader = req.body.getReader();
   const chunks: Uint8Array[] = [];
   let size = 0;
@@ -85,5 +93,5 @@ export async function readLimited(req: Request, max: number): Promise<string | "
     }
     chunks.push(value);
   }
-  return new TextDecoder().decode(Buffer.concat(chunks));
+  return new Uint8Array(Buffer.concat(chunks));
 }

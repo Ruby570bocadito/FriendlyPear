@@ -7,9 +7,10 @@ import { type GuardianStore, readEvent } from "./guardians/store";
 import { investigate, readInvestigation } from "./investigator/investigate";
 import { readInput, secondOpinion } from "./investigator/opinion";
 import { lookAtPicture, MAX_IMAGE_BASE64, readPicture } from "./investigator/picture";
-import { LIMITS, RateLimiter, readLimited } from "./limits";
+import { LIMITS, RateLimiter, readBytesLimited, readLimited } from "./limits";
 import type { ChatClient } from "./models/chat";
 import type { SamClient } from "./models/sam";
+import { isVoiceWav, type VoiceClient } from "./models/voice";
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json", "cache-control": "no-store" } });
@@ -45,6 +46,8 @@ const tooMany = (seconds: number, page: boolean) => {
 };
 
 const MAX_BODY = 8 * 1024;
+/** About 30 seconds of 16 kHz mono 16-bit audio: far more than a voice order needs. */
+const MAX_AUDIO = 1_000_000;
 const NAME = /^[\p{L}][\p{L} .'-]{0,39}$/u;
 
 /** What the backend can use; a missing piece means that layer is off and the phone decides alone. */
@@ -54,6 +57,8 @@ export interface Services {
   investigator?: ChatClient | null;
   /** "Look at this picture": SAM 3.1 marks what Muse Spark found risky. */
   sam?: SamClient | null;
+  /** Muse Voice Transcribe, only when the person turned it on in Settings. */
+  voice?: VoiceClient | null;
   approvals?: ApprovalStore | null;
   /** What guardians see, only when the person chose to share it. */
   guardians?: GuardianStore | null;
@@ -93,6 +98,9 @@ export function createHandler(config: Config, services: Services = {}, limiter =
     if (limit) {
       const key = `${page ? "link" : "device"}:${ip}`;
       if (limiter.hit(key, limit) > limit.max) return secure(tooMany(limiter.retryAfter(key, limit), page), https);
+    }
+    if (pathname === "/v1/transcribe" && limiter.hit(`voice:${ip}`, LIMITS.voice) > LIMITS.voice.max) {
+      return secure(tooMany(limiter.retryAfter(`voice:${ip}`, LIMITS.voice), false), https);
     }
     // Pictures cost model credits: a few an hour is plenty for a person.
     if (pathname === "/v1/picture" && limiter.hit(`picture:${ip}`, LIMITS.picture) > LIMITS.picture.max) {
@@ -135,6 +143,21 @@ function routes(config: Config, services: Services) {
       try {
         const { delta, verdict, confidence, reason, evidence, toolCalls, model } = await investigate(services.investigator, input);
         return json({ delta, verdict, confidence, reason, evidence, toolCalls, model });
+      } catch {
+        return json({ error: "model_failed" }, 502);
+      }
+    }
+
+    // A voice order the person said to Peri, as a short WAV; the audio and the text are never stored or logged.
+    if (req.method === "POST" && pathname === "/v1/transcribe") {
+      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      const wav = await readBytesLimited(req, MAX_AUDIO);
+      if (wav === "too_large") return json({ error: "too_large" }, 413);
+      if (!isVoiceWav(wav)) return json({ error: "bad_request", detail: "send a 16-bit mono PCM WAV" }, 400);
+      if (!services.voice) return json({ error: "no_model" }, 503);
+      try {
+        const { text } = await services.voice.transcribe(wav);
+        return json({ text, model: services.voice.model });
       } catch {
         return json({ error: "model_failed" }, 502);
       }

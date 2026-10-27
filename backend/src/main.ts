@@ -5,16 +5,18 @@ import { GuardianStore } from "./guardians/store";
 import { samFromEnv } from "./models/sam";
 import { sparkFromEnv } from "./models/spark";
 import { sparkOpenFromEnv } from "./models/spark-open";
+import { voiceFromEnv } from "./models/voice";
 import { createHandler } from "./server";
 
 const config = loadConfig();
 const opinion = sparkOpenFromEnv();
 const investigator = sparkFromEnv();
 const sam = samFromEnv();
+const voice = voiceFromEnv();
 const approvals = new ApprovalStore();
 // Guardians' links (hashes only) and Peri's news survive restarts; DATA_DIR is git-ignored by default.
 const guardians = new GuardianStore(Date.now, join(process.env.DATA_DIR ?? "data", "guardians.json"));
-const handle = createHandler(config, { opinion, investigator, sam, approvals, guardians });
+const handle = createHandler(config, { opinion, investigator, sam, voice, approvals, guardians });
 // Behind a tunnel or proxy (TRUST_PROXY=1) the client's IP is the first one it forwarded; otherwise the socket's.
 const trustProxy = process.env.TRUST_PROXY === "1";
 const server = Bun.serve({
@@ -26,4 +28,4 @@ const server = Bun.serve({
     return handle(req, forwarded || srv.requestIP(req)?.address || "unknown");
   },
 });
-console.log(`FriendlyPear backend on :${server.port} · second opinion: ${opinion ? opinion.model : "off"} · investigator: ${investigator ? investigator.model : "off"} · pictures: ${investigator && sam ? "on" : "off"} · approvals: ${config.publicBaseUrl}/a/…`);
+console.log(`FriendlyPear backend on :${server.port} · second opinion: ${opinion ? opinion.model : "off"} · investigator: ${investigator ? investigator.model : "off"} · pictures: ${investigator && sam ? "on" : "off"} · voice: ${voice ? voice.model : "off"} · approvals: ${config.publicBaseUrl}/a/…`);
