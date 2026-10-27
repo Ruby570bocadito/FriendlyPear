@@ -21,6 +21,7 @@ Message arrives ──► On-device rules (Kotlin, no network)
 | Model | Where | What it gets | What it returns | Limit |
 |---|---|---|---|---|
 | **Muse Spark Open** (`meta-models/muse-spark-open`, open weights) | Backend → Baseten Model APIs, `POST /v1/opinion` | The text of a doubtful message, its channel, whether the sender is in the contacts (yes/no), whether a call is going on, and the names of the signals the rules found | `scam` / `doubt` / `ok` with a confidence | A vote of at most ±2 log-odds on the rules' score |
+| **Muse Spark 1.3**, report | Backend → Meta Model API, `POST /v1/report`, only when the person taps "Write it" | The scam Peri stopped: the message (links defanged), its sender, when (as the phone shows it), Peri's reason and the signals | A short first-person statement in Spanish or English, gender-neutral | Where to report and the last line are fixed text, never the model's; a reply cut by the length limit ends at its last whole sentence; 10 an hour; nothing stored |
 | **Muse Spark 1.3** (`muse-spark-1.3`) | Backend → Meta Model API, `POST /v1/investigate` | The same, plus which relations the family has (`CHILD`, `PARENT`…; never names or numbers) | A verdict, a confidence and short evidence lines | Same ±2, shared with the second opinion; at most 3 rounds and 6 tool calls |
 
 The investigator is an agent: it calls tools before judging, and every tool only reads.
@@ -62,9 +63,9 @@ All of Peri is made with **Muse Image** (`muse-image-1.0`, `/v1/images/generatio
 1. **Eight designs to choose from** (`assets/peri/concepts.ts`: clay, watercolour, sticker, grandma, hero, geometric, plush, anime). The person chose **soft 3D clay**, which became the base.
 2. Each of her nine moods is an **edit of that base**, so she stays the same character.
 3. Each mood has 12 animation frames, each an edit of **its mood's own image** that changes one small thing and keeps the pose and framing: two blink steps, three mouth shapes, two glances, a foot lifted on each side, two hand gestures for talking and a wink.
-4. Extras made the same way: a wave hello, an idea, "sorry", a thumbs up, a laugh, a heart, dizzy spiral eyes, a yawn, reading a letter, the app icon, the family heart, the shield, and **Peri the guardian** holding a phone (calm and urgent) for the family screens and the guardian's web page.
+4. Extras made the same way: a wave hello, an idea, "sorry", a thumbs up, a laugh, a heart, dizzy spiral eyes, a yawn, reading a letter, 18 comic panels for "see the trap" (three per kind of scam, cream background kept, 640 px in the app), the app icon, the family heart, the shield, and **Peri the guardian** holding a phone (calm and urgent) for the family screens and the guardian's web page.
 
-About 125 frames ship in the app, from roughly 255 generations (about $2.55 in all, re-dos included). Every prompt is saved in [`assets/peri/prompts.json`](../assets/peri/prompts.json). [`assets/peri/cutout.py`](../assets/peri/cutout.py) removes the cream background and the floor so she stands on any screen.
+About 125 frames and 18 panels ship in the app, from roughly 273 generations (about $2.73 in all, re-dos included). Every prompt is saved in [`assets/peri/prompts.json`](../assets/peri/prompts.json). [`assets/peri/cutout.py`](../assets/peri/cutout.py) removes the cream background and the floor so she stands on any screen.
 
 ## For the training data
 

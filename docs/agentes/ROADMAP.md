@@ -18,7 +18,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [ ] (DIR) bases-y-dudas — [S] confirmar en #questions que el diseño previo está permitido; guardar la respuesta — docs/agentes/
 
 ## Día 2 · 28 oct — núcleo y datos
-- [ ] (IMP-1) base-conocimiento — [M] fichas de los 15 tipos de estafa (señales, ejemplos, acción segura) — training/knowledge/
+- [x] (IMP-1) base-conocimiento — [M] fichas de los 15 tipos de estafa (señales, ejemplos, acción segura) — training/knowledge/ · hecho 2026-10-27: 15 fichas en `backend/src/investigator/knowledge.ts` (amor, trabajos de tareas, segunda mano, falsa policía y préstamos con comisión añadidas), con tests
 - [x] (IMP-1) dataset-entrenamiento — [M] ~1.500 ejemplos anonimizados en JSONL con etiquetas de `ENTRENAMIENTO.md` — training/data/ (no se sube) · hecho 2026-10-27 (1.306 sintéticos con Spark contributor, `training/generate.ts`; sin mensajes reales todavía)
 - [x] (IMP-1) pesos-aprendidos — [M] regresión logística para los pesos de las señales del escudo, con informe — training/, core/.../shield/ · hecho 2026-10-27 (`eval/REPORT.md`: AUC 0,965 frente a 0,957 y 67 % de avisos firmes frente a 53 %, pero una falsa alarma firme en 20/20; `ShieldWeights.LEARNED` existe y no es el de por defecto)
 - [x] (IMP-1) escudo-capas — [L] señales, log-odds, reglas duras, acción segura y explicación de Peri — core/.../shield/ · hecho 2026-10-27
@@ -45,7 +45,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [x] (IMP-2) peri-v1 — [M] pantalla de un botón con estados básicos de Peri — android/.../ui/peri/ · hecho 2026-10-27 (pantalla de un botón con la frase de Peri en grande (sin estados ilustrados todavía))
 
 ## Día 4 · 30 oct — familia y llamadas
-- [ ] (IMP-1) cuentame-llamada — [M] clasificador de relatos de llamadas frente a guiones de vishing — backend/src/investigator/, training/
+- [x] (IMP-1) cuentame-llamada — [M] clasificador de relatos de llamadas frente a guiones de vishing — backend/src/investigator/, training/ · hecho 2026-10-27: `core/shield/CallStory.kt`: reglas en el móvil (lo que cuenta la persona no sale de él) para quién decía ser y qué pedía; «¿Qué te pidieron?» tras un banco a secas; consejo por truco y oferta de llamar a la familia; 7 tests
 - [x] (IMP-2) filtro-llamadas — [M] `CallScreeningService`: aviso de número fuera de la agenda antes de descolgar — android/.../services/ · hecho 2026-10-27 (aviso antes de descolgar, probado en el emulador)
 - [x] (IMP-1) verificar-llamante — [M] al colgar, "¿quién decía ser?" → comparar con la agenda → ofrecer llamar al número guardado; palabra de la familia; si pide dinero, colgar y devolver la llamada — core/.../agent/, voice/, trust/ · hecho 2026-10-27 (al colgar, "¿quién decía ser?" → llamada al número guardado; probado en el emulador)
 - [x] (SEG) llamadas-sin-audio — [S] verificar que nada accede al audio de llamadas y que el rol de filtro se pide con explicación — android/app/src/main/AndroidManifest.xml · hecho 2026-10-27 (sin acceso al audio; el micrófono no se abre durante ninguna llamada)
@@ -68,7 +68,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [ ] (IMP-1) finetune-glimmer-1 — [L] apuesta: LoRA de Glimmer con el dataset — training/ · aparcada 27 oct: pendiente de que la persona decida; el porqué en `training/FINETUNE.md`
 - [x] (IMP-2) emergencia — [M] cuenta atrás, llamada y SMS con ubicación — android/ · hecho (ya estaba): "me he caído" → 10 s para cancelar, SMS a la familia con la última ubicación y llamada (`PeriAgent.onEmergencyTimeout`, tests en es y en)
 - [x] (IMP-2) config-familia — [M] guardianes, alias, relaciones, números oficiales — android/.../config/ · hecho 2026-10-27 (guardianes, relaciones, apodos y palabra de la familia sin guardarla; faltan los números oficiales)
-- [ ] (IMP-2) panel-permisos — [M] "Lo que Peri puede hacer": estado de cada permiso, para qué sirve, botón para quitarlo y registro de usos sensibles — android/.../ui/peri/, config/
+- [x] (IMP-2) panel-permisos — [M] "Lo que Peri puede hacer": estado de cada permiso, para qué sirve, botón para quitarlo y registro de usos sensibles — android/.../ui/peri/, config/ · hecho 2026-10-27: `AccessActivity` con 12 permisos y accesos, encender o apagar en la pantalla de Android, y `UseLog` (llamadas, SMS, ubicación, fotos, voz, denuncias)
 - [x] (PUL) docs-hackaton — [S] README con "At a glance" para el jurado, conectar cada móvil, bienvenida, guía de desbloqueo y voz; META_MODELS (diseños, fotogramas, datos de entrenamiento) y ARQUITECTURA al día; página de `bun pair` con Peri, pasos y cuenta atrás — README.md, docs/, backend/src/pair.ts · hecho 2026-10-27
 - [x] (SEG) emparejamiento-qr — [L] clave por dispositivo con QR en persona — android/.../config/, backend/src/ · hecho 2026-10-27 (`bun pair`: código de un uso, 10 min, QR propio sin dependencias verificado con los dos lectores de OpenCV; clave por móvil cifrada con el Keystore, solo hashes en el servidor, desconexión por móvil, `ALLOW_SHARED_TOKEN=0`; un QR de otro servidor se rechaza; sin copias de seguridad)
 - [x] (IMP-2) gifs-y-microfono — [S] los dos GIFs del README regrabados con el diseño nuevo en dos emuladores (aprobación por la web en inglés; Peri a Peri, madre en español e hija en inglés); al grabarlos salió que el reconocedor seguía abierto si empezaba una llamada mientras Peri escuchaba: ahora se cierra y lo oído se descarta — docs/media/, android/.../device/VoiceInput.kt · hecho 2026-10-27
@@ -78,15 +78,15 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 
 ## Día 6 · 1 nov — Meta a fondo y Peri
 - [ ] (IMP-1) finetune-glimmer-2 — [M] evaluar el modelo afinado frente al baseline en el reservado — training/, eval/
-- [ ] (IMP-1) denuncia-un-toque — [S] P2: informe para policía o 017 generado con Muse Spark — backend/src/investigator/
-- [ ] (IMP-2) vineta-trampa — [S] P2: viñeta de 3 escenas con Muse Image tras una estafa — android/, assets/peri/
+- [x] (IMP-1) denuncia-un-toque — [S] P2: informe para policía o 017 generado con Muse Spark — backend/src/investigator/ · hecho 2026-10-27: `POST /v1/report` + `ReportActivity`: declaración en primera persona y sin género, enlaces desactivados, «dónde llevarlo» fijo (017, comisaría; Report Fraud, FTC); probado con la API real
+- [x] (IMP-2) vineta-trampa — [S] P2: viñeta de 3 escenas con Muse Image tras una estafa — android/, assets/peri/ · hecho 2026-10-27: `TrapActivity`: 6 tipos × 3 viñetas de Muse Image (0,18 $), elegidas por las señales y la marca
 - [ ] (DIR) peri-referencia-video — [S] imagen de referencia de Peri y prueba de Higgsfield MCP — docs/demo/
 - [x] (IMP-1) mira-esta-imagen — [M] Muse Spark multimodal + SAM 3.1 marcando QR o enlace — backend/src/models/, investigator/ · hecho 2026-10-27 (`POST /v1/picture`: Spark con imagen + SAM 3.1 para el QR; botón "Mira esta imagen" y compartir con Peri desde cualquier app; prueba real: timo 97 %, QR marcado)
 - [x] (IMP-1) glimmer-primera-opinion — [M] Glimmer como primera opinión privada en dudosos — backend/src/models/ · hecho 2026-10-27 (resuelta con Muse Spark Open en Baseten en lugar de Glimmer)
-- [ ] (IMP-2) peri-estados-extra — [M] llamando, esperando a la familia, contenta (confeti) y dormida; vibraciones y sonidos suaves — android/.../ui/peri/
-- [ ] (IMP-2) escudos-ganados — [S] P1: escuditos por estafas frenadas y por preguntar antes — android/, core/
+- [x] (IMP-2) peri-estados-extra — [M] llamando, esperando a la familia, contenta (confeti) y dormida; vibraciones y sonidos suaves — android/.../ui/peri/ · hecho 2026-10-27: los estados ya estaban; `device/Haptics.kt` añade vibraciones por estado (sin sonidos, que asustan); comprobado en el registro de vibración de Android
+- [x] (IMP-2) escudos-ganados — [S] P1: escuditos por estafas frenadas y por preguntar antes — android/, core/ · hecho 2026-10-27: `config/Shields.kt`, insignia junto a Peri y felicitación solo con calma
 - [x] (IMP-2) peri-ilustrada — [M] estados de Peri con Muse Image — assets/peri/, android/app/src/main/res/drawable/ · hecho 2026-10-27 (9 estados con Muse Image, misma Peri por edición de una base; 0,11 $)
-- [ ] (IMP-2) web-basica — [S] P2: notificaciones basura de webs y DNS privado guiado — android/
+- [x] (IMP-2) web-basica — [S] P2: notificaciones basura de webs y DNS privado guiado — android/ · hecho 2026-10-27: avisos de webs por el navegador al escudo y botón al interruptor de esa web; DNS privado con Quad9 guiado en Ajustes
 
 ## Día 7 · 2 nov — evaluación
 - [ ] (TEST) metricas — [M] TPR, FPR, falsas alarmas/mes con Wilson en el conjunto reservado, una fila por capa de entrenamiento — eval/

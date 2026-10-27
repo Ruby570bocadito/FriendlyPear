@@ -42,7 +42,14 @@ what the guardians see, and can stop sharing at any moment; every link dies at o
 ## On the phone
 
 - Contacts are read on the phone and never sent. Only doubtful messages leave it, plus what the person chooses (a
-  picture shown to Peri, voice orders if Muse Voice Transcribe is turned on).
+  picture shown to Peri, voice orders if Muse Voice Transcribe is turned on, a scam they ask to have written up as a
+  report: the screen says what goes where before anything is sent).
+- **What Peri can do** lists every permission and special access, what it's for and how to switch it off, and a log of
+  what Peri did with them (calls, texts, location, pictures, voice, reports): only who and when, kept on the phone.
+- What the person tells Peri about a call ("they wanted the code") is judged by rules on the phone and never sent.
+- The last scam (for "report it") and the last junk website notice (to silence that site) are kept on the phone for
+  three days, never backed up. `VIBRATE` and `ACCESS_NETWORK_STATE` are normal permissions Android grants at install:
+  touches with warnings, and seeing whether Private DNS is on.
 - The microphone stays closed during any call. If Peri was already listening when a call starts (for example, the call she places after a "yes"), it closes at once and anything it heard is dropped; the app also stops listening when it leaves the screen. Peri never accesses call audio and never blocks or answers calls.
 - Permissions are asked one at a time with a reason; a "no" is respected. Installed from a file, Android locks
   message alerts and texts ("restricted settings"); Peri explains Android's own unlock in three steps instead of
