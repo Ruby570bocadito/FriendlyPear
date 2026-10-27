@@ -9,6 +9,9 @@ import android.os.Looper
 import android.util.Log
 import app.friendlypear.BuildConfig
 import app.friendlypear.config.PhoneContacts
+import app.friendlypear.core.agent.ApprovalKind
+import app.friendlypear.core.agent.ApprovalPort
+import app.friendlypear.core.agent.ApprovalResult
 import app.friendlypear.core.agent.PeriAgent
 import app.friendlypear.core.model.Contact
 import app.friendlypear.core.model.IncomingMessage
@@ -16,13 +19,14 @@ import app.friendlypear.core.model.Level
 import app.friendlypear.core.shield.Verdict
 import app.friendlypear.device.AndroidDevice
 import app.friendlypear.device.phoneLang
+import app.friendlypear.net.ApprovalClient
 import app.friendlypear.net.OpinionClient
 import java.util.concurrent.Executors
 
 /**
  * Owns the one [PeriAgent] of the app and feeds it on the main thread: messages from [MessageListener],
  * call state from [CallStateWatcher] and voice from the screen. Doubtful messages get Muse Spark Open's
- * second opinion through the backend when it is configured.
+ * second opinion through the backend when it is configured, and high-risk actions wait for a guardian.
  */
 class PeriHub(context: Context) {
     private val context = context.applicationContext
@@ -47,7 +51,33 @@ class PeriHub(context: Context) {
         onSpeechDone = { onSpeechDone?.invoke() },
     )
     private var contacts: List<Contact>? = null
-    private var agent = PeriAgent(device, emptyList(), lang)
+    private val approvalClient = ApprovalClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
+    /** Waiting for a guardian can take minutes, so it never shares a thread with second opinions. */
+    private val waiting = Executors.newCachedThreadPool()
+
+    /** Family MFA: create the one-time link, text it to the guardians, then wait for their answer. */
+    private val approvals: ApprovalPort = object : ApprovalPort {
+        override fun request(ticket: String, kind: ApprovalKind, toName: String, guardians: List<Contact>, smsFor: (url: String) -> String) {
+            val asking = agent
+            waiting.execute {
+                val created = approvalClient.create(kind, toName, lang)
+                if (created == null) {
+                    main.post { asking.onApprovalResult(ticket, ApprovalResult.FAILED) }
+                    return@execute
+                }
+                val text = smsFor(created.url)
+                val sent = guardians.count { g -> g.phones.firstOrNull()?.let { runCatching { device.sendSms(it, text) }.isSuccess } == true }
+                Log.i(TAG, "approval requested, texted $sent of ${guardians.size} guardian(s)")
+                val result = if (sent == 0) ApprovalResult.FAILED else approvalClient.await(created.id)
+                main.post {
+                    Log.i(TAG, "approval result=$result")
+                    asking.onApprovalResult(ticket, result)
+                }
+            }
+        }
+    }
+
+    private var agent: PeriAgent = newAgent(emptyList())
     private var callActive = false
     private val calls = CallStateWatcher(this.context) { active, answered ->
         main.post {
@@ -72,7 +102,7 @@ class PeriHub(context: Context) {
         val fresh = PhoneContacts.load(context)
         if (fresh != contacts) {
             contacts = fresh
-            agent = PeriAgent(device, fresh, lang).also { it.onCallStateChanged(callActive) }
+            agent = newAgent(fresh).also { it.onCallStateChanged(callActive) }
         }
     }
 
@@ -111,9 +141,12 @@ class PeriHub(context: Context) {
         if (agent.isCountingDown) main.postDelayed(countdownEnd, COUNTDOWN_MILLIS)
     }
 
+    private fun newAgent(contacts: List<Contact>): PeriAgent =
+        PeriAgent(device, contacts, lang, approvals = if (approvalClient.enabled) approvals else null)
+
     private fun refreshNow() {
         calls.start()
-        contacts = PhoneContacts.load(context).also { agent = PeriAgent(device, it, lang).apply { onCallStateChanged(callActive) } }
+        contacts = PhoneContacts.load(context).also { agent = newAgent(it).apply { onCallStateChanged(callActive) } }
     }
 
     /**
