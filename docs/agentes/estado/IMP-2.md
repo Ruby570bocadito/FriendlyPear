@@ -21,7 +21,7 @@
   - Emulador: frase de Peri + diálogo de Android en cada paso; SMS denegado respetado; llamar no se pidió aparte porque Android lo concede junto con el estado de llamada (mismo grupo).
   - Un "Allow" que no dio IMP-1 fue un toque de la persona en la ventana del emulador; sin entrada, el diálogo espera, y BACK o ENDCALL cuentan como "no".
 
-- te-estan-guiando (parte 1, IMP-1): `services/AppWatcher.kt` + `RemoteApps` en core (15 apps: AnyDesk, TeamViewer, RustDesk, AirDroid…), visibles solo por `<queries>`. Peri avisa, manda colgar si hay llamada y ofrece avisar al guardián (SMS solo tras un "sí"). Probado con `--es installed com.anydesk.anydeskandroid`.
+- te-estan-guiando (IMP-1): `AppWatcher` + `RemoteApps` (15 apps de control remoto, visibles solo por `<queries>`): aviso, "cuelga" si hay llamada y oferta de avisar al guardián tras un "sí". `BankWatcher` + `BankApps` (22 apps de bancos y pagos): solo durante una llamada descolgada de un desconocido, con acceso al uso de apps (botón con explicación). Probado con `--es installed` y `--es opened`; el vigilante real detectó el cambio de app durante la llamada.
 
 ## Cómo probar sin micrófono (solo builds de depuración)
 - `adb shell am broadcast -a app.friendlypear.debug.HEAR --es text si` hace que Peri "oiga" esa frase. Con varias palabras, comillas dentro: `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`.
