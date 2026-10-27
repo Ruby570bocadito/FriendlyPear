@@ -134,4 +134,44 @@
     <string name="settings_ears_unavailable">Necesita el servidor de tu familia. Mientras tanto, Peri usa el reconocedor del propio móvil.</string>
     <string name="voice_missed">Perdona, no te he entendido. Pulsa el botón y dímelo otra vez, con calma.</string>
     <string name="setup_restricted">Si Android dice que es un ajuste restringido, abre FriendlyPear en los ajustes de aplicaciones del móvil, toca los tres puntos de arriba y elige «Permitir ajustes restringidos»; luego vuelve a intentarlo.</string>
+    <string name="family_people_title">Quién es quién en tu familia</string>
+    <string name="family_search_hint">Busca un contacto por su nombre</string>
+    <string name="family_search_empty">Escribe un nombre para buscar a alguien de tus contactos y marcarlo como familia.</string>
+    <string name="family_search_none">No hay nadie con ese nombre en tus contactos.</string>
+    <string-array name="greet_morning">
+        <item>¡Buenos días! ¿Has dormido bien? Aquí estoy para lo que necesites.</item>
+        <item>¡Buenos días, solete! Vamos a tener un día tranquilo y bonito.</item>
+        <item>¡Buenos días! Ya me he regado y estoy lista para ayudarte.</item>
+    </string-array>
+    <string-array name="greet_afternoon">
+        <item>¡Buenas tardes! ¿Qué tal va el día?</item>
+        <item>¡Hola otra vez! ¿Te echo una mano esta tarde?</item>
+        <item>¡Buenas tardes! Sigo atenta por ti.</item>
+    </string-array>
+    <string-array name="greet_evening">
+        <item>¡Buenas tardes-noches! Hora de descansar un poquito. Aquí estoy.</item>
+        <item>¡Buenas noches! ¿Te ha pasado algo bonito hoy?</item>
+        <item>¡Buenas noches! ¿Miramos juntas tus mensajes?</item>
+    </string-array>
+    <string-array name="greet_night">
+        <item>¡Qué tarde es! Yo vigilo mientras descansas.</item>
+        <item>¡Hola, trasnochador! Aquí estoy si me necesitas.</item>
+        <item>Shh… ya es de noche. Te hago compañía.</item>
+    </string-array>
+    <string-array name="peri_taps">
+        <item>¡Ji, ji, me haces cosquillas!</item>
+        <item>¡Ay, un abracito! ¡Gracias!</item>
+        <item>¡Hola, hola! Te escucho.</item>
+        <item>¡Bien! Me pones muy contenta.</item>
+    </string-array>
+    <string-array name="peri_tips">
+        <item>Un consejito: tu banco nunca te pedirá un código por teléfono.</item>
+        <item>Un consejito: si alguien dice ser de tu familia desde un número nuevo, llama antes a su número de siempre.</item>
+        <item>Un consejito: una empresa de verdad no te mete prisa para pagar hoy. La prisa es el truco favorito de las trampas.</item>
+        <item>Un consejito: nunca instales una app porque te lo diga un desconocido por teléfono.</item>
+        <item>Un consejito: un enlace sin candado no es seguro. Mejor no tocarlo.</item>
+        <item>Un consejito: si un premio parece demasiado bueno, es que no es verdad.</item>
+        <item>Un consejito: acordad una palabra de familia, para distinguir una llamada de verdad de una falsa.</item>
+        <item>Un consejito: si dudas, cuelga y llama tú al número que ya tienes.</item>
+    </string-array>
 </resources>

@@ -163,6 +163,14 @@ class PeriFace(context: Context) : FrameLayout(context) {
         if (on && moves) main.post(mouth) else if (!on && shown != null) put(frames.still)
     }
 
+    /** A happy jump for a moment (she was tapped), then back to her mood. */
+    fun cheer() {
+        val mood = shown ?: return
+        if (!moves || mood == Mood.HAPPY) return
+        show(Mood.HAPPY)
+        main.postDelayed({ if (shown == Mood.HAPPY) show(mood) }, CHEER_MILLIS)
+    }
+
     /** A little wave hello, when the app opens and she's calm. */
     fun greet() {
         if (!moves || shown != Mood.CALM || talking) return
@@ -253,6 +261,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
 
     private companion object {
         const val MOOD_FADE = 200L
+        const val CHEER_MILLIS = 2_200L
         const val POP_MS = 420f
         const val WAVE_START = 400L
         const val WAVE_STEP = 170L

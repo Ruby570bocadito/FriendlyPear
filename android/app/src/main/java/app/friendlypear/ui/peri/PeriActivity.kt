@@ -66,11 +66,14 @@ class PeriActivity : Activity() {
             showListening(on)
             showFace(hub.mood)
         }, mayListen = { !hub.inCall }, ears = hub.ears, onMissed = { hub.missedVoice() })
-        face = PeriFace(this)
+        face = PeriFace(this).apply {
+            isClickable = true
+            setOnClickListener { tapped() }
+        }
 
         said = TextView(this).apply {
             text = hub.lastSaid.ifEmpty { getString(R.string.peri_greeting) }
-            textSize = 22f
+            sizeSp(22f)
             typeface = weight(500)
             setTextColor(Palette.INK)
             setLineSpacing(0f, 1.12f)
@@ -96,7 +99,9 @@ class PeriActivity : Activity() {
             setOnClickListener { startActivity(Intent(this@PeriActivity, PictureActivity::class.java)) }
         }
         status = TextView(this).apply {
-            textSize = 15f
+            sizeSp(15f)
+            maxLines = 1
+            ellipsize = TextUtils.TruncateAt.END
             typeface = weight(600)
             gravity = Gravity.CENTER_VERTICAL
             setPadding(dp(12), dp(6), dp(14), dp(6))
@@ -110,12 +115,12 @@ class PeriActivity : Activity() {
             hub.permissions.ask(Need.LOCATION) { showSetup() }
         }
         access = setupRow(R.drawable.ic_notifications, getString(R.string.notification_access)) {
-            hub.say(getString(R.string.why_notifications) + " " + getString(R.string.setup_restricted))
+            hub.show(getString(R.string.why_notifications) + " " + getString(R.string.setup_restricted))
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
         }
         // Usage access is a special setting: Peri explains it first, then opens the screen where it's granted.
         usage = setupRow(R.drawable.ic_bank, getString(R.string.usage_access)) {
-            hub.say(getString(R.string.why_usage))
+            hub.show(getString(R.string.why_usage))
             startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
         }
         setup = LinearLayout(this).apply {
@@ -128,8 +133,8 @@ class PeriActivity : Activity() {
                 addView(ImageView(this@PeriActivity).apply {
                     setImageResource(R.drawable.peri_shield)
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                }, LinearLayout.LayoutParams(dp(56), dp(56)))
-                addView(heading(getString(R.string.setup_title), 18f).apply { setPadding(dp(10), 0, 0, 0) })
+                }, LinearLayout.LayoutParams(dp(40), dp(40)))
+                addView(heading(getString(R.string.setup_title), 16f).apply { setPadding(dp(8), 0, 0, 0) })
             })
             addView(basics)
             addView(access)
@@ -139,9 +144,16 @@ class PeriActivity : Activity() {
 
         val wordmark = TextView(this).apply {
             text = getString(R.string.app_name)
-            textSize = 24f
+            sizeSp(24f)
+            maxLines = 1
             typeface = weight(800)
             setTextColor(Palette.GREEN_DARK)
+        }
+        val spacer = View(this)
+        val logo = ImageView(this).apply {
+            setImageResource(R.mipmap.ic_launcher)
+            contentDescription = getString(R.string.app_name)
+            visibility = View.GONE
         }
         val settings = ImageView(this).apply {
             setImageResource(R.drawable.ic_settings)
@@ -156,8 +168,19 @@ class PeriActivity : Activity() {
         }
         val header = LinearLayout(this).apply {
             gravity = Gravity.CENTER_VERTICAL
+            addView(logo, LinearLayout.LayoutParams(dp(44), dp(44)).apply { marginEnd = dp(8) })
             addView(wordmark, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            // The name shrinks to fit beside the chip; if it still can't, Peri's round face stands in for it.
+            wordmark.post {
+                wordmark.fitWidth(24f, 17f)
+                if (wordmark.paint.measureText(wordmark.text.toString()) > wordmark.width) {
+                    wordmark.visibility = View.GONE
+                    logo.visibility = View.VISIBLE
+                    spacer.layoutParams = LinearLayout.LayoutParams(0, 0, 1f)
+                }
+            }
             addView(status)
+            addView(spacer, LinearLayout.LayoutParams(0, 0, 0f))
             addView(settings, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginStart = dp(10) })
         }
         val secondary = LinearLayout(this).apply {
@@ -192,6 +215,15 @@ class PeriActivity : Activity() {
             requestPermissions(need.permissions.toTypedArray(), REQUEST_NEED)
         }
         firstStart()
+    }
+
+    /** What Peri says, at most about a quarter of the screen tall, so she always has room. */
+    private fun showSaid(text: CharSequence) {
+        said.text = text
+        said.post {
+            val root = said.rootView.height.takeIf { it > 0 } ?: return@post
+            said.fitInto((root * BUBBLE_SHARE).toInt(), SAID_SP)
+        }
     }
 
     /** One missing setup step: an icon, what it's for in plain words, and a chevron. */
@@ -236,7 +268,7 @@ class PeriActivity : Activity() {
         if (askToScreenCalls()) return
         if (!hasNotificationAccess() && !asked.getBoolean(NOTIFICATIONS, false)) {
             asked.edit().putBoolean(NOTIFICATIONS, true).apply()
-            hub.say(getString(R.string.why_notifications))
+            hub.show(getString(R.string.why_notifications))
         }
     }
 
@@ -246,7 +278,7 @@ class PeriActivity : Activity() {
         if (!roles.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING) || roles.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)) return false
         if (asked.getBoolean(SCREENING, false)) return false
         asked.edit().putBoolean(SCREENING, true).apply()
-        hub.say(getString(R.string.calls_why))
+        hub.show(getString(R.string.calls_why))
         startActivityForResult(roles.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING), REQUEST_SCREENING)
         return true
     }
@@ -261,7 +293,7 @@ class PeriActivity : Activity() {
         super.onResume()
         resumed = true
         // Peri may have spoken while the screen was hidden, e.g. during a call.
-        if (hub.lastSaid.isNotEmpty()) said.text = hub.lastSaid
+        if (hub.lastSaid.isNotEmpty()) showSaid(hub.lastSaid)
         // Two modes, never both: opening the app puts Mini Peri away, unless she's about to come out or is
         // beside a call (the call screen brings the app to the front for a moment as it opens).
         if (wantsMini && Settings.canDrawOverlays(this)) return goMini()
@@ -274,9 +306,40 @@ class PeriActivity : Activity() {
         if (!greeted) {
             greeted = true
             face.greet()
+            greet()
         }
         showSetup()
         hub.refresh()
+    }
+
+    /**
+     * Peri's hello, by the time of day and a little different each time. It's written every time the app opens,
+     * and said aloud only the first time each day: a friend, not a chatterbox.
+     */
+    private fun greet() {
+        if (hub.lastSaid.isNotEmpty() || hub.isWaitingForAnswer) return
+        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        val list = when (hour) {
+            in 6..12 -> R.array.greet_morning
+            in 13..19 -> R.array.greet_afternoon
+            in 20..22 -> R.array.greet_evening
+            else -> R.array.greet_night
+        }
+        val text = resources.getStringArray(list).random()
+        val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
+        if (asked.getInt(GREETED_DAY, -1) != today) {
+            asked.edit().putInt(GREETED_DAY, today).apply()
+            hub.say(text)
+        } else {
+            hub.show(text)
+        }
+    }
+
+    /** Tapping Peri: she jumps for joy, giggles and shares a little anti-scam tip. */
+    private fun tapped() {
+        if (hub.isWaitingForAnswer || hub.speaking) return
+        face.cheer()
+        hub.say(resources.getStringArray(R.array.peri_taps).random() + " " + resources.getStringArray(R.array.peri_tips).random())
     }
 
     /** The chip and the setup card: what's still missing for Peri to protect the person fully. */
@@ -307,7 +370,7 @@ class PeriActivity : Activity() {
         val canAsk = need.permissions.any { shouldShowRequestPermissionRationale(it) } || !asked.getBoolean(need.name, false)
         if (!canAsk) {
             // Installed from outside a store, Android 13+ locks texts and notification access ("restricted setting").
-            hub.say(getString(need.why) + " " + getString(R.string.setup_restricted))
+            hub.show(getString(need.why) + " " + getString(R.string.setup_restricted))
             return startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
         }
         asked.edit().putBoolean(need.name, true).apply()
@@ -345,9 +408,7 @@ class PeriActivity : Activity() {
     }
 
     private val view = object : PeriView {
-        override fun said(text: String) {
-            said.text = text
-        }
+        override fun said(text: String) = showSaid(text)
 
         override fun mood(mood: Mood) = showFace(mood)
 
@@ -383,7 +444,7 @@ class PeriActivity : Activity() {
     private fun goMini() {
         if (!Settings.canDrawOverlays(this)) {
             wantsMini = true
-            hub.say(getString(R.string.why_overlay))
+            hub.show(getString(R.string.why_overlay))
             startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
             return
         }
@@ -410,7 +471,7 @@ class PeriActivity : Activity() {
     /** The microphone is asked the first time the person presses the button. */
     private fun listen() {
         if (!voice.available) {
-            said.text = getString(R.string.no_recognizer)
+            showSaid(getString(R.string.no_recognizer))
             return
         }
         hub.permissions.ask(Need.MIC) { allowed -> if (allowed && !voice.listen()) hub.say(getString(R.string.no_mic_in_call)) }
@@ -423,9 +484,12 @@ class PeriActivity : Activity() {
 
     private companion object {
         const val REQUEST_NEED = 1
+        const val SAID_SP = 22f
+        const val BUBBLE_SHARE = 0.24f
         const val REQUEST_SCREENING = 2
         const val SCREENING = "screening"
         const val NOTIFICATIONS = "notifications"
         const val LOCATION_ASKED = "location_setup"
+        const val GREETED_DAY = "greeted_day"
     }
 }

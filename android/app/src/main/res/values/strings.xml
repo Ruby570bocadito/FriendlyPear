@@ -135,4 +135,44 @@
     <string name="settings_ears_unavailable">Needs your family\'s backend. Until then Peri uses this phone\'s own recognizer.</string>
     <string name="voice_missed">Sorry, I didn\'t catch that. Press the button and tell me again, nice and calm.</string>
     <string name="setup_restricted">If Android says it\'s a restricted setting, open FriendlyPear in the phone\'s app settings, tap the three dots at the top and choose “Allow restricted settings”, then try again.</string>
+    <string name="family_people_title">Who\'s who in your family</string>
+    <string name="family_search_hint">Search a contact by name</string>
+    <string name="family_search_empty">Type a name to find someone in your contacts and mark them as family.</string>
+    <string name="family_search_none">No one with that name in your contacts.</string>
+    <string-array name="greet_morning">
+        <item>Good morning! Did you sleep well? I’m here if you need anything.</item>
+        <item>Good morning, sunshine! Let’s have a calm, lovely day.</item>
+        <item>Morning! I’ve had my water and I’m ready to help.</item>
+    </string-array>
+    <string-array name="greet_afternoon">
+        <item>Good afternoon! How’s your day going?</item>
+        <item>Hello again! Anything I can do for you this afternoon?</item>
+        <item>Good afternoon! I’m keeping an eye out for you.</item>
+    </string-array>
+    <string-array name="greet_evening">
+        <item>Good evening! Time to take it easy. I’m right here.</item>
+        <item>Evening! Did anything nice happen today?</item>
+        <item>Good evening! Shall we check your messages together?</item>
+    </string-array>
+    <string-array name="greet_night">
+        <item>It’s late! I’ll keep watch while you rest.</item>
+        <item>Hello, night owl! I’m here if you need me.</item>
+        <item>Shh… it’s night-time. I’m keeping you company.</item>
+    </string-array>
+    <string-array name="peri_taps">
+        <item>Hee hee, that tickles!</item>
+        <item>Ooh, a little hug! Thank you!</item>
+        <item>Hello there! I’m all ears.</item>
+        <item>Yay! You make me so happy.</item>
+    </string-array>
+    <string-array name="peri_tips">
+        <item>A little tip: your bank will never ask you for a code over the phone.</item>
+        <item>A little tip: if someone says they’re family from a new number, call their usual number first.</item>
+        <item>A little tip: a real company won’t rush you to pay today. Hurry is a trap’s favourite trick.</item>
+        <item>A little tip: never install an app because a stranger on the phone tells you to.</item>
+        <item>A little tip: a link without a padlock isn’t safe. Better not to touch it.</item>
+        <item>A little tip: if a prize sounds too good to be true, it is.</item>
+        <item>A little tip: agree a family word with your loved ones, to tell a real call from a fake one.</item>
+        <item>A little tip: when in doubt, hang up and call back on the number you already have.</item>
+    </string-array>
 </resources>
