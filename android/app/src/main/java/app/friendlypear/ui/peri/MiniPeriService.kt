@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
+import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -97,12 +98,14 @@ class MiniPeriService : Service(), PeriView {
             .addAction(Notification.Action.Builder(null, getString(R.string.mini_hide), stop).build())
             .setOngoing(true)
             .build()
-        val type = if (hub.permissions.granted(Need.MIC)) ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE else ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+        // "Special use" exists from Android 14; before it, no type is needed without the microphone.
+        val plain = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE else 0
+        val type = if (hub.permissions.granted(Need.MIC)) ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE else plain
         // Started while another app is in front (a call), Android may refuse the microphone type: she still shows.
         try {
             startForeground(NOTIFICATION_ID, notification, type)
         } catch (e: SecurityException) {
-            startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+            startForeground(NOTIFICATION_ID, notification, plain)
         }
     }
 
