@@ -91,6 +91,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 
 ## Día 8 · 3 nov — demo
 - [ ] (DIR) grabaciones-reales — [M] los 5 momentos grabados en emulador o móvil real — docs/demo/clips/
+- [ ] (IMP-1) tunel-https — [S] **opcional** (27 oct, decisión de la persona): servidor con dirección HTTPS pública para probar en móviles reales fuera de casa. Preparado y probado hasta el último paso: backend con `PUBLIC_BASE_URL=https://rby.tailb6f848.ts.net TRUST_PROXY=1`, APK con `-Pfriendlypear.backendUrl=…` y la IP del cliente tomada de lo que añade el proxy. Falta solo aprobar Funnel en la cuenta de Tailscale (`tailscale funnel --bg 8711`). Los móviles no necesitan Tailscale. Sin túnel, la demo se graba con los dos emuladores — backend/src/main.ts, android/app/build.gradle.kts
 - [ ] (DIR) escenas-higgsfield — [M] escenas de historia con Higgsfield, rotuladas como generadas con IA — docs/demo/
 - [ ] (DIR) video-3-min — [M] montaje del vídeo de demo según `docs/VIDEO.md` — docs/demo/
 - [ ] (DIR) anuncio — [M] anuncio de 30–45 s vertical y cuadrado, ES/EN — docs/demo/
@@ -118,6 +119,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - R1: modelo flojo en español → escudo más determinista (criterio en prueba-20-20).
 - R2: Android bloquea llamadas desde segundo plano → servicio en primer plano.
 - R3: Google Play restringe SMS y llamadas → APK instalado a mano para el hackathon.
+- R4 (27 oct): sin servidor público, en un móvil real solo funciona lo local (escudo con reglas, llamadas, Mini Peri, Peri); la segunda opinión, el investigador, "mira esta imagen", la voz de Meta y la familia necesitan el túnel o un hosting. La demo de familia se graba con dos emuladores.
 - D1: las reglas deciden; el modelo ajusta como máximo ±2 y nunca anula una regla dura.
 - D2: ningún permiso se usa sin pedirlo y explicarlo; lo concede la persona protegida, no la familia.
 - D3: Peri no escucha el audio de las llamadas; actúa antes (filtro) y después (verificación).
