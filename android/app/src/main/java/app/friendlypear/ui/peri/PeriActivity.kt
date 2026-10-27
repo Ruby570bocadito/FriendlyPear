@@ -70,14 +70,6 @@ class PeriActivity : Activity() {
         face = PeriFace(this).apply {
             isClickable = true
             setOnClickListener { tapped() }
-            // She squishes under the finger and springs back; the tap itself still goes to tapped().
-            setOnTouchListener { _, e ->
-                when (e.actionMasked) {
-                    android.view.MotionEvent.ACTION_DOWN -> press(true)
-                    android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> press(false)
-                }
-                false
-            }
         }
 
         said = TextView(this).apply {
@@ -125,8 +117,11 @@ class PeriActivity : Activity() {
             asked.edit().putBoolean(LOCATION_ASKED, true).apply()
             hub.permissions.ask(Need.LOCATION) { showSetup() }
         }
-        access = setupRow(R.drawable.ic_notifications, getString(R.string.notification_access)) {
-            hub.show(getString(R.string.why_notifications) + " " + getString(R.string.setup_restricted))
+        val label = if (UnlockActivity.restricted(this)) R.string.setup_unlock else R.string.notification_access
+        access = setupRow(R.drawable.ic_notifications, getString(label)) {
+            // Installed from a file, Android locks this: the guide walks through unlocking it, step by step.
+            if (UnlockActivity.restricted(this)) return@setupRow startActivity(Intent(this, UnlockActivity::class.java))
+            hub.show(getString(R.string.why_notifications))
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
         }
         // Usage access is a special setting: Peri explains it first, then opens the screen where it's granted.
@@ -234,11 +229,58 @@ class PeriActivity : Activity() {
 
     /** What Peri says, at most about a quarter of the screen tall, so she always has room. */
     private fun showSaid(text: CharSequence) {
+        said.removeCallbacks(typing)
         said.text = text
         said.post {
             val root = said.rootView.height.takeIf { it > 0 } ?: return@post
             said.fitInto((root * BUBBLE_SHARE).toInt(), SAID_SP)
+            // New words appear bit by bit, as if she were saying them; the same sentence again just shows.
+            if (text.toString() != typed && animationsOn()) type(text)
+            typed = text.toString()
         }
+    }
+
+    private var typed = ""
+    private var typing = Runnable { }
+
+    /**
+     * Reveals [text] from the start, hiding the rest with a transparent colour so the bubble keeps its size and
+     * nothing jumps. TalkBack hears the whole sentence once, at the end.
+     */
+    private fun type(text: CharSequence) {
+        val total = text.length
+        if (total < 2) return
+        val step = maxOf(1, total / TYPE_STEPS)
+        var shown = 0
+        said.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_NONE
+        typing = object : Runnable {
+            override fun run() {
+                shown = minOf(total, shown + step)
+                if (shown >= total) {
+                    said.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+                    said.text = text
+                    return
+                }
+                said.text = android.text.SpannableString(text).apply {
+                    setSpan(android.text.style.ForegroundColorSpan(android.graphics.Color.TRANSPARENT), shown, total, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+                said.postDelayed(this, TYPE_MS)
+            }
+        }
+        said.post(typing)
+    }
+
+    private fun animationsOn() = Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f
+
+    /** She glances towards a touch on the screen beside her. */
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        if (ev.actionMasked == android.view.MotionEvent.ACTION_DOWN && ::face.isInitialized && face.width > 0) {
+            val at = IntArray(2).also { face.getLocationOnScreen(it) }
+            val onFace = ev.rawY >= at[1] && ev.rawY <= at[1] + face.height && kotlin.math.abs(ev.rawX - (at[0] + face.width / 2f)) < face.width * 0.25f
+            val dx = ev.rawX - (at[0] + face.width / 2f)
+            if (!onFace && kotlin.math.abs(dx) > dp(48)) face.lookToward(dx)
+        }
+        return super.dispatchTouchEvent(ev)
     }
 
     /** One missing setup step: an icon, what it's for in plain words, and a chevron. */
@@ -284,7 +326,10 @@ class PeriActivity : Activity() {
 
     /** The shield's basics, one at a time and only once each: a "no" is never asked again on every start. */
     private fun firstStart() {
-        val next = Need.FIRST_START.firstOrNull { !hub.permissions.granted(it) && !asked.getBoolean(it.name, false) }
+        // Installed from a file, Android answers a request for texts with a frightening "denied" notice: skip it
+        // here, and let the unlock guide (from the setup card) open texts and alerts together.
+        val locked = UnlockActivity.restricted(this)
+        val next = Need.FIRST_START.firstOrNull { !hub.permissions.granted(it) && !asked.getBoolean(it.name, false) && !(locked && it == Need.READ_SMS) }
         if (next != null) {
             asked.edit().putBoolean(next.name, true).apply()
             return hub.permissions.ask(next) {
@@ -295,7 +340,7 @@ class PeriActivity : Activity() {
         if (askToScreenCalls()) return
         if (!hasNotificationAccess() && !asked.getBoolean(NOTIFICATIONS, false)) {
             asked.edit().putBoolean(NOTIFICATIONS, true).apply()
-            hub.show(getString(R.string.why_notifications))
+            hub.show(getString(if (locked) R.string.why_notifications_locked else R.string.why_notifications))
         }
     }
 
@@ -337,6 +382,14 @@ class PeriActivity : Activity() {
         }
         showSetup()
         hub.refresh()
+        // Back from the unlock guide: texts can be asked for normally now.
+        if (asked.getBoolean(UnlockActivity.ASK_TEXTS, false)) {
+            asked.edit().putBoolean(UnlockActivity.ASK_TEXTS, false).apply()
+            if (!hub.permissions.granted(Need.READ_SMS)) {
+                asked.edit().putBoolean(Need.READ_SMS.name, false).apply()
+                ask(Need.READ_SMS)
+            }
+        }
     }
 
     /**
@@ -402,9 +455,10 @@ class PeriActivity : Activity() {
 
     /** Asks for [need] again, or, if Android won't show its dialog any more, explains and opens the app's settings. */
     private fun ask(need: Need) {
+        // Installed from outside a store, Android 13+ locks texts and notification access ("restricted setting").
+        if (need == Need.READ_SMS && UnlockActivity.restricted(this)) return startActivity(Intent(this, UnlockActivity::class.java))
         val canAsk = need.permissions.any { shouldShowRequestPermissionRationale(it) } || !asked.getBoolean(need.name, false)
         if (!canAsk) {
-            // Installed from outside a store, Android 13+ locks texts and notification access ("restricted setting").
             hub.show(getString(need.why) + " " + getString(R.string.setup_restricted))
             return startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
         }
@@ -514,14 +568,14 @@ class PeriActivity : Activity() {
         hub.permissions.ask(Need.MIC) { allowed -> if (allowed && !voice.listen()) hub.say(getString(R.string.no_mic_in_call)) }
     }
 
-    private fun hasNotificationAccess(): Boolean {
-        val enabled = Settings.Secure.getString(contentResolver, "enabled_notification_listeners").orEmpty()
-        return ComponentName(this, MessageListener::class.java).flattenToString() in enabled
-    }
+    private fun hasNotificationAccess(): Boolean = UnlockActivity.hasNotificationAccess(this)
 
     private companion object {
         const val REQUEST_NEED = 1
         const val SAID_SP = 22f
+        const val TYPE_MS = 22L
+        /** However long the sentence, it's all there in about this many steps (~2 s). */
+        const val TYPE_STEPS = 90
         const val BUBBLE_SHARE = 0.24f
         const val REQUEST_SCREENING = 2
         const val SCREENING = "screening"

@@ -63,6 +63,8 @@ class MiniPeriService : Service(), PeriView {
     /** The "drop here to put Peri away" target, in its own window, shown only while she is dragged. */
     private var target: LinearLayout? = null
     private var targetCircle: FrameLayout? = null
+    private var targetCross: ImageView? = null
+    private var targetLabel: TextView? = null
     private var overTarget = false
     private var snap: ValueAnimator? = null
     private var pulse: ValueAnimator? = null
@@ -231,7 +233,6 @@ class MiniPeriService : Service(), PeriView {
                     startY = params.y
                     dragging = false
                     longPressed = false
-                    face.press(true)
                     main.postDelayed(longPress, ViewConfiguration.getLongPressTimeout().toLong() + LONG_PRESS_EXTRA)
                 }
                 MotionEvent.ACTION_MOVE -> {
@@ -252,12 +253,10 @@ class MiniPeriService : Service(), PeriView {
                     }
                 }
                 MotionEvent.ACTION_UP -> {
-                    face.press(false)
                     main.removeCallbacks(longPress)
                     if (dragging) drop() else if (!longPressed) face.performClick()
                 }
                 MotionEvent.ACTION_CANCEL -> {
-                    face.press(false)
                     main.removeCallbacks(longPress)
                     if (dragging) drop()
                 }
@@ -355,46 +354,51 @@ class MiniPeriService : Service(), PeriView {
 
     /** A round "×" with a label, centred near the bottom: the same gesture as closing a chat bubble. */
     private fun buildTarget(): LinearLayout {
+        // Light, like Android's own bubbles: a white disc with a soft "×", over a gentle shade at the bottom.
+        val cross = ImageView(this).apply {
+            setImageResource(R.drawable.ic_close)
+            setColorFilter(Palette.INK_SOFT)
+        }
         val circle = FrameLayout(this).apply {
             background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
-                setColor(Palette.INK)
-                setStroke(dp(2), Palette.WHITE)
+                setColor(TARGET_FILL)
             }
-            elevation = dp(6).toFloat()
-            addView(ImageView(this@MiniPeriService).apply {
-                setImageResource(R.drawable.ic_close)
-                setColorFilter(Palette.WHITE)
-            }, FrameLayout.LayoutParams(dp(30), dp(30), Gravity.CENTER))
+            elevation = dp(4).toFloat()
+            addView(cross, FrameLayout.LayoutParams(dp(26), dp(26), Gravity.CENTER))
         }
         val label = TextView(this).apply {
             text = getString(R.string.mini_drop_here)
             sizeSp(15f)
             typeface = weight(600)
             setTextColor(Palette.WHITE)
-            background = rounded(Palette.INK, dp(16).toFloat())
-            setPadding(dp(14), dp(6), dp(14), dp(7))
+            setShadowLayer(dp(4).toFloat(), 0f, dp(1).toFloat(), SHADE_TEXT)
             gravity = Gravity.CENTER
         }
         val view = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
             clipChildren = false
-            setPadding(dp(16), dp(16), dp(16), dp(16))
+            background = GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, intArrayOf(SHADE, 0x00000000))
+            setPadding(dp(16), dp(48), dp(16), dp(40))
             alpha = 0f
             visibility = View.GONE
             addView(circle, LinearLayout.LayoutParams(dp(TARGET_DP), dp(TARGET_DP)).apply { bottomMargin = dp(10) })
             addView(label, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
         }
-        // As wide as the screen (it can't be touched anyway), so the label is never cut.
-        val p = overlay(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE).apply {
+        // As wide as the screen, down to the very bottom; it can never be touched, and it's hidden unless dragging.
+        val p = overlay(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS).apply {
             width = WindowManager.LayoutParams.MATCH_PARENT
             gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-            y = dp(40)
+            y = 0
+            // Android lets touches through other apps' windows only when they're this see-through or more.
+            alpha = 0.8f
         }
         windows.addView(view, p)
         target = view
         targetCircle = circle
+        targetCross = cross
+        targetLabel = label
         return view
     }
 
@@ -414,9 +418,11 @@ class MiniPeriService : Service(), PeriView {
     }
 
     private fun highlight(circle: FrameLayout, on: Boolean) {
-        (circle.background as? GradientDrawable)?.setColor(if (on) Palette.DANGER else Palette.INK)
-        val s = if (on) 1.25f else 1f
-        circle.animate().scaleX(s).scaleY(s).setDuration(120).start()
+        (circle.background as? GradientDrawable)?.setColor(if (on) Palette.DANGER else TARGET_FILL)
+        targetCross?.setColorFilter(if (on) Palette.WHITE else Palette.INK_SOFT)
+        targetLabel?.text = getString(if (on) R.string.mini_let_go else R.string.mini_drop_here)
+        val s = if (on) 1.2f else 1f
+        circle.animate().scaleX(s).scaleY(s).setInterpolator(OvershootInterpolator(2f)).setDuration(160).start()
     }
 
     /** She pops up, with a little bounce, whenever she (re)appears. */
@@ -557,7 +563,11 @@ class MiniPeriService : Service(), PeriView {
         private const val NOTIFICATION_ID = 7
         private const val SIZE_DP = 100
         private const val RING_DP = 88
-        private const val TARGET_DP = 64
+        private const val TARGET_DP = 60
+        private const val TARGET_FILL = 0xF2FFFFFF.toInt()
+        /** The shade behind the target: dark enough for white text on any wallpaper, never a wall. */
+        private const val SHADE = 0x66000000
+        private const val SHADE_TEXT = 0x99000000.toInt()
         /** How close (from the finger to the "×") counts as dropping her on it. */
         private const val HIT_DP = 72
         private const val RING_FILL = 0x267CC242

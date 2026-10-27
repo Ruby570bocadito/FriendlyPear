@@ -187,6 +187,21 @@
     <string name="voice_best">recommended</string>
     <string name="voice_online">needs internet</string>
     <string name="voice_sample">Hello! This is how I\'ll sound from now on. Do you like it?</string>
-    <string name="mini_drop_here">Drop here to put Peri away</string>
+    <string name="mini_drop_here">Drag here to put Peri away</string>
+    <string name="mini_let_go">Let go to put her away</string>
     <string name="mini_put_away">Peri is resting. Open FriendlyPear to bring her back.</string>
+    <string name="unlock_title">Unlock Peri</string>
+    <string name="unlock_why">Android protects message alerts and texts for apps installed from a file, like this one, because spy apps use them. It\'s three quick steps, and you only do them once.</string>
+    <string name="unlock_step1">Try to turn on message alerts for FriendlyPear. Android will say <b>the app was denied access</b>: tap Close. That\'s expected, and it makes the next step appear.</string>
+    <string name="unlock_step1_button">Try it once</string>
+    <string name="unlock_step2">In FriendlyPear\'s app info, tap the <b>three dots ⋮</b> at the top right and choose <b>Allow restricted settings</b>. Your phone will ask for your PIN or fingerprint.</string>
+    <string name="unlock_step2_button">Open app info</string>
+    <string name="unlock_step3">Now turn on message alerts for FriendlyPear. This time Android lets you. If the switch is still grey, do step 2 again.</string>
+    <string name="unlock_step3_button">Turn it on</string>
+    <string name="unlock_done">Done! Now I can see your messages and warn you in time.</string>
+    <string name="unlock_done_button">Back to Peri</string>
+    <string name="unlock_brands">On some phones (OPPO, Realme, OnePlus, Xiaomi) the three dots are at the bottom, or the option is under Permissions. If you can\'t find it, search the phone\'s settings for “restricted”.</string>
+    <string name="unlock_peri_says">Thank you! Now I can see your message alerts. If you also let me read your texts, I\'ll catch scam codes too.</string>
+    <string name="why_notifications_locked">To see your WhatsApp and email alerts, Android needs you to unlock me first. Tap the card below: three quick steps, only once.</string>
+    <string name="setup_unlock">Unlock Peri: 3 quick steps so she can see your messages</string>
 </resources>

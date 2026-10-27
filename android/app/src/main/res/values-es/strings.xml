@@ -186,6 +186,21 @@
     <string name="voice_best">recomendada</string>
     <string name="voice_online">necesita internet</string>
     <string name="voice_sample">¡Hola! Así sonaré a partir de ahora. ¿Te gusta?</string>
-    <string name="mini_drop_here">Suelta aquí para guardar a Peri</string>
+    <string name="mini_drop_here">Arrastra aquí para guardar a Peri</string>
+    <string name="mini_let_go">Suelta para guardarla</string>
     <string name="mini_put_away">Peri descansa. Abre FriendlyPear para que vuelva.</string>
+    <string name="unlock_title">Desbloquear a Peri</string>
+    <string name="unlock_why">Android protege los avisos de mensajes y los SMS en las apps instaladas desde un archivo, como esta, porque las apps espía los usan. Son tres pasos rápidos y solo se hacen una vez.</string>
+    <string name="unlock_step1">Intenta activar los avisos de mensajes para FriendlyPear. Android dirá que <b>se ha denegado el acceso</b>: toca Cerrar. Es normal, y así aparece el paso siguiente.</string>
+    <string name="unlock_step1_button">Intentarlo una vez</string>
+    <string name="unlock_step2">En la información de FriendlyPear, toca los <b>tres puntos ⋮</b> de arriba a la derecha y elige <b>Permitir ajustes restringidos</b>. El móvil te pedirá tu PIN o tu huella.</string>
+    <string name="unlock_step2_button">Abrir la información de la app</string>
+    <string name="unlock_step3">Ahora activa los avisos de mensajes para FriendlyPear. Esta vez Android te deja. Si el interruptor sigue gris, repite el paso 2.</string>
+    <string name="unlock_step3_button">Activarlo</string>
+    <string name="unlock_done">¡Listo! Ya puedo ver tus mensajes y avisarte a tiempo.</string>
+    <string name="unlock_done_button">Volver con Peri</string>
+    <string name="unlock_brands">En algunos móviles (OPPO, Realme, OnePlus, Xiaomi) los tres puntos están abajo, o la opción está en Permisos. Si no la encuentras, busca «restringido» en los ajustes del móvil.</string>
+    <string name="unlock_peri_says">¡Gracias! Ya veo los avisos de tus mensajes. Si además me dejas leer tus SMS, también pillaré los códigos trampa.</string>
+    <string name="why_notifications_locked">Para ver tus avisos de WhatsApp y del correo, Android necesita que me desbloquees primero. Toca la tarjeta de abajo: tres pasos rápidos, solo una vez.</string>
+    <string name="setup_unlock">Desbloquear a Peri: 3 pasos rápidos para que vea tus mensajes</string>
 </resources>
