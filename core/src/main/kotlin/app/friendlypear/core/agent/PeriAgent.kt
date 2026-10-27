@@ -44,6 +44,7 @@ class PeriAgent(
 
     private val directory = ContactDirectory(contacts)
     private val unread = ArrayDeque<Received>()
+    private val awaitingOpinion = mutableSetOf<IncomingMessage>()
     private var pending: Pending? = null
     private var callActive = false
     private var lastSaid = ""
@@ -58,11 +59,39 @@ class PeriAgent(
         callActive = active
     }
 
-    fun onMessage(message: IncomingMessage): Verdict {
+    /**
+     * Evaluates a message and warns if needed. With [secondOpinion], a doubtful message waits silently for
+     * [onModelOpinion] instead, so Peri speaks once, with the model's vote already counted.
+     */
+    fun onMessage(message: IncomingMessage, secondOpinion: Boolean = false): Verdict {
         val verdict = shield.evaluate(message, ShieldContext(contacts, callActive))
         unread.addLast(Received(message, verdict))
         if (unread.size > MAX_UNREAD) unread.removeFirst()
-        if (verdict.level == Level.OK || pending == Pending.Emergency) return verdict
+        if (secondOpinion && verdict.level == Level.DOUBT) {
+            awaitingOpinion += message
+            return verdict
+        }
+        announce(verdict)
+        return verdict
+    }
+
+    /**
+     * The model's vote for a message held by [onMessage], or null when it failed or timed out: then the
+     * rules' verdict stands. The vote moves the score by at most ±2 and Peri still speaks its own sentence,
+     * never the model's, so a message cannot talk the model into saying something unsafe.
+     */
+    fun onModelOpinion(message: IncomingMessage, delta: Double?): Verdict? {
+        if (!awaitingOpinion.remove(message)) return null
+        val index = unread.indexOfFirst { it.message == message }
+        val before = if (index >= 0) unread[index].verdict else shield.evaluate(message, ShieldContext(contacts, callActive))
+        val after = if (delta == null) before else shield.withModelOpinion(before, delta)
+        if (index >= 0) unread[index] = Received(message, after)
+        announce(after)
+        return after
+    }
+
+    private fun announce(verdict: Verdict) {
+        if (verdict.level == Level.OK || pending == Pending.Emergency) return
 
         val real = if (verdict.safeAction == SafeAction.CALL_SAVED_CONTACT) family(verdict.claimedRelation) else emptyList()
         when (real.size) {
@@ -77,7 +106,6 @@ class PeriAgent(
                 say("${verdict.explanation} $question")
             }
         }
-        return verdict
     }
 
     fun onHeard(utterance: String) {
