@@ -27,7 +27,7 @@
 - SEG: revisar las rutas nuevas de `server.ts` (`/v1/approvals`, `/a/:token`) y añadir límite de peticiones a `/a/`.
 
 ## Propuestas para el roadmap
-- Investigar una aprobación que llegó sin pulsar a propósito en la primera prueba (09:39, mientras se cerraba la bienvenida de Chrome). En la prueba controlada, abrir el enlace solo hizo GET; el registro de `/a/` lo dirá si vuelve a pasar.
+- Resuelto: la aprobación de las 09:39 fue un toque de la persona en la ventana del emulador. Investigado: ni la espera ni WAKEUP, BACK o ENDCALL aprueban nada; abrir el enlace solo hace GET.
 - Entre dos emuladores, el SMS largo (varias partes) no llegó; en la prueba se entregó con `adb emu sms send`. Probar en móviles reales.
 - `muse-spark-1.3-contributor` es ~20 veces más barato, pero Meta entrena con los prompts: solo para datos sintéticos.
 - pesos-aprendidos debe producir un `ShieldWeights` que `Shield` ya acepta.

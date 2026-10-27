@@ -19,7 +19,7 @@
 - permisos-progresivos (lo hizo IMP-1): `config/Need.kt` (permiso, frase de Peri y qué sigue funcionando si se dice que no) y `config/PermissionGate.kt` (uno a uno; sin pantalla, la respuesta es "no").
   - Primer arranque: agenda → SMS entrantes → estado de llamada → rol de filtro → aviso de notificaciones, cada uno una sola vez. Micrófono al pulsar "Hablar"; llamadas y envío de SMS con `DevicePort.prepare` antes de actuar; ubicación durante la cuenta atrás de emergencia.
   - Emulador: frase de Peri + diálogo de Android en cada paso; SMS denegado respetado; llamar no se pidió aparte porque Android lo concede junto con el estado de llamada (mismo grupo).
-  - Aviso: el diálogo de enviar SMS se aceptó con un toque que no hice a propósito; probablemente las teclas que mandan mis scripts (WAKEUP, ENDCALL) pulsan el botón con foco. Comprobar en un móvil real.
+  - Un "Allow" que no dio IMP-1 fue un toque de la persona en la ventana del emulador; sin entrada, el diálogo espera, y BACK o ENDCALL cuentan como "no".
 
 ## Cómo probar sin micrófono (solo builds de depuración)
 - `adb shell am broadcast -a app.friendlypear.debug.HEAR --es text si` hace que Peri "oiga" esa frase. Con varias palabras, comillas dentro: `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`.
