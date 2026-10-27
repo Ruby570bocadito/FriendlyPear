@@ -338,7 +338,7 @@ class PeriActivity : Activity() {
     /** Tapping Peri: she jumps for joy, giggles and shares a little anti-scam tip. */
     private fun tapped() {
         if (hub.isWaitingForAnswer || hub.speaking) return
-        face.cheer()
+        face.moment(app.friendlypear.services.PeriMoment.IDEA)
         hub.say(resources.getStringArray(R.array.peri_taps).random() + " " + resources.getStringArray(R.array.peri_tips).random())
     }
 
@@ -411,6 +411,8 @@ class PeriActivity : Activity() {
         override fun said(text: String) = showSaid(text)
 
         override fun mood(mood: Mood) = showFace(mood)
+
+        override fun moment(moment: app.friendlypear.services.PeriMoment) = face.moment(moment)
 
         override fun speaking(on: Boolean) {
             face.speaking(on)

@@ -73,6 +73,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private var popStart = 0L
     private val pop = OvershootInterpolator(2.2f)
     private var running = false
+    /** While a pose (an idea, "sorry", a thumbs up) is on, blinks and glances wait. */
+    private var posing = false
 
     init {
         rig.addView(back, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
@@ -163,6 +165,31 @@ class PeriFace(context: Context) : FrameLayout(context) {
         if (on && moves) main.post(mouth) else if (!on && shown != null) put(frames.still)
     }
 
+    /** One of the poses for a couple of seconds, with a little pop, then back to her mood. */
+    fun moment(moment: app.friendlypear.services.PeriMoment) {
+        if (shown == null) return
+        val res = when (moment) {
+            app.friendlypear.services.PeriMoment.IDEA -> R.drawable.peri_calm_idea
+            app.friendlypear.services.PeriMoment.SORRY -> R.drawable.peri_calm_sorry
+            app.friendlypear.services.PeriMoment.THUMBS_UP -> R.drawable.peri_calm_thumbsup
+        }
+        front.animate().cancel()
+        back.animate().cancel()
+        front.alpha = 1f
+        back.alpha = 0f
+        fading = false
+        posing = true
+        front.setImageDrawable(context.getDrawable(res))
+        popStart = SystemClock.uptimeMillis()
+        main.removeCallbacks(endPose)
+        main.postDelayed(endPose, POSE_MILLIS)
+    }
+
+    private val endPose = Runnable {
+        posing = false
+        put(frames.still)
+    }
+
     /** A happy jump for a moment (she was tapped), then back to her mood. */
     fun cheer() {
         val mood = shown ?: return
@@ -183,7 +210,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private fun put(res: Int) {
         // A blink or wave scheduled before a mood change never shows a frame of the old mood.
         val waving = shown == Mood.CALM && (res == R.drawable.peri_calm_wave1 || res == R.drawable.peri_calm_wave2)
-        if (fading || (res !in frames.all && !waving)) return
+        if (fading || posing || (res !in frames.all && !waving)) return
         front.setImageDrawable(drawable(res))
     }
 
@@ -262,6 +289,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private companion object {
         const val MOOD_FADE = 200L
         const val CHEER_MILLIS = 2_200L
+        const val POSE_MILLIS = 2_800L
         const val POP_MS = 420f
         const val WAVE_START = 400L
         const val WAVE_STEP = 170L

@@ -268,6 +268,8 @@ class MiniPeriService : Service(), PeriView {
 
     override fun mood(mood: Mood) = showFace(mood)
 
+    override fun moment(moment: app.friendlypear.services.PeriMoment) = face.moment(moment)
+
     override fun appShown(visible: Boolean) {
         root.visibility = if (visible) View.GONE else View.VISIBLE
     }

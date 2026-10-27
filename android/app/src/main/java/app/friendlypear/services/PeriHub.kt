@@ -24,6 +24,7 @@ import app.friendlypear.core.agent.ApprovalKind
 import app.friendlypear.core.agent.ApprovalPort
 import app.friendlypear.core.agent.ApprovalResult
 import app.friendlypear.core.agent.Mood
+import app.friendlypear.core.agent.PauseAnswer
 import app.friendlypear.core.agent.PeriAgent
 import app.friendlypear.core.model.Contact
 import app.friendlypear.core.model.TrustLevel
@@ -57,7 +58,11 @@ interface PeriView {
     fun speaking(on: Boolean) = Unit
     /** The full app came to the front or left it: Mini Peri steps aside meanwhile, so Peri never shows twice. */
     fun appShown(visible: Boolean) = Unit
+    /** A short pose for a moment: an idea (a tip), "sorry" (didn't catch it), a thumbs up (well done). */
+    fun moment(moment: PeriMoment) = Unit
 }
+
+enum class PeriMoment { IDEA, SORRY, THUMBS_UP }
 
 /**
  * Owns the one [PeriAgent] of the app and feeds it on the main thread: messages from [MessageListener],
@@ -120,6 +125,7 @@ class PeriHub(context: Context) {
         main.post {
             Log.i(TAG, "safety pause answer=$answer")
             agent.onPauseAnswer(answer)
+            if (answer == PauseAnswer.LEAVE) views.forEach { it.moment(PeriMoment.THUMBS_UP) }
             share(NewsEntry(System.currentTimeMillis(), "pause", answer = answer.name.lowercase()))
         }
     }
@@ -206,7 +212,13 @@ class PeriHub(context: Context) {
     }
 
     /** Nothing understood: Peri says so kindly, and how to try again. */
-    fun missedVoice() = say(context.getString(R.string.voice_missed))
+    fun missedVoice() {
+        say(context.getString(R.string.voice_missed))
+        main.post { views.forEach { it.moment(PeriMoment.SORRY) } }
+    }
+
+    /** A pose on every screen showing Peri. */
+    fun moment(moment: PeriMoment) = main.post { views.forEach { it.moment(moment) } }
 
     /** Peri's news for the guardians, only if the person turned it on; the same list stays on this phone. */
     val news = SharedNews(this.context)
