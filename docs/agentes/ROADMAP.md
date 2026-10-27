@@ -22,7 +22,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [ ] (IMP-1) pesos-aprendidos — [M] regresión logística para los pesos de las señales del escudo, con informe — training/, core/.../shield/
 - [x] (IMP-1) escudo-capas — [L] señales, log-odds, reglas duras, acción segura y explicación de Peri — core/.../shield/ · hecho 2026-10-27
 - [x] (IMP-1) voz-y-agenda — [M] órdenes en español, alias y relaciones — core/.../voice/ · hecho 2026-10-27
-- [ ] (IMP-1) agente-base — [M] bucle con confirmaciones y verificación de resultados — core/.../agent/
+- [x] (IMP-1) agente-base — [M] bucle con confirmaciones y verificación de resultados — core/.../agent/ · hecho 2026-10-27
 - [ ] (IMP-2) android-servicios — [M] lector de notificaciones, estado de llamada, voz y TTS — android/.../services/, device/
 - [ ] (SEG) permisos-minimos — [S] permisos justos y ningún log con texto de mensajes — android/app/src/main/AndroidManifest.xml
 
