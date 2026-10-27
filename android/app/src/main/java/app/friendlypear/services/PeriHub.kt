@@ -106,6 +106,10 @@ class PeriHub(context: Context) {
             speaking = false
             views.forEach { it.speaking(false) }
         },
+        onSpeechStart = {
+            speaking = true
+            views.forEach { it.speaking(true) }
+        },
         ask = { capability, then -> permissions.ask(Need.of(capability), then) },
         pause = { text, callName -> pauseScreen.show(text, callName) },
         onCalling = { miniBesideCall() },
@@ -121,7 +125,8 @@ class PeriHub(context: Context) {
     }
 
     /** One permission at a time, with Peri's explanation; the screen registers itself to show Android's dialog. */
-    val permissions: PermissionGate = PermissionGate(this.context) { text -> device.speak(text) }
+    /** Permission explanations are shown in Peri's bubble, not read aloud: at first start they'd be a lot of talking. */
+    val permissions: PermissionGate = PermissionGate(this.context) { text -> show(text) }
     private var contacts: List<Contact>? = null
     private val family = FamilyStore(this.context)
     private var familyWord = false
@@ -387,6 +392,12 @@ class PeriHub(context: Context) {
 
     /** Peri says something outside the agent, e.g. why she needs a permission. */
     fun say(text: String) = main.post { device.speak(text) }
+
+    /** Something Peri writes in her bubble without saying it aloud: explanations to read at one's own pace. */
+    fun show(text: String) = main.post {
+        lastSaid = text
+        views.forEach { it.said(text) }
+    }
 
     fun heard(utterance: String) = main.post {
         agent.onHeard(utterance)

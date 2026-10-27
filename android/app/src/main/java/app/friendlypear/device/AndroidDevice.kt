@@ -27,6 +27,8 @@ class AndroidDevice(
     lang: Lang,
     private val onSpeech: (String) -> Unit,
     private val onSpeechDone: () -> Unit,
+    /** When the voice really starts playing: some engines report "done" early, so the mouth follows this too. */
+    private val onSpeechStart: () -> Unit = {},
     private val ask: (Capability, (Boolean) -> Unit) -> Unit,
     private val pause: (text: String, callName: String?) -> Unit = { _, _ -> },
     /** Right after Peri places a call, so Mini Peri can stay beside the call screen. */
@@ -50,16 +52,26 @@ class AndroidDevice(
     private val queued = ArrayDeque<String>()
     private val ids = AtomicInteger()
     private var ready = false
-    private val tts: TextToSpeech = TextToSpeech(this.context) { status -> main.post { onTtsReady(status) } }
+    /**
+     * Google's speech engine when the phone has it: some makers' own engines sound robotic, and older people
+     * understand a natural voice better. Otherwise the phone's default engine.
+     */
+    private val tts: TextToSpeech = run {
+        val google = runCatching { this.context.packageManager.getPackageInfo(GOOGLE_TTS, 0) }.isSuccess
+        val ready = TextToSpeech.OnInitListener { status -> main.post { onTtsReady(status) } }
+        if (google) TextToSpeech(this.context, ready, GOOGLE_TTS) else TextToSpeech(this.context, ready)
+    }
 
     private fun onTtsReady(status: Int) {
         if (status != TextToSpeech.SUCCESS) return
         useVoice()
-        // A warm, unhurried voice (docs/PERI_VOZ.md): a little slower and a little higher than default.
+        // A warm, unhurried voice (docs/PERI_VOZ.md): a little slower than default, at its natural pitch.
         tts.setSpeechRate(0.9f)
-        tts.setPitch(1.1f)
+        tts.setPitch(1.0f)
         tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-            override fun onStart(utteranceId: String?) = Unit
+            override fun onStart(utteranceId: String?) {
+                main.post { onSpeechStart() }
+            }
             override fun onDone(utteranceId: String?) {
                 main.post { if (!tts.isSpeaking) onSpeechDone() }
             }
@@ -130,3 +142,5 @@ fun speechLocale(lang: Lang): Locale = when (lang) {
     Lang.ES -> Locale("es", "ES")
     Lang.EN -> Locale.getDefault().takeIf { it.language == "en" } ?: Locale.US
 }
+
+private const val GOOGLE_TTS = "com.google.android.tts"
