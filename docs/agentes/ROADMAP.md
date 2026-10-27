@@ -30,8 +30,8 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [x] (IMP-1) peri-bilingue — [L] Peri habla y entiende inglés además de español: frases del escudo y del agente, órdenes de voz, relaciones y señales de estafa en inglés; TTS y reconocedor en el idioma del móvil — core/.../shield/, voice/, agent/, android/.../device/ · hecho 2026-10-27
 
 ## Día 3 · 29 oct — primer flujo en el móvil
-- [ ] (IMP-2) ui-compose — [M] pasar la UI a Jetpack Compose + Material 3 con la paleta de `docs/DISENO.md` — android/app/
-- [ ] (IMP-2) peri-animada — [L] Peri vectorial con estados tranquila, escuchando, pensando, preocupada y protectora; respeta "quitar animaciones" — android/.../ui/peri/ · a medias: fotogramas de Muse Image recortados (parpadeo en 4 pasos, dos bocas, saludo) con inclinación, bote, sombra y pop entre estados; falta la Peri vectorial
+- [x] (IMP-2) ui-compose — [M] pasar la UI a Jetpack Compose + Material 3 con la paleta de `docs/DISENO.md` — android/app/ · descartada 2026-10-27: la app se queda en vistas nativas con `Style.kt` y el diseño plano de `docs/DISENO.md`; pasarla a Compose no cambia nada que vea el jurado
+- [x] (IMP-2) peri-animada — [L] Peri vectorial con estados tranquila, escuchando, pensando, preocupada y protectora; respeta "quitar animaciones" — android/.../ui/peri/ · a medias: fotogramas de Muse Image recortados (parpadeo en 4 pasos, dos bocas, saludo) con inclinación, bote, sombra y pop entre estados; sustituida 2026-10-27 por la Peri de plastilina (9 estados de 13 fotogramas y 13 poses en `PeriFace`, con movimiento propio y quieta si se quitan las animaciones): la vectorial ya no hace falta
 - [x] (IMP-2) peri-mini — [M] modo Mini Peri: solo la pera flotando sobre otras apps, con bocadillo; tocar = hablar, arrastrar = mover, mantener = abrir la app — android/.../ui/peri/MiniPeriService.kt
 - [x] (IMP-2) peri-fotogramas — [S] 4 fotogramas por estado con Muse Image (36, 0,36 $) — assets/peri/
 - [x] (IMP-2) peri-miradas — [S] 27 fotogramas más (miradas a cada lado y boca en "o"), 0,27 $; Peri mira a los lados cada 6–11 s — assets/peri/, ui/peri/PeriFace.kt · hecho 2026-10-27
@@ -66,7 +66,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 ## Día 5 · 31 oct — confianza y emergencia
 - [x] (IMP-2) te-estan-guiando — [M] avisos al instalar apps de control remoto y al abrir la app del banco durante una llamada desconocida — android/.../services/ · hecho 2026-10-27 (apps de control remoto y app del banco en llamada desconocida; probado con el puente de depuración, sin apps reales)
 - [ ] (IMP-1) finetune-glimmer-1 — [L] apuesta: LoRA de Glimmer con el dataset — training/
-- [ ] (IMP-2) emergencia — [M] cuenta atrás, llamada y SMS con ubicación — android/
+- [x] (IMP-2) emergencia — [M] cuenta atrás, llamada y SMS con ubicación — android/ · hecho (ya estaba): "me he caído" → 10 s para cancelar, SMS a la familia con la última ubicación y llamada (`PeriAgent.onEmergencyTimeout`, tests en es y en)
 - [x] (IMP-2) config-familia — [M] guardianes, alias, relaciones, números oficiales — android/.../config/ · hecho 2026-10-27 (guardianes, relaciones, apodos y palabra de la familia sin guardarla; faltan los números oficiales)
 - [ ] (IMP-2) panel-permisos — [M] "Lo que Peri puede hacer": estado de cada permiso, para qué sirve, botón para quitarlo y registro de usos sensibles — android/.../ui/peri/, config/
 - [x] (PUL) docs-hackaton — [S] README con "At a glance" para el jurado, conectar cada móvil, bienvenida, guía de desbloqueo y voz; META_MODELS (diseños, fotogramas, datos de entrenamiento) y ARQUITECTURA al día; página de `bun pair` con Peri, pasos y cuenta atrás — README.md, docs/, backend/src/pair.ts · hecho 2026-10-27
