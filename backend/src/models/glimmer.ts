@@ -29,9 +29,12 @@ export function basetenUrl(modelId: string): string {
 }
 
 /** GLIMMER_BASE_URL (any vLLM server) wins over BASETEN_MODEL_ID. */
-export function glimmerFromEnv(env: Record<string, string | undefined> = process.env): GlimmerClient | null {
+export function glimmerFromEnv(
+  env: Record<string, string | undefined> = process.env,
+  options: Partial<GlimmerOptions> = {},
+): GlimmerClient | null {
   const baseUrl = env.GLIMMER_BASE_URL || (env.BASETEN_MODEL_ID ? basetenUrl(env.BASETEN_MODEL_ID) : "");
   const apiKey = env.GLIMMER_API_KEY || env.BASETEN_API_KEY || "";
   if (!baseUrl || !apiKey) return null;
-  return new GlimmerClient({ baseUrl, apiKey, model: env.GLIMMER_MODEL });
+  return new GlimmerClient({ ...options, baseUrl, apiKey, model: env.GLIMMER_MODEL });
 }
