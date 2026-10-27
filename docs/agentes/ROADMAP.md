@@ -94,7 +94,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [ ] (PUL) readme-resultados — [S] resultados, límites, qué se hizo en el hackathon, capturas — README.md
 
 ## Día 8 · 3 nov — demo
-- [ ] (DIR) grabaciones-reales — [M] los 5 momentos grabados en emulador o móvil real — docs/demo/clips/
+- [x] (DIR) grabaciones-reales — [M] los 5 momentos grabados en emulador o móvil real — docs/demo/ · hecho 2026-10-27 a petición de la persona: 7 clips reales en dos emuladores, montados a 1080p con rótulos en inglés (`docs/demo/README.md`; los vídeos en `dist/demo/`, fuera del repo). Faltan la voz y la música, que van en el montaje final
 - [ ] (IMP-1) tunel-https — [S] **opcional** (27 oct, decisión de la persona): servidor con dirección HTTPS pública para probar en móviles reales fuera de casa. Preparado y probado hasta el último paso: backend con `PUBLIC_BASE_URL=https://rby.tailb6f848.ts.net TRUST_PROXY=1`, APK con `-Pfriendlypear.backendUrl=…` y la IP del cliente tomada de lo que añade el proxy. Falta solo aprobar Funnel en la cuenta de Tailscale (`tailscale funnel --bg 8711`). Los móviles no necesitan Tailscale. Sin túnel, la demo se graba con los dos emuladores — backend/src/main.ts, android/app/build.gradle.kts
 - [ ] (DIR) escenas-higgsfield — [M] escenas de historia con Higgsfield, rotuladas como generadas con IA — docs/demo/
 - [ ] (DIR) video-3-min — [M] montaje del vídeo de demo según `docs/VIDEO.md` — docs/demo/

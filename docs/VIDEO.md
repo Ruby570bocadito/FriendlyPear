@@ -81,7 +81,7 @@ Subtítulos siempre (la mayoría ve vídeos sin sonido). Versión en español y 
 ## 7. Checklist
 
 - [ ] Imagen de referencia de Peri aprobada
-- [ ] Grabaciones reales de los 5 momentos
+- [x] Grabaciones reales de los 5 momentos (y dos más: la familia con dos móviles, y "ver la trampa" + "denunciarlo"), en `dist/demo/`; ver [`demo/README.md`](demo/README.md)
 - [ ] Escenas de Higgsfield generadas y revisadas (sin manos raras ni textos inventados en pantalla)
 - [ ] Rótulo "generada con IA" en escenas no reales
 - [ ] Música con licencia libre

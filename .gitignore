@@ -28,3 +28,6 @@ backend/data/
 # Evaluation data with real (even anonymised) messages stays local
 eval/data/
 training/data/
+
+# Demo video clips: large, they go to the video host, not the repo
+dist/demo/
