@@ -53,6 +53,8 @@ export const FRAMES: Record<string, string> = {
   glanceleft: "Only change: both pupils look towards the left side of the image, as if glancing at something there; head, body, mouth and everything else stay exactly the same. If the eyes are closed, keep them closed.",
   glanceright: "Only change: both pupils look towards the right side of the image, as if glancing at something there; head, body, mouth and everything else stay exactly the same. If the eyes are closed, keep them closed.",
   talko: "Only change: the mouth is a small round 'o' shape, as if saying 'oh', keeping the same eyes and expression. If sleeping, the mouth is a tiny relaxed line.",
+  stepleft: "Only change: Peri lifts the foot on the left side of the image a little off the ground, that leg slightly bent at the knee, as if taking a small cheerful step; the other foot stays flat on the ground. Head, body, arms, face, props and position stay exactly the same.",
+  stepright: "Only change: Peri lifts the foot on the right side of the image a little off the ground, that leg slightly bent at the knee, as if taking a small cheerful step; the other foot stays flat on the ground. Head, body, arms, face, props and position stay exactly the same.",
 };
 
 /** Illustrations made from one state, for the app icon and the screens around Peri. */
