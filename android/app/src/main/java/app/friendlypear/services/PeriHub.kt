@@ -10,6 +10,8 @@ import android.util.Log
 import app.friendlypear.BuildConfig
 import app.friendlypear.R
 import app.friendlypear.config.FamilyStore
+import app.friendlypear.config.InvestigationEntry
+import app.friendlypear.config.InvestigationLog
 import app.friendlypear.config.Need
 import app.friendlypear.config.PermissionGate
 import app.friendlypear.config.PhoneContacts
@@ -25,27 +27,42 @@ import app.friendlypear.core.trust.FamilyConfig
 import app.friendlypear.core.trust.PendingCircleChange
 import app.friendlypear.core.model.IncomingMessage
 import app.friendlypear.core.model.Level
+import app.friendlypear.core.shield.Shield
 import app.friendlypear.core.shield.Verdict
 import app.friendlypear.device.AndroidDevice
 import app.friendlypear.device.phoneLang
 import app.friendlypear.net.ApprovalClient
 import app.friendlypear.net.OpinionClient
+import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executors
+
+/** A screen showing Peri: the full app or the mini Peri floating over other apps. Called on the main thread. */
+interface PeriView {
+    fun said(text: String) = Unit
+    fun mood(mood: Mood) = Unit
+    /** While Peri's voice is playing, so her mouth can move. */
+    fun speaking(on: Boolean) = Unit
+}
 
 /**
  * Owns the one [PeriAgent] of the app and feeds it on the main thread: messages from [MessageListener],
  * call state from [CallStateWatcher] and voice from the screen. Doubtful messages get Muse Spark Open's
- * second opinion through the backend when it is configured, and high-risk actions wait for a guardian.
+ * second opinion through the backend when it is configured, and, if still doubtful, the Muse Spark
+ * investigator's. High-risk actions wait for a guardian.
  */
 class PeriHub(context: Context) {
     private val context = context.applicationContext
     private val main = Handler(Looper.getMainLooper())
 
-    /** The screen shows what Peri says, large, for people who hear badly. */
-    var onSaid: ((String) -> Unit)? = null
-    var onSpeechDone: (() -> Unit)? = null
+    /** The screens show what Peri says, large, for people who hear badly. */
+    private val views = CopyOnWriteArraySet<PeriView>()
     var lastSaid: String = ""
         private set
+    var speaking = false
+        private set
+
+    fun attach(view: PeriView) = views.add(view)
+    fun detach(view: PeriView) = views.remove(view)
 
     /** Read once: Peri keeps one language for the whole session. */
     val lang = phoneLang()
@@ -55,10 +72,17 @@ class PeriHub(context: Context) {
         lang,
         onSpeech = { text ->
             lastSaid = text
-            onSaid?.invoke(text)
-            onMood?.invoke(mood)
+            speaking = true
+            views.forEach {
+                it.said(text)
+                it.mood(mood)
+                it.speaking(true)
+            }
         },
-        onSpeechDone = { onSpeechDone?.invoke() },
+        onSpeechDone = {
+            speaking = false
+            views.forEach { it.speaking(false) }
+        },
         ask = { capability, then -> permissions.ask(Need.of(capability), then) },
     )
 
@@ -108,11 +132,11 @@ class PeriHub(context: Context) {
     val bank = BankWatcher(this.context) { packageName -> onAppOpened(packageName) }
     private val opinion = OpinionClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
     private val network = Executors.newSingleThreadExecutor()
+    private val investigations = InvestigationLog(this.context)
 
     val isWaitingForAnswer: Boolean get() = agent.isWaitingForAnswer
 
-    /** Peri's face for the screen; it changes whenever she speaks. */
-    var onMood: ((Mood) -> Unit)? = null
+    /** Peri's face for the screens; it changes whenever she speaks. */
     val mood: Mood get() = agent.mood
 
     init {
@@ -150,6 +174,8 @@ class PeriHub(context: Context) {
         if (contacts == null) refreshNow()
         val asking = opinion.enabled
         val verdict = agent.onMessage(message, secondOpinion = asking)
+        // Waiting for the models, Peri looks through her magnifying glass before she says anything.
+        views.forEach { it.mood(mood) }
         // Never the text or the sender: only what Peri decided.
         Log.i(TAG, "message channel=${message.channel} level=${verdict.level} hardRule=${verdict.hardRule}")
         if (asking && verdict.level == Level.DOUBT) askModel(message, verdict)
@@ -159,11 +185,19 @@ class PeriHub(context: Context) {
     private fun askModel(message: IncomingMessage, verdict: Verdict) {
         val waitingAgent = agent
         val call = callActive
+        val relations = contacts.orEmpty().mapNotNull { it.relation }.toSet()
         network.execute {
-            val delta = opinion.ask(message, verdict, call, lang)
+            val first = opinion.ask(message, verdict, call, lang)
+            // Still doubtful after the quick opinion: the investigator looks things up before Peri speaks.
+            val stillDoubt = first == null || Shield().withModelOpinion(verdict, first).level == Level.DOUBT
+            val found = if (stillDoubt) opinion.investigate(message, verdict, call, lang, relations) else null
+            if (found != null) investigations.add(InvestigationEntry(System.currentTimeMillis(), found.verdict, found.evidence))
+            // Both votes together stay within the model's ±2: models only tip the balance, rules decide.
+            val delta = if (found == null) first else ((first ?: 0.0) + found.delta).coerceIn(-Shield.MAX_MODEL_DELTA, Shield.MAX_MODEL_DELTA)
             main.post {
                 val after = waitingAgent.onModelOpinion(message, delta)
-                Log.i(TAG, "second opinion delta=${delta ?: "none"} level=${after?.level}")
+                views.forEach { it.mood(mood) }
+                Log.i(TAG, "second opinion delta=${first ?: "none"} investigator=${found?.delta ?: "none"} level=${after?.level}")
             }
         }
     }

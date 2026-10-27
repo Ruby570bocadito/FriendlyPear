@@ -17,6 +17,7 @@ import android.widget.TextView
 import app.friendlypear.PeriApp
 import app.friendlypear.R
 import app.friendlypear.config.FamilyStore
+import app.friendlypear.config.InvestigationLog
 import app.friendlypear.config.PhoneContacts
 import app.friendlypear.core.model.Relation
 import app.friendlypear.core.trust.CircleRules
@@ -70,6 +71,15 @@ class FamilyActivity : Activity() {
         names = contacts.associate { it.id to it.name }
         if (contacts.isEmpty()) list.addView(text(getString(R.string.family_no_contacts), 18f))
         contacts.forEach { c -> list.addView(row(c.id, c.name, c.relation)) }
+
+        // What the investigator looked into, so the family can see why Peri warned. Never the message itself.
+        val looked = InvestigationLog(this).load()
+        if (looked.isNotEmpty()) list.addView(text(getString(R.string.investigations_title), 22f))
+        val format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+        looked.forEach { e ->
+            val verdict = getString(VERDICTS[e.verdict] ?: R.string.verdict_doubt)
+            list.addView(text("${format.format(Date(e.at))} · $verdict\n" + e.evidence.joinToString("\n") { "• $it" }, 16f))
+        }
 
         setContentView(ScrollView(this).apply { addView(list) })
         showPending()
@@ -165,6 +175,8 @@ class FamilyActivity : Activity() {
     }
 
     private companion object {
+        val VERDICTS = mapOf("scam" to R.string.verdict_scam, "doubt" to R.string.verdict_doubt, "ok" to R.string.verdict_ok)
+
         val RELATIONS = listOf(
             Relation.CHILD to R.string.relation_child,
             Relation.GRANDCHILD to R.string.relation_grandchild,
