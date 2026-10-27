@@ -15,7 +15,7 @@
   - Momento 2: llamada entrante descolgada + SMS "BBVA: tu código… 640281" → SCAM, `CODE_DURING_CALL`, "…cuelga y no se lo digas a nadie" en pantalla con la llamada activa.
 
 ## Cómo probar sin micrófono (solo builds de depuración)
-- `adb shell am broadcast -a app.friendlypear.debug.HEAR --es text "si"` hace que Peri "oiga" esa frase.
+- `adb shell am broadcast -a app.friendlypear.debug.HEAR --es text si` hace que Peri "oiga" esa frase. Con varias palabras, comillas dentro: `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`.
 - Tras `adb install -r`, reconectar el lector: `adb shell cmd notification disallow_listener app.friendlypear/app.friendlypear.services.MessageListener` y después `allow_listener`.
 - En `adb emu gsm`, esperar a que suene (`mCallState=1`) antes de `accept`.
 

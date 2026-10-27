@@ -13,12 +13,16 @@
   - Peri habla el idioma del móvil (`Phrases` en el agente, `PeriExplainer` en el escudo); TTS y reconocedor igual.
   - Órdenes y señales de estafa se entienden siempre en las dos lenguas.
   - Momentos 1 y 2 probados en inglés en el emulador; 101 tests en `core`.
+- peri-personalidad: guía `docs/PERI_VOZ.md` y `PROTOCOLO.md` §10; frases del escudo, del agente y de la UI más cálidas en las dos lenguas; voz TTS 0,9 de ritmo, 1,1 de tono y la mejor voz sin conexión.
 
 ## En curso
 - Nada.
 
 ## Bloqueado
-- Capa de pesos abiertos: llegaron créditos de Baseten (27 oct); falta que la persona cree una clave en Baseten y la ponga en `backend/.env` como `BASETEN_API_KEY`. Después: comprobar gratis (`/v1/models`) si `meta-models/muse-spark-open-1026` está en Model APIs, sin desplegar H100.
+- Nada.
+
+## Siguiente
+- Capa de pesos abiertos desbloqueada: `BASETEN_API_KEY` en `backend/.env`; Model APIs de Baseten (`https://inference.baseten.co/v1`, `Authorization: Api-Key`) sirve `meta-models/muse-spark-open` (herramientas, 1M de contexto, 1,25 $/4,25 $ por millón, de los créditos de Baseten). Sin desplegar H100.
 
 ## Peticiones
 - PUL: poner `META_API_BASE=https://api.meta.ai/v1` en `backend/.env.example`.
