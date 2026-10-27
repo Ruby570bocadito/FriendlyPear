@@ -7,6 +7,42 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 ## Base
 - [x] (PUL) estructura-base — [S] carpetas, builds de core/android/backend, CI y documentación — /
 
+## Ronda 2 · Peri viva (28 oct – 3 nov; decisión de la persona, 27 oct)
+
+La app funciona, pero se ve estática y de plantilla, y Peri tiene poca vida. Orden de la persona: primero la UI completa (profesional y viva), luego Peri (frases, poses, interacciones), luego detecciones y seguridad, probando muchas más situaciones (sobre todo la familia), y al final el guion del vídeo, juntos. **Lo más importante:** simpleza, cómo se vende y seguridad, porque mucha gente puede llegar a depender de esto. **Público:** todos; las personas mayores siguen siendo el ejemplo principal. Personalidad de Peri: [`docs/PERI_PERSONAJE.md`](../PERI_PERSONAJE.md).
+
+### A · Sistema visual vivo
+- [ ] (IMP-2) r2-direccion-visual — [S] elegir con la persona la dirección visual (bocetos) y fijarla en `docs/DISENO.md`; sustituye a las reglas planas del 27 oct — docs/DISENO.md
+- [ ] (IMP-2) r2-tipografia — [S] fuentes propias: títulos redondeados y simpáticos y lectura muy legible, con licencia libre y dentro de la app — android/app/src/main/res/font/, ui/peri/Style.kt
+- [ ] (IMP-2) r2-mundo-peri — [M] fondo vivo que cambia con el estado de Peri y la hora (cielo, nubes, sol, estrellas, el rojo suave de un aviso), quieto si se quitan las animaciones — ui/peri/
+- [ ] (IMP-2) r2-componentes — [M] paleta viva y componentes con movimiento (botones con rebote, tarjetas, chips, transiciones entre pantallas) — ui/peri/Style.kt
+- [ ] (IMP-2) r2-navegacion — [M] barra inferior con apartados: Peri, Diario, Aprende, Familia (y Ajustes) — ui/peri/
+- [ ] (IMP-2) r2-diario — [M] "Diario de Peri": avisos, escudos, denuncias y lo que hizo, en una línea de tiempo — ui/peri/, config/
+- [ ] (IMP-2) r2-aprende — [M] "Aprende con Peri": la biblioteca de trampas (viñetas) y el juego "¿Timo o no?" — ui/peri/, backend/src/
+- [ ] (IMP-2) r2-pantallas — [M] todas las pantallas con el sistema nuevo — ui/peri/
+
+### B · Peri con personalidad
+- [ ] (IMP-2) r2-poses — [M] 10 poses nuevas con Muse Image (sorpresa, medalla, capa de superheroína, detective, aplauso, confeti, gafas, bufanda, cucú, despedida) — assets/peri/
+- [ ] (IMP-2) r2-interacciones — [M] cosquillas al mantener pulsado, arrastrarla, agitar el móvil, rascar la hoja — ui/peri/PeriFace.kt, PeriActivity.kt
+- [ ] (IMP-1) r2-frases — [M] bancos de frases mucho más grandes y según el momento (rachas, hitos, volver tras días sin abrir, primera vez en cada pantalla); propuestas con **Muse Wonder** y revisadas una a una — res/values*/, core/.../agent/Phrases.kt
+- [ ] (IMP-1) r2-charla — [M] "Pregúntale a Peri": dudas y charla con Muse Spark, con guardarraíles (nunca lee enlaces ni códigos; lo que dice el modelo pasa el filtro de Peri) — backend/src/, android/
+
+### C · Seguridad y pruebas
+- [ ] (TEST) r2-escenarios — [L] batería automática de 150+ situaciones en es y en (mensajes, llamadas, familia, webs, fotos), con informe de fallos — eval/
+- [ ] (TEST) r2-familia-e2e — [M] la familia de punta a punta en dos emuladores: aprobación por la web y Peri a Peri, caducidad, enlace reenviado o reutilizado, número falso, aviso de caída — eval/, docs/agentes/hallazgos/
+- [ ] (SEG) r2-revision — [M] revisión de seguridad de lo nuevo (`/v1/report`, avisos de webs, registros en el móvil, Peri a Peri) — backend/src/, android/
+- [ ] (IMP-1) r2-detecciones — [M] arreglar lo que salga de las pruebas; reglas nuevas (letras que imitan a otras, acortadores, QR) — core/.../shield/
+
+### D · Vídeo y anuncio (con la persona)
+- [ ] (DIR) r2-guion — [S] el guion juntos: arranque de anuncio que vende, luego ejemplos de uso, para quién es (todos), la personalidad de Peri, los modelos de Meta y resultados — docs/VIDEO.md
+- [ ] (DIR) r2-grabaciones — [M] regrabar los clips con la UI nueva y con la voz de Peri — docs/demo/
+- Se llevan: escenas-higgsfield, video-3-min, anuncio y post-x (Día 8). **No hay modelo de vídeo de Meta en la API** (`muse-wonder-1.0` es texto): el vídeo sale de Higgsfield y de animar fotogramas de Muse Image.
+
+### Se llevan de antes
+- Con la persona: pruebas-mayores, voice-transcribe (voces reales), bases-y-dudas, peri-referencia-video y la entrega.
+- TEST y PUL: metricas, readme-resultados.
+- Opcionales o fuera de alcance: tunel-https, iphone (necesita un Mac). Aparcadas: glimmer-servido y el LoRA (`training/FINETUNE.md`).
+
 ## Día 1 · 27 oct — validar lo desconocido
 - [x] (IMP-1) creditos-y-spark — [S] reclamar los 150 $, límite de gasto, probar formato de Muse Spark y llamadas a herramientas — backend/src/models/ · hecho 2026-10-27
 - [x] (IMP-1) muse-voz — [M] Muse Voice Transcribe como oídos de Peri (Ajustes, desactivado por defecto): grabación con fin por silencio, `POST /v1/transcribe`, vuelta al reconocedor de Android — backend/src/models/voice.ts, android/.../device/VoiceRecorder.kt · hecho 2026-10-27
@@ -131,3 +167,6 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - D5: nunca se evalúa con datos de entrenamiento ni sintéticos; solo con los 200 reales reservados.
 - D6: en los vídeos, todo lo que es producto se graba de verdad; lo generado con IA solo para escenas de historia y rotulado.
 - D7 (27 oct, decisión de la persona): el jurado habla inglés. La app es **bilingüe inglés/español** y sigue el idioma del móvil; todo lo que ve el jurado (UI, README, vídeo, post) va en inglés. Reglas en `PROTOCOLO.md` §9.
+- D8 (27 oct, decisión de la persona): la app tiene que verse **viva y llamativa** (colores vivos, fondo animado, fuentes propias, efectos, más apartados) y Peri, graciosa y con mucha más vida. Donde las reglas planas de diseño choquen con esto, manda D8, sin perder la letra grande, el contraste y la simpleza.
+- D9 (27 oct): prioridades de la ronda 2: simpleza, cómo se vende y seguridad. Público: todos.
+- D10 (27 oct): la API de Meta no tiene modelo de vídeo; `muse-wonder-1.0` (texto, más caro) solo para trabajo puntual, como proponer frases de Peri que luego se revisan.
