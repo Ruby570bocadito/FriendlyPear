@@ -95,6 +95,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [ ] (DIR) video-3-min — [M] montaje del vídeo de demo según `docs/VIDEO.md` — docs/demo/
 - [ ] (DIR) anuncio — [M] anuncio de 30–45 s vertical y cuadrado, ES/EN — docs/demo/
 - [ ] (DIR) post-x — [S] post con el anuncio para Most Viral — docs/demo/
+- [x] (TEST) movil-real-1 — [M] primera prueba en el móvil de la persona: cierre al abrir, letra grande, voz, Mini Peri, familia con muchos contactos, personalidad — docs/agentes/hallazgos/2026-10-27-movil-real.md · hecho 2026-10-27
 - [x] (TEST) instalacion-limpia — [S] instalar desde el README en un móvil limpio — docs/agentes/hallazgos/ · hecho 2026-10-27 en un clon nuevo + emulador (huecos del README cubiertos; los 5 momentos en es/en: `hallazgos/2026-10-27-instalacion-y-momentos.md`); falta en un móvil real
 
 ## Día 9 · 4 nov — entrega
