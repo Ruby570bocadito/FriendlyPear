@@ -45,6 +45,7 @@ class PeriActivity : Activity() {
     private lateinit var talk: Pill
     private lateinit var status: TextView
     private lateinit var shieldsChip: TextView
+    private lateinit var report: View
     private lateinit var setup: LinearLayout
     private lateinit var access: View
     private lateinit var usage: View
@@ -170,6 +171,44 @@ class PeriActivity : Activity() {
             addView(location)
         }
 
+        // After a scam: "Want to report it?", with a button to have it written up, and a cross to hide it.
+        report = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = cardBackground()
+            setPadding(dp(16), dp(12), dp(8), dp(14))
+            visibility = View.GONE
+            addView(LinearLayout(this@PeriActivity).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                addView(ImageView(this@PeriActivity).apply {
+                    setImageResource(R.drawable.peri_report)
+                    importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                }, LinearLayout.LayoutParams(dp(44), dp(44)))
+                addView(LinearLayout(this@PeriActivity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(dp(10), 0, dp(4), 0)
+                    addView(heading(getString(R.string.report_card_title), TextSize.BODY))
+                    addView(body(getString(R.string.report_card_text), TextSize.SMALL))
+                }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+                addView(ImageView(this@PeriActivity).apply {
+                    setImageResource(R.drawable.ic_close)
+                    setColorFilter(Palette.INK_SOFT)
+                    contentDescription = getString(R.string.report_hide)
+                    background = pressable(rounded(0, dp(20).toFloat()), Palette.RIPPLE_DARK)
+                    setPadding(dp(10), dp(10), dp(10), dp(10))
+                    setOnClickListener {
+                        hub.lastScam.hide()
+                        showSetup()
+                    }
+                }, LinearLayout.LayoutParams(dp(44), dp(44)))
+            })
+            addView(Pill(this@PeriActivity, getString(R.string.report_card_button), R.drawable.ic_message, primary = false).apply {
+                setOnClickListener { startActivity(Intent(this@PeriActivity, ReportActivity::class.java)) }
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply {
+                topMargin = dp(10)
+                marginEnd = dp(8)
+            })
+        }
+
         val wordmark = TextView(this).apply {
             text = getString(R.string.app_name)
             sizeSp(TextSize.TITLE)
@@ -228,6 +267,7 @@ class PeriActivity : Activity() {
                 ).apply { bottomMargin = dp(10) })
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(4) })
             addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            addView(report, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
             addView(setup, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
             addView(talk, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(80)).apply { topMargin = dp(16) })
             addView(look, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(60)).apply { topMargin = dp(12) })
@@ -606,7 +646,10 @@ class PeriActivity : Activity() {
         val steps = listOf(noBasics to basics, noAccess to access, noSms to sms, noUsage to usage, noLocation to location)
         val first = steps.firstOrNull { it.first }?.second
         steps.forEach { (_, row) -> row.visibility = if (row == first) View.VISIBLE else View.GONE }
-        setup.visibility = if (first != null) View.VISIBLE else View.GONE
+        // A scam to report comes first: one card at a time, so Peri keeps her room.
+        val reporting = hub.lastScam.offer() != null
+        report.visibility = if (reporting) View.VISIBLE else View.GONE
+        setup.visibility = if (first != null && !reporting) View.VISIBLE else View.GONE
         // Contacts and calls, plus a way to see messages (texts or alerts): that's enough to protect.
         val seesMessages = hub.permissions.granted(Need.READ_SMS) || !noAccess
         val protecting = !noBasics && seesMessages
@@ -681,6 +724,8 @@ class PeriActivity : Activity() {
         override fun callStarted() = voice.stop()
 
         override fun shieldEarned(total: Int) = showShieldCount(total, pop = true)
+
+        override fun scamToReport() = showSetup()
 
         override fun speaking(on: Boolean) {
             face.speaking(on)

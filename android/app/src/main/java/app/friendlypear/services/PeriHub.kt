@@ -25,7 +25,10 @@ import app.friendlypear.ui.peri.GuardianActivity
 import app.friendlypear.config.FamilyStore
 import app.friendlypear.config.InvestigationEntry
 import app.friendlypear.config.InvestigationLog
+import app.friendlypear.config.LastScam
 import app.friendlypear.config.Shields
+import app.friendlypear.net.ReportClient
+import app.friendlypear.net.ScamReport
 import app.friendlypear.config.UseLog
 import app.friendlypear.config.NewsEntry
 import app.friendlypear.config.SharedNews
@@ -76,6 +79,8 @@ interface PeriView {
     fun callStarted() = Unit
     /** The person just earned a shield (a scam stopped, or they asked first); [total] is how many they have. */
     fun shieldEarned(total: Int) = Unit
+    /** A scam was just stopped: the screen can offer to report it. */
+    fun scamToReport() = Unit
 }
 
 /** A pose Peri strikes for a couple of seconds: an idea, sorry, a thumbs up, a laugh, her heart, dizzy, a yawn, a letter. */
@@ -117,6 +122,23 @@ class PeriHub(context: Context) {
 
     /** One for each scam stopped and each time the person asks before acting. */
     val shields = Shields(this.context)
+
+    /** The last scam Peri stopped, for "Report it"; it leaves the phone only if the person asks. */
+    val lastScam = LastScam(this.context)
+    private val reports = ReportClient(BuildConfig.BACKEND_URL, { app.friendlypear.net.DeviceKey.current(this.context) })
+
+    /** Muse Spark writes the last scam up for the police or a helpline; [done] gets null if anything failed. */
+    fun writeReport(done: (ScamReport?) -> Unit) {
+        val scam = lastScam.load() ?: return done(null)
+        uses.add(UseLog.Kind.REPORT)
+        waiting.execute {
+            val report = reports.write(scam, lang)
+            main.post {
+                Log.i(TAG, "report written=${report != null}")
+                done(report)
+            }
+        }
+    }
 
     private fun earn(kind: Shields.Kind) = main.post {
         shields.add(kind)
@@ -327,7 +349,7 @@ class PeriHub(context: Context) {
         views.forEach { it.mood(mood) }
         // Never the text or the sender: only what Peri decided.
         Log.i(TAG, "message channel=${message.channel} level=${verdict.level} hardRule=${verdict.hardRule}")
-        if (asking && verdict.level == Level.DOUBT) askModel(message, verdict) else shareVerdict(message, verdict.level)
+        if (asking && verdict.level == Level.DOUBT) askModel(message, verdict) else shareVerdict(message, verdict)
         watchApps()
     }
 
@@ -398,7 +420,7 @@ class PeriHub(context: Context) {
                 val after = waitingAgent.onModelOpinion(message, delta)
                 views.forEach { it.mood(mood) }
                 watchApps()
-                after?.let { shareVerdict(message, it.level) }
+                after?.let { shareVerdict(message, it) }
                 Log.i(TAG, "second opinion delta=${first ?: "none"} investigator=${found?.delta ?: "none"} level=${after?.level}")
             }
         }
@@ -465,8 +487,13 @@ class PeriHub(context: Context) {
     }
 
     /** Only what Peri decided, never the message: a scam or a doubt, and the channel it came by. */
-    private fun shareVerdict(message: IncomingMessage, level: Level) {
-        if (level == Level.SCAM) earn(Shields.Kind.STOPPED)
+    private fun shareVerdict(message: IncomingMessage, verdict: Verdict) {
+        val level = verdict.level
+        if (level == Level.SCAM) {
+            earn(Shields.Kind.STOPPED)
+            lastScam.save(LastScam.Scam(message.channel.name, message.sender, message.text, message.receivedAtMillis, verdict.explanation, verdict.signals.map { it.name }))
+            views.forEach { it.scamToReport() }
+        }
         val name = when (level) {
             Level.SCAM -> "scam"
             Level.DOUBT -> "doubt"

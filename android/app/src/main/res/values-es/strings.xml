@@ -398,4 +398,22 @@
         <item quantity="one">%d escudo. Tócalo para verlo.</item>
         <item quantity="other">%d escudos. Toca para verlos.</item>
     </plurals>
+    <string name="report_card_title">¿Quieres denunciarlo?</string>
+    <string name="report_card_text">Te lo dejo escrito para la policía o el 017, en un toque.</string>
+    <string name="report_card_button">Escribir la denuncia</string>
+    <string name="report_hide">Ocultar</string>
+    <string name="report_title">Denúncialo</string>
+    <string name="report_intro">Escribo lo que llegó, quién lo mandó y por qué es un timo, listo para la policía o el 017. Para escribirlo, el mensaje y su remitente van al servidor de Peri y a Muse Spark de Meta. No se guarda nada.</string>
+    <string name="report_write">Escríbelo</string>
+    <string name="report_writing">Te lo estoy escribiendo…</string>
+    <string name="report_failed">Ahora no he podido escribirlo. No se ha perdido nada: prueba otra vez en un momento.</string>
+    <string name="report_retry">Probar otra vez</string>
+    <string name="report_share">Mandar o compartir</string>
+    <string name="report_copy">Copiar</string>
+    <string name="report_copied">Copiado. Puedes pegarlo en un correo o en un mensaje.</string>
+    <string name="report_call_017">Llamar al 017</string>
+    <string name="report_where">Dónde llevarlo</string>
+    <string name="report_none">Ahora no hay ningún timo que denunciar. Si llega uno, te ofrezco escribirlo.</string>
+    <string name="report_ready">Aquí tienes tu denuncia. Puedes mandarla o enseñarla en comisaría.</string>
+    <string name="use_report">Mandó un mensaje de timo para escribir la denuncia</string>
 </resources>

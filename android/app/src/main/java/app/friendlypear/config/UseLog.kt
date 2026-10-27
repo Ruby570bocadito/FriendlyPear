@@ -14,7 +14,7 @@ import org.json.JSONObject
  * a text said. It stays on this phone (no backups) and keeps the last [MAX] entries.
  */
 class UseLog(context: Context) {
-    enum class Kind { CALL, TEXT, LOCATION, PICTURE, VOICE }
+    enum class Kind { CALL, TEXT, LOCATION, PICTURE, VOICE, REPORT }
 
     data class Entry(val at: Long, val kind: Kind, val who: String?)
 

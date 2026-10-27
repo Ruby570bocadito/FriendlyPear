@@ -399,4 +399,22 @@
         <item quantity="one">%d shield. Tap to see it.</item>
         <item quantity="other">%d shields. Tap to see them.</item>
     </plurals>
+    <string name="report_card_title">Want to report it?</string>
+    <string name="report_card_text">I can write it up for the police or a fraud helpline, in one tap.</string>
+    <string name="report_card_button">Write the report</string>
+    <string name="report_hide">Hide</string>
+    <string name="report_title">Report it</string>
+    <string name="report_intro">I\'ll write down what arrived, who sent it and why it\'s a scam, ready for the police or a fraud helpline. To write it, the message and its sender go to Peri\'s server and to Meta\'s Muse Spark. Nothing is kept.</string>
+    <string name="report_write">Write it</string>
+    <string name="report_writing">Writing it for you…</string>
+    <string name="report_failed">I couldn\'t write it right now. Nothing was lost: try again in a moment.</string>
+    <string name="report_retry">Try again</string>
+    <string name="report_share">Send or share</string>
+    <string name="report_copy">Copy</string>
+    <string name="report_copied">Copied. You can paste it in an email or a message.</string>
+    <string name="report_call_017">Call 017</string>
+    <string name="report_where">Where to take it</string>
+    <string name="report_none">There\'s no scam to report right now. If one arrives, I\'ll offer to write it up.</string>
+    <string name="report_ready">Here\'s your report. You can send it, or show it at the police station.</string>
+    <string name="use_report">Sent a scam message to write a report</string>
 </resources>
