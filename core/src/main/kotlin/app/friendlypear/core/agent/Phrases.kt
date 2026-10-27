@@ -49,6 +49,7 @@ internal interface Phrases {
     val guardianSilent: String
     val couldNotAsk: String
     fun guardianSms(toName: String, url: String): String
+    val bankDuringCall: String
     fun remoteAppInstalled(app: String, onCall: Boolean): String
     fun tellFamily(name: String): String
     fun remoteAppFamilyText(app: String): String
@@ -131,6 +132,9 @@ internal object Spanish : Phrases {
     override val couldNotAsk = "No he podido preguntar a tu familia ahora mismo, así que no lo mando. Lo intentamos más tarde."
     override fun guardianSms(toName: String, url: String) =
         "Peri: tu familiar quiere mandar a $toName un mensaje con un código y te pide permiso. Decide aquí (caduca en 15 minutos): $url"
+    override val bankDuringCall =
+        "Un momento: ¿te están diciendo qué hacer en el banco mientras hablas con un número que no está en tu agenda? " +
+            "Cuelga, por favor, y llama tú a tu banco al número de tu tarjeta. Nadie de verdad te guiará por teléfono para mover dinero."
     override fun remoteAppInstalled(app: String, onCall: Boolean) =
         (if (onCall) "Cuelga ahora mismo, por favor. " else "") +
             "Se acaba de instalar $app, un programa para que otra persona maneje tu móvil desde lejos. " +
@@ -210,6 +214,9 @@ internal object English : Phrases {
     override val couldNotAsk = "I couldn't ask your family right now, so I won't send it. Let's try again later."
     override fun guardianSms(toName: String, url: String) =
         "Peri: your relative wants to send $toName a message with a code and asks for your OK. Decide here (expires in 15 minutes): $url"
+    override val bankDuringCall =
+        "Hold on: is someone telling you what to do in your bank app while you're on the phone with a number that isn't in your contacts? " +
+            "Please hang up and call your bank yourself on the number on your card. Nobody genuine will guide you over the phone to move money."
     override fun remoteAppInstalled(app: String, onCall: Boolean) =
         (if (onCall) "Please hang up right now. " else "") +
             "$app has just been installed, a program that lets someone else control your phone from far away. " +

@@ -54,8 +54,8 @@ class PeriAgent(
         data class WhoClaimed(val number: String) : Pending
     }
 
-    /** An incoming call from a number not in the contacts, and whether it was answered. */
-    private data class StrangeCall(val number: String, var answered: Boolean = false)
+    /** An incoming call from a number not in the contacts, whether it was answered, and if Peri already warned about the bank. */
+    private data class StrangeCall(val number: String, var answered: Boolean = false, var bankWarned: Boolean = false)
 
     private data class Received(val message: IncomingMessage, val verdict: Verdict)
 
@@ -103,6 +103,17 @@ class PeriAgent(
         val question = p.tellFamily(guardian.name)
         pending = Pending.Confirm(Action.SendSms(guardian, p.remoteAppFamilyText(app)), question)
         say("$warning $question")
+    }
+
+    /**
+     * An app came to the front. A banking app opened while talking to an unknown number is the fake-bank
+     * script, so Peri says to hang up and call the bank herself. Once per call; never during a family call.
+     */
+    fun onAppOpened(packageName: String) {
+        val call = strangeCall ?: return
+        if (!callActive || !call.answered || call.bankWarned || !BankApps.isBank(packageName)) return
+        call.bankWarned = true
+        say(p.bankDuringCall)
     }
 
     /** Before picking up: warns when the number isn't in the contacts. Never blocks or answers the call. */
