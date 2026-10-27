@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { askPage, resultPage } from "./approvals/page";
 import { type ApprovalStore, KINDS, type Kind } from "./approvals/store";
 import type { Config } from "./config";
+import { investigate, readInvestigation } from "./investigator/investigate";
 import { readInput, secondOpinion } from "./investigator/opinion";
 import type { ChatClient } from "./models/chat";
 
@@ -26,6 +27,8 @@ const NAME = /^[\p{L}][\p{L} .'-]{0,39}$/u;
 /** What the backend can use; a missing piece means that layer is off and the phone decides alone. */
 export interface Services {
   opinion?: ChatClient | null;
+  /** Muse Spark with read-only tools, for messages still doubtful after the second opinion. */
+  investigator?: ChatClient | null;
   approvals?: ApprovalStore | null;
 }
 
@@ -63,6 +66,21 @@ export function createHandler(config: Config, services: Services = {}) {
         return json({ delta, verdict, confidence, reason, model });
       } catch {
         // The message text is never logged or echoed back.
+        return json({ error: "model_failed" }, 502);
+      }
+    }
+
+    if (req.method === "POST" && pathname === "/v1/investigate") {
+      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      const body = await readJson(req);
+      if (body instanceof Response) return body;
+      const input = readInvestigation(body);
+      if (typeof input === "string") return json({ error: "bad_request", detail: input }, 400);
+      if (!services.investigator) return json({ error: "no_model" }, 503);
+      try {
+        const { delta, verdict, confidence, reason, evidence, toolCalls, model } = await investigate(services.investigator, input);
+        return json({ delta, verdict, confidence, reason, evidence, toolCalls, model });
+      } catch {
         return json({ error: "model_failed" }, 502);
       }
     }
