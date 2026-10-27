@@ -83,6 +83,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private var shadowWidth = 0f
     private var rise = 0f
     private val rig = FrameLayout(context)
+    private val sparkles = Sparkles(context)
     private var front = layer()
     private var back = layer()
     private var shown: Mood? = null
@@ -113,6 +114,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         rig.addView(back, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         rig.addView(front, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         addView(rig, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        addView(sparkles, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         back.alpha = 0f
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
         clipChildren = false
@@ -187,6 +189,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
             back = leaving
             popStart = SystemClock.uptimeMillis()
             if (mood != Mood.SLEEPING) act(Idle.HOP)
+            if (mood == Mood.HAPPY) sparkles.burst(22)
         }
         // The other frames decode a moment later, so the change itself is instant.
         main.post { frames.all.forEach { drawable(it) } }
@@ -217,6 +220,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         action = null
         front.setImageDrawable(context.getDrawable(res))
         popStart = SystemClock.uptimeMillis()
+        if (moves && moment != app.friendlypear.services.PeriMoment.SORRY) sparkles.burst()
         main.removeCallbacks(endPose)
         main.postDelayed(endPose, POSE_MILLIS)
     }
@@ -367,11 +371,34 @@ class PeriFace(context: Context) : FrameLayout(context) {
     fun enter() {
         if (!moves) return
         act(Idle.DROP)
+        main.postDelayed({ sparkles.burst(10) }, DROP_MS.toLong() + 40)
+    }
+
+    /**
+     * Someone touched the screen to one side of her ([fromCenter] px, negative is left): she glances there for a
+     * moment, as if to see what you're doing. Only when she's free.
+     */
+    fun lookToward(fromCenter: Float) {
+        val now = SystemClock.uptimeMillis()
+        if (!moves || shown == null || talking || posing || fading || action != null || now < busyUntil) return
+        if (!MOTIONS.getValue(shown!!).blinks) return
+        busyUntil = now + 1_000
+        put(if (fromCenter < 0) frames.left else frames.right)
+        main.postDelayed({ if (!talking) put(frames.still) }, 900)
     }
 
     /** Pressed and let go, for the squish. */
     fun press(on: Boolean) {
         pressTarget = if (on) 1f else 0f
+    }
+
+    /** Every touch on her squishes her, whoever handles it next (the app's tap, Mini Peri's drag). */
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        when (ev.actionMasked) {
+            android.view.MotionEvent.ACTION_DOWN -> press(true)
+            android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> press(false)
+        }
+        return super.dispatchTouchEvent(ev)
     }
 
     /**
