@@ -30,6 +30,8 @@ class PeriAgent(
     /** The language Peri speaks; orders are understood in Spanish and English whatever it is. */
     lang: Lang = Lang.ES,
     private val shield: Shield = Shield(lang = lang),
+    /** Whether the family agreed a secret word. Peri reminds people to ask for it, and never says it. */
+    private val hasFamilyWord: Boolean = false,
 ) {
     private val p = Phrases.of(lang)
     private val speech = SafeSpeech(p)
@@ -38,7 +40,12 @@ class PeriAgent(
         data class Confirm(val action: Action, val question: String) : Pending
         data class Choose(val candidates: List<Contact>, val build: (Contact) -> Action, val question: String) : Pending
         data object Emergency : Pending
+        /** After a call from an unknown number: "who did they say they were?" */
+        data class WhoClaimed(val number: String) : Pending
     }
+
+    /** An incoming call from a number not in the contacts, and whether it was answered. */
+    private data class StrangeCall(val number: String, var answered: Boolean = false)
 
     private data class Received(val message: IncomingMessage, val verdict: Verdict)
 
@@ -47,6 +54,7 @@ class PeriAgent(
     private val awaitingOpinion = mutableSetOf<IncomingMessage>()
     private var pending: Pending? = null
     private var callActive = false
+    private var strangeCall: StrangeCall? = null
     private var lastSaid = ""
 
     /** True while Peri waits for a "yes", a name or a "cancel"; Android keeps the microphone open. */
@@ -55,8 +63,32 @@ class PeriAgent(
     /** True during the emergency countdown; Android calls [onEmergencyTimeout] when it ends. */
     val isCountingDown: Boolean get() = pending == Pending.Emergency
 
-    fun onCallStateChanged(active: Boolean) {
+    /**
+     * Call state: [active] while ringing or talking; [answered] once picked up. When a call from an unknown
+     * number that was answered ends, Peri asks who the caller said they were. Peri never hears the call itself.
+     */
+    fun onCallStateChanged(active: Boolean, answered: Boolean = active) {
+        val wasActive = callActive
         callActive = active
+        val call = strangeCall
+        if (active && answered) call?.answered = true
+        if (wasActive && !active) {
+            strangeCall = null
+            if (call?.answered == true && pending == null) {
+                pending = Pending.WhoClaimed(call.number)
+                say(p.whoClaimed)
+            }
+        }
+    }
+
+    /** Before picking up: warns when the number isn't in the contacts. Never blocks or answers the call. */
+    fun onIncomingCall(number: String) {
+        if (directory.byPhone(number) != null) {
+            strangeCall = null
+            return
+        }
+        strangeCall = StrangeCall(number)
+        say(p.unknownCaller(hasFamilyWord))
     }
 
     /**
@@ -123,6 +155,10 @@ class PeriAgent(
                 }
                 else -> say(p.sayCancelIfFine)
             }
+            is Pending.WhoClaimed -> {
+                pending = null
+                answerWhoClaimed(w.number, utterance, command)
+            }
             is Pending.Confirm -> when (command) {
                 Command.Yes -> {
                     pending = null
@@ -174,6 +210,33 @@ class PeriAgent(
         say(p.alerting(family.first().name))
         if (family.none { c -> c.phones.any { attempt { device.call(it) } } }) {
             say(p.couldNotCallAnyone)
+        }
+    }
+
+    /**
+     * "Mi nieto" → that number isn't Pablo's → offer to call Pablo on his saved number. A bank or a company →
+     * hang up and call the official number. Nobody, or someone unknown → general advice.
+     */
+    private fun answerWhoClaimed(number: String, utterance: String, command: Command) {
+        if (command == Command.No || command == Command.Cancel) return say(p.callerAdvice)
+        if (officialCaller.containsMatchIn(Text.fold(utterance))) return say(p.officialCaller)
+        when (val r = directory.resolve(utterance)) {
+            is Resolution.Found -> {
+                val contact = r.contact
+                if (contact.phones.isEmpty() || contact.phones.any { Text.phoneDigits(it) == Text.phoneDigits(number) }) {
+                    return say(p.callerAdvice)
+                }
+                pending = Pending.Confirm(Action.Call(contact), p.callUsual(contact.name))
+                say(p.notTheirNumber(contact.name, hasFamilyWord))
+            }
+            is Resolution.Ambiguous -> {
+                val reachable = r.candidates.filter { it.phones.isNotEmpty() }
+                if (reachable.isEmpty()) return say(p.callerAdvice)
+                val question = p.notAnyOf(speech.names(reachable.map { it.name }))
+                pending = Pending.Choose(reachable, { Action.Call(it) }, question)
+                say(question)
+            }
+            Resolution.NotFound -> say(p.callerAdvice)
         }
     }
 
@@ -305,5 +368,14 @@ class PeriAgent(
 
     private companion object {
         const val MAX_UNREAD = 50
+
+        /** Callers who claim to be a bank, an official body or a company: the answer is always to call back yourself. */
+        val officialCaller = Text.anyOf(
+            listOf(
+                "banco", "bank", "policia", "police", "guardia civil", "hacienda", "agencia tributaria", "seguridad social", "hmrc", "irs",
+                "soporte", "support", "tecnico", "technician", "microsoft", "amazon", "compania", "company", "empresa", "seguro",
+                "insurance", "correos", "telefonica", "movistar", "luz", "electricity",
+            ),
+        )
     }
 }

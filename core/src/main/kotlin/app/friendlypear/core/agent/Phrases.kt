@@ -37,6 +37,12 @@ internal interface Phrases {
     fun alerting(name: String): String
     val couldNotCallAnyone: String
     fun emergencySms(location: String?): String
+    fun unknownCaller(hasFamilyWord: Boolean): String
+    val whoClaimed: String
+    fun notTheirNumber(name: String, hasFamilyWord: Boolean): String
+    fun notAnyOf(names: String): String
+    val officialCaller: String
+    val callerAdvice: String
     val or: String
     fun quote(text: String): String
     val link: String
@@ -92,6 +98,19 @@ internal object Spanish : Phrases {
     override fun emergencySms(location: String?) =
         "Aviso de Peri: tu familiar ha dicho que se ha caído y no ha cancelado el aviso." +
             (location?.let { " Ubicación: ${mapsLink(it)}" } ?: " No tengo su ubicación.")
+    override fun unknownCaller(hasFamilyWord: Boolean) =
+        "Te llama un número que no está en tu agenda. Si dice ser de tu familia, no des dinero ni códigos" +
+            if (hasFamilyWord) " y pregúntale la palabra de la familia." else "; al colgar lo comprobamos juntos."
+    override val whoClaimed = "Ese número no está en tu agenda. ¿Quién decía ser?"
+    override fun notTheirNumber(name: String, hasFamilyWord: Boolean) =
+        "Ese número no es el de $name. " +
+            (if (hasFamilyWord) "Si vuelve a llamar, pregúntale la palabra de la familia. "
+            else "Os vendría bien acordar una palabra de la familia, una palabra secreta para saber que es de verdad quien llama. ") +
+            "¿Llamo a $name a su número de siempre para comprobarlo?"
+    override fun notAnyOf(names: String) = "Ese número no es el de ninguno de ellos. ¿A quién llamo para comprobarlo, a $names?"
+    override val officialCaller =
+        "Si decía ser del banco o de una empresa, lo más seguro es colgar y llamar tú al número oficial, el de tu tarjeta o tu factura. Nunca des claves por teléfono."
+    override val callerAdvice = "Vale. Si alguien te pide dinero o códigos por teléfono, cuelga y llámale tú a su número de siempre."
     override val or = "o"
     override fun quote(text: String) = "«$text»"
     override val link = "un enlace"
@@ -137,6 +156,19 @@ internal object English : Phrases {
     override fun emergencySms(location: String?) =
         "Alert from Peri: your relative said they have fallen and did not cancel the alert." +
             (location?.let { " Location: ${mapsLink(it)}" } ?: " I don't have their location.")
+    override fun unknownCaller(hasFamilyWord: Boolean) =
+        "This number isn't in your contacts. If they say they're family, don't give money or codes" +
+            if (hasFamilyWord) " and ask them for the family word." else "; we'll check together when you hang up."
+    override val whoClaimed = "That number isn't in your contacts. Who did they say they were?"
+    override fun notTheirNumber(name: String, hasFamilyWord: Boolean) =
+        "That number isn't $name's. " +
+            (if (hasFamilyWord) "If they call again, ask them for the family word. "
+            else "It would be a good idea to agree on a family word, a secret word to know it's really them calling. ") +
+            "Shall I call $name on their usual number to check?"
+    override fun notAnyOf(names: String) = "That number isn't any of theirs. Who shall I call to check: $names?"
+    override val officialCaller =
+        "If they said they were your bank or a company, the safest thing is to hang up and call the official number yourself, the one on your card or bill. Never give passwords over the phone."
+    override val callerAdvice = "OK. If anyone asks you for money or codes on the phone, hang up and call them back on their usual number."
     override val or = "or"
     override fun quote(text: String) = "\"$text\""
     override val link = "a link"
