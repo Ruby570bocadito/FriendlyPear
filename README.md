@@ -30,7 +30,7 @@ Also working, with unit tests:
 - **Safe reading**: links, emails, codes and unknown numbers are never read aloud; scams are not read at all, only Peri's warning.
 - **Emergency**: "I've fallen" → 10-second countdown → SMS with location and a call to the guardian. It never dials an emergency number.
 - **Muse Spark client** with tool calling, a token cap and a response cache.
-- **Second opinion with Muse Spark Open** (`POST /v1/opinion`, device token): only messages the rules left as doubtful are accepted; the model answers scam / doubt / ok with a confidence, turned into a vote of at most ±2. First real runs: a fake "nephew" asking for money → scam, +1.9 (2.8 s); a dentist reminder → ok, −1.86 (2.0 s).
+- **Second opinion with Muse Spark Open** (`POST /v1/opinion`, device token): only messages the rules left as doubtful are accepted; the model answers scam / doubt / ok with a confidence, turned into a vote of at most ±2. On the emulator, end to end: a fake "nephew" asking for money → doubtful for the rules, +1.9 from the model → Peri warns, 2.6 s after the SMS; a gym reminder → doubtful, −1.9 → Peri stays quiet, 2.1 s. Peri always speaks her own sentence, never the model's, so a message cannot talk the model into saying something unsafe.
 
 Peri speaks the phone's language (English or Spanish) and understands orders in both, since families mix them. Scam signals are looked for in both languages whatever the phone's language is. See [`docs/agentes/ROADMAP.md`](docs/agentes/ROADMAP.md) for everything else.
 
@@ -39,7 +39,7 @@ Peri speaks the phone's language (English or Spanish) and understands orders in 
 | Model | Job in FriendlyPear | State |
 |---|---|---|
 | Muse Spark | Investigator agent with read-only tools for doubtful messages; summaries for guardians | Client done and tested against the API |
-| Muse Spark Open (open weights, on Baseten) | Second opinion on doubtful messages: a vote of at most ±2 on the rules' score | Working in the backend and tested against the real model; phone side pending |
+| Muse Spark Open (open weights, on Baseten) | Second opinion on doubtful messages: a vote of at most ±2 on the rules' score | Working end to end on the emulator |
 | Muse Voice Transcribe | Voice input from older people | Planned |
 | Muse Spark (multimodal) + SAM 3.1 | "Look at this picture": letters, invoices, QR codes | Planned |
 | Muse Image | Peri's illustrated states | Planned |

@@ -24,8 +24,8 @@
   - `investigator/opinion.ts` + `POST /v1/opinion` con token del dispositivo: solo nivel DOUBT; JSON scam/doubt/ok + confianza → voto ±2.
   - 2 peticiones reales (~0,005 $): sobrino pidiendo dinero → scam +1,9 (2,8 s); dentista → ok −1,86 (2,0 s). Razona 325–561 tokens: tope 900.
 
-## Siguiente
-- IMP-2: cliente en `android/.../net/` que, si el escudo da DOUBT, llame a `/v1/opinion` y aplique `Shield.withModelOpinion`; sin red, se queda el veredicto de las reglas.
+- opinion-en-el-movil: `PeriAgent.onMessage(…, secondOpinion = true)` espera en silencio y `onModelOpinion` aplica el voto (o nada si falla); `net/OpinionClient.kt` en Android.
+  - Emulador + backend local (8711), 2 peticiones: sobrino → DOUBT, +1,9 → SCAM y aviso (2,6 s); gimnasio → DOUBT, −1,9 → OK, en silencio (2,1 s). 110 tests en `core`.
 
 ## Peticiones
 - PUL: poner `META_API_BASE=https://api.meta.ai/v1` en `backend/.env.example`.

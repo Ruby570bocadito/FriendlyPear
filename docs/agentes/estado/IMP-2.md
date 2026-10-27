@@ -18,6 +18,7 @@
 - `adb shell am broadcast -a app.friendlypear.debug.HEAR --es text si` hace que Peri "oiga" esa frase. Con varias palabras, comillas dentro: `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`.
 - Tras `adb install -r`, reconectar el lector: `adb shell cmd notification disallow_listener app.friendlypear/app.friendlypear.services.MessageListener` y después `allow_listener`.
 - En `adb emu gsm`, esperar a que suene (`mCallState=1`) antes de `accept`.
+- Segunda opinión: `~/.gradle/gradle.properties` con `friendlypear.backendUrl=http://10.0.2.2:8711` y `friendlypear.deviceToken=<DEVICE_TOKEN de backend/.env>`; arrancar `cd backend; bun src/main.ts`. Sin token, la app decide solo con las reglas.
 
 ## En curso
 - Nada.
