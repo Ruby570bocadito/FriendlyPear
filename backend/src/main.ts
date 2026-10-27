@@ -1,6 +1,7 @@
 import { ApprovalStore } from "./approvals/store";
 import { loadConfig } from "./config";
 import { join } from "node:path";
+import { DeviceStore } from "./devices/store";
 import { GuardianStore } from "./guardians/store";
 import { samFromEnv } from "./models/sam";
 import { sparkFromEnv } from "./models/spark";
@@ -17,7 +18,9 @@ const voice = voiceFromEnv();
 const approvals = new ApprovalStore();
 // Guardians' links (hashes only) and Peri's news survive restarts; DATA_DIR is git-ignored by default.
 const guardians = new GuardianStore(Date.now, join(process.env.DATA_DIR ?? "data", "guardians.json"));
-const handle = createHandler(config, { opinion, investigator, sam, voice, approvals, guardians });
+// Paired phones (key hashes only), next to the guardians' file.
+const devices = new DeviceStore(Date.now, join(process.env.DATA_DIR ?? "data", "devices.json"));
+const handle = createHandler(config, { opinion, investigator, sam, voice, approvals, guardians, devices });
 // Behind a tunnel or proxy (TRUST_PROXY=1) the client's IP is the one the proxy added; otherwise the socket's.
 const trustProxy = process.env.TRUST_PROXY === "1";
 const server = Bun.serve({

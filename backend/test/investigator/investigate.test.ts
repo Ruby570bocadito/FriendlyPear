@@ -1,3 +1,4 @@
+import { loadConfig } from "../../src/config";
 import { expect, test } from "bun:test";
 import { investigate, MAX_ROUNDS, readInvestigation } from "../../src/investigator/investigate";
 import { findCards } from "../../src/investigator/knowledge";
@@ -99,7 +100,7 @@ test("a model that keeps calling tools is cut off and must answer", async () => 
 });
 
 test("the route needs the device token and only takes doubtful messages", async () => {
-  const config = { port: 0, deviceToken: "t".repeat(32), publicBaseUrl: "http://x" } as any;
+  const config = loadConfig({ DEVICE_TOKEN: "t".repeat(32), PUBLIC_BASE_URL: "http://x" });
   const { client } = scriptedModel([{ content: verdict }]);
   const handle = createHandler(config, { investigator: client });
   const post = (body: unknown, auth = `Bearer ${config.deviceToken}`) =>

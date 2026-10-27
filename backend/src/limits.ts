@@ -18,6 +18,8 @@ export const LIMITS = {
   picture: { max: 20, windowMs: 60 * 60_000 },
   /** Voice orders through Muse Voice Transcribe: a busy day is a few dozen. */
   voice: { max: 120, windowMs: 60 * 60_000 },
+  /** Redeeming pairing codes: a family pairs a phone or two; guessing a code takes far more tries than this. */
+  pair: { max: 10, windowMs: 15 * 60_000 },
   /** Wrong device tokens; after this many the IP waits out the window, even with the right one. */
   badToken: { max: 10, windowMs: 15 * 60_000 },
 } satisfies Record<string, Limit>;

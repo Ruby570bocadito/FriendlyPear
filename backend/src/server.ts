@@ -1,6 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { askPage, confirmPage, resultPage } from "./approvals/page";
 import { asset } from "./assets";
+import { CODE, type DeviceStore } from "./devices/store";
 import { type ApprovalStore, DECISIONS, type Decision, KINDS, type Kind } from "./approvals/store";
 import type { Config } from "./config";
 import { guardianPage } from "./guardians/page";
@@ -63,13 +64,24 @@ export interface Services {
   approvals?: ApprovalStore | null;
   /** What guardians see, only when the person chose to share it. */
   guardians?: GuardianStore | null;
+  /** Phones paired one by one, each with its own key. */
+  devices?: DeviceStore | null;
 }
 
-function fromDevice(req: Request, config: Config): boolean {
+function sameSecret(req: Request, secret: string): boolean {
   const given = Buffer.from(req.headers.get("authorization") ?? "");
-  const expected = Buffer.from(`Bearer ${config.deviceToken}`);
+  const expected = Buffer.from(`Bearer ${secret}`);
   return given.length === expected.length && timingSafeEqual(given, expected);
 }
+
+/** A paired phone's own key, or the shared test token while it is still allowed. */
+function fromDevice(req: Request, config: Config, devices?: DeviceStore | null): boolean {
+  const bearer = (req.headers.get("authorization") ?? "").match(/^Bearer ([A-Za-z0-9_-]{32,64})$/)?.[1];
+  if (bearer && devices?.check(bearer)) return true;
+  return config.allowSharedToken && sameSecret(req, config.deviceToken);
+}
+
+const fromAdmin = (req: Request, config: Config) => sameSecret(req, config.adminToken);
 
 async function readJson(req: Request, max = MAX_BODY): Promise<unknown | Response> {
   const raw = await readLimited(req, max);
@@ -100,6 +112,9 @@ export function createHandler(config: Config, services: Services = {}, limiter =
       const key = `${page ? "link" : "device"}:${ip}`;
       if (limiter.hit(key, limit) > limit.max) return secure(tooMany(limiter.retryAfter(key, limit), page), https);
     }
+    if (pathname === "/v1/devices" && req.method === "POST" && limiter.hit(`pair:${ip}`, LIMITS.pair) > LIMITS.pair.max) {
+      return secure(tooMany(limiter.retryAfter(`pair:${ip}`, LIMITS.pair), false), https);
+    }
     if (pathname === "/v1/transcribe" && limiter.hit(`voice:${ip}`, LIMITS.voice) > LIMITS.voice.max) {
       return secure(tooMany(limiter.retryAfter(`voice:${ip}`, LIMITS.voice), false), https);
     }
@@ -118,8 +133,52 @@ function routes(config: Config, services: Services) {
   return async function route(req: Request, pathname: string): Promise<Response> {
     if (req.method === "GET" && pathname === "/health") return json({ ok: true, service: "friendlypear" });
 
+    const devices = services.devices;
+
+    // `bun pair` on the server: a one-time code, and the link its QR carries for the phone's camera.
+    if (req.method === "POST" && pathname === "/v1/pairing") {
+      if (!fromAdmin(req, config)) return json({ error: "unauthorized" }, 401);
+      if (!devices) return json({ error: "no_devices" }, 503);
+      const { code, expiresAt } = devices.newCode();
+      const link = `friendlypear://pair?code=${code}&server=${encodeURIComponent(config.publicBaseUrl)}`;
+      return json({ code, expiresAt, link }, 201);
+    }
+
+    // The phone redeems its code once and gets its own key, shown only this time.
+    if (req.method === "POST" && pathname === "/v1/devices") {
+      if (!devices) return json({ error: "no_devices" }, 503);
+      const body = (await readJson(req)) as any;
+      if (body instanceof Response) return body;
+      const code = typeof body?.code === "string" ? body.code.trim().toUpperCase() : "";
+      const name = typeof body?.name === "string" ? body.name.trim().slice(0, 40) : "";
+      if (!CODE.test(code) || !/^[\p{L}\p{N} ._()-]{1,40}$/u.test(name)) return json({ error: "bad_request" }, 400);
+      const paired = devices.redeem(code, name);
+      if (!paired) return json({ error: "unknown_code" }, 403);
+      return json({ id: paired.device.id, key: paired.key }, 201);
+    }
+
+    // A phone disconnects itself (Settings): its own key stops working.
+    if (req.method === "DELETE" && pathname === "/v1/devices/self") {
+      const bearer = (req.headers.get("authorization") ?? "").match(/^Bearer ([A-Za-z0-9_-]{32,64})$/)?.[1];
+      const me = bearer ? devices?.check(bearer) : null;
+      if (!me) return json({ error: "unauthorized" }, 401);
+      devices!.revoke(me.id);
+      return json({ ok: true });
+    }
+
+    // The family sees and disconnects the paired phones.
+    if (pathname === "/v1/devices" && req.method === "GET") {
+      if (!fromAdmin(req, config)) return json({ error: "unauthorized" }, 401);
+      return json({ devices: devices?.list() ?? [] });
+    }
+    const one = pathname.match(/^\/v1\/devices\/([A-Za-z0-9_-]{8,20})$/);
+    if (one && req.method === "DELETE") {
+      if (!fromAdmin(req, config)) return json({ error: "unauthorized" }, 401);
+      return devices?.revoke(one[1]) ? json({ ok: true }) : json({ error: "not_found" }, 404);
+    }
+
     if (req.method === "POST" && pathname === "/v1/opinion") {
-      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      if (!fromDevice(req, config, services.devices)) return json({ error: "unauthorized" }, 401);
       const body = await readJson(req);
       if (body instanceof Response) return body;
       const input = readInput(body);
@@ -135,7 +194,7 @@ function routes(config: Config, services: Services) {
     }
 
     if (req.method === "POST" && pathname === "/v1/investigate") {
-      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      if (!fromDevice(req, config, services.devices)) return json({ error: "unauthorized" }, 401);
       const body = await readJson(req);
       if (body instanceof Response) return body;
       const input = readInvestigation(body);
@@ -151,7 +210,7 @@ function routes(config: Config, services: Services) {
 
     // A voice order the person said to Peri, as a short WAV; the audio and the text are never stored or logged.
     if (req.method === "POST" && pathname === "/v1/transcribe") {
-      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      if (!fromDevice(req, config, services.devices)) return json({ error: "unauthorized" }, 401);
       const wav = await readBytesLimited(req, MAX_AUDIO);
       if (wav === "too_large") return json({ error: "too_large" }, 413);
       if (!isVoiceWav(wav)) return json({ error: "bad_request", detail: "send a 16-bit mono PCM WAV" }, 400);
@@ -166,7 +225,7 @@ function routes(config: Config, services: Services) {
 
     // "Look at this picture": a photo or screenshot the person chose to show Peri. It is never stored or logged.
     if (req.method === "POST" && pathname === "/v1/picture") {
-      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      if (!fromDevice(req, config, services.devices)) return json({ error: "unauthorized" }, 401);
       const body = await readJson(req, MAX_IMAGE_BASE64 + 1024);
       if (body instanceof Response) return body;
       const input = readPicture(body);
@@ -184,7 +243,7 @@ function routes(config: Config, services: Services) {
 
     // The phone asks for a guardian's approval and gets the one-time link to text them.
     if (req.method === "POST" && pathname === "/v1/approvals") {
-      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      if (!fromDevice(req, config, services.devices)) return json({ error: "unauthorized" }, 401);
       if (!approvals) return json({ error: "no_approvals" }, 503);
       const body = (await readJson(req)) as any;
       if (body instanceof Response) return body;
@@ -198,7 +257,7 @@ function routes(config: Config, services: Services) {
     // The phone polls until the guardian decides or the link expires.
     const status = pathname.match(/^\/v1\/approvals\/([A-Za-z0-9_-]{8,40})$/);
     if (req.method === "GET" && status) {
-      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      if (!fromDevice(req, config, services.devices)) return json({ error: "unauthorized" }, 401);
       const a = approvals?.get(status[1]);
       if (!a) return json({ error: "not_found" }, 404);
       return json({ status: a.status });
@@ -208,7 +267,7 @@ function routes(config: Config, services: Services) {
 
     // The phone shares a guardian's personal link, when the person turns sharing on.
     if (req.method === "POST" && pathname === "/v1/guardians/links") {
-      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      if (!fromDevice(req, config, services.devices)) return json({ error: "unauthorized" }, 401);
       if (!guardians) return json({ error: "no_guardians" }, 503);
       const body = (await readJson(req)) as any;
       if (body instanceof Response) return body;
@@ -219,14 +278,14 @@ function routes(config: Config, services: Services) {
 
     // Turning sharing off: every guardian link stops working and the news is forgotten.
     if (req.method === "DELETE" && pathname === "/v1/guardians/links") {
-      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      if (!fromDevice(req, config, services.devices)) return json({ error: "unauthorized" }, 401);
       guardians?.revokeAll();
       return json({ ok: true });
     }
 
     // What happened, never what it was about: a warning's level and channel, or a pause and its answer.
     if (req.method === "POST" && pathname === "/v1/events") {
-      if (!fromDevice(req, config)) return json({ error: "unauthorized" }, 401);
+      if (!fromDevice(req, config, services.devices)) return json({ error: "unauthorized" }, 401);
       if (!guardians) return json({ error: "no_guardians" }, 503);
       const body = await readJson(req);
       if (body instanceof Response) return body;

@@ -1,7 +1,12 @@
 export interface Config {
   port: number;
+  /** The shared test token in debug builds; also what `bun pair` uses unless ADMIN_TOKEN is set. */
   deviceToken: string;
   publicBaseUrl: string;
+  /** Who may create pairing codes and list or disconnect phones: ADMIN_TOKEN, else the shared token. */
+  adminToken: string;
+  /** ALLOW_SHARED_TOKEN=0 once every phone is paired: then only per-device keys open the API. */
+  allowSharedToken: boolean;
 }
 
 export function loadConfig(env: Record<string, string | undefined> = process.env): Config {
@@ -13,5 +18,7 @@ export function loadConfig(env: Record<string, string | undefined> = process.env
     port: Number(env.PORT ?? 8787),
     deviceToken,
     publicBaseUrl: (env.PUBLIC_BASE_URL ?? "http://localhost:8787").replace(/\/+$/, ""),
+    adminToken: env.ADMIN_TOKEN && env.ADMIN_TOKEN.length >= 32 ? env.ADMIN_TOKEN : deviceToken,
+    allowSharedToken: env.ALLOW_SHARED_TOKEN !== "0",
   };
 }
