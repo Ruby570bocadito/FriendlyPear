@@ -24,10 +24,11 @@ import kotlin.random.Random
 
 /**
  * Peri on screen, cut out of her Muse Image illustrations (assets/peri/) so she stands on any background.
- * The motion is smooth and never blends two poses: she tilts and bobs as one image, with a soft shadow that
- * shrinks as she rises, and each mood moves its own way (a bouncy happy Peri, a steady protective one, slow
- * breathing asleep). Only quick changes swap frames: a four-step blink, a glance to one side now and then, and
- * three mouth shapes while she speaks.
+ * The motion is smooth and never blends two poses: she tilts, shifts her weight and bobs as one image, with a
+ * soft shadow that shrinks as she rises, squashes a little when she lands and nods as she speaks; each mood
+ * moves its own way (a happy Peri runs on the spot, a steady protective one, slow breathing asleep). Now and
+ * then she does something by herself: a hop, a little dance on her feet, a look around, a stretch, a wave.
+ * Only quick changes swap frames: a four-step blink, glances, steps and three mouth shapes while she speaks.
  * Moods cross-fade with a small pop. With "remove animations" on she changes mood without moving.
  */
 class PeriFace(context: Context) : FrameLayout(context) {
@@ -40,9 +41,15 @@ class PeriFace(context: Context) : FrameLayout(context) {
         val round: Int,
         val left: Int,
         val right: Int,
+        /** One foot lifted (left or right side of the picture), for steps; none while asleep. */
+        val stepLeft: Int? = null,
+        val stepRight: Int? = null,
     ) {
-        val all = setOf(still, half, closed, talk, wide, round, left, right)
+        val all = setOfNotNull(still, half, closed, talk, wide, round, left, right, stepLeft, stepRight)
     }
+
+    /** What she does by herself now and then, when nothing else is going on. */
+    private enum class Idle { HOP, STEPS, LOOK, WAVE, STRETCH }
 
     /** How each mood moves: tilt in degrees and its period, bob in dp and its period, breathing depth. */
     private data class Motion(
@@ -54,6 +61,11 @@ class PeriFace(context: Context) : FrameLayout(context) {
         val breath: Float = 0.012f,
         val breathMs: Long = 3_200,
         val blinks: Boolean = true,
+        /** Side-to-side weight shift in dp, in time with the tilt. */
+        val sway: Float = 1f,
+        val idles: List<Idle> = emptyList(),
+        /** Runs on the spot: a foot up on every bounce. */
+        val runs: Boolean = false,
     )
 
     private val moves = Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f
@@ -75,6 +87,14 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private var running = false
     /** While a pose (an idea, "sorry", a thumbs up) is on, blinks and glances wait. */
     private var posing = false
+    /** The idle action going on (a hop, steps, a stretch) and when it started. */
+    private var action: Idle? = null
+    private var actionStart = 0L
+    /** Until then a blink or glance owns the frame, so running steps don't cut it short. */
+    private var busyUntil = 0L
+    private var lastRun = -1L
+    /** The start of the little nod that goes with each word. */
+    private var nodStart = 0L
 
     init {
         rig.addView(back, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
@@ -126,6 +146,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         if (mood == shown) return
         val first = shown == null
         shown = mood
+        action = null
         frames = FRAMES.getValue(mood)
         contentDescription = context.getString(DESCRIPTIONS.getValue(mood))
         // Only this mood's frames stay in memory: each is a full-quality illustration.
@@ -179,6 +200,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         back.alpha = 0f
         fading = false
         posing = true
+        action = null
         front.setImageDrawable(context.getDrawable(res))
         popStart = SystemClock.uptimeMillis()
         main.removeCallbacks(endPose)
@@ -221,6 +243,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
             val next = listOf(frames.talk, frames.wide, frames.round, frames.still).filter { it != last }.random()
             last = next
             put(next)
+            if (next != frames.still) nodStart = SystemClock.uptimeMillis()
             main.postDelayed(this, if (next == frames.still) Random.nextLong(70, 130) else Random.nextLong(90, 170))
         }
     }
@@ -228,6 +251,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private val blink = object : Runnable {
         override fun run() {
             if (shown != null && !talking && MOTIONS.getValue(shown!!).blinks) {
+                busyUntil = SystemClock.uptimeMillis() + 480
                 val steps = listOf(frames.half to 0L, frames.closed to 45L, frames.half to 125L, frames.still to 170L)
                 steps.forEach { (res, at) -> main.postDelayed({ if (!talking) put(res) }, at) }
                 // Now and then a double blink, as people do.
@@ -242,10 +266,81 @@ class PeriFace(context: Context) : FrameLayout(context) {
         override fun run() {
             if (shown != null && !talking && MOTIONS.getValue(shown!!).blinks) {
                 val side = if (Random.nextBoolean()) frames.left else frames.right
+                val back = Random.nextLong(700, 1_200)
+                busyUntil = SystemClock.uptimeMillis() + back
                 put(side)
-                main.postDelayed({ if (!talking) put(frames.still) }, Random.nextLong(700, 1_200))
+                main.postDelayed({ if (!talking) put(frames.still) }, back)
             }
             main.postDelayed(this, Random.nextLong(6_000, 11_000))
+        }
+    }
+
+    /** Every several seconds, if she's free, one of her mood's idle actions. */
+    private val idle = object : Runnable {
+        override fun run() {
+            val mood = shown
+            if (mood != null && !talking && !posing && !fading && action == null) {
+                MOTIONS.getValue(mood).idles.randomOrNull()?.let { act(it) }
+            }
+            main.postDelayed(this, Random.nextLong(IDLE_MIN, IDLE_MAX))
+        }
+    }
+
+    private fun act(idle: Idle) {
+        val now = SystemClock.uptimeMillis()
+        when (idle) {
+            Idle.HOP, Idle.STRETCH -> {
+                action = idle
+                actionStart = now
+                // Eyes softly half closed for a stretch, as if it felt good.
+                if (idle == Idle.STRETCH) {
+                    put(frames.half)
+                    main.postDelayed({ if (!talking) put(frames.still) }, STRETCH_MS)
+                }
+            }
+            Idle.STEPS -> {
+                val l = frames.stepLeft ?: return
+                val r = frames.stepRight ?: return
+                action = idle
+                actionStart = now
+                busyUntil = now + STEPS * STEP_MS
+                val steps = (0 until STEPS).map { if (it % 2 == 0) (if (it % 4 == 0) l else r) else frames.still }
+                steps.forEachIndexed { i, res -> main.postDelayed({ if (!talking && action == Idle.STEPS) put(res) }, i * STEP_MS) }
+                main.postDelayed({ if (!talking) put(frames.still) }, STEPS * STEP_MS)
+            }
+            Idle.LOOK -> {
+                busyUntil = now + 1_500
+                put(frames.left)
+                main.postDelayed({ if (!talking) put(frames.right) }, 650)
+                main.postDelayed({ if (!talking) put(frames.still) }, 1_350)
+            }
+            Idle.WAVE -> greet()
+        }
+    }
+
+    /**
+     * The current idle action's lift (dp) and squash (negative: squashed flat, positive: stretched tall).
+     * A hop crouches first, springs up a little stretched, and lands with a squash.
+     */
+    private fun actionShape(t: Long): Pair<Float, Float> {
+        val e = (t - actionStart).toFloat()
+        return when (action) {
+            Idle.HOP -> when {
+                e < 130 -> 0f to -0.07f * sin(PI / 2 * e / 130).toFloat()
+                e < 480 -> {
+                    val a = (e - 130) / 350
+                    HOP_DP * 4 * a * (1 - a) to 0.04f * (1 - 2 * a).coerceAtLeast(0f)
+                }
+                e < HOP_MS -> 0f to -0.07f * sin(PI * (e - 480) / (HOP_MS - 480)).toFloat()
+                else -> 0f to 0f.also { action = null }
+            }
+            Idle.STEPS -> if (e < STEPS * STEP_MS) {
+                // A small bounce on each step.
+                val ph = (e % STEP_MS) / STEP_MS
+                3f * sin(PI * ph).toFloat() to 0f
+            } else 0f to 0f.also { action = null }
+            Idle.STRETCH -> if (e < STRETCH_MS) 0f to 0.05f * sin(PI * e / STRETCH_MS).toFloat() else 0f to 0f.also { action = null }
+            else -> 0f to 0f
         }
     }
 
@@ -255,15 +350,33 @@ class PeriFace(context: Context) : FrameLayout(context) {
             val t = SystemClock.uptimeMillis()
             val m = MOTIONS.getValue(shown ?: Mood.CALM)
             fun wave(period: Long) = sin(2 * PI * (t % period) / period).toFloat()
+            val density = resources.displayMetrics.density
             rise = if (m.bounce) abs(sin(PI * (t % m.bobMs) / m.bobMs).toFloat()) else (1 - wave(m.bobMs)) / 2
             val breath = wave(m.breathMs) * m.breath
             val p = ((t - popStart) / POP_MS).coerceIn(0f, 1f)
             val popScale = 0.94f + 0.06f * pop.getInterpolation(p)
+            // Bouncing, she squashes a little each time she touches the ground.
+            val landing = if (m.bounce) -LAND_SQUASH * (1 - rise).let { it * it * it * it * it * it } else 0f
+            // A little nod with each word.
+            val n = ((t - nodStart) / NOD_MS).coerceIn(0f, 1f)
+            val nod = if (talking) sin(PI * n).toFloat() * NOD else 0f
+            val (lift, shape) = actionShape(t)
+            val squash = breath + landing + shape + nod
             rig.rotation = wave(m.tiltMs) * m.tilt
-            rig.translationY = -rise * m.bob * resources.displayMetrics.density
+            rig.translationX = wave(m.tiltMs) * m.sway * density
+            rig.translationY = -(rise * m.bob + lift) * density
             // Squash and stretch keeps her volume: taller is a touch thinner.
-            rig.scaleY = popScale * (1 + breath)
-            rig.scaleX = popScale * (1 - breath / 2)
+            rig.scaleY = popScale * (1 + squash)
+            rig.scaleX = popScale * (1 - squash / 2)
+            if (lift > 0f) rise = maxOf(rise, lift / HOP_DP)
+            // Happy, she runs on the spot: the other foot up on every bounce.
+            if (m.runs && !talking && !posing && action == null && t > busyUntil) {
+                val step = t / m.bobMs
+                if (step != lastRun) {
+                    lastRun = step
+                    (if (step % 2 == 0L) frames.stepLeft else frames.stepRight)?.let { put(it) }
+                }
+            }
             invalidate()
             Choreographer.getInstance().postFrameCallback(this)
         }
@@ -276,6 +389,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         Choreographer.getInstance().postFrameCallback(frame)
         main.postDelayed(blink, 1_800)
         main.postDelayed(glance, 5_000)
+        main.postDelayed(idle, Random.nextLong(IDLE_FIRST, IDLE_MIN))
         if (talking) main.post(mouth)
     }
 
@@ -291,6 +405,17 @@ class PeriFace(context: Context) : FrameLayout(context) {
         const val CHEER_MILLIS = 2_200L
         const val POSE_MILLIS = 2_800L
         const val POP_MS = 420f
+        const val IDLE_FIRST = 3_500L
+        const val IDLE_MIN = 7_000L
+        const val IDLE_MAX = 13_000L
+        const val HOP_MS = 640f
+        const val HOP_DP = 16f
+        const val STEP_MS = 230L
+        const val STEPS = 8
+        const val STRETCH_MS = 900L
+        const val LAND_SQUASH = 0.07f
+        const val NOD_MS = 170f
+        const val NOD = 0.018f
         const val WAVE_START = 400L
         const val WAVE_STEP = 170L
         /** Where her feet are, as a fraction of the illustration's height. */
@@ -299,49 +424,57 @@ class PeriFace(context: Context) : FrameLayout(context) {
         const val SHADOW_FLATNESS = 0.16f
 
         val MOTIONS = mapOf(
-            Mood.CALM to Motion(tilt = 1.8f, tiltMs = 4_200, bob = 3f, bobMs = 2_100),
-            Mood.LISTENING to Motion(tilt = 1.2f, tiltMs = 3_400, bob = 1.5f, bobMs = 1_700),
-            Mood.THINKING to Motion(tilt = 2.4f, tiltMs = 3_000, bob = 2f, bobMs = 1_500),
-            Mood.WORRIED to Motion(tilt = 1f, tiltMs = 2_400, bob = 1f, bobMs = 1_200),
-            Mood.PROTECTIVE to Motion(tilt = 0.6f, tiltMs = 3_600, bob = 1f, bobMs = 1_800),
-            Mood.CALLING to Motion(tilt = 1.5f, tiltMs = 3_000, bob = 2f, bobMs = 1_500),
-            Mood.WAITING to Motion(tilt = 3f, tiltMs = 5_000, bob = 1.5f, bobMs = 2_500),
-            Mood.HAPPY to Motion(tilt = 3f, tiltMs = 1_800, bob = 12f, bobMs = 900, bounce = true),
-            Mood.SLEEPING to Motion(tilt = 0f, tiltMs = 1_000, bob = 0f, bobMs = 1_000, breath = 0.022f, breathMs = 4_600, blinks = false),
+            Mood.CALM to Motion(tilt = 1.8f, tiltMs = 4_200, bob = 3f, bobMs = 2_100, sway = 1.5f, idles = listOf(Idle.HOP, Idle.STEPS, Idle.LOOK, Idle.WAVE, Idle.STRETCH)),
+            Mood.LISTENING to Motion(tilt = 1.2f, tiltMs = 3_400, bob = 1.5f, bobMs = 1_700, sway = 0.5f),
+            Mood.THINKING to Motion(tilt = 2.4f, tiltMs = 3_000, bob = 2f, bobMs = 1_500, idles = listOf(Idle.LOOK, Idle.STEPS)),
+            Mood.WORRIED to Motion(tilt = 1f, tiltMs = 2_400, bob = 1f, bobMs = 1_200, sway = 0.8f, idles = listOf(Idle.STEPS, Idle.LOOK)),
+            Mood.PROTECTIVE to Motion(tilt = 0.6f, tiltMs = 3_600, bob = 1f, bobMs = 1_800, sway = 0.4f, idles = listOf(Idle.LOOK)),
+            Mood.CALLING to Motion(tilt = 1.5f, tiltMs = 3_000, bob = 2f, bobMs = 1_500, idles = listOf(Idle.STEPS)),
+            Mood.WAITING to Motion(tilt = 3f, tiltMs = 5_000, bob = 1.5f, bobMs = 2_500, sway = 1.5f, idles = listOf(Idle.STEPS, Idle.LOOK, Idle.STRETCH)),
+            Mood.HAPPY to Motion(tilt = 3f, tiltMs = 1_800, bob = 12f, bobMs = 900, bounce = true, sway = 2f, idles = listOf(Idle.HOP), runs = true),
+            Mood.SLEEPING to Motion(tilt = 0f, tiltMs = 1_000, bob = 0f, bobMs = 1_000, breath = 0.022f, breathMs = 4_600, blinks = false, sway = 0f),
         )
 
         val FRAMES = mapOf(
             Mood.CALM to Frames(
                 R.drawable.peri_calm, R.drawable.peri_calm_blinkhalf, R.drawable.peri_calm_blink, R.drawable.peri_calm_talk,
                 R.drawable.peri_calm_talkwide, R.drawable.peri_calm_talko, R.drawable.peri_calm_glanceleft, R.drawable.peri_calm_glanceright,
+                R.drawable.peri_calm_stepleft, R.drawable.peri_calm_stepright,
             ),
             Mood.LISTENING to Frames(
                 R.drawable.peri_listening, R.drawable.peri_listening_blinkhalf, R.drawable.peri_listening_blink, R.drawable.peri_listening_talk,
                 R.drawable.peri_listening_talkwide, R.drawable.peri_listening_talko, R.drawable.peri_listening_glanceleft, R.drawable.peri_listening_glanceright,
+                R.drawable.peri_listening_stepleft, R.drawable.peri_listening_stepright,
             ),
             Mood.THINKING to Frames(
                 R.drawable.peri_thinking, R.drawable.peri_thinking_blinkhalf, R.drawable.peri_thinking_blink, R.drawable.peri_thinking_talk,
                 R.drawable.peri_thinking_talkwide, R.drawable.peri_thinking_talko, R.drawable.peri_thinking_glanceleft, R.drawable.peri_thinking_glanceright,
+                R.drawable.peri_thinking_stepleft, R.drawable.peri_thinking_stepright,
             ),
             Mood.WORRIED to Frames(
                 R.drawable.peri_worried, R.drawable.peri_worried_blinkhalf, R.drawable.peri_worried_blink, R.drawable.peri_worried_talk,
                 R.drawable.peri_worried_talkwide, R.drawable.peri_worried_talko, R.drawable.peri_worried_glanceleft, R.drawable.peri_worried_glanceright,
+                R.drawable.peri_worried_stepleft, R.drawable.peri_worried_stepright,
             ),
             Mood.PROTECTIVE to Frames(
                 R.drawable.peri_protective, R.drawable.peri_protective_blinkhalf, R.drawable.peri_protective_blink, R.drawable.peri_protective_talk,
                 R.drawable.peri_protective_talkwide, R.drawable.peri_protective_talko, R.drawable.peri_protective_glanceleft, R.drawable.peri_protective_glanceright,
+                R.drawable.peri_protective_stepleft, R.drawable.peri_protective_stepright,
             ),
             Mood.CALLING to Frames(
                 R.drawable.peri_calling, R.drawable.peri_calling_blinkhalf, R.drawable.peri_calling_blink, R.drawable.peri_calling_talk,
                 R.drawable.peri_calling_talkwide, R.drawable.peri_calling_talko, R.drawable.peri_calling_glanceleft, R.drawable.peri_calling_glanceright,
+                R.drawable.peri_calling_stepleft, R.drawable.peri_calling_stepright,
             ),
             Mood.WAITING to Frames(
                 R.drawable.peri_waiting, R.drawable.peri_waiting_blinkhalf, R.drawable.peri_waiting_blink, R.drawable.peri_waiting_talk,
                 R.drawable.peri_waiting_talkwide, R.drawable.peri_waiting_talko, R.drawable.peri_waiting_glanceleft, R.drawable.peri_waiting_glanceright,
+                R.drawable.peri_waiting_stepleft, R.drawable.peri_waiting_stepright,
             ),
             Mood.HAPPY to Frames(
                 R.drawable.peri_happy, R.drawable.peri_happy_blinkhalf, R.drawable.peri_happy_blink, R.drawable.peri_happy_talk,
                 R.drawable.peri_happy_talkwide, R.drawable.peri_happy_talko, R.drawable.peri_happy_glanceleft, R.drawable.peri_happy_glanceright,
+                R.drawable.peri_happy_stepleft, R.drawable.peri_happy_stepright,
             ),
             Mood.SLEEPING to Frames(
                 R.drawable.peri_sleeping, R.drawable.peri_sleeping_blinkhalf, R.drawable.peri_sleeping_blink, R.drawable.peri_sleeping_talk,
