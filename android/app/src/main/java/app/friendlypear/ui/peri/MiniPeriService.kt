@@ -113,7 +113,7 @@ class MiniPeriService : Service(), PeriView {
         // Only the pear: her illustrations are cut out, and she brings her own soft shadow.
         face = PeriFace(this)
         bubble = TextView(this).apply {
-            textSize = 18f
+            sizeSp(18f)
             typeface = weight(500)
             setTextColor(Palette.INK)
             setLineSpacing(0f, 1.1f)

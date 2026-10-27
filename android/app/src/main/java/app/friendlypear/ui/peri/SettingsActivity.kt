@@ -54,7 +54,7 @@ class SettingsActivity : Activity() {
             group.addView(RadioButton(this).apply {
                 id = View.generateViewId()
                 text = label
-                textSize = 20f
+                sizeSp(20f)
                 typeface = weight(600)
                 setTextColor(Palette.INK)
                 minHeight = dp(56)
@@ -80,7 +80,7 @@ class SettingsActivity : Activity() {
             addView(heading(getString(R.string.settings_ears), 21f))
             addView(android.widget.CheckBox(this@SettingsActivity).apply {
                 text = getString(R.string.settings_ears_muse)
-                textSize = 19f
+                sizeSp(19f)
                 typeface = weight(600)
                 setTextColor(Palette.INK)
                 isChecked = hub.museVoice

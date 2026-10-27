@@ -35,7 +35,7 @@ class PauseOverlay(context: Context, private val onAnswer: (PauseAnswer) -> Unit
         val face = PeriFace(c).apply { show(Mood.PROTECTIVE) }
         val said = TextView(c).apply {
             this.text = text
-            textSize = 21f
+            sizeSp(21f)
             typeface = weight(500)
             setTextColor(Palette.INK)
             setLineSpacing(0f, 1.12f)
@@ -76,7 +76,7 @@ class PauseOverlay(context: Context, private val onAnswer: (PauseAnswer) -> Unit
         )
         // A speed bump, not a wall: "continue" unlocks after a few seconds.
         val carryOn = TextView(c).apply {
-            textSize = 18f
+            sizeSp(18f)
             typeface = weight(600)
             setTextColor(Palette.INK_SOFT)
             gravity = Gravity.CENTER

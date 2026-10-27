@@ -7,7 +7,9 @@ import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
+import android.util.TypedValue
 import android.view.Gravity
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -36,6 +38,46 @@ internal object Palette {
 }
 
 internal fun Context.dp(value: Number): Int = (value.toFloat() * resources.displayMetrics.density).toInt()
+
+/**
+ * Text that grows with the phone's font size, up to [MAX_FONT_SCALE]: the sizes here already start large, and with
+ * the phone's own "large text" on top, the words would push Peri and the buttons off the screen.
+ */
+internal fun TextView.sizeSp(sp: Float) {
+    setTextSize(TypedValue.COMPLEX_UNIT_DIP, sp * minOf(resources.configuration.fontScale, MAX_FONT_SCALE))
+}
+
+internal const val MAX_FONT_SCALE = 1.15f
+
+/** One-line text that shrinks (down to [minSp]) until it fits its width. */
+internal fun TextView.fitWidth(baseSp: Float, minSp: Float) {
+    val room = width - paddingLeft - paddingRight
+    if (room <= 0) return
+    var sp = baseSp
+    sizeSp(sp)
+    while (paint.measureText(text.toString()) > room && sp > minSp) {
+        sp -= 1f
+        sizeSp(sp)
+    }
+}
+
+/**
+ * Shrinks the text, from [baseSp] down to [minSp], until it fits in [maxHeightPx]: a long sentence of Peri's
+ * gets a little smaller instead of squeezing Peri herself. Call it once the view has its width.
+ */
+internal fun TextView.fitInto(maxHeightPx: Int, baseSp: Float, minSp: Float = 15f) {
+    val w = width.takeIf { it > 0 } ?: return
+    val widthSpec = View.MeasureSpec.makeMeasureSpec(w, View.MeasureSpec.EXACTLY)
+    val free = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+    var sp = baseSp
+    sizeSp(sp)
+    measure(widthSpec, free)
+    while (measuredHeight > maxHeightPx && sp > minSp) {
+        sp -= 1f
+        sizeSp(sp)
+        measure(widthSpec, free)
+    }
+}
 
 /** Roboto at a given weight: 400 body, 600 buttons, 800 the wordmark. */
 internal fun weight(w: Int): Typeface = Typeface.create(Typeface.DEFAULT, w, false)
@@ -81,13 +123,31 @@ internal class Pill(context: Context, label: CharSequence, icon: Int, primary: B
             importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
         }, LayoutParams(s, s).apply { marginEnd = context.dp(12) })
         addView(text.apply {
-            textSize = size
+            sizeSp(size)
             typeface = weight(600)
             setTextColor(fg)
-            maxLines = 1
+            isSingleLine = true
             importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
         })
         this.label = label
+    }
+
+    private val baseSp = size
+    private val iconRoom = context.dp(if (primary) 30 else 24) + context.dp(12)
+
+    /** The label shrinks to fit beside its icon (large text on the phone) instead of being cut off. */
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val total = MeasureSpec.getSize(widthMeasureSpec)
+        if (MeasureSpec.getMode(widthMeasureSpec) != MeasureSpec.UNSPECIFIED && total > 0) {
+            val room = total - paddingLeft - paddingRight - iconRoom
+            var sp = baseSp
+            text.sizeSp(sp)
+            while (sp > 12f && text.paint.measureText(text.text.toString()) > room) {
+                sp -= 1f
+                text.sizeSp(sp)
+            }
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
     override fun getAccessibilityClassName(): CharSequence = Button::class.java.name
@@ -95,14 +155,14 @@ internal class Pill(context: Context, label: CharSequence, icon: Int, primary: B
 
 internal fun Context.heading(value: CharSequence, size: Float = 24f) = TextView(this).apply {
     text = value
-    textSize = size
+    sizeSp(size)
     typeface = weight(700)
     setTextColor(Palette.INK)
 }
 
 internal fun Context.body(value: CharSequence, size: Float = 18f) = TextView(this).apply {
     text = value
-    textSize = size
+    sizeSp(size)
     setTextColor(Palette.INK_SOFT)
     setLineSpacing(0f, 1.15f)
 }

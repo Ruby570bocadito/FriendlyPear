@@ -43,7 +43,7 @@ class PictureActivity : Activity() {
         picture = MarkedPicture(this)
         face = PeriFace(this).apply { show(Mood.CALM) }
         said = TextView(this).apply {
-            textSize = 20f
+            sizeSp(20f)
             typeface = weight(500)
             setTextColor(Palette.INK)
             setLineSpacing(0f, 1.1f)
