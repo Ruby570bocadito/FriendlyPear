@@ -23,6 +23,12 @@
     <uses-permission
         android:name="android.permission.PACKAGE_USAGE_STATS"
         tools:ignore="ProtectedPermissions" />
+    <!-- Mini Peri: the pear floating over other apps, with a notification while she's out. -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- So Mini Peri can listen when tapped while another app is in front; never on her own. -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <!-- Only doubtful messages, to the family backend for a second opinion. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -93,6 +99,15 @@
             <intent-filter>
                 <action android:name="android.telecom.CallScreeningService" />
             </intent-filter>
+        </service>
+
+        <service
+            android:name=".ui.peri.MiniPeriService"
+            android:exported="false"
+            android:foregroundServiceType="microphone|specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Floating assistant the person turned on, shown over other apps until they put it away" />
         </service>
 
         <receiver

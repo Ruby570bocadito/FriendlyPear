@@ -5,6 +5,7 @@ import android.app.role.RoleManager
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.Gravity
@@ -20,11 +21,13 @@ import app.friendlypear.core.agent.Mood
 import app.friendlypear.device.VoiceInput
 import app.friendlypear.services.MessageListener
 import app.friendlypear.services.PeriHub
+import app.friendlypear.services.PeriView
 
 /**
  * Peri's one-button screen: what Peri says, in large letters, and a big button to talk.
  * Permissions are asked one at a time, each with Peri's sentence first: the shield's basics at first start,
  * everything else (microphone, calls, texts, location) the first time it's needed.
+ * "Mini Peri" switches to the other mode: only the pear, floating over other apps ([MiniPeriService]).
  */
 class PeriActivity : Activity() {
     private lateinit var hub: PeriHub
@@ -36,6 +39,10 @@ class PeriActivity : Activity() {
     private lateinit var access: Button
     private lateinit var usage: Button
     private lateinit var family: Button
+    private lateinit var mini: Button
+    private var wantsMini = false
+    /** Set while the app steps aside for Mini Peri, so the last resume before that doesn't put her away. */
+    private var leaving = false
     private var resumed = false
     private var answer: ((Boolean) -> Unit)? = null
     private val asked by lazy { getSharedPreferences("permissions", MODE_PRIVATE) }
@@ -82,6 +89,11 @@ class PeriActivity : Activity() {
                 startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
             }
         }
+        mini = Button(this).apply {
+            text = getString(R.string.mini_mode)
+            textSize = 18f
+            setOnClickListener { goMini() }
+        }
         setContentView(
             LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
@@ -95,6 +107,7 @@ class PeriActivity : Activity() {
                 addView(access)
                 addView(usage)
                 addView(family)
+                addView(mini)
                 addView(talk, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
             },
         )
@@ -146,12 +159,13 @@ class PeriActivity : Activity() {
         resumed = true
         // Peri may have spoken while the screen was hidden, e.g. during a call.
         if (hub.lastSaid.isNotEmpty()) said.text = hub.lastSaid
-        hub.onSaid = { text -> said.text = text }
-        hub.onMood = { mood -> showFace(mood) }
+        // Two modes, never both: opening the app puts Mini Peri away, unless she's about to come out.
+        if (wantsMini && Settings.canDrawOverlays(this)) return goMini()
+        wantsMini = false
+        if (MiniPeriService.running && !leaving) MiniPeriService.stop(this)
+        hub.attach(view)
         showFace(hub.mood)
-        hub.onSpeechDone = {
-            if (resumed && hub.isWaitingForAnswer && voice.available && hub.permissions.granted(Need.MIC)) voice.listen()
-        }
+        face.speaking(hub.speaking)
         access.visibility = if (hasNotificationAccess()) View.GONE else View.VISIBLE
         usage.visibility = if (hub.bank.allowed()) View.GONE else View.VISIBLE
         hub.refresh()
@@ -159,10 +173,14 @@ class PeriActivity : Activity() {
 
     override fun onPause() {
         resumed = false
-        hub.onSaid = null
-        hub.onMood = null
-        hub.onSpeechDone = null
+        hub.detach(view)
+        face.speaking(false)
         super.onPause()
+    }
+
+    override fun onStop() {
+        leaving = false
+        super.onStop()
     }
 
     override fun onDestroy() {
@@ -177,6 +195,38 @@ class PeriActivity : Activity() {
         val done = answer
         answer = null
         done?.invoke(grantResults.any { it == PackageManager.PERMISSION_GRANTED })
+    }
+
+    private val view = object : PeriView {
+        override fun said(text: String) {
+            said.text = text
+        }
+
+        override fun mood(mood: Mood) = showFace(mood)
+
+        override fun speaking(on: Boolean) {
+            face.speaking(on)
+            if (!on && resumed && hub.isWaitingForAnswer && voice.available && hub.permissions.granted(Need.MIC)) voice.listen()
+        }
+    }
+
+    /**
+     * Mini Peri floats over other apps, which Android lets only after the person allows it in settings:
+     * Peri explains why first. Then the microphone, so she can listen when tapped, and the app steps aside.
+     */
+    private fun goMini() {
+        if (!Settings.canDrawOverlays(this)) {
+            wantsMini = true
+            hub.say(getString(R.string.why_overlay))
+            startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
+            return
+        }
+        wantsMini = false
+        hub.permissions.ask(Need.MIC) {
+            leaving = true
+            MiniPeriService.start(this)
+            moveTaskToBack(true)
+        }
     }
 
     /** The agent's mood, plus what only the screen knows: the microphone is open, or it's night and all is calm. */

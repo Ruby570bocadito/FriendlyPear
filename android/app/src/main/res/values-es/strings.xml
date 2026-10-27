@@ -60,4 +60,16 @@
     <string name="mood_waiting">Peri, esperando a tu familia</string>
     <string name="mood_happy">Peri, saltando de alegría</string>
     <string name="mood_sleeping">Peri, durmiendo</string>
+    <string name="investigations_title">Lo que Peri ha investigado</string>
+    <string name="verdict_scam">parecía un timo</string>
+    <string name="verdict_doubt">seguía sin estar claro</string>
+    <string name="verdict_ok">parecía normal</string>
+    <string name="mini_mode">Mini Peri</string>
+    <string name="why_overlay">En modo Mini Peri me quedo pequeñita en una esquina de la pantalla, encima de tus otras apps, para que me hables cuando quieras. En la siguiente pantalla, deja que FriendlyPear se muestre encima. No veo lo que hay en tus otras apps.</string>
+    <string name="mini_channel">Mini Peri</string>
+    <string name="mini_title">Peri está contigo</string>
+    <string name="mini_text">Toca a Peri para hablar. Toca aquí para abrir la app.</string>
+    <string name="mini_hide">Guardar a Peri</string>
+    <string name="mini_talk">Hablar con Peri</string>
+    <string name="mini_open">Abrir la app</string>
 </resources>

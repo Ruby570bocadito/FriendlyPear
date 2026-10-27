@@ -61,4 +61,16 @@
     <string name="mood_waiting">Peri, waiting for your family</string>
     <string name="mood_happy">Peri, jumping with joy</string>
     <string name="mood_sleeping">Peri, sleeping</string>
+    <string name="investigations_title">What Peri looked into</string>
+    <string name="verdict_scam">looked like a scam</string>
+    <string name="verdict_doubt">still unclear</string>
+    <string name="verdict_ok">looked fine</string>
+    <string name="mini_mode">Mini Peri</string>
+    <string name="why_overlay">In Mini Peri mode I stay small in a corner of the screen, on top of your other apps, so you can talk to me anytime. In the next screen, allow FriendlyPear to appear on top. I don\'t see what\'s in your other apps.</string>
+    <string name="mini_channel">Mini Peri</string>
+    <string name="mini_title">Peri is here with you</string>
+    <string name="mini_text">Tap Peri to talk. Tap here to open the app.</string>
+    <string name="mini_hide">Put Peri away</string>
+    <string name="mini_talk">Talk to Peri</string>
+    <string name="mini_open">Open the app</string>
 </resources>
