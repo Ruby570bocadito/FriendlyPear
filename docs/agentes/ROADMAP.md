@@ -49,6 +49,10 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [x] (IMP-1) aprobaciones — [M] enlace de un solo uso, 15 min, página del guardián — backend/src/approvals/ · hecho 2026-10-27
 - [x] (IMP-2) mfa-punta-a-punta — [M] MFA familiar con dos móviles — android/ · hecho 2026-10-27 (dos emuladores; SMS entre ellos entregado con adb)
 - [ ] (IMP-1) avisos-familia — [M] inmediatos, ataque en curso, resumen semanal — core/.../alerts/
+- [x] (IMP-1) enlaces-inseguros — [S] señal `INSECURE_LINK`: `http://`, puerto distinto de 443 o IP sin nombre; peso 2,5, avisa siempre (dudoso) aunque venga de la familia — core/.../shield/ · hecho 2026-10-27
+- [x] (IMP-1) pedir-ayuda — [S] "pide ayuda a mamá", "avisa a mi hija", "ask my daughter for help", "llama a mamá, que necesito ayuda" → llamada con el "sí" de siempre; relación `PARENT` (madre, padre, mum, dad) — core/.../voice/ · hecho 2026-10-27
+- [x] (IMP-1) docs-confianza-y-modelos — [S] `docs/CONFIANZA.md` (acompañar, no vigilar; guion para proponerlo) y `docs/META_MODELS.md` (modelos en el motor y en las imágenes) · hecho 2026-10-27
+- [ ] (IMP-2) vista-guardian — [M] hoy el guardián solo recibe SMS con enlace de un solo uso; una página o app ligera para el guardián con el historial de lo que aprobó, sin acceso a mensajes — backend/src/approvals/
 - [ ] (SEG) backend-endurecido — [S] cabeceras, límites de cuerpo y de peticiones — backend/src/server.ts
 
 ## Día 5 · 31 oct — confianza y emergencia

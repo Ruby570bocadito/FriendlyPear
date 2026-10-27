@@ -9,6 +9,10 @@ Built for the **Meta Global AI Developer Hackathon** · Indie track · *Build fo
 > All product code was written Oct 27 – Nov 4, 2026. Concept and design documents were drafted before the building period.
 > The app is bilingual (English and Spanish) and follows the phone's language. Internal planning docs under `docs/` are in Spanish.
 
+## A companion, not a watchdog
+
+Nobody wants an app "to control your phone". Peri is presented, truthfully, as a friend who reads your messages aloud, calls whoever you ask and keeps you company, and who also spots scams. She works for the person, not for the family: the family never reads messages, calls, location or apps, and only gets a one-time link to approve something risky when the person asks for it. Every permission is explained first and can be refused, and the app never says "control", "monitor" or "watch". See [`docs/CONFIANZA.md`](docs/CONFIANZA.md) (in Spanish), including how to suggest it to a relative.
+
 ## Why
 
 Scams work because they **isolate** the victim and **rush** them: "Mum, I broke my phone, this is my new number, can you send me money?", "Your bank here: read me the code you just got". Voice assistants can call and read messages but don't judge them; spam filters warn about everything or nothing. FriendlyPear breaks the isolation: before anything risky happens, Peri checks through a second channel — the real family member, at the number already saved.
@@ -25,8 +29,8 @@ Tested on the Android emulator (API 37) on Oct 27, in English and in Spanish:
 
 Also working, with unit tests:
 
-- **Layered shield**: on-device rules with log-odds scoring; hard rules (code during a call, look-alike brand domains) that no model can override; a model opinion moves the score by at most ±2.
-- **Voice orders**: "call the boy", "put me through to my daughter", "tell Laura I'll be late", "read me my messages", "I've fallen". Aliases set by the family, diminutives and nicknames ("Pablito" → Pablo), relations ("my granddaughter"), one-letter transcription slips.
+- **Layered shield**: on-device rules with log-odds scoring; hard rules (code during a call, look-alike brand domains) that no model can override; a model opinion moves the score by at most ±2. Any link without TLS (`http://`), on a port other than 443 or pointing to a bare IP address always gets a warning, even from family: *"its link has no padlock, so it isn't safe"*.
+- **Voice orders**: "call the boy", "put me through to my daughter", "ask mum for help", "call my daughter, I need help", "tell Laura I'll be late", "read me my messages", "I've fallen". Aliases set by the family, diminutives and nicknames ("Pablito" → Pablo), relations ("my granddaughter"), one-letter transcription slips.
 - **Agent loop**: perceive → evaluate → decide → ask for permission by risk → act → check the result, with a plan B (next saved number, or the number to dial by hand). Calling and texting always need a spoken "yes"; dictating a code needs a guardian and is never done alone.
 - **Safe reading**: links, emails, codes and unknown numbers are never read aloud; scams are not read at all, only Peri's warning.
 - **"Are they guiding you over the phone?"**: installing a remote-control app (AnyDesk, TeamViewer…) gets a warning and an offer to tell the family; opening a banking app while a stranger is on the line gets *"Please hang up and call your bank yourself on the number on your card."*
@@ -40,7 +44,14 @@ Also working, with unit tests:
 
 Peri speaks the phone's language (English or Spanish) and understands orders in both, since families mix them. Scam signals are looked for in both languages whatever the phone's language is. See [`docs/agentes/ROADMAP.md`](docs/agentes/ROADMAP.md) for everything else.
 
+## For the family
+
+There is no app for the family to install, and nothing to watch. A guardian (for example the grandchild) is a saved contact the person marks as guardian. When the person asks for something risky (dictating a code, or changing who the guardians are), the guardian gets an SMS with a **one-time link valid for 15 minutes** to a simple page: "No" first, then "Yes, I approve". Silence counts as no. Tested end to end with two emulators: the grandmother's phone and the guardian's phone (Ana), where tapping "Yes, I approve" let Peri go on. Immediate alerts and a weekly summary for guardians are on the roadmap (`avisos-familia`).
+
 ## Meta models
+
+How each model is used in the engine and for the images, with its limits: [`docs/META_MODELS.md`](docs/META_MODELS.md).
+
 
 | Model | Job in FriendlyPear | State |
 |---|---|---|

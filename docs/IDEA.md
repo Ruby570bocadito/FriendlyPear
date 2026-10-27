@@ -53,7 +53,7 @@ FriendlyPear es un **agente de voz para Android**, para cualquier persona y su f
 - Lee SMS, WhatsApp y correo desde las notificaciones (un solo permiso).
 - **Tres niveles:** normal (silencio), dudoso ("¿lo comprobamos?"), estafa ("es una trampa, no lo toques").
 - **Capas:** reglas en el móvil → Muse Glimmer en casa → Muse Spark en la nube (solo si sigue dudoso).
-- **Señales:** remitente fuera de la agenda, dominio que imita a una marca, acortadores, prisa, petición de dinero o claves, "he cambiado de número", instrucciones escritas para la IA.
+- **Señales:** remitente fuera de la agenda, dominio que imita a una marca, acortadores, enlaces sin TLS (`http://`), en un puerto que no es el 443 o con una IP en vez de un nombre (avisa siempre, aunque venga de la familia), prisa, petición de dinero o claves, "he cambiado de número", instrucciones escritas para la IA.
 - **Reglas duras** (el modelo no puede anularlas): código recibido durante una llamada; dominio que imita a una marca.
 - **Acción segura siempre:** llamar al contacto real, usar la app oficial, preguntar a la familia, no tocar el enlace.
 

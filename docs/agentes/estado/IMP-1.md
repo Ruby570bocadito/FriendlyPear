@@ -17,7 +17,9 @@
 - circulo-reglas: `trust/CircleRules.kt`. El primer guardián se pone en el momento; después, cambiar guardianes pide el sí de un guardián actual (enlace de MFA, tipo `circle_change`, a todos los guardianes) y espera 48 h; la persona puede cancelar. La espera se retoma si la app se reinicia (`approvalId`). Probado: "add Marisa" aprobado → "It applies on Oct 29".
 - investigador: `investigator/` (`tools.ts`, `knowledge.ts`, `investigate.ts`), `POST /v1/investigate` (token, solo DOUBT). Muse Spark con 3 herramientas de solo lectura: `domain_age` (RDAP), `scam_patterns` (10 fichas es/en) y `family_has` (solo relaciones, nunca nombres). Máx. 3 rondas y 6 consultas; la última va sin herramientas. Prueba real: paquete de Correos → scam +1,9; farmacia → ok −1,3; 4 llamadas, ~5,4 k tokens.
 - investigador-en-el-movil: si tras Spark Open sigue en DOUBT, `OpinionClient.investigate` (30 s) manda también las relaciones de la familia (nunca nombres); los dos votos juntos se recortan a ±2. La evidencia (nunca el mensaje) se guarda en el móvil (`config/InvestigationLog`, últimas 10) y se ve en la configuración de la familia. Emulador: excursión del cole → 0 + 0 → dudoso (9 s); "cuota del gimnasio" con enlace → +1,8 + 1,7 → estafa (8 s).
-- Tests: core y backend en verde (52 en el backend).
+- enlaces-inseguros: `Links.insecure` + `Signal.INSECURE_LINK` (2,5): un enlace de la familia con `http://` ya es dudoso. Emulador: "fotos de la boda" con `http://` → "its link has no padlock…". La prueba 20/20 (solo reglas) no cambia.
+- pedir-ayuda: `VoiceCommands` (`askForHelp`, `helpTail`) y `Relation.PARENT`. Emulador: "avisa a mi hija que necesito ayuda" → "Sure! Shall I call Ana?".
+- Tests: core (171) y backend (52) en verde.
 
 ## En curso
 - Nada.
