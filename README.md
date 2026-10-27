@@ -15,7 +15,7 @@ Scams work because they **isolate** the victim and **rush** them: "Mum, I broke 
 
 ## What already works
 
-Tested on the Android emulator (API 37) on Oct 27:
+Tested on the Android emulator (API 37) on Oct 27, in English and in Spanish:
 
 | Moment | What happens |
 |---|---|
@@ -31,7 +31,7 @@ Also working, with unit tests:
 - **Emergency**: "I've fallen" → 10-second countdown → SMS with location and a call to the guardian. It never dials an emergency number.
 - **Muse Spark client** with tool calling, a token cap and a response cache.
 
-Peri currently speaks Spanish (the demo family lives in Spain); English speech is in progress. See [`docs/agentes/ROADMAP.md`](docs/agentes/ROADMAP.md) for everything else.
+Peri speaks the phone's language (English or Spanish) and understands orders in both, since families mix them. Scam signals are looked for in both languages whatever the phone's language is. See [`docs/agentes/ROADMAP.md`](docs/agentes/ROADMAP.md) for everything else.
 
 ## Meta models
 
@@ -77,11 +77,11 @@ cd backend && bun test                                       # Bun >= 1.1
 cd android && ./gradlew :app:assembleDebug :app:lintDebug    # Android SDK 35 (sdk.dir in android/local.properties)
 ```
 
-On the emulator, save a contact as "Laura hija" with any number, then:
+On the emulator, save a contact as "Laura daughter" (or "Laura hija") with any number, then:
 
 ```bash
-adb emu sms send 699000111 "Mama, se me ha roto el movil, este es mi numero nuevo, me haces un Bizum?"
-adb shell am broadcast -a app.friendlypear.debug.HEAR --es text "si"
+adb emu sms send 7700900333 "Hi Mum, I broke my phone, this is my new number. Can you send me money?"
+adb shell am broadcast -a app.friendlypear.debug.HEAR --es text "yes"
 ```
 
 The broadcast stands in for the microphone in debug builds only.
