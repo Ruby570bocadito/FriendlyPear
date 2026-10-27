@@ -49,6 +49,9 @@ export const FRAMES: Record<string, string> = {
   talk: "Only change: the mouth is open in a friendly rounded shape, as if saying a word. If sleeping, the mouth makes a tiny soft 'o'.",
   blinkhalf: "Only change: the eyes are half closed, halfway through a blink, the upper eyelids covering the top half of each eye. If the eyes are already closed, keep them closed and make the smile a little softer.",
   talkwide: "Only change: the mouth is open wider in a happy rounded 'ah' shape, as if saying a vowel, with a little pink tongue showing. If sleeping, the mouth is a small relaxed oval.",
+  glanceleft: "Only change: both pupils look towards the left side of the image, as if glancing at something there; head, body, mouth and everything else stay exactly the same. If the eyes are closed, keep them closed.",
+  glanceright: "Only change: both pupils look towards the right side of the image, as if glancing at something there; head, body, mouth and everything else stay exactly the same. If the eyes are closed, keep them closed.",
+  talko: "Only change: the mouth is a small round 'o' shape, as if saying 'oh', keeping the same eyes and expression. If sleeping, the mouth is a tiny relaxed line.",
   swayleft: "Only change: the leaf on top bends a little to the left and the whole body tilts very slightly (about 3 degrees) to the left.",
   swayright: "Only change: the leaf on top bends a little to the right and the whole body tilts very slightly (about 3 degrees) to the right.",
 };

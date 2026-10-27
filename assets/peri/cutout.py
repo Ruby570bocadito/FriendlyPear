@@ -20,7 +20,7 @@ OUT = os.path.join(HERE, "..", "..", "android", "app", "src", "main", "res", "dr
 
 STATES = ["calm", "listening", "thinking", "worried", "protective", "calling", "waiting", "happy", "sleeping"]
 # Frames the app animates with; the sway frames stay in assets/ (the app sways her with a smooth tilt instead).
-FRAMES = ["", "_blink", "_blinkhalf", "_talk", "_talkwide"]
+FRAMES = ["", "_blink", "_blinkhalf", "_talk", "_talkwide", "_talko", "_glanceleft", "_glanceright"]
 EXTRAS = ["calm_wave1", "calm_wave2", "family", "report", "shield", "icon"]
 
 FILL_THRESHOLD = 80  # sum of channel differences from the cream, for the flood fill from the border
