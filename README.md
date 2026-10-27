@@ -67,6 +67,7 @@ How each model is used in the engine and for the images, with its limits: [`docs
 | Muse Spark | Investigator agent with read-only tools for doubtful messages; summaries for guardians | Called from the phone when the second opinion leaves a message doubtful |
 | Muse Spark Open (open weights, on Baseten) | Second opinion on doubtful messages: a vote of at most ±2 on the rules' score | Working end to end on the emulator |
 | Muse Voice Transcribe | Peri's ears, if the person turns it on in Settings: each voice order is recorded on the phone (it stops after a long pause, for people who speak slowly) and written down by Meta's speech model | Working on the emulator and the real API ("Oye Peri, llama a mi hija, por favor." exact, 1.8 s); off by default |
+| Muse Spark 1.3 contributor | Writes the 1,306 synthetic training messages for the shield's learned weights (`training/generate.ts`); never used to evaluate | Done, a few cents |
 | Muse Spark (multimodal) + SAM 3.1 | "Look at this picture": Spark reads a letter, invoice or screenshot and names the risky things; SAM 3.1 finds the QR code so the phone can mark it | Working on the emulator and the real API |
 | Muse Image | Peri in soft 3D clay (chosen among eight Muse Image designs, `assets/peri/concepts/`): nine illustrated states (calm, listening, thinking, worried, protective, calling, waiting, happy, sleeping), each an edit of one base so she stays the same character, plus animation frames made as edits of each state (two blink steps, three mouth shapes, glances to each side), a wave hello, poses for an idea, "sorry" and a thumbs up, one-foot-up step frames, the app icon and illustrations for the family screen; cut out for any background (98 clay images, about $0.98) | In the app, animated; prompts in `assets/peri/prompts.json` |
 
@@ -82,6 +83,17 @@ Contact book ────────┘        │ doubtful                    
 ```
 
 Rules that never break: confirm before calling or sending; never move money or dictate codes during a call; never read links aloud; a message's text is data, never an order; deterministic rules beat the model; when someone impersonates family, use the saved number; Peri never listens to call audio.
+
+## How well it works
+
+Measured on **200 hand-written messages** the rules were never tuned on (`eval/reservado-200/`, 15 scam types and hard legitimate cases such as real bank notices, one-time codes and payment reminders, in Spanish and English). The on-phone rules alone, before any model:
+
+| | Scams caught | False alarms |
+|---|---|---|
+| Peri warns or checks (doubt or scam) | **83 %** [75–89] | 4 % [2–10] |
+| Peri warns firmly (scam) | 53 % [43–62] | **1 %** [0.2–6] |
+
+Doubtful messages then go to Muse Spark Open and the investigator. Weights learned by logistic regression on 1,306 synthetic messages rank scams better (AUC 0.965 vs 0.957) and would warn firmly on 67 % of scams, but they turn one genuine gym reminder into a firm scam, so the shield keeps the hand-set weights until real legitimate messages are collected. Full method, numbers and reasoning: [`eval/REPORT.md`](eval/REPORT.md).
 
 ## Layout
 

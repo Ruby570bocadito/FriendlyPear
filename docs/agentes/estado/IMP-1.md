@@ -3,8 +3,7 @@
 ## Hecho (24 h)
 - escudo-capas: señales, log-odds, reglas duras, voto del modelo ±2, acción segura y frase de Peri; marcas de Reino Unido y EE. UU.; señal `CODE_FORWARD_REQUEST`.
 - creditos-y-spark: `backend/src/models/` (`chat.ts`, `spark.ts`). Meta Model API en `https://api.meta.ai/v1`, `muse-spark-1.3`; el razonamiento cuenta en `max_completion_tokens` (por defecto 400, tope 512).
-- voz-y-agenda: órdenes, alias, diminutivos, apodos, relaciones; `RelationWords` para "Laura hija".
-- agente-base: `PeriAgent` con confirmación por voz, riesgo, verificación, plan B, lectura segura y emergencia.
+- voz-y-agenda (órdenes, alias, apodos, relaciones, `RelationWords`) y agente-base: `PeriAgent` con confirmación por voz, riesgo, verificación, plan B, lectura segura y emergencia.
 - peri-bilingue y peri-personalidad: `Lang.ES`/`Lang.EN`, `Phrases`/`PeriExplainer`, guía `docs/PERI_VOZ.md`.
 - segunda-opinion: Muse Spark Open en Baseten Model APIs (`inference.baseten.co/v1`); `POST /v1/opinion`, solo DOUBT, voto ±2; en el móvil, el dudoso espera el voto y Peri habla una vez.
 - llamadas: aviso antes de descolgar si el número no está en la agenda; al colgar, "¿quién decía ser?" → llamada al número guardado; palabra de la familia (se recuerda, nunca se dice).
@@ -22,7 +21,8 @@
 - vista-guardian (backend): `guardians/` (`store.ts`, `page.ts`), `POST/DELETE /v1/guardians/links`, `POST /v1/events` (solo nivel y canal, o la respuesta de la pausa), `GET /g/:token`. En disco (`backend/data/guardians.json`, ignorado por git): sobrevive a un reinicio (probado).
 - mira-esta-imagen: `investigator/picture.ts` + `models/sam.ts` (SAM 3.1 por `/v1/responses`, acepta data URL; cajas en píxeles). Solo se marca el QR: SAM no encontró la dirección web (texto). Límite 20/h. Prueba real: 1 Spark (1.624 + 152 tokens) y 3 SAM.
 - muse-voz: `models/voice.ts` (multipart, `PUSH_TO_TALK`, respuesta `{transcript, audioDurationMs}`), `POST /v1/transcribe` (solo WAV mono 16 bits, 1 MB, 120/h); móvil: `VoiceRecorder` + `TranscribeClient`, opción en Ajustes. Prueba: 2 peticiones reales.
-- Tests: core (180) y backend (71) en verde.
+- pesos-aprendidos: `eval/reservado-200` (200 a mano), `training/generate.ts` (1.306 sintéticos, Spark contributor), `training/fit.py` (regresión con los pesos a mano como prior, validación cruzada); informe `eval/REPORT.md`. `LEARNED` mejora el AUC y los avisos firmes pero da una falsa alarma firme: no es el de por defecto.
+- Tests: core (181) y backend (71) en verde.
 
 ## En curso
 - Nada.
