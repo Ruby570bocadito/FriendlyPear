@@ -89,6 +89,18 @@
             </intent-filter>
         </service>
 
+        <!-- "Look at this picture": from Peri's button, or a picture shared with Peri from any app. -->
+        <activity
+            android:name=".ui.peri.PictureActivity"
+            android:exported="true"
+            android:label="@string/picture_share_label">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".ui.peri.SettingsActivity"
             android:exported="false"

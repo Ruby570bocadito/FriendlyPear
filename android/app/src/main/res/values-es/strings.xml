@@ -105,4 +105,26 @@
     <string name="settings_language_old_android">En esta versión de Android, cambia el idioma en los ajustes del propio móvil.</string>
     <string name="language_changed">¡Vale! A partir de ahora te hablo en español.</string>
     <string name="no_mic_in_call">Mientras hablas por teléfono no escucho, así nunca oigo a la otra persona. Aquí estoy cuando cuelgues.</string>
+    <string name="picture_button">Mira esta imagen</string>
+    <string name="picture_share_label">Enséñaselo a Peri</string>
+    <string name="picture_title">Mira esta imagen</string>
+    <string name="picture_intro">Enséñame una carta, una factura, un código QR o una captura, y te digo si parece una trampa.</string>
+    <string name="picture_looking">Déjame mirarlo con calma…</string>
+    <string name="picture_another">Otra imagen</string>
+    <string name="picture_done">Listo</string>
+    <string name="picture_scam">Ojo, esto parece una trampa.</string>
+    <string name="picture_doubt">Hay algo en esta imagen que no me cuadra.</string>
+    <string name="picture_ok">Esto me parece normal. Aun así, si algún día te pide dinero o un código, pregúntame antes.</string>
+    <string name="picture_failed">Ahora no he podido mirar la imagen. Si te pide pagar o escanear algo, espera y pregunta a tu familia.</string>
+    <string name="picture_dont_qr">No escanees su código QR.</string>
+    <string name="picture_dont_link">No abras su dirección web.</string>
+    <string name="picture_dont_phone">No llames al número que pone.</string>
+    <string name="picture_dont_pay">No pagues nada de lo que pide.</string>
+    <string name="picture_dont_code">No des nunca el código que pide.</string>
+    <string name="picture_dont_app">No instales la app que menciona.</string>
+    <string name="picture_marked">Te he marcado en rojo lo que me preocupa.</string>
+    <string name="picture_check_yourself">Si dice ser de una empresa, compruébalo tú en su app o su teléfono oficial.</string>
+    <string name="picture_ask_family">Vamos a comprobarlo con tu familia antes de hacer nada.</string>
+    <string name="picture_label_qr">QR</string>
+    <string name="picture_label_risk">Ojo</string>
 </resources>

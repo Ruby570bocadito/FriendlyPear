@@ -40,6 +40,8 @@ import app.friendlypear.device.speechLocale
 import app.friendlypear.net.ApprovalClient
 import app.friendlypear.net.GuardianClient
 import app.friendlypear.net.OpinionClient
+import app.friendlypear.net.PictureClient
+import app.friendlypear.net.PictureVerdict
 import app.friendlypear.ui.peri.MiniPeriService
 import app.friendlypear.ui.peri.PauseOverlay
 import java.util.concurrent.CopyOnWriteArraySet
@@ -166,6 +168,7 @@ class PeriHub(context: Context) {
     private val network = Executors.newSingleThreadExecutor()
     private val investigations = InvestigationLog(this.context)
     private val guardianClient = GuardianClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
+    private val pictures = PictureClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
 
     /** Peri's news for the guardians, only if the person turned it on; the same list stays on this phone. */
     val news = SharedNews(this.context)
@@ -329,6 +332,24 @@ class PeriHub(context: Context) {
         agent = newAgent(contacts ?: emptyList()).also { it.onCallStateChanged(callActive) }
         val local = context.createConfigurationContext(Configuration(context.resources.configuration).apply { setLocale(speechLocale(now)) })
         device.speak(local.getString(R.string.language_changed))
+    }
+
+    /**
+     * "Look at this picture": Muse Spark and SAM 3.1 through the backend. A scam or a doubt makes the next money
+     * app pause, like a scam message would. [done] gets null if anything failed; the picture is never kept.
+     */
+    fun lookAtPicture(jpegBase64: String, done: (PictureVerdict?) -> Unit) {
+        waiting.execute {
+            val verdict = pictures.look(jpegBase64, lang)
+            main.post {
+                Log.i(TAG, "picture verdict=${verdict?.verdict ?: "none"} marks=${verdict?.marks?.size ?: 0}")
+                if (verdict != null && verdict.verdict != "ok") {
+                    agent.onOutsideWarning()
+                    watchApps()
+                }
+                done(verdict)
+            }
+        }
     }
 
     /** Peri says something outside the agent, e.g. why she needs a permission. */

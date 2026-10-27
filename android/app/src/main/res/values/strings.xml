@@ -106,4 +106,26 @@
     <string name="settings_language_old_android">On this version of Android, change the language in the phone\'s own settings.</string>
     <string name="language_changed">All right! From now on I\'ll speak English with you.</string>
     <string name="no_mic_in_call">I don\'t listen while you\'re on a call, so I never hear the other person. I\'ll be right here when you hang up.</string>
+    <string name="picture_button">Look at a picture</string>
+    <string name="picture_share_label">Show it to Peri</string>
+    <string name="picture_title">Look at this picture</string>
+    <string name="picture_intro">Show me a letter, an invoice, a QR code or a screenshot, and I\'ll tell you if it looks like a trap.</string>
+    <string name="picture_looking">Let me look at it carefully…</string>
+    <string name="picture_another">Another picture</string>
+    <string name="picture_done">Done</string>
+    <string name="picture_scam">Careful, this looks like a trap.</string>
+    <string name="picture_doubt">Something about this picture doesn\'t feel right to me.</string>
+    <string name="picture_ok">This looks normal to me. Even so, if it ever asks you for money or a code, ask me first.</string>
+    <string name="picture_failed">I couldn\'t look at the picture right now. If it asks you to pay or scan something, wait and ask your family.</string>
+    <string name="picture_dont_qr">Don\'t scan its QR code.</string>
+    <string name="picture_dont_link">Don\'t open its web address.</string>
+    <string name="picture_dont_phone">Don\'t call the number on it.</string>
+    <string name="picture_dont_pay">Don\'t pay anything it asks for.</string>
+    <string name="picture_dont_code">Never give the code it asks for.</string>
+    <string name="picture_dont_app">Don\'t install the app it mentions.</string>
+    <string name="picture_marked">I\'ve marked in red what worries me.</string>
+    <string name="picture_check_yourself">If it says it\'s from a company, check with them yourself on their official app or phone number.</string>
+    <string name="picture_ask_family">Let\'s check it with your family before doing anything.</string>
+    <string name="picture_label_qr">QR</string>
+    <string name="picture_label_risk">Careful</string>
 </resources>

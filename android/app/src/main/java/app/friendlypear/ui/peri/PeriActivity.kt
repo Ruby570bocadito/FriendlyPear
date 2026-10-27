@@ -91,6 +91,9 @@ class PeriActivity : Activity() {
         val mini = Pill(this, getString(R.string.mini_mode), R.drawable.ic_mini, primary = false, size = 19f).apply {
             setOnClickListener { goMini() }
         }
+        val look = Pill(this, getString(R.string.picture_button), R.drawable.ic_image_search, primary = false, size = 19f).apply {
+            setOnClickListener { startActivity(Intent(this@PeriActivity, PictureActivity::class.java)) }
+        }
         status = TextView(this).apply {
             textSize = 15f
             typeface = weight(600)
@@ -163,6 +166,7 @@ class PeriActivity : Activity() {
             addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
             addView(setup, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
             addView(talk, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(84)).apply { topMargin = dp(18) })
+            addView(look, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(60)).apply { topMargin = dp(12) })
             addView(secondary, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
         }
         // Edge to edge: the cream goes under the status and navigation bars, the content stays clear of them.
