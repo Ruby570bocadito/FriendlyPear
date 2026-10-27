@@ -65,7 +65,7 @@ How each model is used in the engine and for the images, with its limits: [`docs
 |---|---|---|
 | Muse Spark | Investigator agent with read-only tools for doubtful messages; summaries for guardians | Called from the phone when the second opinion leaves a message doubtful |
 | Muse Spark Open (open weights, on Baseten) | Second opinion on doubtful messages: a vote of at most ±2 on the rules' score | Working end to end on the emulator |
-| Muse Voice Transcribe | Voice input from older people | Planned |
+| Muse Voice Transcribe | Peri's ears, if the person turns it on in Settings: each voice order is recorded on the phone (it stops after a long pause, for people who speak slowly) and written down by Meta's speech model | Working on the emulator and the real API ("Oye Peri, llama a mi hija, por favor." exact, 1.8 s); off by default |
 | Muse Spark (multimodal) + SAM 3.1 | "Look at this picture": Spark reads a letter, invoice or screenshot and names the risky things; SAM 3.1 finds the QR code so the phone can mark it | Working on the emulator and the real API |
 | Muse Image | Peri's nine illustrated states (calm, listening, thinking, worried, protective, calling, waiting, happy, sleeping), each an edit of one base so she stays the same character, plus animation frames made as edits of each state (two blink steps, three mouth shapes, glances to each side), a wave hello, the app icon and illustrations for the family screen; cut out for any background (97 images, $0.98) | In the app, animated; prompts in `assets/peri/prompts.json` |
 
@@ -132,7 +132,7 @@ Secrets never go in the repo: the backend reads `backend/.env` (see `.env.exampl
 
 ## Privacy
 
-Only doubtful messages ever leave the phone. Contacts are read on the phone and never sent anywhere. Permissions are asked one at a time, the first time they are needed, and Peri first says what each one is for and what she won't do with it. A "no" is respected: Peri says what still works (for example, she gives you the number to dial yourself) and never asks again on every start. Peri never accesses call audio, and the microphone stays closed during any phone call, even on speaker.
+Only doubtful messages ever leave the phone, plus what the person chooses to send: a picture they show Peri, and their voice orders if they turn on Muse Voice Transcribe in Settings (off by default; Android's own recognizer otherwise). None of it is stored. Contacts are read on the phone and never sent anywhere. Permissions are asked one at a time, the first time they are needed, and Peri first says what each one is for and what she won't do with it. A "no" is respected: Peri says what still works (for example, she gives you the number to dial yourself) and never asks again on every start. Peri never accesses call audio, and the microphone stays closed during any phone call, even on speaker.
 
 Security of the backend, whose guardian links are public URLs: requests are limited per IP (30 a minute on `/a/` and `/g/`, 240 on the phone's API), an IP that keeps sending wrong device tokens is shut out for 15 minutes, bodies are capped and read only up to the limit, and every answer carries security headers (no sniffing, no referrer, no embedding, CSP on pages, HSTS over HTTPS). Link tokens are stored only as hashes. Release builds speak HTTPS only; plain HTTP to the developer's machine exists in debug builds alone, and the debug voice bridge only answers `adb`.
 

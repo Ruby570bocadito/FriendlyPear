@@ -51,6 +51,10 @@ Safety rules around the models:
 
 SAM segments things you can see as objects: in the real test it found the QR code exactly, but nothing for "web address", a line of text. So the QR is marked, and links, phone numbers and payments are named in Peri's sentence. As always, Peri speaks her own sentence, built from the verdict and the kinds.
 
+## Listening
+
+**Muse Voice Transcribe** (`muse-voice-transcribe-1.0`, `POST /v1/asr/transcribe`, push-to-talk) is Peri's ears when the person turns it on in Settings ("Understand me better with Muse Voice Transcribe"); off, Android's own recognizer listens. The phone records one order (16 kHz mono WAV; it stops after 1.8 s of silence, 7 s of nothing said, or 15 s) and sends it through the backend (`POST /v1/transcribe`, device token, 120 an hour). The audio and the text are never stored or logged, and the microphone never opens during a phone call. $0.18 per hour of audio: a 4-second order costs about $0.0002. In the real test a Spanish order came back exact, punctuation included, in 1.8 s.
+
 ## For the images
 
 All of Peri is made with **Muse Image** (`muse-image-1.0`, `/v1/images/generations` and `/v1/images/edits`), by [`assets/peri/generate.ts`](../assets/peri/generate.ts):
@@ -64,5 +68,4 @@ All of Peri is made with **Muse Image** (`muse-image-1.0`, `/v1/images/generatio
 
 ## Planned
 
-- **Muse Voice Transcribe** for voice input from older people (today Android's own recognizer).
 - **Muse Glimmer** on the family's own hardware as a private middle layer (client written, not deployed).
