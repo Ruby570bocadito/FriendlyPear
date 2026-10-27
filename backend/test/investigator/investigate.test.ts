@@ -70,6 +70,11 @@ test("domain_age refuses what is not a domain and survives the registry failing"
 test("scam_patterns and family_has answer from local data", async () => {
   expect(findCards("parcel fee correos")[0].id).toBe("parcel_fee");
   expect(findCards("good morning")).toEqual([]);
+  expect(findCards("wallapop comprador recibir el pago")[0].id).toBe("marketplace");
+  expect(findCards("policía cuenta segura")[0].id).toBe("fake_police");
+  expect(findCards("préstamo aprobado comisión de apertura")[0].id).toBe("loan_fee");
+  expect(findCards("trabajo reseñas tareas telegram")[0].id).toBe("job_task");
+  expect(findCards("mi vida, necesito el billete")[0].id).toBe("romance");
   expect(await runTool("family_has", '{"relation":"SIBLING"}', { familyRelations: ["CHILD"] })).toEqual({ relation: "SIBLING", present: false });
   expect(await runTool("delete_contact", "{}", { familyRelations: [] })).toEqual({ error: "unknown tool delete_contact" });
 });

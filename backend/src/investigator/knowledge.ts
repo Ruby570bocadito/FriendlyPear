@@ -81,6 +81,41 @@ export const CARDS: ScamCard[] = [
     giveaway: "Link outside the official domain.",
     safe: "Open the official app to check the account.",
   },
+  {
+    id: "romance",
+    keywords: ["love", "amor", "cariño", "darling", "my dear", "mi vida", "soldier", "militar", "plataforma petrolífera", "oil rig", "meet you", "conocerte", "visa", "flight", "billete"],
+    how: "A friendly stranger builds an online relationship for weeks, then needs money for a flight, a visa, customs or a medical bill.",
+    giveaway: "Never on video, always an emergency abroad, and money sent to a third party.",
+    safe: "Never send money to someone you haven't met in person; talk it over with family.",
+  },
+  {
+    id: "job_task",
+    keywords: ["job", "trabajo", "empleo", "part-time", "media jornada", "earn", "gana", "€/día", "per day", "likes", "reseñas", "reviews", "tasks", "tareas", "telegram"],
+    how: "A recruiter offers easy money for liking videos or writing reviews, pays a little at first, then asks for a deposit to unlock bigger earnings.",
+    giveaway: "Unsolicited offer, pay for simple online tasks, and a deposit to withdraw your money.",
+    safe: "Real jobs never ask you to pay; stop answering and don't send any deposit.",
+  },
+  {
+    id: "marketplace",
+    keywords: ["wallapop", "vinted", "milanuncios", "marketplace", "ebay", "comprador", "buyer", "envío", "shipping", "recibir el pago", "receive payment", "qr"],
+    how: "A buyer on a second-hand site pays 'through the platform' and sends a link or QR where you must enter your card to receive the money.",
+    giveaway: "A link outside the app to receive a payment, or a request for your card details to get paid.",
+    safe: "Keep the chat and the payment inside the official app; you never need a card to receive money.",
+  },
+  {
+    id: "fake_police",
+    keywords: ["policía", "police", "guardia civil", "detective", "fraude en su cuenta", "fraud on your account", "safe account", "cuenta segura", "investigación", "investigation", "juzgado", "court"],
+    how: "Someone posing as the police or the bank's fraud team says your money is at risk and asks you to move it to a 'safe account' or hand over cash or cards.",
+    giveaway: "Real police never ask you to move money, give codes or hand over cards; pressure to keep it secret.",
+    safe: "Hang up and call the bank or the police on their official numbers, from another phone if you can.",
+  },
+  {
+    id: "loan_fee",
+    keywords: ["préstamo", "loan", "crédito", "credit", "approved", "aprobado", "sin aval", "no checks", "comisión de apertura", "upfront fee", "seguro del préstamo"],
+    how: "A quick loan is approved without checks, but you must first pay a fee, insurance or tax to receive it.",
+    giveaway: "Paying in advance to receive a loan; the money never arrives.",
+    safe: "Never pay to get a loan; check the lender with your bank first.",
+  },
 ];
 
 /** The cards whose keywords appear in the topic, best match first, at most three. */
