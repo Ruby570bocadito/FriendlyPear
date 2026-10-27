@@ -34,7 +34,7 @@ const CHARACTER =
 
 export const STATES: Record<string, string> = {
   calm: "Peri standing relaxed with a warm, gentle smile, big round eyes fully open and bright, welcoming and kind.",
-  listening: "Peri leaning forward attentively with wide open eyes and one hand cupped behind where an ear would be, soft green sound waves around.",
+  listening: "Peri leaning forward attentively, one hand cupped behind where an ear would be, soft green sound waves around. Her eyes stay exactly like in the image: big, round, solid dark brown-black with a small white shine, no white around them.",
   thinking: "Peri looking through a big magnifying glass with a curious face, three small yellow dots rising above the head.",
   worried: "Peri with a gentle worried frown, head tilted, pointing at a small floating message card with a soft coral border.",
   protective: "Peri holding open a big coral umbrella over a small message card, brave and caring expression, standing in front of it.",

@@ -256,19 +256,19 @@ class PeriFace(context: Context) : FrameLayout(context) {
             if (!talking || shown == null) return
             // Now and then a hand gesture (her mouth open in it too), held a little longer, like people do.
             val gesture = listOfNotNull(frames.gestureA, frames.gestureB).filter { it != last }
-            if (gesture.isNotEmpty() && last !in gesture && Random.nextInt(6) == 0) {
+            if (gesture.isNotEmpty() && last !in gesture && Random.nextInt(9) == 0) {
                 val g = gesture.random()
                 last = g
                 put(g)
                 nodStart = SystemClock.uptimeMillis()
-                main.postDelayed(this, Random.nextLong(380, 650))
+                main.postDelayed(this, Random.nextLong(700, 1_050))
                 return
             }
             val next = listOf(frames.talk, frames.wide, frames.round, frames.still).filter { it != last }.random()
             last = next
             put(next)
             if (next != frames.still) nodStart = SystemClock.uptimeMillis()
-            main.postDelayed(this, if (next == frames.still) Random.nextLong(70, 130) else Random.nextLong(90, 170))
+            main.postDelayed(this, if (next == frames.still) Random.nextLong(110, 180) else Random.nextLong(140, 230))
         }
     }
 
@@ -279,9 +279,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
                 val steps = listOf(frames.half to 0L, frames.closed to 45L, frames.half to 125L, frames.still to 170L)
                 steps.forEach { (res, at) -> main.postDelayed({ if (!talking) put(res) }, at) }
                 // Now and then a double blink, as people do.
-                if (Random.nextInt(5) == 0) steps.forEach { (res, at) -> main.postDelayed({ if (!talking) put(res) }, 260 + at) }
+                if (Random.nextInt(7) == 0) steps.forEach { (res, at) -> main.postDelayed({ if (!talking) put(res) }, 260 + at) }
             }
-            main.postDelayed(this, Random.nextLong(2_600, 5_200))
+            main.postDelayed(this, Random.nextLong(3_500, 6_500))
         }
     }
 
@@ -290,12 +290,12 @@ class PeriFace(context: Context) : FrameLayout(context) {
         override fun run() {
             if (shown != null && !talking && MOTIONS.getValue(shown!!).blinks) {
                 val side = if (Random.nextBoolean()) frames.left else frames.right
-                val back = Random.nextLong(700, 1_200)
+                val back = Random.nextLong(1_000, 1_600)
                 busyUntil = SystemClock.uptimeMillis() + back
                 put(side)
                 main.postDelayed({ if (!talking) put(frames.still) }, back)
             }
-            main.postDelayed(this, Random.nextLong(6_000, 11_000))
+            main.postDelayed(this, Random.nextLong(8_000, 14_000))
         }
     }
 
@@ -333,17 +333,17 @@ class PeriFace(context: Context) : FrameLayout(context) {
                 main.postDelayed({ if (!talking) put(frames.still) }, STEPS * STEP_MS)
             }
             Idle.LOOK -> {
-                busyUntil = now + 1_500
+                busyUntil = now + 2_100
                 put(frames.left)
-                main.postDelayed({ if (!talking) put(frames.right) }, 650)
-                main.postDelayed({ if (!talking) put(frames.still) }, 1_350)
+                main.postDelayed({ if (!talking) put(frames.right) }, 950)
+                main.postDelayed({ if (!talking) put(frames.still) }, 1_950)
             }
             Idle.WAVE -> greet()
             Idle.WINK -> {
                 val w = frames.wink ?: return
-                busyUntil = now + 600
+                busyUntil = now + 850
                 put(w)
-                main.postDelayed({ if (!talking) put(frames.still) }, 520)
+                main.postDelayed({ if (!talking) put(frames.still) }, 750)
             }
             Idle.SPIN, Idle.DROP -> {
                 action = idle
@@ -488,11 +488,11 @@ class PeriFace(context: Context) : FrameLayout(context) {
         const val CHEER_MILLIS = 2_200L
         const val POSE_MILLIS = 2_800L
         const val POP_MS = 420f
-        const val IDLE_FIRST = 2_500L
-        const val IDLE_MIN = 4_500L
-        const val IDLE_MAX = 8_500L
+        const val IDLE_FIRST = 3_500L
+        const val IDLE_MIN = 7_000L
+        const val IDLE_MAX = 12_000L
         const val SPIN_MS = 720f
-        const val DANCE_MS = 260L
+        const val DANCE_MS = 380L
         const val DANCE_STEPS = 8
         const val DROP_MS = 420f
         const val DROP_DP = 90f
@@ -501,14 +501,14 @@ class PeriFace(context: Context) : FrameLayout(context) {
         const val PRESS_SQUASH = 0.1f
         const val HOP_MS = 640f
         const val HOP_DP = 18f
-        const val STEP_MS = 230L
+        const val STEP_MS = 340L
         const val STEPS = 8
         const val STRETCH_MS = 900L
         const val LAND_SQUASH = 0.07f
         const val NOD_MS = 170f
         const val NOD = 0.018f
         const val WAVE_START = 400L
-        const val WAVE_STEP = 170L
+        const val WAVE_STEP = 240L
         /** Where her feet are, as a fraction of the illustration's height. */
         const val FEET = 0.885f
         /** The shadow is a circle squashed flat onto the ground. */
@@ -522,7 +522,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
             Mood.PROTECTIVE to Motion(tilt = 1.2f, tiltMs = 3_200, bob = 2f, bobMs = 1_600, sway = 0.8f, idles = listOf(Idle.LOOK, Idle.STEPS)),
             Mood.CALLING to Motion(tilt = 2.5f, tiltMs = 2_800, bob = 3f, bobMs = 1_400, sway = 1.5f, idles = listOf(Idle.STEPS, Idle.LOOK, Idle.WINK)),
             Mood.WAITING to Motion(tilt = 4f, tiltMs = 4_400, bob = 2.5f, bobMs = 2_200, sway = 2.5f, idles = listOf(Idle.STEPS, Idle.LOOK, Idle.STRETCH, Idle.DANCE)),
-            Mood.HAPPY to Motion(tilt = 4.5f, tiltMs = 1_600, bob = 16f, bobMs = 800, bounce = true, sway = 3f, idles = listOf(Idle.SPIN, Idle.WINK, Idle.HOP), runs = true),
+            Mood.HAPPY to Motion(tilt = 4.5f, tiltMs = 1_800, bob = 16f, bobMs = 1_000, bounce = true, sway = 3f, idles = listOf(Idle.SPIN, Idle.WINK, Idle.HOP), runs = true),
             Mood.SLEEPING to Motion(tilt = 0.8f, tiltMs = 6_000, bob = 0f, bobMs = 1_000, breath = 0.03f, breathMs = 4_600, blinks = false, sway = 0f),
         )
 
