@@ -9,10 +9,16 @@ import android.os.Looper
 import android.os.Process
 
 /**
- * During a call that was picked up, notices which app comes to the front, so Peri can warn if a banking app
- * opens while a stranger is on the line. It only runs during calls and needs usage access, granted in Settings.
+ * Notices which app comes to the front, only while Peri has a reason to ([keepGoing]): during a picked-up call
+ * with a stranger, and for half an hour after a doubtful message, a scam or a stranger's call. Then a money or
+ * remote-control app gets the safety pause. It needs usage access, granted in Settings, and only reads the
+ * package name of the app in front, never what happens inside it.
  */
-class BankWatcher(context: Context, private val onOpened: (packageName: String) -> Unit) {
+class BankWatcher(
+    context: Context,
+    private val keepGoing: () -> Boolean,
+    private val onOpened: (packageName: String) -> Unit,
+) {
     private val context = context.applicationContext
     private val main = Handler(Looper.getMainLooper())
     private var running = false
@@ -21,6 +27,7 @@ class BankWatcher(context: Context, private val onOpened: (packageName: String) 
     private val tick = object : Runnable {
         override fun run() {
             if (!running) return
+            if (!keepGoing()) return stop()
             val now = System.currentTimeMillis()
             val usage = context.getSystemService(UsageStatsManager::class.java)
             val events = usage?.queryEvents(since, now)

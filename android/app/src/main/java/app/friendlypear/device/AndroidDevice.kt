@@ -28,8 +28,13 @@ class AndroidDevice(
     private val onSpeech: (String) -> Unit,
     private val onSpeechDone: () -> Unit,
     private val ask: (Capability, (Boolean) -> Unit) -> Unit,
+    private val pause: (text: String, callName: String?) -> Unit = { _, _ -> },
 ) : DevicePort {
     override fun prepare(capability: Capability, then: (Boolean) -> Unit) = ask(capability, then)
+
+    override fun showPause(text: String, callName: String?) {
+        main.post { pause(text, callName) }
+    }
 
     private val context = context.applicationContext
     private val main = Handler(Looper.getMainLooper())
