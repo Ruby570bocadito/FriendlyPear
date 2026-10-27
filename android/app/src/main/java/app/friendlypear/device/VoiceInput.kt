@@ -6,10 +6,12 @@ import android.os.Bundle
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
+import app.friendlypear.core.model.Lang
 
-/** Android's speech recognizer in Spanish, with long pauses allowed: older people speak slowly. */
+/** Android's speech recognizer in Peri's language, with long pauses allowed: older people speak slowly. */
 class VoiceInput(
     context: Context,
+    private val lang: Lang,
     private val onText: (String) -> Unit,
     private val onListening: (Boolean) -> Unit,
 ) {
@@ -39,7 +41,7 @@ class VoiceInput(
     fun listen() {
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
             .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "es-ES")
+            .putExtra(RecognizerIntent.EXTRA_LANGUAGE, speechLocale(lang).toLanguageTag())
             .putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 2_000L)
             .putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 2_000L)
         recognizer?.startListening(intent)

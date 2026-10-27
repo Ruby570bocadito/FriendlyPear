@@ -12,6 +12,7 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.telephony.SmsManager
 import app.friendlypear.core.agent.DevicePort
+import app.friendlypear.core.model.Lang
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger
  */
 class AndroidDevice(
     context: Context,
+    private val lang: Lang,
     private val onSpeech: (String) -> Unit,
     private val onSpeechDone: () -> Unit,
 ) : DevicePort {
@@ -33,7 +35,7 @@ class AndroidDevice(
 
     private fun onTtsReady(status: Int) {
         if (status != TextToSpeech.SUCCESS) return
-        tts.language = Locale("es", "ES")
+        tts.language = speechLocale(lang)
         tts.setSpeechRate(0.9f)
         tts.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(utteranceId: String?) = Unit
@@ -85,4 +87,12 @@ class AndroidDevice(
     fun shutdown() = tts.shutdown()
 
     private fun granted(permission: String) = context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
+}
+
+/** Peri speaks Spanish on a Spanish phone and English everywhere else, keeping the phone's English accent. */
+fun phoneLang(): Lang = if (Locale.getDefault().language == "es") Lang.ES else Lang.EN
+
+fun speechLocale(lang: Lang): Locale = when (lang) {
+    Lang.ES -> Locale("es", "ES")
+    Lang.EN -> Locale.getDefault().takeIf { it.language == "en" } ?: Locale.US
 }

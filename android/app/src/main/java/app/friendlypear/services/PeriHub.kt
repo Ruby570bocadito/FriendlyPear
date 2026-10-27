@@ -13,6 +13,7 @@ import app.friendlypear.core.agent.PeriAgent
 import app.friendlypear.core.model.Contact
 import app.friendlypear.core.model.IncomingMessage
 import app.friendlypear.device.AndroidDevice
+import app.friendlypear.device.phoneLang
 
 /**
  * Owns the one [PeriAgent] of the app and feeds it on the main thread: messages from [MessageListener],
@@ -28,8 +29,12 @@ class PeriHub(context: Context) {
     var lastSaid: String = ""
         private set
 
+    /** Read once: Peri keeps one language for the whole session. */
+    val lang = phoneLang()
+
     private val device = AndroidDevice(
         this.context,
+        lang,
         onSpeech = { text ->
             lastSaid = text
             onSaid?.invoke(text)
@@ -37,7 +42,7 @@ class PeriHub(context: Context) {
         onSpeechDone = { onSpeechDone?.invoke() },
     )
     private var contacts: List<Contact>? = null
-    private var agent = PeriAgent(device, emptyList())
+    private var agent = PeriAgent(device, emptyList(), lang)
     private var callActive = false
     private val calls = CallStateWatcher(this.context) { active ->
         main.post {
@@ -60,7 +65,7 @@ class PeriHub(context: Context) {
         val fresh = PhoneContacts.load(context)
         if (fresh != contacts) {
             contacts = fresh
-            agent = PeriAgent(device, fresh).also { it.onCallStateChanged(callActive) }
+            agent = PeriAgent(device, fresh, lang).also { it.onCallStateChanged(callActive) }
         }
     }
 
@@ -79,7 +84,7 @@ class PeriHub(context: Context) {
 
     private fun refreshNow() {
         calls.start()
-        contacts = PhoneContacts.load(context).also { agent = PeriAgent(device, it).apply { onCallStateChanged(callActive) } }
+        contacts = PhoneContacts.load(context).also { agent = PeriAgent(device, it, lang).apply { onCallStateChanged(callActive) } }
     }
 
     /**

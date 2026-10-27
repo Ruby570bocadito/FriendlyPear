@@ -33,7 +33,7 @@ class PeriActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hub = PeriApp.hub(this)
-        voice = VoiceInput(this, onText = { hub.heard(it) }, onListening = { listening ->
+        voice = VoiceInput(this, hub.lang, onText = { hub.heard(it) }, onListening = { listening ->
             talk.text = getString(if (listening) R.string.listening else R.string.talk)
         })
 
@@ -76,6 +76,8 @@ class PeriActivity : Activity() {
     override fun onResume() {
         super.onResume()
         resumed = true
+        // Peri may have spoken while the screen was hidden, e.g. during a call.
+        if (hub.lastSaid.isNotEmpty()) said.text = hub.lastSaid
         hub.onSaid = { text -> said.text = text }
         hub.onSpeechDone = { if (resumed && hub.isWaitingForAnswer && voice.available) voice.listen() }
         access.visibility = if (hasNotificationAccess()) View.GONE else View.VISIBLE
