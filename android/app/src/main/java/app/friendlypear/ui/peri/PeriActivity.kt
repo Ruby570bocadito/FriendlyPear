@@ -49,6 +49,7 @@ class PeriActivity : Activity() {
     private lateinit var usage: View
     private lateinit var basics: View
     private lateinit var location: View
+    private lateinit var sms: View
     private var pulse: ObjectAnimator? = null
     private var wantsMini = false
     /** Set while the app steps aside for Mini Peri, so the last resume before that doesn't put her away. */
@@ -109,6 +110,8 @@ class PeriActivity : Activity() {
         }
         // The shield's basics, if one was turned down: asked again, or Android's app settings if it won't ask.
         basics = setupRow(R.drawable.ic_shield, getString(R.string.setup_basics)) { askBasics() }
+        // Texts help with codes, but Android may lock them for apps installed from a file: optional, can be hidden.
+        sms = setupRow(R.drawable.ic_notifications, getString(R.string.setup_sms), dismissKey = DISMISS_SMS) { ask(Need.READ_SMS) }
         // Optional, asked calmly here rather than during an emergency.
         location = setupRow(R.drawable.ic_family, getString(R.string.setup_location)) {
             asked.edit().putBoolean(LOCATION_ASKED, true).apply()
@@ -119,7 +122,7 @@ class PeriActivity : Activity() {
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
         }
         // Usage access is a special setting: Peri explains it first, then opens the screen where it's granted.
-        usage = setupRow(R.drawable.ic_bank, getString(R.string.usage_access)) {
+        usage = setupRow(R.drawable.ic_bank, getString(R.string.usage_access), dismissKey = DISMISS_USAGE) {
             hub.show(getString(R.string.why_usage))
             startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
         }
@@ -137,6 +140,7 @@ class PeriActivity : Activity() {
                 addView(heading(getString(R.string.setup_title), 16f).apply { setPadding(dp(8), 0, 0, 0) })
             })
             addView(basics)
+            addView(sms)
             addView(access)
             addView(usage)
             addView(location)
@@ -227,7 +231,7 @@ class PeriActivity : Activity() {
     }
 
     /** One missing setup step: an icon, what it's for in plain words, and a chevron. */
-    private fun setupRow(icon: Int, label: String, onClick: () -> Unit): View = LinearLayout(this).apply {
+    private fun setupRow(icon: Int, label: String, dismissKey: String? = null, onClick: () -> Unit): View = LinearLayout(this).apply {
         gravity = Gravity.CENTER_VERTICAL
         minimumHeight = dp(60)
         setPadding(dp(4), dp(6), dp(4), dp(6))
@@ -253,6 +257,18 @@ class PeriActivity : Activity() {
             setImageResource(R.drawable.ic_chevron)
             setColorFilter(Palette.INK_SOFT)
         }, LinearLayout.LayoutParams(dp(24), dp(24)))
+        // An optional step can be put away for good: Peri still protects without it.
+        if (dismissKey != null) addView(ImageView(this@PeriActivity).apply {
+            setImageResource(R.drawable.ic_close)
+            setColorFilter(Palette.INK_SOFT)
+            contentDescription = getString(R.string.setup_hide)
+            background = pressable(rounded(0, dp(20).toFloat()), Palette.RIPPLE_DARK)
+            setPadding(dp(10), dp(10), dp(10), dp(10))
+            setOnClickListener {
+                asked.edit().putBoolean(dismissKey, true).apply()
+                showSetup()
+            }
+        }, LinearLayout.LayoutParams(dp(44), dp(44)).apply { marginStart = dp(4) })
     }
 
     /** The shield's basics, one at a time and only once each: a "no" is never asked again on every start. */
@@ -345,15 +361,18 @@ class PeriActivity : Activity() {
     /** The chip and the setup card: what's still missing for Peri to protect the person fully. */
     private fun showSetup() {
         val noAccess = !hasNotificationAccess()
-        val noUsage = !hub.bank.allowed()
-        val noBasics = Need.FIRST_START.any { !hub.permissions.granted(it) }
-        // One step at a time, the most important first: a card with every step would squeeze Peri off the screen.
-        val first = listOf(noBasics to basics, noAccess to access, noUsage to usage).firstOrNull { it.first }?.second
-        listOf(basics, access, usage).forEach { it.visibility = if (it == first) View.VISIBLE else View.GONE }
+        val noUsage = !hub.bank.allowed() && !asked.getBoolean(DISMISS_USAGE, false)
+        val noBasics = BASICS.any { !hub.permissions.granted(it) }
+        val noSms = !hub.permissions.granted(Need.READ_SMS) && !asked.getBoolean(DISMISS_SMS, false)
         val noLocation = !hub.permissions.granted(Need.LOCATION) && !asked.getBoolean(LOCATION_ASKED, false)
-        location.visibility = if (noLocation && first == null) View.VISIBLE else View.GONE
-        setup.visibility = if (noBasics || noAccess || noUsage || noLocation) View.VISIBLE else View.GONE
-        val protecting = !noBasics && !noAccess
+        // One step at a time, the most important first: a card with every step would squeeze Peri off the screen.
+        val steps = listOf(noBasics to basics, noAccess to access, noSms to sms, noUsage to usage, noLocation to location)
+        val first = steps.firstOrNull { it.first }?.second
+        steps.forEach { (_, row) -> row.visibility = if (row == first) View.VISIBLE else View.GONE }
+        setup.visibility = if (first != null) View.VISIBLE else View.GONE
+        // Contacts and calls, plus a way to see messages (texts or alerts): that's enough to protect.
+        val seesMessages = hub.permissions.granted(Need.READ_SMS) || !noAccess
+        val protecting = !noBasics && seesMessages
         status.text = getString(if (protecting) R.string.status_protecting else R.string.status_setup)
         status.setTextColor(if (protecting) Palette.GREEN_DARK else Palette.AMBER_INK)
         status.background = rounded(if (protecting) Palette.GREEN_TINT else Palette.AMBER_TINT, dp(20).toFloat())
@@ -366,7 +385,12 @@ class PeriActivity : Activity() {
     }
 
     private fun askBasics() {
-        val need = Need.FIRST_START.firstOrNull { !hub.permissions.granted(it) } ?: return showSetup()
+        val need = BASICS.firstOrNull { !hub.permissions.granted(it) } ?: return showSetup()
+        ask(need)
+    }
+
+    /** Asks for [need] again, or, if Android won't show its dialog any more, explains and opens the app's settings. */
+    private fun ask(need: Need) {
         val canAsk = need.permissions.any { shouldShowRequestPermissionRationale(it) } || !asked.getBoolean(need.name, false)
         if (!canAsk) {
             // Installed from outside a store, Android 13+ locks texts and notification access ("restricted setting").
@@ -493,5 +517,9 @@ class PeriActivity : Activity() {
         const val NOTIFICATIONS = "notifications"
         const val LOCATION_ASKED = "location_setup"
         const val GREETED_DAY = "greeted_day"
+        const val DISMISS_SMS = "dismiss_sms"
+        const val DISMISS_USAGE = "dismiss_usage"
+        /** What Peri can't protect without: who is family, and whether a call is going on. */
+        val BASICS = listOf(Need.CONTACTS, Need.PHONE_STATE)
     }
 }

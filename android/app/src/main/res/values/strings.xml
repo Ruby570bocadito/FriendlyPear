@@ -79,7 +79,7 @@
     <string name="status_setup">Setup not finished</string>
     <string name="setup_title">A couple of steps to protect you fully</string>
     <string name="investigations_empty">Nothing to show yet. When Peri looks into a doubtful message, what she found appears here.</string>
-    <string name="setup_basics">Let Peri see your contacts and texts</string>
+    <string name="setup_basics">Let Peri see your contacts and calls</string>
     <string name="pause_title">Wait a moment</string>
     <string name="pause_call">Call %1$s</string>
     <string name="pause_leave">Leave this app</string>
@@ -175,4 +175,6 @@
         <item>A little tip: agree a family word with your loved ones, to tell a real call from a fake one.</item>
         <item>A little tip: when in doubt, hang up and call back on the number you already have.</item>
     </string-array>
+    <string name="setup_sms">Let Peri read your texts, to catch scam codes (optional)</string>
+    <string name="setup_hide">Hide this step</string>
 </resources>

@@ -78,7 +78,7 @@
     <string name="status_setup">Falta terminar</string>
     <string name="setup_title">Un par de pasos para protegerte del todo</string>
     <string name="investigations_empty">Aún no hay nada. Cuando Peri investigue un mensaje dudoso, verás aquí lo que encontró.</string>
-    <string name="setup_basics">Deja que Peri vea tus contactos y SMS</string>
+    <string name="setup_basics">Deja que Peri vea tus contactos y llamadas</string>
     <string name="pause_title">Espera un momento</string>
     <string name="pause_call">Llamar a %1$s</string>
     <string name="pause_leave">Salir de esta app</string>
@@ -174,4 +174,6 @@
         <item>Un consejito: acordad una palabra de familia, para distinguir una llamada de verdad de una falsa.</item>
         <item>Un consejito: si dudas, cuelga y llama tú al número que ya tienes.</item>
     </string-array>
+    <string name="setup_sms">Deja que Peri lea tus SMS, para pillar los códigos trampa (opcional)</string>
+    <string name="setup_hide">Ocultar este paso</string>
 </resources>
