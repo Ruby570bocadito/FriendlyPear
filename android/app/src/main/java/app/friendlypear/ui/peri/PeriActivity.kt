@@ -67,6 +67,7 @@ class PeriActivity : Activity() {
         super.onCreate(savedInstanceState)
         hub = PeriApp.hub(this)
         voice = VoiceInput(this, hub.lang, onText = { hub.heard(it) }, onListening = { on ->
+            if (on && !listening) hub.haptics.listening()
             listening = on
             showListening(on)
             showFace(hub.mood)

@@ -122,6 +122,9 @@ class PeriHub(context: Context) {
     /** What Peri did with the phone (calls, texts, location, pictures, voice), for the person to check. */
     val uses = UseLog(this.context)
 
+    /** A touch for each warning, so it's felt even with the sound low or the phone in a pocket. */
+    val haptics = app.friendlypear.device.Haptics(this.context)
+
     /** One for each scam stopped and each time the person asks before acting. */
     val shields = Shields(this.context)
 
@@ -165,6 +168,7 @@ class PeriHub(context: Context) {
         onSpeech = { text ->
             lastSaid = text
             speaking = true
+            haptics.mood(mood)
             views.forEach {
                 it.said(text)
                 it.mood(mood)

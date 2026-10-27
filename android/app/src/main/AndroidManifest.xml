@@ -31,6 +31,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <!-- Only doubtful messages, to the family backend for a second opinion. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Normal, granted at install: Peri's touches with each warning (two firm ones for a scam). -->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <!-- Normal, granted at install: only to see whether "safer web" (Private DNS) is on, in Settings. -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- A family member's request, when Peri isn't on screen. -->

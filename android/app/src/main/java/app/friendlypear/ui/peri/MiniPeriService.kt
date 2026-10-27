@@ -186,6 +186,7 @@ class MiniPeriService : Service(), PeriView {
             y = prefs.getInt(KEY_Y, resources.displayMetrics.heightPixels / 3)
         }
         voice = VoiceInput(this, hub.lang, onText = { hub.heard(it) }, onListening = { on ->
+            if (on && !listening) hub.haptics.listening()
             listening = on
             showFace(hub.mood)
             pulseRing(on)
