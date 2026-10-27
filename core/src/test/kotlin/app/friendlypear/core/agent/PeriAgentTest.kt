@@ -52,7 +52,7 @@ class PeriAgentTest {
         val d = FakeDevice()
         val a = agent(d)
         a.onHeard("llama al chico")
-        assertEquals("¿Llamo a Pablo?", d.said.last())
+        assertEquals("¡Claro! ¿Llamo a Pablo?", d.said.last())
         assertTrue(d.calls.isEmpty())
         assertTrue(a.isWaitingForAnswer)
 
@@ -68,7 +68,7 @@ class PeriAgentTest {
         a.onHeard("llama a Pablito")
         a.onHeard("no")
         assertTrue(d.calls.isEmpty())
-        assertEquals("Vale, no hago nada.", d.said.last())
+        assertEquals("Vale, no hago nada. Aquí sigo si me necesitas.", d.said.last())
     }
 
     @Test
@@ -78,7 +78,7 @@ class PeriAgentTest {
         a.onHeard("llama a Laura")
         a.onHeard("hace frío hoy")
         assertTrue(d.calls.isEmpty())
-        assertEquals("Dime «sí» o «no». ¿Llamo a Laura?", d.said.last())
+        assertEquals("Perdona, no te he oído bien. Dime «sí» o «no»: ¡Claro! ¿Llamo a Laura?", d.said.last())
     }
 
     @Test
@@ -87,7 +87,7 @@ class PeriAgentTest {
         val a = agent(d)
         a.onHeard("llama a Laura")
         a.onHeard("no, llama a Pablo")
-        assertEquals("¿Llamo a Pablo?", d.said.last())
+        assertEquals("¡Claro! ¿Llamo a Pablo?", d.said.last())
         a.onHeard("vale")
         assertEquals(listOf("600333444"), d.calls)
     }
@@ -97,9 +97,9 @@ class PeriAgentTest {
         val d = FakeDevice()
         val a = agent(d)
         a.onHeard("llama a mi nieto")
-        assertEquals("¿A quién: Pablo o Marta?", d.said.last())
+        assertEquals("¿A quién te refieres, a Pablo o Marta?", d.said.last())
         a.onHeard("a Marta")
-        assertEquals("¿Llamo a Marta?", d.said.last())
+        assertEquals("¡Claro! ¿Llamo a Marta?", d.said.last())
         a.onHeard("sí")
         assertEquals(listOf("600555666"), d.calls)
     }
@@ -109,7 +109,7 @@ class PeriAgentTest {
         val d = FakeDevice()
         agent(d).onHeard("llama al fontanero")
         assertTrue(d.calls.isEmpty())
-        assertEquals("No encuentro a esa persona en tu agenda. ¿Cómo se llama?", d.said.last())
+        assertEquals("Vaya, no encuentro a esa persona en tu agenda. ¿Me dices cómo se llama?", d.said.last())
     }
 
     @Test
@@ -127,7 +127,7 @@ class PeriAgentTest {
         val a = agent(d)
         a.onHeard("llama a Pablo")
         a.onHeard("sí")
-        assertEquals("No he podido llamar a Pablo. Su número es 600 333 444; puedes marcarlo tú.", d.said.last())
+        assertEquals("Vaya, no he podido llamar a Pablo. Su número es 600 333 444; si quieres, márcalo tú.", d.said.last())
     }
 
     @Test
@@ -135,11 +135,11 @@ class PeriAgentTest {
         val d = FakeDevice()
         val a = agent(d)
         a.onHeard("dile a Laura que llego tarde")
-        assertEquals("¿Le mando a Laura este mensaje: «llego tarde»?", d.said.last())
+        assertEquals("¡Claro! ¿Le mando a Laura este mensaje: «llego tarde»?", d.said.last())
         assertTrue(d.sms.isEmpty())
         a.onHeard("sí")
         assertEquals(listOf("600111222" to "llego tarde"), d.sms)
-        assertEquals("Mensaje enviado a Laura.", d.said.last())
+        assertEquals("¡Listo! Mensaje enviado a Laura.", d.said.last())
     }
 
     @Test
@@ -148,7 +148,7 @@ class PeriAgentTest {
         val a = agent(d)
         a.onHeard("dile a Pablo que mañana no voy")
         a.onHeard("sí")
-        assertEquals("No he podido mandar el mensaje a Pablo. ¿Quieres que llame?", d.said.last())
+        assertEquals("Vaya, no he podido mandar el mensaje a Pablo. ¿Prefieres que llame?", d.said.last())
         assertTrue(a.isWaitingForAnswer)
     }
 
@@ -159,7 +159,7 @@ class PeriAgentTest {
         a.onHeard("dile a Pablo que el código es 4821")
         assertTrue(d.sms.isEmpty())
         assertFalse(a.isWaitingForAnswer)
-        assertTrue(d.said.last().contains("aprobarlo alguien de tu familia"))
+        assertTrue(d.said.last().contains("lo apruebe alguien de tu familia"))
     }
 
     @Test
@@ -168,7 +168,7 @@ class PeriAgentTest {
         val a = agent(d)
         val v = a.onMessage(message("Mamá, se me ha roto el móvil, este es mi número nuevo, ¿me haces un Bizum?"))
         assertTrue(v.level != Level.OK)
-        assertTrue(d.said.last().endsWith("Si me dices que sí, llamo a Laura."))
+        assertTrue(d.said.last().endsWith("Si me dices «sí», llamo ahora mismo a Laura."))
         a.onHeard("sí")
         assertEquals(listOf("600111222"), d.calls)
     }
@@ -180,7 +180,7 @@ class PeriAgentTest {
         a.onCallStateChanged(true)
         val v = a.onMessage(message("Tu código de verificación es 482913", sender = "BBVA", channel = Channel.SMS))
         assertEquals(Level.SCAM, v.level)
-        assertTrue(d.said.last().contains("cuelga"))
+        assertTrue(d.said.last().startsWith("Cuelga ahora mismo"))
         assertFalse(d.said.last().contains("482913"))
     }
 
@@ -193,7 +193,7 @@ class PeriAgentTest {
         a.onHeard("léeme los mensajes")
         assertEquals("De Laura: ¿Venís a comer el domingo? Mira un enlace", d.said.last())
         a.onHeard("léeme los mensajes")
-        assertEquals("No tienes mensajes nuevos.", d.said.last())
+        assertEquals("No tienes mensajes nuevos. ¡Todo tranquilo!", d.said.last())
     }
 
     @Test
@@ -203,7 +203,7 @@ class PeriAgentTest {
         a.onMessage(message("Correos: su paquete está retenido, pague 1,99 € en https://correos-envio.top/pago", sender = "Correos", channel = Channel.SMS))
         a.onHeard("léeme el último mensaje")
         val read = d.said.last()
-        assertTrue(read.startsWith("De «Correos»: no te lo leo."))
+        assertTrue(read.startsWith("De «Correos»: este no te lo leo, que trae trampa."))
         assertFalse(read.contains("correos-envio"))
     }
 
@@ -256,6 +256,6 @@ class PeriAgentTest {
         val a = agent(d)
         a.onHeard("llama a Laura")
         a.onHeard("¿cómo?")
-        assertEquals("¿Llamo a Laura?", d.said.last())
+        assertEquals("¡Claro! ¿Llamo a Laura?", d.said.last())
     }
 }

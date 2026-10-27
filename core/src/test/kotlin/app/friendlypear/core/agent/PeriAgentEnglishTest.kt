@@ -43,17 +43,17 @@ class PeriAgentEnglishTest {
         val d = RecordingDevice()
         val a = agent(d)
         a.onHeard("Hey Peri, call my daughter please")
-        assertEquals("Shall I call Laura?", d.said.last())
+        assertEquals("Sure! Shall I call Laura?", d.said.last())
         a.onHeard("yes")
         assertEquals(listOf("07700900111"), d.calls)
-        assertEquals("Calling Laura.", d.said.last())
+        assertEquals("On it! Calling Laura.", d.said.last())
     }
 
     @Test
     fun `aliases in English`() {
         val d = RecordingDevice()
         agent(d).onHeard("ring the boy")
-        assertEquals("Shall I call Pablo?", d.said.last())
+        assertEquals("Sure! Shall I call Pablo?", d.said.last())
     }
 
     @Test
@@ -61,7 +61,7 @@ class PeriAgentEnglishTest {
         val d = RecordingDevice()
         val a = agent(d)
         a.onHeard("tell Laura that I'll be late")
-        assertEquals("Shall I send Laura this message: \"I'll be late\"?", d.said.last())
+        assertEquals("Sure! Shall I send Laura this message: \"I'll be late\"?", d.said.last())
         a.onHeard("go ahead")
         assertEquals(listOf("07700900111" to "I'll be late"), d.sms)
     }
@@ -72,8 +72,8 @@ class PeriAgentEnglishTest {
         val a = agent(d)
         val v = a.onMessage(message("Hi Mum, I broke my phone, this is my new number. Can you send me money for a new one?"))
         assertTrue(v.level != Level.OK)
-        assertTrue(d.said.last().startsWith("It claims to be family from a new number"))
-        assertTrue(d.said.last().endsWith("If you say yes, I'll call Laura."))
+        assertTrue(d.said.last().startsWith("Careful: it claims to be family from a new number"))
+        assertTrue(d.said.last().endsWith("If you say \"yes\", I'll call Laura right away."))
         a.onHeard("yes please")
         assertEquals(listOf("07700900111"), d.calls)
     }
@@ -114,6 +114,6 @@ class PeriAgentEnglishTest {
     fun `a Spanish order still works when Peri speaks English`() {
         val d = RecordingDevice()
         agent(d).onHeard("llama a mi hija")
-        assertEquals("Shall I call Laura?", d.said.last())
+        assertEquals("Sure! Shall I call Laura?", d.said.last())
     }
 }
