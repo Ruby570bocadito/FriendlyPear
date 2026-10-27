@@ -80,4 +80,23 @@
     <string name="setup_title">A couple of steps to protect you fully</string>
     <string name="investigations_empty">Nothing to show yet. When Peri looks into a doubtful message, what she found appears here.</string>
     <string name="setup_basics">Let Peri see your contacts and texts</string>
+    <string name="pause_title">Wait a moment</string>
+    <string name="pause_call">Call %1$s</string>
+    <string name="pause_leave">Leave this app</string>
+    <string name="pause_continue">Continue anyway</string>
+    <string name="pause_continue_in">Continue anyway (%1$d)</string>
+    <string name="share_news">Let my guardians see Peri\'s news</string>
+    <string name="share_news_note">They\'ll see when Peri warned you about a scam or paused you before a money app. Never your messages, calls, location or apps. You can turn it off any time.</string>
+    <string name="share_sms">Hi, I\'m Peri, the friendly helper on your relative\'s phone. Here you\'ll see when I warn them about a scam (never their messages): %1$s</string>
+    <string name="share_sent">I\'ve sent your guardians a link to Peri\'s news. They\'ll only see my warnings, never your messages.</string>
+    <string name="share_failed">I couldn\'t send the link to your guardians right now. Let\'s try again later.</string>
+    <string name="share_no_guardians">First choose who your guardians are, and then I\'ll send them the link.</string>
+    <string name="share_off">Done: your guardians no longer see Peri\'s news, and their links have stopped working.</string>
+    <string name="news_title">What your guardians see</string>
+    <string name="news_empty">Nothing yet. When Peri warns you or pauses you, it will appear here too.</string>
+    <string name="news_scam">Warned about a message that looked like a scam (%1$s)</string>
+    <string name="news_doubt">Suggested checking a doubtful message (%1$s)</string>
+    <string name="news_pause_call">Safety pause: you chose to call family</string>
+    <string name="news_pause_leave">Safety pause: you left the app</string>
+    <string name="news_pause_continue">Safety pause: you carried on</string>
 </resources>

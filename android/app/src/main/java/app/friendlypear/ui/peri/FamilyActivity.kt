@@ -40,6 +40,7 @@ class FamilyActivity : Activity() {
     private lateinit var cancel: View
     private var names: Map<String, String> = emptyMap()
     private var syncing = false
+    private var newsList: LinearLayout? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,6 +77,34 @@ class FamilyActivity : Activity() {
             })
             addView(body(getString(R.string.family_word_note), 16f).apply { setPadding(dp(6), dp(4), 0, 0) })
         }, spaced())
+
+        // Sharing Peri's news with the guardians is the person's choice, off until they turn it on.
+        val hub = PeriApp.hub(this)
+        val shared = card()
+        val sharing = CheckBox(this).apply {
+            text = getString(R.string.share_news)
+            textSize = 20f
+            typeface = weight(600)
+            setTextColor(Palette.INK)
+            isChecked = hub.news.sharing
+        }
+        sharing.setOnCheckedChangeListener { box, checked ->
+            if (syncing) return@setOnCheckedChangeListener
+            box.isEnabled = false
+            hub.shareNews(checked) { on ->
+                syncing = true
+                box.isChecked = on
+                syncing = false
+                box.isEnabled = true
+                showNews()
+            }
+        }
+        shared.addView(sharing)
+        shared.addView(body(getString(R.string.share_news_note), 16f).apply { setPadding(dp(6), dp(4), 0, 0) })
+        newsList = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        shared.addView(newsList)
+        list.addView(shared, spaced())
+        showNews()
 
         val contacts = PhoneContacts.load(this)
         names = contacts.associate { it.id to it.name }
@@ -117,6 +146,28 @@ class FamilyActivity : Activity() {
         showPending()
     }
 
+    /** Exactly what the guardians see, while sharing is on: the person always knows. */
+    private fun showNews() {
+        val box = newsList ?: return
+        box.removeAllViews()
+        val hub = PeriApp.hub(this)
+        if (!hub.news.sharing) return
+        box.addView(heading(getString(R.string.news_title), 18f).apply { setPadding(0, dp(14), 0, dp(4)) })
+        val entries = hub.news.load()
+        if (entries.isEmpty()) box.addView(body(getString(R.string.news_empty), 16f))
+        val format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
+        entries.forEach { e ->
+            val what = when {
+                e.kind == "warning" && e.level == "scam" -> getString(R.string.news_scam, e.channel.lowercase().replace('_', ' '))
+                e.kind == "warning" -> getString(R.string.news_doubt, e.channel.lowercase().replace('_', ' '))
+                e.answer == "call_family" -> getString(R.string.news_pause_call)
+                e.answer == "leave" -> getString(R.string.news_pause_leave)
+                else -> getString(R.string.news_pause_continue)
+            }
+            box.addView(body("${format.format(Date(e.at))} · $what", 16f).apply { setPadding(0, dp(6), 0, 0) })
+        }
+    }
+
     /** A pending change of guardians, in plain words, with its state and a way to cancel it. */
     private fun showPending() {
         val pending = store.loadPending()
@@ -152,6 +203,8 @@ class FamilyActivity : Activity() {
     override fun onResume() {
         super.onResume()
         if (::status.isInitialized) showPending()
+        // News may have arrived while this screen was in the background.
+        showNews()
     }
 
     private fun row(id: String, name: String, guessed: Relation?): View {

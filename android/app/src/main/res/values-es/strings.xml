@@ -79,4 +79,23 @@
     <string name="setup_title">Un par de pasos para protegerte del todo</string>
     <string name="investigations_empty">Aún no hay nada. Cuando Peri investigue un mensaje dudoso, verás aquí lo que encontró.</string>
     <string name="setup_basics">Deja que Peri vea tus contactos y SMS</string>
+    <string name="pause_title">Espera un momento</string>
+    <string name="pause_call">Llamar a %1$s</string>
+    <string name="pause_leave">Salir de esta app</string>
+    <string name="pause_continue">Seguir de todos modos</string>
+    <string name="pause_continue_in">Seguir de todos modos (%1$d)</string>
+    <string name="share_news">Que mis guardianes vean las novedades de Peri</string>
+    <string name="share_news_note">Verán cuándo Peri te avisó de un timo o te paró antes de una app de dinero. Nunca tus mensajes, llamadas, ubicación ni apps. Puedes quitarlo cuando quieras.</string>
+    <string name="share_sms">Hola, soy Peri, la amiga del móvil de tu familiar. Aquí verás cuándo le aviso de un timo (nunca sus mensajes): %1$s</string>
+    <string name="share_sent">He mandado a tus guardianes un enlace con las novedades de Peri. Solo verán mis avisos, nunca tus mensajes.</string>
+    <string name="share_failed">Ahora no he podido mandar el enlace a tus guardianes. Lo intentamos luego.</string>
+    <string name="share_no_guardians">Primero elige quiénes son tus guardianes, y luego les mando el enlace.</string>
+    <string name="share_off">Hecho: tus guardianes ya no ven las novedades de Peri y sus enlaces han dejado de funcionar.</string>
+    <string name="news_title">Lo que ven tus guardianes</string>
+    <string name="news_empty">Aún nada. Cuando Peri te avise o te pare, también saldrá aquí.</string>
+    <string name="news_scam">Avisó de un mensaje que parecía un timo (%1$s)</string>
+    <string name="news_doubt">Propuso comprobar un mensaje dudoso (%1$s)</string>
+    <string name="news_pause_call">Pausa de seguridad: elegiste llamar a la familia</string>
+    <string name="news_pause_leave">Pausa de seguridad: saliste de la app</string>
+    <string name="news_pause_continue">Pausa de seguridad: seguiste adelante</string>
 </resources>

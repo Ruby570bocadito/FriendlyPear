@@ -12,6 +12,8 @@ import app.friendlypear.R
 import app.friendlypear.config.FamilyStore
 import app.friendlypear.config.InvestigationEntry
 import app.friendlypear.config.InvestigationLog
+import app.friendlypear.config.NewsEntry
+import app.friendlypear.config.SharedNews
 import app.friendlypear.config.Need
 import app.friendlypear.config.PermissionGate
 import app.friendlypear.config.PhoneContacts
@@ -32,7 +34,9 @@ import app.friendlypear.core.shield.Verdict
 import app.friendlypear.device.AndroidDevice
 import app.friendlypear.device.phoneLang
 import app.friendlypear.net.ApprovalClient
+import app.friendlypear.net.GuardianClient
 import app.friendlypear.net.OpinionClient
+import app.friendlypear.ui.peri.PauseOverlay
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executors
 
@@ -84,7 +88,17 @@ class PeriHub(context: Context) {
             views.forEach { it.speaking(false) }
         },
         ask = { capability, then -> permissions.ask(Need.of(capability), then) },
+        pause = { text, callName -> pauseScreen.show(text, callName) },
     )
+
+    /** The safety pause over a money app; the person's choice goes back to the agent. */
+    private val pauseScreen: PauseOverlay = PauseOverlay(this.context) { answer ->
+        main.post {
+            Log.i(TAG, "safety pause answer=$answer")
+            agent.onPauseAnswer(answer)
+            share(NewsEntry(System.currentTimeMillis(), "pause", answer = answer.name.lowercase()))
+        }
+    }
 
     /** One permission at a time, with Peri's explanation; the screen registers itself to show Android's dialog. */
     val permissions: PermissionGate = PermissionGate(this.context) { text -> device.speak(text) }
@@ -124,15 +138,19 @@ class PeriHub(context: Context) {
             Log.i(TAG, "call active=$active answered=$answered")
             callActive = active
             agent.onCallStateChanged(active, answered)
-            if (active && answered) bank.start() else if (!active) bank.stop()
+            watchApps()
         }
     }
     private val countdownEnd = Runnable { agent.onEmergencyTimeout() }
     private val apps = AppWatcher(this.context) { packageName -> onAppInstalled(packageName) }
-    val bank = BankWatcher(this.context) { packageName -> onAppOpened(packageName) }
+    val bank = BankWatcher(this.context, keepGoing = { agent.watchesApps }) { packageName -> onAppOpened(packageName) }
     private val opinion = OpinionClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
     private val network = Executors.newSingleThreadExecutor()
     private val investigations = InvestigationLog(this.context)
+    private val guardianClient = GuardianClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
+
+    /** Peri's news for the guardians, only if the person turned it on; the same list stays on this phone. */
+    val news = SharedNews(this.context)
 
     val isWaitingForAnswer: Boolean get() = agent.isWaitingForAnswer
 
@@ -178,7 +196,8 @@ class PeriHub(context: Context) {
         views.forEach { it.mood(mood) }
         // Never the text or the sender: only what Peri decided.
         Log.i(TAG, "message channel=${message.channel} level=${verdict.level} hardRule=${verdict.hardRule}")
-        if (asking && verdict.level == Level.DOUBT) askModel(message, verdict)
+        if (asking && verdict.level == Level.DOUBT) askModel(message, verdict) else shareVerdict(message, verdict.level)
+        watchApps()
     }
 
     /** Off the main thread; the agent hears back on it, with the vote or with null if anything failed. */
@@ -197,9 +216,69 @@ class PeriHub(context: Context) {
             main.post {
                 val after = waitingAgent.onModelOpinion(message, delta)
                 views.forEach { it.mood(mood) }
+                watchApps()
+                after?.let { shareVerdict(message, it.level) }
                 Log.i(TAG, "second opinion delta=${first ?: "none"} investigator=${found?.delta ?: "none"} level=${after?.level}")
             }
         }
+    }
+
+    /**
+     * The person turned sharing on or off in the family setup. On: each guardian gets their own link by SMS.
+     * Off: every link stops working and the list is forgotten. [done] learns whether sharing is on afterwards.
+     */
+    fun shareNews(on: Boolean, done: (Boolean) -> Unit) = main.post {
+        if (!on) {
+            news.sharing = false
+            news.clear()
+            waiting.execute { guardianClient.revokeAll() }
+            device.speak(context.getString(R.string.share_off))
+            return@post done(false)
+        }
+        val guardians = (contacts ?: emptyList()).filter { it.trust == TrustLevel.GUARDIAN && it.phones.isNotEmpty() }
+        if (!guardianClient.enabled || guardians.isEmpty()) {
+            device.speak(context.getString(R.string.share_no_guardians))
+            return@post done(false)
+        }
+        permissions.ask(Need.SEND_SMS) { allowed ->
+            if (!allowed) return@ask done(false)
+            waiting.execute {
+                val sent = guardians.count { g ->
+                    val url = guardianClient.createLink(g.name.trim().split(" ").first(), lang) ?: return@count false
+                    runCatching { device.sendSms(g.phones.first(), context.getString(R.string.share_sms, url)) }.isSuccess
+                }
+                main.post {
+                    Log.i(TAG, "news shared with $sent of ${guardians.size} guardian(s)")
+                    news.sharing = sent > 0
+                    device.speak(context.getString(if (sent > 0) R.string.share_sent else R.string.share_failed))
+                    done(sent > 0)
+                }
+            }
+        }
+    }
+
+    /** Only what Peri decided, never the message: a scam or a doubt, and the channel it came by. */
+    private fun shareVerdict(message: IncomingMessage, level: Level) {
+        val name = when (level) {
+            Level.SCAM -> "scam"
+            Level.DOUBT -> "doubt"
+            else -> return
+        }
+        share(NewsEntry(System.currentTimeMillis(), "warning", level = name, channel = message.channel.name))
+    }
+
+    /** Kept on the phone only once the backend has it, so the person's list is exactly what the guardians see. */
+    private fun share(entry: NewsEntry) {
+        if (!news.sharing) return
+        waiting.execute {
+            val ok = if (entry.kind == "warning") guardianClient.warning(entry.level, entry.channel) else guardianClient.pause(entry.answer)
+            if (ok) main.post { news.add(entry) }
+        }
+    }
+
+    /** Only while there's a reason: a stranger's call, or a while after something worrying. */
+    private fun watchApps() {
+        if (agent.watchesApps) bank.start()
     }
 
     /** From [CallScreener], before the call is picked up. The number itself is never logged. */
