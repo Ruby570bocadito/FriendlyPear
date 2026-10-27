@@ -47,6 +47,16 @@ class FamilyActivity : Activity() {
         super.onCreate(savedInstanceState)
         store = FamilyStore(this)
         config = store.load()
+        // Once someone protects the person, changing it needs the phone's own lock: not anyone holding the phone.
+        if (config.guardians.isNotEmpty() && savedInstanceState == null) {
+            setContentView(View(this).apply { setBackgroundColor(Palette.CREAM) })
+            confirmIdentity(getString(R.string.family_identity_title), getString(R.string.family_identity_subtitle), { build() }, { finish() })
+        } else {
+            build()
+        }
+    }
+
+    private fun build() {
         val list = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             clipChildren = false

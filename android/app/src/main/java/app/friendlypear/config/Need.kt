@@ -1,6 +1,7 @@
 package app.friendlypear.config
 
 import android.Manifest
+import android.os.Build
 import app.friendlypear.R
 import app.friendlypear.core.agent.Capability
 
@@ -15,6 +16,8 @@ enum class Need(val permissions: List<String>, val why: Int, val denied: Int) {
     MIC(listOf(Manifest.permission.RECORD_AUDIO), R.string.why_mic, R.string.denied_mic),
     CALL(listOf(Manifest.permission.CALL_PHONE), R.string.why_call, 0),
     SEND_SMS(listOf(Manifest.permission.SEND_SMS), R.string.why_sms_send, 0),
+    /** Android 13+ only; before it, apps may notify without asking. */
+    NOTIFY(listOf("android.permission.POST_NOTIFICATIONS"), R.string.why_notify, R.string.denied_notify),
     LOCATION(
         listOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
         R.string.why_location,
@@ -24,7 +27,7 @@ enum class Need(val permissions: List<String>, val why: Int, val denied: Int) {
 
     companion object {
         /** Asked at first start, one at a time: without them the shield can't see who is family or what arrives. */
-        val FIRST_START = listOf(CONTACTS, READ_SMS, PHONE_STATE)
+        val FIRST_START = listOfNotNull(CONTACTS, READ_SMS, PHONE_STATE, NOTIFY.takeIf { Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU })
 
         fun of(capability: Capability): Need = when (capability) {
             Capability.CALL -> CALL

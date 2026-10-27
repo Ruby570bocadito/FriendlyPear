@@ -1,6 +1,10 @@
 package app.friendlypear.services
 
 import android.Manifest
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -12,6 +16,10 @@ import android.provider.Settings
 import android.util.Log
 import app.friendlypear.BuildConfig
 import app.friendlypear.R
+import app.friendlypear.core.trust.FamilyRequestLink
+import app.friendlypear.core.voice.ContactDirectory
+import app.friendlypear.net.FamilyRequestClient
+import app.friendlypear.ui.peri.GuardianActivity
 import app.friendlypear.config.FamilyStore
 import app.friendlypear.config.InvestigationEntry
 import app.friendlypear.config.InvestigationLog
@@ -275,14 +283,71 @@ class PeriHub(context: Context) {
 
     fun onMessage(message: IncomingMessage) = main.post {
         if (contacts == null) refreshNow()
-        val asking = opinion.enabled
-        val verdict = agent.onMessage(message, secondOpinion = asking)
+        // Peri to Peri: a family member's request, from a saved contact and to Peri's own server, opens in the app.
+        FamilyRequestLink.find(message.text, BuildConfig.BACKEND_URL)?.let { found ->
+            val from = familyContact(message.sender)
+            if (from != null) return@post familyRequest(found, from)
+        }
+        // Talks like Peri but links elsewhere: never a real request, so no model is asked either.
+        val fake = FamilyRequestLink.imitatesPeri(message.text, BuildConfig.BACKEND_URL)
+        val asking = opinion.enabled && !fake
+        val verdict = agent.onMessage(message, secondOpinion = asking, imitatesPeri = fake)
         // Waiting for the models, Peri looks through her magnifying glass before she says anything.
         views.forEach { it.mood(mood) }
         // Never the text or the sender: only what Peri decided.
         Log.i(TAG, "message channel=${message.channel} level=${verdict.level} hardRule=${verdict.hardRule}")
         if (asking && verdict.level == Level.DOUBT) askModel(message, verdict) else shareVerdict(message, verdict.level)
         watchApps()
+    }
+
+    /** The SMS and its notification both arrive: each request is handled once. */
+    private val familyRequests = LinkedHashSet<String>()
+
+    /** The saved contact who sent [sender]: by number (SMS), or by the name a notification shows. */
+    private fun familyContact(sender: String): Contact? {
+        val saved = contacts.orEmpty()
+        return ContactDirectory(saved).byPhone(sender) ?: saved.firstOrNull { it.name.equals(sender.trim(), ignoreCase = true) }
+    }
+
+    /**
+     * What the request says is read from the server (the link is the key), never from the SMS. Peri says it aloud
+     * and opens the guardian's screen, or a notification if the app isn't in front.
+     */
+    private fun familyRequest(found: FamilyRequestLink.Found, from: Contact) {
+        if (!familyRequests.add(found.token)) return
+        if (familyRequests.size > MAX_FAMILY_REQUESTS) familyRequests.remove(familyRequests.first())
+        Log.i(TAG, "family request from a saved contact")
+        network.execute {
+            val request = FamilyRequestClient.fetch(found.url)
+            main.post {
+                if (request == null || !request.pending) {
+                    say(context.getString(R.string.guardian_gone))
+                    return@post
+                }
+                val screen = GuardianActivity.intent(context, found.url, from.name, from.phones.firstOrNull(), request)
+                val line = if (request.onCall) R.string.guardian_says_urgent else R.string.guardian_says
+                say(context.getString(line, from.name, request.toName))
+                if (appVisible) context.startActivity(screen) else notifyFamilyRequest(screen, from.name, found.token)
+            }
+        }
+    }
+
+    private fun notifyFamilyRequest(screen: Intent, from: String, token: String) {
+        val manager = context.getSystemService(NotificationManager::class.java) ?: return
+        manager.createNotificationChannel(
+            NotificationChannel(FAMILY_CHANNEL, context.getString(R.string.guardian_channel), NotificationManager.IMPORTANCE_HIGH),
+        )
+        val open = PendingIntent.getActivity(context, token.hashCode(), screen, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val notification = Notification.Builder(context, FAMILY_CHANNEL)
+            .setSmallIcon(R.drawable.ic_pear)
+            .setColor(app.friendlypear.ui.peri.Palette.GREEN_DARK)
+            .setContentTitle(context.getString(R.string.guardian_title, from))
+            .setContentText(context.getString(R.string.guardian_notify_text))
+            .setCategory(Notification.CATEGORY_MESSAGE)
+            .setContentIntent(open)
+            .setAutoCancel(true)
+            .build()
+        runCatching { manager.notify(token.hashCode(), notification) }
     }
 
     /** Off the main thread; the agent hears back on it, with the vote or with null if anything failed. */
@@ -525,6 +590,8 @@ class PeriHub(context: Context) {
 
     private companion object {
         const val TAG = "FriendlyPear"
+        const val FAMILY_CHANNEL = "family_requests"
+        const val MAX_FAMILY_REQUESTS = 50
         const val COUNTDOWN_MILLIS = 10_000L
         const val DEBUG_HEAR = "app.friendlypear.debug.HEAR"
         const val MUSE_VOICE = "muse_voice"

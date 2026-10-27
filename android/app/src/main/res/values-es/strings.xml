@@ -245,4 +245,43 @@
         <item>¡Vale, vale, me rindo! Eres más rápido que yo.</item>
         <item>¡Jajaja! Me has ganado. ¿Seguimos otro ratito?</item>
     </string-array>
+    <string name="guardian_channel">Peticiones de la familia</string>
+    <string name="guardian_eyebrow">Peri · aviso de familia</string>
+    <string name="guardian_title">%1$s te pide permiso</string>
+    <string name="guardian_send_code">Quiere mandar a %1$s un mensaje con un código.</string>
+    <string name="guardian_circle">Se ha pedido un cambio en sus guardianes: %1$s.</string>
+    <string name="guardian_alert_title">Posible timo en curso</string>
+    <string name="guardian_alert">Está hablando, o acaba de hablar, por teléfono con un número que no tiene guardado. Así suelen actuar los estafadores.</string>
+    <string name="guardian_no">No, que no lo mande</string>
+    <string name="guardian_call">Llamar a %1$s ahora</string>
+    <string name="guardian_yes">Sí, lo apruebo</string>
+    <string name="guardian_expires">Esta petición caduca en %1$d min y solo sirve una vez.</string>
+    <string name="guardian_why_title">Por qué Peri lo ha parado</string>
+    <string name="guardian_why">Los estafadores piden códigos para entrar en cuentas o mover dinero. Peri nunca te enseña el código.</string>
+    <string name="guardian_why_circle">Los cambios en los guardianes necesitan el sí de un guardián y esperan 48 horas, para que nadie se quede con su protección.</string>
+    <string name="guardian_meanwhile_title">Mientras decides</string>
+    <string name="guardian_meanwhile">Su Peri no manda nada. Si no contestas, tampoco se manda.</string>
+    <string name="guardian_privacy">Tu Peri ha comprobado esta petición con el servidor de Peri; no se ha fiado del texto del SMS.</string>
+    <string name="guardian_check_1">Has hablado con %1$s, por teléfono o en persona.</string>
+    <string name="guardian_check_2">Sabes quién es %1$s y es de confianza.</string>
+    <string name="guardian_check_3">Nadie os está metiendo prisa.</string>
+    <string name="guardian_confirm_title">¿Seguro?</string>
+    <string name="guardian_confirm_intro">Apruébalo solo si puedes decir que sí a las tres:</string>
+    <string name="guardian_confirm_no">No, mejor no</string>
+    <string name="guardian_confirm_yes">Sí, lo he comprobado</string>
+    <string name="guardian_identity_title">Confirma que eres tú</string>
+    <string name="guardian_identity_subtitle">Para aprobar lo que pide %1$s</string>
+    <string name="guardian_done_no">Hecho. Le he dicho al Peri de %1$s que no lo mande.</string>
+    <string name="guardian_done_call">Hecho. El Peri de %1$s no manda nada y le ofrece llamarte. Te marco su número.</string>
+    <string name="guardian_done_yes">Hecho. Le he dicho al Peri de %1$s que lo apruebas.</string>
+    <string name="guardian_gone">Esa petición de la familia ya se contestó o ha caducado. No se ha mandado nada.</string>
+    <string name="guardian_failed">No he podido hablar con el servidor de Peri. Inténtalo otra vez, o llámale.</string>
+    <string name="guardian_says">%1$s te pide permiso: quiere mandar a %2$s un código. ¿Qué hacemos?</string>
+    <string name="guardian_says_urgent">Ojo: %1$s quiere mandar a %2$s un código justo después de hablar con un número desconocido. Puede ser un timo. ¿Qué hacemos?</string>
+    <string name="guardian_notify_text">Toca para decidir. No se manda nada hasta que contestes.</string>
+    <string name="family_identity_title">Confirma que eres tú</string>
+    <string name="family_identity_subtitle">Para cambiar quién te cuida</string>
+    <string name="why_notify">¿Te puedo enseñar avisos? Solo cuando tu familia te necesite, o cuando pare algo importante.</string>
+    <string name="denied_notify">Vale. Aun así te lo diré en voz alta cuando esté abierta.</string>
+    <string name="guardian_back">Volver con Peri</string>
 </resources>

@@ -246,4 +246,43 @@
         <item>All right, all right, I give up! You\'re faster than me.</item>
         <item>Ha ha! You win. Shall we keep playing a bit?</item>
     </string-array>
+    <string name="guardian_channel">Family requests</string>
+    <string name="guardian_eyebrow">Peri · family request</string>
+    <string name="guardian_title">%1$s is asking for your OK</string>
+    <string name="guardian_send_code">They want to send %1$s a message with a code.</string>
+    <string name="guardian_circle">Someone asked to change their guardians: %1$s.</string>
+    <string name="guardian_alert_title">Possible scam in progress</string>
+    <string name="guardian_alert">They\'re on the phone, or just were, with a number they haven\'t saved. That\'s how scammers usually work.</string>
+    <string name="guardian_no">No, don\'t send it</string>
+    <string name="guardian_call">Call %1$s now</string>
+    <string name="guardian_yes">Yes, I approve</string>
+    <string name="guardian_expires">This request expires in %1$d min and works only once.</string>
+    <string name="guardian_why_title">Why Peri stopped it</string>
+    <string name="guardian_why">Scammers ask for codes to get into accounts or move money. Peri never shows you the code.</string>
+    <string name="guardian_why_circle">Changes to the guardians need a guardian\'s yes and wait 48 hours, so nobody can take over their protection.</string>
+    <string name="guardian_meanwhile_title">While you decide</string>
+    <string name="guardian_meanwhile">Their Peri sends nothing. If you don\'t answer, nothing is sent either.</string>
+    <string name="guardian_privacy">Your Peri checked this request with Peri\'s own server; it didn\'t trust the text message.</string>
+    <string name="guardian_check_1">You\'ve spoken to %1$s, on the phone or in person.</string>
+    <string name="guardian_check_2">You know who %1$s is and trust them.</string>
+    <string name="guardian_check_3">Nobody is rushing either of you.</string>
+    <string name="guardian_confirm_title">Are you sure?</string>
+    <string name="guardian_confirm_intro">Only approve it if you can say yes to all three:</string>
+    <string name="guardian_confirm_no">No, better not</string>
+    <string name="guardian_confirm_yes">Yes, I\'ve checked</string>
+    <string name="guardian_identity_title">Confirm it\'s you</string>
+    <string name="guardian_identity_subtitle">To approve %1$s\'s request</string>
+    <string name="guardian_done_no">Done. I told %1$s\'s Peri not to send it.</string>
+    <string name="guardian_done_call">Done. %1$s\'s Peri won\'t send anything and will offer to call you. I\'m dialling them for you.</string>
+    <string name="guardian_done_yes">Done. I told %1$s\'s Peri you approve.</string>
+    <string name="guardian_gone">That family request has already been answered or has expired. Nothing was sent.</string>
+    <string name="guardian_failed">I couldn\'t reach Peri\'s server. Try again, or call them.</string>
+    <string name="guardian_says">%1$s is asking for your OK: they want to send %2$s a code. What shall we do?</string>
+    <string name="guardian_says_urgent">Careful: %1$s wants to send %2$s a code, right after a call with an unknown number. It could be a scam. What shall we do?</string>
+    <string name="guardian_notify_text">Tap to decide. Nothing is sent until you do.</string>
+    <string name="family_identity_title">Confirm it\'s you</string>
+    <string name="family_identity_subtitle">To change who looks after you</string>
+    <string name="why_notify">May I show you notices? Only when your family needs you, or when I stop something important.</string>
+    <string name="denied_notify">All right. I\'ll still tell you aloud when I\'m open.</string>
+    <string name="guardian_back">Back to Peri</string>
 </resources>
