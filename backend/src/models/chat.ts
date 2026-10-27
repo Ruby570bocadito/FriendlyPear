@@ -57,6 +57,8 @@ export interface ChatOptions {
   instructionRole?: "developer" | "system";
   /** Line put first in the instructions, e.g. Glimmer's "Reasoning strength: low". */
   instructionPrefix?: string;
+  /** Hard ceiling for max_completion_tokens; models that reason longer need more room. */
+  maxTokensCap?: number;
 }
 
 export class ModelError extends Error {
@@ -94,7 +96,7 @@ export class ChatClient {
     const body = {
       model: this.options.model,
       messages: this.instructions(req.messages),
-      max_completion_tokens: Math.min(req.maxTokens ?? DEFAULT_MAX_TOKENS, MAX_TOKENS_CAP),
+      max_completion_tokens: Math.min(req.maxTokens ?? DEFAULT_MAX_TOKENS, this.options.maxTokensCap ?? MAX_TOKENS_CAP),
       ...this.options.defaults,
       ...(req.reasoningEffort ? { reasoning_effort: req.reasoningEffort } : {}),
       ...(req.tools?.length ? { tools: req.tools } : {}),
