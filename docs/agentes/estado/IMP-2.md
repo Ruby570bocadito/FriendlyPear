@@ -12,6 +12,7 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
   - Android concede llamar junto con el estado de llamada (mismo grupo). Sin entrada, un diálogo espera; BACK o ENDCALL cuentan como "no".
 - te-estan-guiando: `AppWatcher` + `RemoteApps` (15 apps de control remoto, solo visibles por `<queries>`) → aviso, "cuelga" si hay llamada y oferta de avisar al guardián tras un "sí". `BankWatcher` + `BankApps` (22 apps de bancos) solo durante una llamada descolgada de un desconocido, con acceso al uso explicado.
   - Probado con el puente de depuración (`--es installed`, `--es opened`); el vigilante real detectó el cambio de app durante la llamada. Sin apps reales instaladas.
+- config-familia: `FamilyConfig` en core (aplicada sobre la agenda) + `FamilyStore` (solo en el móvil) + `FamilyActivity` (guardián, relación, apodos, "hemos acordado una palabra"; la palabra nunca se guarda). Probado: apodo "the neighbour" → Marisa; llamada desconocida → "…ask them for the family word".
 
 ## Cómo probar sin micrófono (solo builds de depuración)
 - `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`; también `--es installed <paquete>` y `--es opened <paquete>`.
