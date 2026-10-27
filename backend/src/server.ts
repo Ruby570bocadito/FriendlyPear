@@ -95,6 +95,8 @@ export function createHandler(config: Config, services: Services = {}) {
     const link = pathname.match(/^\/a\/([A-Za-z0-9_-]{20,64})$/);
     if (link && approvals) {
       const token = link[1];
+      // Audit trail without the secret: who decided is a browser, so we keep the method and its user agent.
+      console.log(`guardian link ${req.method} ua=${(req.headers.get("user-agent") ?? "-").slice(0, 80)}`);
       if (req.method === "GET") {
         const a = approvals.byLink(token);
         if (!a) return html(resultPage("es", "unknown"), 404);
