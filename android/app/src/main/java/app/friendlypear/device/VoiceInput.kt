@@ -10,7 +10,8 @@ import app.friendlypear.core.model.Lang
 
 /**
  * Android's speech recognizer in Peri's language, with long pauses allowed: older people speak slowly.
- * It never opens during a phone call ([mayListen]), so Peri can't hear the other person, even on speaker.
+ * It never opens during a phone call ([mayListen]), so Peri can't hear the other person, even on speaker; if it
+ * was already open when a call starts, [stop] closes it, and anything it heard by then is dropped.
  */
 class VoiceInput(
     context: Context,
@@ -42,6 +43,8 @@ class VoiceInput(
             override fun onReadyForSpeech(params: Bundle?) = onListening(true)
             override fun onResults(results: Bundle?) {
                 onListening(false)
+                // A call began while it was listening: nothing from around the call is acted on.
+                if (!mayListen()) return
                 results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull()?.let(onText)
             }
 
@@ -68,6 +71,7 @@ class VoiceInput(
                 main.post {
                     recording = false
                     onListening(false)
+                    if (!mayListen()) return@post
                     if (wav == null) return@post onMissed()
                     muse.transcribe(wav) { text -> if (text.isNullOrBlank()) onMissed() else onText(text) }
                 }
@@ -81,6 +85,13 @@ class VoiceInput(
             .putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 2_000L)
         recognizer?.startListening(intent)
         return true
+    }
+
+    /** Closes the microphone now, whatever it was doing (a call started, or the screen went away). */
+    fun stop() {
+        recorder.stop()
+        recognizer?.cancel()
+        onListening(false)
     }
 
     fun destroy() {

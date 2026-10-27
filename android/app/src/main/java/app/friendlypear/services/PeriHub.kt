@@ -70,6 +70,8 @@ interface PeriView {
     fun appShown(visible: Boolean) = Unit
     /** A short pose for a moment: an idea (a tip), "sorry" (didn't catch it), a thumbs up (well done). */
     fun moment(moment: PeriMoment) = Unit
+    /** A call has just started (or Peri placed one): any microphone still open closes at once. */
+    fun callStarted() = Unit
 }
 
 /** A pose Peri strikes for a couple of seconds: an idea, sorry, a thumbs up, a laugh, her heart, dizzy, a yawn, a letter. */
@@ -179,6 +181,7 @@ class PeriHub(context: Context) {
         main.post {
             Log.i(TAG, "call active=$active answered=$answered")
             callActive = active
+            if (active) views.forEach { it.callStarted() }
             agent.onCallStateChanged(active, answered)
             views.forEach { it.mood(mood) }
             watchApps()

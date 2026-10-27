@@ -547,6 +547,8 @@ class PeriActivity : Activity() {
 
     override fun onPause() {
         resumed = false
+        // Off screen (the call screen, another app), Peri doesn't keep listening.
+        voice.stop()
         hub.detach(view)
         hub.appVisible = false
         face.speaking(false)
@@ -578,6 +580,8 @@ class PeriActivity : Activity() {
         override fun mood(mood: Mood) = showFace(mood)
 
         override fun moment(moment: app.friendlypear.services.PeriMoment) = face.moment(moment)
+
+        override fun callStarted() = voice.stop()
 
         override fun speaking(on: Boolean) {
             face.speaking(on)

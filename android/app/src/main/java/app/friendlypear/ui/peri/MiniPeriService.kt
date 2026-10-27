@@ -537,6 +537,10 @@ class MiniPeriService : Service(), PeriView {
         if (!visible && (wasHidden || holder.alpha < 1f)) popIn()
     }
 
+    override fun callStarted() {
+        if (::voice.isInitialized) voice.stop()
+    }
+
     override fun speaking(on: Boolean) {
         face.speaking(on)
         // Like the app: when Peri asked something, the microphone opens once she finishes speaking.
