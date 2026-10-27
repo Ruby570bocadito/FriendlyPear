@@ -1,0 +1,134 @@
+{
+  "model": "logistic regression, non-negative weights shrunk towards the hand weights; strength by 5-fold CV on train",
+  "train": {
+    "n": 1306,
+    "scams": 719
+  },
+  "held_out": {
+    "n": 200,
+    "scams": 102
+  },
+  "cv_log_loss_by_strength": {
+    "0.003": 0.23,
+    "0.01": 0.2389,
+    "0.03": 0.2546,
+    "0.1": 0.2728,
+    "0.3": 0.2832,
+    "1.0": 0.2884
+  },
+  "chosen_strength": 0.003,
+  "weights": {
+    "bias": -3.55,
+    "UNKNOWN_SENDER": 0.92,
+    "LINK": 2.0,
+    "URL_SHORTENER": 1.9,
+    "INSECURE_LINK": 2.77,
+    "BRAND_LOOKALIKE": 4.02,
+    "URGENCY": 2.56,
+    "MONEY_REQUEST": 2.07,
+    "CREDENTIAL_REQUEST": 2.45,
+    "CODE_FORWARD_REQUEST": 2.0,
+    "NEW_NUMBER_CLAIM": 2.61,
+    "PRIZE_OR_PROFIT": 2.08,
+    "REMOTE_ACCESS_APP": 3.29,
+    "AI_INSTRUCTIONS": 3.0,
+    "ONE_TIME_CODE": 0.0,
+    "CODE_DURING_CALL": 4.0
+  },
+  "scratch_weights": {
+    "bias": -1.66,
+    "UNKNOWN_SENDER": 0.24,
+    "LINK": 1.59,
+    "URL_SHORTENER": 0.39,
+    "INSECURE_LINK": 0.69,
+    "BRAND_LOOKALIKE": 4.0,
+    "URGENCY": 1.16,
+    "MONEY_REQUEST": 1.19,
+    "CREDENTIAL_REQUEST": 0.46,
+    "CODE_FORWARD_REQUEST": 0.02,
+    "NEW_NUMBER_CLAIM": 0.53,
+    "PRIZE_OR_PROFIT": 0.2,
+    "REMOTE_ACCESS_APP": 0.33,
+    "AI_INSTRUCTIONS": 0.0,
+    "ONE_TIME_CODE": 0.0,
+    "CODE_DURING_CALL": 4.0
+  },
+  "auc_held_out": {
+    "provisional": 0.957,
+    "scratch": 0.942,
+    "learned": 0.965
+  },
+  "provisional_on_held_out": {
+    "TPR_warn": "83.3% [74.9%, 89.3%]",
+    "FPR_warn": "4.1% [1.6%, 10.0%]",
+    "tp_warn": 85,
+    "fp_warn": 4,
+    "TPR_scam": "52.9% [43.3%, 62.3%]",
+    "FPR_scam": "1.0% [0.2%, 5.6%]",
+    "tp_scam": 54,
+    "fp_scam": 1
+  },
+  "scratch_on_held_out": {
+    "TPR_warn": "75.5% [66.3%, 82.8%]",
+    "FPR_warn": "3.1% [1.0%, 8.6%]",
+    "tp_warn": 77,
+    "fp_warn": 3,
+    "TPR_scam": "41.2% [32.1%, 50.9%]",
+    "FPR_scam": "0.0% [0.0%, 3.8%]",
+    "tp_scam": 42,
+    "fp_scam": 0
+  },
+  "learned_on_held_out": {
+    "TPR_warn": "78.4% [69.5%, 85.3%]",
+    "FPR_warn": "2.0% [0.6%, 7.1%]",
+    "tp_warn": 80,
+    "fp_warn": 2,
+    "TPR_scam": "66.7% [57.1%, 75.1%]",
+    "FPR_scam": "1.0% [0.2%, 5.6%]",
+    "tp_scam": 68,
+    "fp_scam": 1
+  },
+  "learned_on_train": {
+    "TPR_warn": "84.7% [81.9%, 87.1%]",
+    "FPR_warn": "1.9% [1.0%, 3.3%]",
+    "tp_warn": 609,
+    "fp_warn": 11,
+    "TPR_scam": "70.2% [66.8%, 73.5%]",
+    "FPR_scam": "0.5% [0.2%, 1.5%]",
+    "tp_scam": 505,
+    "fp_scam": 3
+  },
+  "auc_20_20": {
+    "provisional": 0.998,
+    "learned": 0.986
+  },
+  "provisional_on_20_20": {
+    "TPR_warn": "100.0% [83.9%, 100.0%]",
+    "FPR_warn": "5.0% [0.9%, 23.6%]",
+    "tp_warn": 20,
+    "fp_warn": 1,
+    "TPR_scam": "75.0% [53.1%, 88.8%]",
+    "FPR_scam": "0.0% [-0.0%, 16.1%]",
+    "tp_scam": 15,
+    "fp_scam": 0
+  },
+  "learned_on_20_20": {
+    "TPR_warn": "100.0% [83.9%, 100.0%]",
+    "FPR_warn": "5.0% [0.9%, 23.6%]",
+    "tp_warn": 20,
+    "fp_warn": 1,
+    "TPR_scam": "80.0% [58.4%, 91.9%]",
+    "FPR_scam": "5.0% [0.9%, 23.6%]",
+    "tp_scam": 16,
+    "fp_scam": 1
+  },
+  "firm_false_alarms": {
+    "provisional": [
+      "n-new-03"
+    ],
+    "learned": [
+      "n-new-03",
+      "n20"
+    ]
+  }
+}
