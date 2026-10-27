@@ -28,3 +28,7 @@ Fallos encontrados probando, antes de subir: la etiqueta de la "×" salía corta
 ## Peri en plastilina
 
 La persona eligió el diseño de plastilina 3D. Se rehizo toda Peri con ese diseño como base: 9 estados, 7 fotogramas por estado y 9 extras (82 imágenes, 0,82 $). Al revisarlas: "preocupada" hablando salía con una sonrisa (se rehízo con un prompt que mantiene el ceño) y el recorte dejaba el suelo de "preocupada" (cada borde se compara con su propio color y se quita el suelo beige del quinto inferior). Probado en el emulador: app, idea al tocarla, Mini Peri e icono.
+
+## Peri menos estática
+
+"Es muy estático, mejora las animaciones de piernas o idle": 16 fotogramas nuevos con un pie en alto (todos los estados despiertos, 0,16 $) y un sistema de acciones en reposo en `PeriFace`: cada 7–13 s, si está libre, un saltito (con impulso y aplastamiento al caer), unos pasitos en el sitio, mirar a los lados, estirarse o saludar, según el estado. Además: peso de lado a lado con la inclinación, aplastamiento al aterrizar cada bote cuando está contenta (corre en el sitio) y un cabeceo con cada palabra. Mini Peri baja de 128 a 100 dp ("la pera es muy grande como mascota") y la pantalla entra con un fundido escalonado; las tarjetas llevan un borde verde suave. Probado 20 s en el emulador: pasitos y balanceo visibles, sin fotogramas de otro estado.
