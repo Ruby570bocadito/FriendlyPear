@@ -3,6 +3,7 @@ package app.friendlypear.config
 import android.content.Context
 import app.friendlypear.core.model.Relation
 import app.friendlypear.core.trust.FamilyConfig
+import app.friendlypear.core.trust.PendingCircleChange
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -35,6 +36,32 @@ class FamilyStore(context: Context) {
         prefs.edit().putString(KEY, o.toString()).apply()
     }
 
+    /** A change of guardians waiting for a guardian's yes and its 48 hours. */
+    fun loadPending(): PendingCircleChange? {
+        val raw = prefs.getString(PENDING, null) ?: return null
+        return try {
+            val o = JSONObject(raw)
+            PendingCircleChange(
+                o.optJSONArray("guardians").strings().toSet(),
+                o.getLong("requestedAt"),
+                o.optBoolean("approved", false),
+                o.optString("approvalId").takeIf { it.isNotEmpty() },
+            )
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun savePending(pending: PendingCircleChange?) {
+        if (pending == null) return prefs.edit().remove(PENDING).apply()
+        val o = JSONObject()
+            .put("guardians", JSONArray(pending.guardians.toList()))
+            .put("requestedAt", pending.requestedAt)
+            .put("approved", pending.approved)
+            .put("approvalId", pending.approvalId ?: "")
+        prefs.edit().putString(PENDING, o.toString()).apply()
+    }
+
     private fun JSONArray?.strings(): List<String> = if (this == null) emptyList() else (0 until length()).map { getString(it) }
 
     private fun JSONObject?.entries(): List<Pair<String, String>> =
@@ -42,5 +69,6 @@ class FamilyStore(context: Context) {
 
     private companion object {
         const val KEY = "config"
+        const val PENDING = "pending_circle_change"
     }
 }

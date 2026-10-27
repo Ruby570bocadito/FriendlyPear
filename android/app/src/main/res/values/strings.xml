@@ -40,4 +40,16 @@
     <string name="relation_friend">Friend</string>
     <string name="relation_caregiver">Carer</string>
     <string name="relation_other">Other</string>
+    <string name="circle_explain">Changing who the guardians are needs a yes from a current guardian, and then it waits 48 hours, so nobody can take over your protection. I\'ve just let them know.</string>
+    <string name="circle_cannot_ask">I can\'t ask your guardians right now, so the guardians stay as they are. Let\'s try again later.</string>
+    <string name="circle_sms">Peri: someone asked to change your relative\'s guardians (%1$s). Decide here (expires in 15 minutes): %2$s</string>
+    <string name="circle_approved">Your family approved the change of guardians. It will apply in 48 hours, and you can still cancel it.</string>
+    <string name="circle_rejected">Your family didn\'t approve the change of guardians, so it won\'t happen.</string>
+    <string name="circle_no_answer">Nobody in the family approved the change of guardians in time, so it won\'t happen.</string>
+    <string name="circle_add">add %1$s</string>
+    <string name="circle_remove">remove %1$s</string>
+    <string name="circle_waiting">Pending change: %1$s. Waiting for a guardian\'s yes.</string>
+    <string name="circle_due">Approved change: %1$s. It applies on %2$s.</string>
+    <string name="circle_cancel">Cancel this change</string>
+    <string name="circle_busy">There\'s already a pending change. Cancel it before asking for another one.</string>
 </resources>

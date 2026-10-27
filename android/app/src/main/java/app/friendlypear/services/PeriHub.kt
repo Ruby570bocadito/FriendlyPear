@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import app.friendlypear.BuildConfig
+import app.friendlypear.R
 import app.friendlypear.config.FamilyStore
 import app.friendlypear.config.Need
 import app.friendlypear.config.PermissionGate
@@ -17,6 +18,10 @@ import app.friendlypear.core.agent.ApprovalPort
 import app.friendlypear.core.agent.ApprovalResult
 import app.friendlypear.core.agent.PeriAgent
 import app.friendlypear.core.model.Contact
+import app.friendlypear.core.model.TrustLevel
+import app.friendlypear.core.trust.CircleRules
+import app.friendlypear.core.trust.FamilyConfig
+import app.friendlypear.core.trust.PendingCircleChange
 import app.friendlypear.core.model.IncomingMessage
 import app.friendlypear.core.model.Level
 import app.friendlypear.core.shield.Verdict
@@ -109,7 +114,6 @@ class PeriHub(context: Context) {
         if (BuildConfig.DEBUG) registerDebugVoice()
     }
 
-    /** From [AppWatcher]. Only the package name is looked at, and only remote-control apps make Peri speak. */
     /** From [BankWatcher], only during a picked-up call. */
     fun onAppOpened(packageName: String) = main.post {
         // Debug builds only, and never which app: enough to check the watcher runs during calls.
@@ -117,6 +121,7 @@ class PeriHub(context: Context) {
         agent.onAppOpened(packageName)
     }
 
+    /** From [AppWatcher]. Only the package name is looked at, and only remote-control apps make Peri speak. */
     fun onAppInstalled(packageName: String) = main.post {
         if (contacts == null) refreshNow()
         agent.onAppInstalled(packageName)
@@ -125,7 +130,8 @@ class PeriHub(context: Context) {
     /** Reloads contacts and listeners after permissions change; the agent keeps its state if nothing changed. */
     fun refresh() = main.post {
         calls.start()
-        val config = family.load()
+        family.loadPending()?.takeIf { !it.approved }?.let { awaitCircle(it) }
+        val config = currentConfig()
         val fresh = config.applyTo(PhoneContacts.load(context))
         if (fresh != contacts || config.hasFamilyWord != familyWord) {
             contacts = fresh
@@ -172,12 +178,76 @@ class PeriHub(context: Context) {
         if (agent.isCountingDown) main.postDelayed(countdownEnd, COUNTDOWN_MILLIS)
     }
 
+    /** The family setup in force: an approved change of guardians applies once its 48 hours are up. */
+    private fun currentConfig(): FamilyConfig {
+        val config = family.load()
+        val pending = family.loadPending()
+        val now = System.currentTimeMillis()
+        if (!CircleRules.isDue(pending, now)) return config
+        return CircleRules.effective(config, pending, now).also {
+            family.save(it)
+            family.savePending(null)
+        }
+    }
+
+    /**
+     * Asks the current guardians to approve a change of guardians ([change] says it in plain words, e.g.
+     * "add Marisa"). It waits as pending; with a yes it applies 48 hours after the request, otherwise never.
+     */
+    fun requestCircleChange(proposed: FamilyConfig, change: String) = main.post {
+        val pending = CircleRules.propose(proposed, System.currentTimeMillis())
+        val guardians = (contacts ?: emptyList()).filter { it.trust == TrustLevel.GUARDIAN && it.phones.isNotEmpty() }
+        if (!approvalClient.enabled || guardians.isEmpty()) return@post device.speak(context.getString(R.string.circle_cannot_ask))
+        family.savePending(pending)
+        device.speak(context.getString(R.string.circle_explain))
+        waiting.execute {
+            val created = approvalClient.create(ApprovalKind.CIRCLE_CHANGE, change, lang)
+            val text = created?.let { context.getString(R.string.circle_sms, change, it.url) }
+            val sent = if (text == null) 0 else guardians.count { g -> runCatching { device.sendSms(g.phones.first(), text) }.isSuccess }
+            main.post {
+                if (created == null || sent == 0) return@post settleCircle(pending, ApprovalResult.FAILED)
+                // Kept with the change, so waiting resumes if the app is restarted before the family answers.
+                val asked = pending.copy(approvalId = created.id)
+                if (family.loadPending()?.requestedAt == pending.requestedAt) family.savePending(asked)
+                awaitCircle(asked)
+            }
+        }
+    }
+
+    private var awaitingCircle: String? = null
+
+    private fun awaitCircle(pending: PendingCircleChange) {
+        val id = pending.approvalId ?: return
+        if (awaitingCircle == id) return
+        awaitingCircle = id
+        waiting.execute {
+            val result = approvalClient.await(id)
+            main.post {
+                awaitingCircle = null
+                settleCircle(pending, result)
+            }
+        }
+    }
+
+    private fun settleCircle(pending: PendingCircleChange, result: ApprovalResult) {
+        Log.i(TAG, "circle change result=$result")
+        // Only the request still on file counts: the person may have cancelled it meanwhile.
+        if (family.loadPending()?.requestedAt != pending.requestedAt) return
+        if (result == ApprovalResult.APPROVED) {
+            family.savePending(pending.copy(approved = true))
+            device.speak(context.getString(R.string.circle_approved))
+        } else {
+            family.savePending(null)
+            device.speak(context.getString(if (result == ApprovalResult.REJECTED) R.string.circle_rejected else R.string.circle_no_answer))
+        }
+    }
+
     private fun newAgent(contacts: List<Contact>): PeriAgent =
         PeriAgent(device, contacts, lang, hasFamilyWord = familyWord, approvals = if (approvalClient.enabled) approvals else null)
 
     private fun refreshNow() {
         calls.start()
-        val config = family.load()
+        val config = currentConfig()
         familyWord = config.hasFamilyWord
         contacts = config.applyTo(PhoneContacts.load(context)).also { agent = newAgent(it).apply { onCallStateChanged(callActive) } }
     }

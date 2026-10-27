@@ -7,6 +7,7 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -18,7 +19,10 @@ import app.friendlypear.R
 import app.friendlypear.config.FamilyStore
 import app.friendlypear.config.PhoneContacts
 import app.friendlypear.core.model.Relation
+import app.friendlypear.core.trust.CircleRules
 import app.friendlypear.core.trust.FamilyConfig
+import java.text.DateFormat
+import java.util.Date
 
 /**
  * Family setup, done together on the protected person's phone: who the guardians are, each person's relation
@@ -27,6 +31,10 @@ import app.friendlypear.core.trust.FamilyConfig
 class FamilyActivity : Activity() {
     private lateinit var store: FamilyStore
     private var config = FamilyConfig()
+    private lateinit var status: TextView
+    private lateinit var cancel: Button
+    private var names: Map<String, String> = emptyMap()
+    private var syncing = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +47,16 @@ class FamilyActivity : Activity() {
         }
         list.addView(text(getString(R.string.family_title), 26f))
         list.addView(text(getString(R.string.family_intro), 18f))
+        status = text("", 18f)
+        cancel = Button(this).apply {
+            text = getString(R.string.circle_cancel)
+            setOnClickListener {
+                store.savePending(null)
+                showPending()
+            }
+        }
+        list.addView(status)
+        list.addView(cancel)
 
         list.addView(CheckBox(this).apply {
             text = getString(R.string.family_word_agreed)
@@ -49,10 +67,49 @@ class FamilyActivity : Activity() {
         list.addView(text(getString(R.string.family_word_note), 16f))
 
         val contacts = PhoneContacts.load(this)
+        names = contacts.associate { it.id to it.name }
         if (contacts.isEmpty()) list.addView(text(getString(R.string.family_no_contacts), 18f))
         contacts.forEach { c -> list.addView(row(c.id, c.name, c.relation)) }
 
         setContentView(ScrollView(this).apply { addView(list) })
+        showPending()
+    }
+
+    /** A pending change of guardians, in plain words, with its state and a way to cancel it. */
+    private fun showPending() {
+        val pending = store.loadPending()
+        cancel.visibility = if (pending == null) View.GONE else View.VISIBLE
+        if (pending == null) {
+            status.visibility = View.GONE
+            return
+        }
+        val change = (CircleRules.added(config, pending).map { getString(R.string.circle_add, names[it] ?: it) } +
+            CircleRules.removed(config, pending).map { getString(R.string.circle_remove, names[it] ?: it) }).joinToString(", ")
+        val date = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(pending.effectiveAt))
+        status.text = if (pending.approved) getString(R.string.circle_due, change, date) else getString(R.string.circle_waiting, change)
+        status.visibility = View.VISIBLE
+    }
+
+    /** Changing who the guardians are waits for a guardian's yes and 48 hours; the box stays as it is meanwhile. */
+    private fun onGuardianTicked(box: CheckBox, id: String, name: String, checked: Boolean) {
+        if (syncing) return
+        val next = config.withGuardian(id, checked)
+        if (!CircleRules.needsGuardians(config, next)) return update(next)
+        syncing = true
+        box.isChecked = !checked
+        syncing = false
+        if (store.loadPending() != null) {
+            status.text = getString(R.string.circle_busy)
+            status.visibility = View.VISIBLE
+            return
+        }
+        PeriApp.hub(this).requestCircleChange(next, getString(if (checked) R.string.circle_add else R.string.circle_remove, name))
+        status.postDelayed({ showPending() }, 500)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::status.isInitialized) showPending()
     }
 
     private fun row(id: String, name: String, guessed: Relation?): View {
@@ -65,7 +122,7 @@ class FamilyActivity : Activity() {
             text = getString(R.string.family_guardian)
             textSize = 18f
             isChecked = id in config.guardians
-            setOnCheckedChangeListener { _, checked -> update(config.withGuardian(id, checked)) }
+            setOnCheckedChangeListener { box, checked -> onGuardianTicked(box as CheckBox, id, name, checked) }
         })
 
         val labels = listOf(getString(R.string.relation_none)) + RELATIONS.map { getString(it.second) }

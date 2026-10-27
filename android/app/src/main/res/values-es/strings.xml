@@ -39,4 +39,16 @@
     <string name="relation_friend">Amigo o amiga</string>
     <string name="relation_caregiver">Cuidador o cuidadora</string>
     <string name="relation_other">Otra</string>
+    <string name="circle_explain">Cambiar quién es guardián necesita el sí de un guardián actual y luego esperar 48 horas, para que nadie pueda quedarse con tu protección. Ya les he avisado.</string>
+    <string name="circle_cannot_ask">Ahora no puedo preguntar a tus guardianes, así que los guardianes siguen como estaban. Lo intentamos más tarde.</string>
+    <string name="circle_sms">Peri: se ha pedido un cambio en los guardianes de tu familiar (%1$s). Decide aquí (caduca en 15 minutos): %2$s</string>
+    <string name="circle_approved">Tu familia ha aprobado el cambio de guardianes. Se aplicará dentro de 48 horas, y aún puedes cancelarlo.</string>
+    <string name="circle_rejected">Tu familia no ha aprobado el cambio de guardianes, así que no se hace.</string>
+    <string name="circle_no_answer">Nadie de la familia ha aprobado el cambio de guardianes a tiempo, así que no se hace.</string>
+    <string name="circle_add">añadir a %1$s</string>
+    <string name="circle_remove">quitar a %1$s</string>
+    <string name="circle_waiting">Cambio pendiente: %1$s. Esperando el sí de un guardián.</string>
+    <string name="circle_due">Cambio aprobado: %1$s. Se aplica el %2$s.</string>
+    <string name="circle_cancel">Cancelar este cambio</string>
+    <string name="circle_busy">Ya hay un cambio pendiente. Cancélalo antes de pedir otro.</string>
 </resources>
