@@ -90,10 +90,12 @@ class PeriHub(context: Context) {
             Log.i(TAG, "call active=$active answered=$answered")
             callActive = active
             agent.onCallStateChanged(active, answered)
+            if (active && answered) bank.start() else if (!active) bank.stop()
         }
     }
     private val countdownEnd = Runnable { agent.onEmergencyTimeout() }
     private val apps = AppWatcher(this.context) { packageName -> onAppInstalled(packageName) }
+    val bank = BankWatcher(this.context) { packageName -> onAppOpened(packageName) }
     private val opinion = OpinionClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
     private val network = Executors.newSingleThreadExecutor()
 
@@ -105,6 +107,13 @@ class PeriHub(context: Context) {
     }
 
     /** From [AppWatcher]. Only the package name is looked at, and only remote-control apps make Peri speak. */
+    /** From [BankWatcher], only during a picked-up call. */
+    fun onAppOpened(packageName: String) = main.post {
+        // Debug builds only, and never which app: enough to check the watcher runs during calls.
+        if (BuildConfig.DEBUG) Log.d(TAG, "app came to the front during a call")
+        agent.onAppOpened(packageName)
+    }
+
     fun onAppInstalled(packageName: String) = main.post {
         if (contacts == null) refreshNow()
         agent.onAppInstalled(packageName)
@@ -175,6 +184,7 @@ class PeriHub(context: Context) {
             override fun onReceive(c: Context, intent: Intent) {
                 intent.getStringExtra("text")?.let { heard(it) }
                 intent.getStringExtra("installed")?.let { onAppInstalled(it) }
+                intent.getStringExtra("opened")?.let { onAppOpened(it) }
             }
         }
         context.registerReceiver(receiver, IntentFilter(DEBUG_HEAR), Context.RECEIVER_EXPORTED)

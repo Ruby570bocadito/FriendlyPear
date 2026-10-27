@@ -22,4 +22,6 @@
     <string name="why_location">Only in an emergency, so your family knows where you are, I\'d like to share your location in the alert text. I never use it for anything else.</string>
     <string name="denied_location">Understood. In an emergency I\'ll still alert your family, just without your location.</string>
     <string name="why_notifications">One last thing: to read your WhatsApp and email alerts, allow Peri in the next screen. I only read them on your phone.</string>
+    <string name="usage_access">Let Peri notice your bank app during calls</string>
+    <string name="why_usage">Fake bank callers ask you to open your bank app while they stay on the line. To warn you, I need to see which app is open, only during a call you picked up. In the next screen, allow FriendlyPear. I never see what you do inside your apps.</string>
 </resources>

@@ -21,4 +21,6 @@
     <string name="why_location">Solo en una emergencia, para que tu familia sepa dónde estás, me gustaría poner tu ubicación en el aviso. Nunca la uso para nada más.</string>
     <string name="denied_location">Entendido. En una emergencia avisaré igual a tu familia, solo que sin tu ubicación.</string>
     <string name="why_notifications">Una última cosa: para leer los avisos de WhatsApp y del correo, deja que Peri los lea en la pantalla siguiente. Solo los leo en tu móvil.</string>
+    <string name="usage_access">Dejar que Peri note la app del banco en las llamadas</string>
+    <string name="why_usage">Los falsos bancos te piden abrir la app del banco sin colgar. Para avisarte, necesito ver qué app está abierta, solo durante una llamada que hayas descolgado. En la pantalla siguiente, activa FriendlyPear. Nunca veo lo que haces dentro de tus apps.</string>
 </resources>
