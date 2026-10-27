@@ -385,4 +385,18 @@
     <string name="use_voice">Sent a voice order to Muse Voice Transcribe</string>
     <string name="use_someone">someone</string>
     <string name="settings_access">What Peri can do</string>
+    <string name="shields_title">Your shields</string>
+    <string name="shields_intro">Every time a scam is stopped, or you ask before doing something risky, Peri gives you a shield.</string>
+    <string name="shields_stopped">Scams stopped</string>
+    <string name="shields_asked">Pictures you showed Peri first</string>
+    <string name="shields_family">Times you checked with family</string>
+    <string name="shields_close">Lovely!</string>
+    <plurals name="shields_new">
+        <item quantity="one">By the way, you\'ve earned a new shield. Well done for being careful!</item>
+        <item quantity="other">By the way, you\'ve earned %d new shields. Well done for being careful!</item>
+    </plurals>
+    <plurals name="shields_chip">
+        <item quantity="one">%d shield. Tap to see it.</item>
+        <item quantity="other">%d shields. Tap to see them.</item>
+    </plurals>
 </resources>

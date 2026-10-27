@@ -208,6 +208,7 @@ class SettingsActivity : Activity() {
                 finish()
             }
             .show()
+            .friendly()
     }
 
     private fun unpair() {

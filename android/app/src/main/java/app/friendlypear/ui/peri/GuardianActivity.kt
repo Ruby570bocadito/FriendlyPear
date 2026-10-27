@@ -217,6 +217,7 @@ class GuardianActivity : Activity() {
                 confirmIdentity(getString(R.string.guardian_identity_title), getString(R.string.guardian_identity_subtitle, from), { send(Answer.APPROVE) })
             }
             .show()
+            .friendly(risky = AlertDialog.BUTTON_POSITIVE, riskyColor = YES_INK)
     }
 
     private fun send(answer: Answer) {

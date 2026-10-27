@@ -199,6 +199,24 @@ internal fun Context.body(value: CharSequence, size: Float = TextSize.BODY) = Te
     setLineSpacing(0f, 1.15f)
 }
 
+/**
+ * Android's dialogs in Peri's look, called right after `show()`: cream with soft corners, and buttons in sentence
+ * case at the body size (never small capitals). A [risky] button (a "yes" to something dangerous) is in the
+ * warning colour, so the safe answer is the one that stands out.
+ */
+internal fun android.app.AlertDialog.friendly(risky: Int? = null, riskyColor: Int = Palette.DANGER): android.app.AlertDialog {
+    window?.setBackgroundDrawable(rounded(Palette.CREAM, context.dp(24).toFloat()))
+    listOf(android.app.AlertDialog.BUTTON_POSITIVE, android.app.AlertDialog.BUTTON_NEGATIVE, android.app.AlertDialog.BUTTON_NEUTRAL).forEach { which ->
+        getButton(which)?.apply {
+            isAllCaps = false
+            sizeSp(TextSize.BODY)
+            typeface = weight(if (which == risky) 500 else 700)
+            setTextColor(if (which == risky) riskyColor else Palette.GREEN_DARK)
+        }
+    }
+    return this
+}
+
 /** A white card with soft corners and a thin edge: no shadow, it rests on the cream. */
 internal fun Context.cardBackground(): Drawable = rounded(Palette.WHITE, dp(24).toFloat(), Palette.LINE, dp(1))
 

@@ -44,6 +44,7 @@ class PeriActivity : Activity() {
     private var listening = false
     private lateinit var talk: Pill
     private lateinit var status: TextView
+    private lateinit var shieldsChip: TextView
     private lateinit var setup: LinearLayout
     private lateinit var access: View
     private lateinit var usage: View
@@ -109,6 +110,25 @@ class PeriActivity : Activity() {
             isClickable = true
             isFocusable = true
             setOnClickListener { startActivity(Intent(this@PeriActivity, AccessActivity::class.java)) }
+        }
+        // Her shields, beside her feet: how many the person earned. Tapping shows what for.
+        shieldsChip = TextView(this).apply {
+            sizeSp(TextSize.SMALL)
+            typeface = weight(700)
+            setTextColor(Palette.GREEN_DARK)
+            gravity = Gravity.CENTER_VERTICAL
+            background = pressable(rounded(Palette.WHITE, 999f, Palette.LINE_STRONG, dp(1.5f)), Palette.RIPPLE_DARK)
+            setPadding(dp(10), dp(6), dp(14), dp(6))
+            compoundDrawablePadding = dp(6)
+            val icon = getDrawable(R.drawable.ic_shield)!!.mutate().apply {
+                setTint(Palette.GREEN_DARK)
+                setBounds(0, 0, dp(20), dp(20))
+            }
+            setCompoundDrawablesRelative(icon, null, null, null)
+            isClickable = true
+            isFocusable = true
+            visibility = View.GONE
+            setOnClickListener { showShields() }
         }
         // The shield's basics, if one was turned down: asked again, or Android's app settings if it won't ask.
         basics = setupRow(R.drawable.ic_shield, getString(R.string.setup_basics)) { askBasics() }
@@ -198,7 +218,15 @@ class PeriActivity : Activity() {
             background = ground()
             clipChildren = false
             addView(header)
-            addView(face, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(4) })
+            addView(android.widget.FrameLayout(this@PeriActivity).apply {
+                clipChildren = false
+                addView(face, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
+                addView(shieldsChip, android.widget.FrameLayout.LayoutParams(
+                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+                    Gravity.BOTTOM or Gravity.START,
+                ).apply { bottomMargin = dp(10) })
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(4) })
             addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
             addView(setup, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
             addView(talk, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(80)).apply { topMargin = dp(16) })
@@ -389,6 +417,8 @@ class PeriActivity : Activity() {
             face.greet()
             greet()
         }
+        showShieldCount(hub.shields.total, pop = false)
+        congratulate()
         showSetup()
         hub.refresh()
         // Back from the unlock guide: texts can be asked for normally now.
@@ -414,7 +444,7 @@ class PeriActivity : Activity() {
             in 20..22 -> R.array.greet_evening
             else -> R.array.greet_night
         }
-        val text = resources.getStringArray(list).random()
+        val text = resources.getStringArray(list).random() + (shieldsLine()?.let { " $it" } ?: "")
         // At night she says hello with a yawn instead of a wave.
         if (list == R.array.greet_night) face.postDelayed({ face.moment(app.friendlypear.services.PeriMoment.YAWN) }, YAWN_DELAY_MS)
         val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
@@ -424,6 +454,69 @@ class PeriActivity : Activity() {
         } else {
             hub.show(text)
         }
+    }
+
+    /** "By the way, you've earned a new shield": only when all is calm, never right after a warning. */
+    private fun shieldsLine(): String? {
+        val n = hub.shields.unseen
+        if (n == 0 || hub.mood != Mood.CALM || hub.isWaitingForAnswer) return null
+        hub.shields.seen()
+        face.postDelayed({ face.moment(app.friendlypear.services.PeriMoment.THUMBS_UP) }, CONGRATULATE_DELAY_MS)
+        return resources.getQuantityString(R.plurals.shields_new, n, n)
+    }
+
+    private fun congratulate() {
+        if (hub.speaking) return
+        shieldsLine()?.let { hub.say(it) }
+    }
+
+    private fun showShieldCount(total: Int, pop: Boolean) {
+        shieldsChip.visibility = if (total > 0) View.VISIBLE else View.GONE
+        shieldsChip.text = total.toString()
+        shieldsChip.contentDescription = resources.getQuantityString(R.plurals.shields_chip, total, total)
+        if (!pop || !animationsOn()) return
+        shieldsChip.scaleX = 0.5f
+        shieldsChip.scaleY = 0.5f
+        shieldsChip.animate().scaleX(1f).scaleY(1f).setDuration(420).setInterpolator(android.view.animation.OvershootInterpolator(3f)).start()
+        face.sparkle()
+    }
+
+    /** What each shield was for, in a small card over the screen. */
+    private fun showShields() {
+        val s = hub.shields
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(24), dp(20), dp(24), dp(4))
+            addView(LinearLayout(this@PeriActivity).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                addView(ImageView(this@PeriActivity).apply {
+                    setImageResource(R.drawable.peri_shield)
+                    importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                }, LinearLayout.LayoutParams(dp(72), dp(72)))
+                addView(heading(getString(R.string.shields_title)).apply { setPadding(dp(10), 0, 0, 0) })
+            })
+            addView(body(getString(R.string.shields_intro), TextSize.SMALL).apply { setPadding(0, dp(8), 0, dp(6)) })
+            listOf(
+                app.friendlypear.config.Shields.Kind.STOPPED to R.string.shields_stopped,
+                app.friendlypear.config.Shields.Kind.ASKED to R.string.shields_asked,
+                app.friendlypear.config.Shields.Kind.FAMILY to R.string.shields_family,
+            ).forEach { (kind, label) ->
+                addView(LinearLayout(this@PeriActivity).apply {
+                    gravity = Gravity.CENTER_VERTICAL
+                    setPadding(0, dp(8), 0, dp(8))
+                    addView(body(getString(label)).apply { setTextColor(Palette.INK) }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+                    addView(heading(s.count(kind).toString(), TextSize.BODY).apply {
+                        setTextColor(Palette.GREEN_DARK)
+                        fontFeatureSettings = "tnum"
+                    })
+                })
+            }
+        }
+        android.app.AlertDialog.Builder(this)
+            .setView(content)
+            .setPositiveButton(R.string.shields_close, null)
+            .show()
+            .friendly()
     }
 
     private val taps = ArrayDeque<Long>()
@@ -587,6 +680,8 @@ class PeriActivity : Activity() {
 
         override fun callStarted() = voice.stop()
 
+        override fun shieldEarned(total: Int) = showShieldCount(total, pop = true)
+
         override fun speaking(on: Boolean) {
             face.speaking(on)
             if (!on && resumed && hub.isWaitingForAnswer && voice.available && hub.permissions.granted(Need.MIC)) voice.listen()
@@ -663,6 +758,7 @@ class PeriActivity : Activity() {
         /** About when her spin ends and she can stand there, dizzy. */
         const val SPIN_SETTLE_MS = 950L
         const val YAWN_DELAY_MS = 700L
+        const val CONGRATULATE_DELAY_MS = 1_800L
         const val TYPE_MS = 22L
         /** However long the sentence, it's all there in about this many steps (~2 s). */
         const val TYPE_STEPS = 90

@@ -25,6 +25,7 @@ import app.friendlypear.ui.peri.GuardianActivity
 import app.friendlypear.config.FamilyStore
 import app.friendlypear.config.InvestigationEntry
 import app.friendlypear.config.InvestigationLog
+import app.friendlypear.config.Shields
 import app.friendlypear.config.UseLog
 import app.friendlypear.config.NewsEntry
 import app.friendlypear.config.SharedNews
@@ -73,6 +74,8 @@ interface PeriView {
     fun moment(moment: PeriMoment) = Unit
     /** A call has just started (or Peri placed one): any microphone still open closes at once. */
     fun callStarted() = Unit
+    /** The person just earned a shield (a scam stopped, or they asked first); [total] is how many they have. */
+    fun shieldEarned(total: Int) = Unit
 }
 
 /** A pose Peri strikes for a couple of seconds: an idea, sorry, a thumbs up, a laugh, her heart, dizzy, a yawn, a letter. */
@@ -112,6 +115,15 @@ class PeriHub(context: Context) {
     /** What Peri did with the phone (calls, texts, location, pictures, voice), for the person to check. */
     val uses = UseLog(this.context)
 
+    /** One for each scam stopped and each time the person asks before acting. */
+    val shields = Shields(this.context)
+
+    private fun earn(kind: Shields.Kind) = main.post {
+        shields.add(kind)
+        Log.i(TAG, "shield earned kind=$kind total=${shields.total}")
+        views.forEach { it.shieldEarned(shields.total) }
+    }
+
     private val device: AndroidDevice = AndroidDevice(
         this.context,
         lang,
@@ -144,6 +156,11 @@ class PeriHub(context: Context) {
             Log.i(TAG, "safety pause answer=$answer")
             agent.onPauseAnswer(answer)
             if (answer == PauseAnswer.LEAVE) views.forEach { it.moment(PeriMoment.THUMBS_UP) }
+            when (answer) {
+                PauseAnswer.LEAVE -> earn(Shields.Kind.STOPPED)
+                PauseAnswer.CALL_FAMILY -> earn(Shields.Kind.FAMILY)
+                PauseAnswer.CONTINUE -> Unit
+            }
             share(NewsEntry(System.currentTimeMillis(), "pause", answer = answer.name.lowercase()))
         }
     }
@@ -168,6 +185,7 @@ class PeriHub(context: Context) {
                     main.post { asking.onApprovalResult(ticket, ApprovalResult.FAILED) }
                     return@execute
                 }
+                earn(Shields.Kind.FAMILY)
                 val text = smsFor(created.url)
                 val sent = guardians.count { g -> g.phones.firstOrNull()?.let { runCatching { device.sendSms(it, text) }.isSuccess } == true }
                 Log.i(TAG, "approval requested, texted $sent of ${guardians.size} guardian(s)")
@@ -448,6 +466,7 @@ class PeriHub(context: Context) {
 
     /** Only what Peri decided, never the message: a scam or a doubt, and the channel it came by. */
     private fun shareVerdict(message: IncomingMessage, level: Level) {
+        if (level == Level.SCAM) earn(Shields.Kind.STOPPED)
         val name = when (level) {
             Level.SCAM -> "scam"
             Level.DOUBT -> "doubt"
@@ -505,6 +524,7 @@ class PeriHub(context: Context) {
      */
     fun lookAtPicture(jpegBase64: String, done: (PictureVerdict?) -> Unit) {
         uses.add(UseLog.Kind.PICTURE)
+        earn(Shields.Kind.ASKED)
         waiting.execute {
             val verdict = pictures.look(jpegBase64, lang)
             main.post {
