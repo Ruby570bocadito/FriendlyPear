@@ -50,6 +50,12 @@ internal interface Phrases {
     val couldNotAsk: String
     fun guardianSms(toName: String, url: String): String
     val bankDuringCall: String
+    fun remoteDuringCall(app: String): String
+    /** The safety pause, a while after something worrying: [remoteApp] when it's a remote-control app, else a money app. */
+    fun pauseAfter(kind: RecentKind, remoteApp: String?): String
+    fun pauseOffer(name: String): String
+    val pauseLeft: String
+    val pauseContinue: String
     fun remoteAppInstalled(app: String, onCall: Boolean): String
     fun tellFamily(name: String): String
     fun remoteAppFamilyText(app: String): String
@@ -132,6 +138,21 @@ internal object Spanish : Phrases {
     override val couldNotAsk = "No he podido preguntar a tu familia ahora mismo, así que no lo mando. Lo intentamos más tarde."
     override fun guardianSms(toName: String, url: String) =
         "Peri: tu familiar quiere mandar a $toName un mensaje con un código y te pide permiso. Decide aquí (caduca en 15 minutos): $url"
+    override fun remoteDuringCall(app: String) =
+        "Cuelga, por favor: estás abriendo $app mientras hablas con un número que no está en tu agenda. " +
+            "Con ese programa otra persona podría manejar tu móvil desde lejos, y nadie de verdad te lo pedirá."
+    override fun pauseAfter(kind: RecentKind, remoteApp: String?): String {
+        val before = when (kind) {
+            RecentKind.SCAM -> "hace un rato te llegó un mensaje que parecía una trampa"
+            RecentKind.DOUBT -> "hace un rato te llegó un mensaje que no me cuadraba"
+            RecentKind.CALL -> "hace un rato te llamó un número que no está en tu agenda"
+        }
+        val now = if (remoteApp != null) "abres $remoteApp, un programa para manejar el móvil desde lejos" else "abres una app de dinero"
+        return "Espera un momentito, por favor: $before y ahora $now. Antes de seguir, vamos a comprobarlo con calma."
+    }
+    override fun pauseOffer(name: String) = "¿Llamamos a $name para comprobarlo?"
+    override val pauseLeft = "¡Muy bien pensado! Mejor con calma. Aquí estoy si me necesitas."
+    override val pauseContinue = "Vale, sigue tú. Si algo te parece raro, aquí estoy."
     override val bankDuringCall =
         "Un momento: ¿te están diciendo qué hacer en el banco mientras hablas con un número que no está en tu agenda? " +
             "Cuelga, por favor, y llama tú a tu banco al número de tu tarjeta. Nadie de verdad te guiará por teléfono para mover dinero."
@@ -214,6 +235,21 @@ internal object English : Phrases {
     override val couldNotAsk = "I couldn't ask your family right now, so I won't send it. Let's try again later."
     override fun guardianSms(toName: String, url: String) =
         "Peri: your relative wants to send $toName a message with a code and asks for your OK. Decide here (expires in 15 minutes): $url"
+    override fun remoteDuringCall(app: String) =
+        "Please hang up: you're opening $app while you're on the phone with a number that isn't in your contacts. " +
+            "With that program someone else could control your phone from far away, and nobody genuine will ask you to."
+    override fun pauseAfter(kind: RecentKind, remoteApp: String?): String {
+        val before = when (kind) {
+            RecentKind.SCAM -> "a little while ago you got a message that looked like a trap"
+            RecentKind.DOUBT -> "a little while ago you got a message that didn't feel right to me"
+            RecentKind.CALL -> "a little while ago a number that isn't in your contacts called you"
+        }
+        val now = if (remoteApp != null) "now you're opening $remoteApp, a program to control the phone from far away" else "now you're opening a money app"
+        return "Wait just a moment, please: $before, and $now. Before you go on, let's check it calmly."
+    }
+    override fun pauseOffer(name: String) = "Shall we call $name to check?"
+    override val pauseLeft = "Well done for stopping! Better safe than sorry. I'm here if you need me."
+    override val pauseContinue = "All right, go ahead. If anything feels odd, I'm right here."
     override val bankDuringCall =
         "Hold on: is someone telling you what to do in your bank app while you're on the phone with a number that isn't in your contacts? " +
             "Please hang up and call your bank yourself on the number on your card. Nobody genuine will guide you over the phone to move money."

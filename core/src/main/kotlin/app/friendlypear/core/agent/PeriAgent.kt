@@ -34,6 +34,7 @@ class PeriAgent(
     private val hasFamilyWord: Boolean = false,
     /** Family MFA for high-risk actions; without it they are refused, never done alone. */
     private val approvals: ApprovalPort? = null,
+    private val clock: () -> Long = System::currentTimeMillis,
 ) {
     /** A high-risk action waiting for a guardian. Kept apart from [pending]: Peri keeps helping meanwhile. */
     private data class AwaitingGuardian(val ticket: String, val action: Action)
@@ -58,6 +59,20 @@ class PeriAgent(
     private data class StrangeCall(val number: String, var answered: Boolean = false, var bankWarned: Boolean = false)
 
     private data class Received(val message: IncomingMessage, val verdict: Verdict)
+
+    /** Something worrying happened a moment ago; for a while, opening a money app gets a safety pause, once. */
+    private data class RecentRisk(val kind: RecentKind, val until: Long, val relation: Relation?, var paused: Boolean = false)
+
+    private var recent: RecentRisk? = null
+    /** The call the safety pause offered, so its button only ever confirms that offer. */
+    private var pauseOffer: Pending.Confirm? = null
+
+    /**
+     * Whether Peri should notice which app comes to the front: during a picked-up call with a stranger, and for
+     * [RISK_WINDOW_MILLIS] after a doubtful message, a scam or a stranger's call. Never otherwise.
+     */
+    val watchesApps: Boolean
+        get() = (callActive && strangeCall?.answered == true) || (recent?.let { clock() < it.until } == true)
 
     private val directory = ContactDirectory(contacts)
     private val unread = ArrayDeque<Received>()
@@ -88,6 +103,7 @@ class PeriAgent(
         if (active && answered) call?.answered = true
         if (wasActive && !active) {
             strangeCall = null
+            if (call?.answered == true) recent = RecentRisk(RecentKind.CALL, clock() + RISK_WINDOW_MILLIS, null)
             if (call?.answered == true && pending == null) {
                 pending = Pending.WhoClaimed(call.number)
                 say(p.whoClaimed, Mood.WORRIED)
@@ -113,11 +129,54 @@ class PeriAgent(
      * An app came to the front. A banking app opened while talking to an unknown number is the fake-bank
      * script, so Peri says to hang up and call the bank herself. Once per call; never during a family call.
      */
+    /**
+     * A money or remote-control app came to the front. During a stranger's call, or a while after something
+     * worrying, Peri stops the person for a moment over it (the safety pause), once each time.
+     */
     fun onAppOpened(packageName: String) {
-        val call = strangeCall ?: return
-        if (!callActive || !call.answered || call.bankWarned || !BankApps.isBank(packageName)) return
-        call.bankWarned = true
-        say(p.bankDuringCall, Mood.PROTECTIVE)
+        val money = BankApps.isBank(packageName)
+        val remote = RemoteApps.nameOf(packageName)
+        if (!money && remote == null || pending == Pending.Emergency) return
+        val call = strangeCall
+        if (call != null && callActive) {
+            if (!call.answered || call.bankWarned) return
+            call.bankWarned = true
+            // Still on the phone: first hang up. No call to the family offered until then.
+            say(if (remote != null) p.remoteDuringCall(remote) else p.bankDuringCall, Mood.PROTECTIVE)
+            return device.showPause(lastSaid, null)
+        }
+        val risk = recent?.takeIf { clock() < it.until && !it.paused } ?: return
+        risk.paused = true
+        val who = family(risk.relation).singleOrNull() ?: emergencyContacts().firstOrNull()
+        val text = p.pauseAfter(risk.kind, remote)
+        if (who == null) {
+            say(text, Mood.PROTECTIVE)
+            return device.showPause(lastSaid, null)
+        }
+        val question = p.pauseOffer(who.name)
+        pending = Pending.Confirm(Action.Call(who), question).also { pauseOffer = it }
+        say("$text $question", Mood.PROTECTIVE)
+        device.showPause(lastSaid, who.name)
+    }
+
+    /** The person's choice on the safety pause. Calling is a choice they made, like a spoken "yes". */
+    fun onPauseAnswer(answer: PauseAnswer) {
+        val offered = (pending as? Pending.Confirm)?.takeIf { it === pauseOffer }
+        pauseOffer = null
+        when (answer) {
+            PauseAnswer.CALL_FAMILY -> offered?.let {
+                pending = null
+                perform(it.action)
+            }
+            PauseAnswer.LEAVE -> {
+                if (offered != null) pending = null
+                say(p.pauseLeft, Mood.HAPPY)
+            }
+            PauseAnswer.CONTINUE -> {
+                if (offered != null) pending = null
+                say(p.pauseContinue, Mood.CALM)
+            }
+        }
     }
 
     /** Before picking up: warns when the number isn't in the contacts. Never blocks or answers the call. */
@@ -164,6 +223,10 @@ class PeriAgent(
     }
 
     private fun announce(verdict: Verdict) {
+        if (verdict.level != Level.OK) {
+            val kind = if (verdict.level == Level.SCAM) RecentKind.SCAM else RecentKind.DOUBT
+            recent = RecentRisk(kind, clock() + RISK_WINDOW_MILLIS, verdict.claimedRelation)
+        }
         if (verdict.level == Level.OK || pending == Pending.Emergency) return
         val warned = if (verdict.level == Level.SCAM) Mood.PROTECTIVE else Mood.WORRIED
 
@@ -466,6 +529,7 @@ class PeriAgent(
     }
 
     private companion object {
+        const val RISK_WINDOW_MILLIS = 30 * 60_000L
         const val MAX_UNREAD = 50
 
         /** Callers who claim to be a bank, an official body or a company: the answer is always to call back yourself. */
