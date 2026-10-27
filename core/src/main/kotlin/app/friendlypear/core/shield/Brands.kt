@@ -51,7 +51,7 @@ internal object Brands {
         Brand("the IRS", listOf("irs"), listOf("irs"), listOf("irs.gov")),
         Brand("Barclays", listOf("barclays"), listOf("barclays"), listOf("barclays.co.uk", "barclays.com")),
         Brand("HSBC", listOf("hsbc"), listOf("hsbc"), listOf("hsbc.co.uk", "hsbc.com")),
-        Brand("Lloyds", listOf("lloyds", "lloydsbank"), listOf("lloyds"), listOf("lloydsbank.com", "lloyds.com")),
+        Brand("Lloyds", listOf("lloyds", "lloydsbank"), listOf("lloyds"), listOf("lloydsbank.com", "lloydsbank.co.uk", "lloyds.com")),
         Brand("NatWest", listOf("natwest"), listOf("natwest"), listOf("natwest.com")),
         Brand("Bank of America", listOf("bankofamerica", "bofa"), listOf("bank of america"), listOf("bankofamerica.com", "bofa.com")),
         Brand("Wells Fargo", listOf("wellsfargo"), listOf("wells fargo"), listOf("wellsfargo.com")),
