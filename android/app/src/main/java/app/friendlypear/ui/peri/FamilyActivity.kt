@@ -23,6 +23,7 @@ import app.friendlypear.R
 import app.friendlypear.config.FamilyStore
 import app.friendlypear.config.InvestigationLog
 import app.friendlypear.config.PhoneContacts
+import app.friendlypear.core.model.Contact
 import app.friendlypear.core.model.Relation
 import app.friendlypear.core.trust.CircleRules
 import app.friendlypear.core.trust.FamilyConfig
@@ -69,7 +70,7 @@ class FamilyActivity : Activity() {
         list.addView(card().apply {
             addView(CheckBox(this@FamilyActivity).apply {
                 text = getString(R.string.family_word_agreed)
-                textSize = 20f
+                sizeSp(20f)
                 typeface = weight(600)
                 setTextColor(Palette.INK)
                 isChecked = config.hasFamilyWord
@@ -83,7 +84,7 @@ class FamilyActivity : Activity() {
         val shared = card()
         val sharing = CheckBox(this).apply {
             text = getString(R.string.share_news)
-            textSize = 20f
+            sizeSp(20f)
             typeface = weight(600)
             setTextColor(Palette.INK)
             isChecked = hub.news.sharing
@@ -106,10 +107,38 @@ class FamilyActivity : Activity() {
         list.addView(shared, spaced())
         showNews()
 
+        // With many contacts, the likely family first, and a search for anyone else. Rows are built when shown.
         val contacts = PhoneContacts.load(this)
         names = contacts.associate { it.id to it.name }
-        if (contacts.isEmpty()) list.addView(body(getString(R.string.family_no_contacts)), spaced())
-        contacts.forEach { c -> list.addView(row(c.id, c.name, c.relation), spaced()) }
+        if (contacts.isEmpty()) {
+            list.addView(body(getString(R.string.family_no_contacts)), spaced())
+        } else {
+            list.addView(heading(getString(R.string.family_people_title), 21f), spaced())
+            val people = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+            val rows = HashMap<String, View>()
+            fun showPeople(query: String) {
+                people.removeAllViews()
+                val q = fold(query)
+                val chosen = if (q.isEmpty()) contacts.filter { likelyFamily(it) } else contacts.filter { fold(it.name).contains(q) }.take(MAX_RESULTS)
+                if (chosen.isEmpty()) people.addView(body(getString(if (q.isEmpty()) R.string.family_search_empty else R.string.family_search_none), 16f), spaced())
+                chosen.forEach { c -> people.addView(rows.getOrPut(c.id) { row(c.id, c.name, c.relation) }, spaced()) }
+            }
+            list.addView(EditText(this).apply {
+                hint = getString(R.string.family_search_hint)
+                sizeSp(18f)
+                setTextColor(Palette.INK)
+                isSingleLine = true
+                background = rounded(Palette.WHITE, dp(16).toFloat(), Palette.GREEN_TINT, dp(2))
+                setPadding(dp(16), dp(14), dp(16), dp(14))
+                addTextChangedListener(object : TextWatcher {
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+                    override fun afterTextChanged(s: Editable?) = showPeople(s?.toString().orEmpty())
+                })
+            }, spaced())
+            list.addView(people)
+            showPeople("")
+        }
 
         // What the investigator looked into, so the family can see why Peri warned. Never the message itself.
         val looked = InvestigationLog(this).load()
@@ -212,7 +241,7 @@ class FamilyActivity : Activity() {
         box.addView(heading(name, 22f))
         box.addView(CheckBox(this).apply {
             text = getString(R.string.family_guardian)
-            textSize = 18f
+            sizeSp(18f)
             setTextColor(Palette.INK)
             isChecked = id in config.guardians
             setOnCheckedChangeListener { box, checked -> onGuardianTicked(box as CheckBox, id, name, checked) }
@@ -235,7 +264,7 @@ class FamilyActivity : Activity() {
 
         box.addView(EditText(this).apply {
             hint = getString(R.string.family_aliases_hint)
-            textSize = 18f
+            sizeSp(18f)
             setTextColor(Palette.INK)
             background = rounded(Palette.CREAM, dp(14).toFloat(), Palette.GREEN_TINT, dp(2))
             setPadding(dp(14), dp(12), dp(14), dp(12))
@@ -254,6 +283,13 @@ class FamilyActivity : Activity() {
         store.save(next)
         PeriApp.hub(this).refresh()
     }
+
+    /** Already set up, or saved as "Laura hija" / "Mi nieto Pablo": very likely family. */
+    private fun likelyFamily(c: Contact): Boolean =
+        c.id in config.guardians || config.relations[c.id] != null || !config.aliases[c.id].isNullOrEmpty() || c.relation != null
+
+    private fun fold(s: String): String =
+        java.text.Normalizer.normalize(s.lowercase().trim(), java.text.Normalizer.Form.NFD).replace(Regex("\\p{M}+"), "")
 
     private fun spaced() = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
         topMargin = dp(14)
@@ -282,6 +318,8 @@ class FamilyActivity : Activity() {
     }
 
     private companion object {
+        const val MAX_RESULTS = 20
+
         val VERDICTS = mapOf("scam" to R.string.verdict_scam, "doubt" to R.string.verdict_doubt, "ok" to R.string.verdict_ok)
 
         val RELATIONS = listOf(
