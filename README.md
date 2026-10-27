@@ -92,4 +92,4 @@ Secrets never go in the repo: the backend reads `backend/.env` (see `.env.exampl
 
 ## Privacy
 
-Only doubtful messages ever leave the phone. Contacts are read on the phone and never sent anywhere. Peri says what each permission is for before asking, and the app keeps working with any of them denied (asking for them one by one, when first needed, is in progress). Peri never accesses call audio.
+Only doubtful messages ever leave the phone. Contacts are read on the phone and never sent anywhere. Permissions are asked one at a time, the first time they are needed, and Peri first says what each one is for and what she won't do with it. A "no" is respected: Peri says what still works (for example, she gives you the number to dial yourself) and never asks again on every start. Peri never accesses call audio.

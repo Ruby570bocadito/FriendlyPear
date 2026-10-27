@@ -31,7 +31,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 ## Día 3 · 29 oct — primer flujo en el móvil
 - [ ] (IMP-2) ui-compose — [M] pasar la UI a Jetpack Compose + Material 3 con la paleta de `docs/DISENO.md` — android/app/
 - [ ] (IMP-2) peri-animada — [L] Peri vectorial con estados tranquila, escuchando, pensando, preocupada y protectora; respeta "quitar animaciones" — android/.../ui/peri/
-- [ ] (IMP-2) permisos-progresivos — [M] pedir cada permiso al usarlo por primera vez con la explicación de Peri; degradar funciones si se deniega — android/.../ui/peri/, config/
+- [x] (IMP-2) permisos-progresivos — [M] pedir cada permiso al usarlo por primera vez con la explicación de Peri; degradar funciones si se deniega — android/.../ui/peri/, config/ · hecho 2026-10-27 (primer arranque: agenda, SMS y estado de llamada de uno en uno; micrófono, llamadas, envío de SMS y ubicación al usarlos)
 - [x] (IMP-2) momento-1 — [M] "he cambiado de número" → llamada a la hija real en un móvil — android/ · hecho 2026-10-27 (en el emulador, en español e inglés; falta grabarlo en un móvil real)
 - [x] (IMP-2) momento-2 — [S] código durante llamada → "cuelga" — android/ · hecho 2026-10-27 (en el emulador, en español e inglés; falta grabarlo en un móvil real)
 - [ ] (IMP-1) investigador — [L] Muse Spark con herramientas de solo lectura (dominio, historial, agenda, imagen) — backend/src/investigator/

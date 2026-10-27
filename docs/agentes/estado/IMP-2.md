@@ -16,6 +16,11 @@
 
 - filtro-llamadas: `services/CallScreener.kt` (`CallScreeningService`, nunca bloquea ni escucha) y `CallStateWatcher` distingue sonando/descolgada. El rol se pide con una frase tras los permisos. Probado: aviso al sonar y verificación al colgar con llamada saliente a Laura.
 
+- permisos-progresivos (lo hizo IMP-1): `config/Need.kt` (permiso, frase de Peri y qué sigue funcionando si se dice que no) y `config/PermissionGate.kt` (uno a uno; sin pantalla, la respuesta es "no").
+  - Primer arranque: agenda → SMS entrantes → estado de llamada → rol de filtro → aviso de notificaciones, cada uno una sola vez. Micrófono al pulsar "Hablar"; llamadas y envío de SMS con `DevicePort.prepare` antes de actuar; ubicación durante la cuenta atrás de emergencia.
+  - Emulador: frase de Peri + diálogo de Android en cada paso; SMS denegado respetado; llamar no se pidió aparte porque Android lo concede junto con el estado de llamada (mismo grupo).
+  - Aviso: el diálogo de enviar SMS se aceptó con un toque que no hice a propósito; probablemente las teclas que mandan mis scripts (WAKEUP, ENDCALL) pulsan el botón con foco. Comprobar en un móvil real.
+
 ## Cómo probar sin micrófono (solo builds de depuración)
 - `adb shell am broadcast -a app.friendlypear.debug.HEAR --es text si` hace que Peri "oiga" esa frase. Con varias palabras, comillas dentro: `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`.
 - Tras `adb install -r`, reconectar el lector: `adb shell cmd notification disallow_listener app.friendlypear/app.friendlypear.services.MessageListener` y después `allow_listener`.
