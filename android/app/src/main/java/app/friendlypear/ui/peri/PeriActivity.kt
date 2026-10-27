@@ -1,6 +1,5 @@
 package app.friendlypear.ui.peri
 
-import android.Manifest
 import android.app.Activity
 import android.app.role.RoleManager
 import android.content.ComponentName
@@ -15,13 +14,15 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import app.friendlypear.PeriApp
 import app.friendlypear.R
+import app.friendlypear.config.Need
 import app.friendlypear.device.VoiceInput
 import app.friendlypear.services.MessageListener
 import app.friendlypear.services.PeriHub
 
 /**
  * Peri's one-button screen: what Peri says, in large letters, and a big button to talk.
- * Permissions are asked for with a sentence that says what for; progressive permissions refine this later.
+ * Permissions are asked one at a time, each with Peri's sentence first: the shield's basics at first start,
+ * everything else (microphone, calls, texts, location) the first time it's needed.
  */
 class PeriActivity : Activity() {
     private lateinit var hub: PeriHub
@@ -30,6 +31,8 @@ class PeriActivity : Activity() {
     private lateinit var talk: Button
     private lateinit var access: Button
     private var resumed = false
+    private var answer: ((Boolean) -> Unit)? = null
+    private val asked by lazy { getSharedPreferences("permissions", MODE_PRIVATE) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,27 +70,46 @@ class PeriActivity : Activity() {
             },
         )
 
-        val missing = PERMISSIONS.filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
-        if (missing.isNotEmpty()) {
-            said.text = getString(R.string.permissions_why)
-            requestPermissions(missing.toTypedArray(), REQUEST_PERMISSIONS)
-        } else {
-            askToScreenCalls()
+        // This screen shows Android's dialog whenever Peri needs a permission, now or later.
+        hub.permissions.presenter = { need, done ->
+            answer = done
+            requestPermissions(need.permissions.toTypedArray(), REQUEST_NEED)
+        }
+        firstStart()
+    }
+
+    /** The shield's basics, one at a time and only once each: a "no" is never asked again on every start. */
+    private fun firstStart() {
+        val next = Need.FIRST_START.firstOrNull { !hub.permissions.granted(it) && !asked.getBoolean(it.name, false) }
+        if (next != null) {
+            asked.edit().putBoolean(next.name, true).apply()
+            return hub.permissions.ask(next) {
+                hub.refresh()
+                firstStart()
+            }
+        }
+        if (askToScreenCalls()) return
+        if (!hasNotificationAccess() && !asked.getBoolean(NOTIFICATIONS, false)) {
+            asked.edit().putBoolean(NOTIFICATIONS, true).apply()
+            hub.say(getString(R.string.why_notifications))
         }
     }
 
     /** The call-screening role shows Peri the number before pickup. Asked once, with a sentence that says what for. */
-    private fun askToScreenCalls() {
-        val roles = getSystemService(RoleManager::class.java) ?: return
-        if (!roles.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING) || roles.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)) return
-        said.text = getString(R.string.calls_why)
+    private fun askToScreenCalls(): Boolean {
+        val roles = getSystemService(RoleManager::class.java) ?: return false
+        if (!roles.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING) || roles.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)) return false
+        if (asked.getBoolean(SCREENING, false)) return false
+        asked.edit().putBoolean(SCREENING, true).apply()
+        hub.say(getString(R.string.calls_why))
         startActivityForResult(roles.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING), REQUEST_SCREENING)
+        return true
     }
 
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_SCREENING) said.text = hub.lastSaid.ifEmpty { getString(R.string.peri_greeting) }
+        if (requestCode == REQUEST_SCREENING) firstStart()
     }
 
     override fun onResume() {
@@ -96,7 +118,9 @@ class PeriActivity : Activity() {
         // Peri may have spoken while the screen was hidden, e.g. during a call.
         if (hub.lastSaid.isNotEmpty()) said.text = hub.lastSaid
         hub.onSaid = { text -> said.text = text }
-        hub.onSpeechDone = { if (resumed && hub.isWaitingForAnswer && voice.available) voice.listen() }
+        hub.onSpeechDone = {
+            if (resumed && hub.isWaitingForAnswer && voice.available && hub.permissions.granted(Need.MIC)) voice.listen()
+        }
         access.visibility = if (hasNotificationAccess()) View.GONE else View.VISIBLE
         hub.refresh()
     }
@@ -109,23 +133,26 @@ class PeriActivity : Activity() {
     }
 
     override fun onDestroy() {
+        hub.permissions.presenter = null
         voice.destroy()
         super.onDestroy()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        hub.refresh()
-        said.text = hub.lastSaid.ifEmpty { getString(R.string.peri_greeting) }
-        askToScreenCalls()
+        if (requestCode != REQUEST_NEED) return
+        val done = answer
+        answer = null
+        done?.invoke(grantResults.any { it == PackageManager.PERMISSION_GRANTED })
     }
 
+    /** The microphone is asked the first time the person presses the button. */
     private fun listen() {
         if (!voice.available) {
             said.text = getString(R.string.no_recognizer)
             return
         }
-        voice.listen()
+        hub.permissions.ask(Need.MIC) { allowed -> if (allowed) voice.listen() }
     }
 
     private fun hasNotificationAccess(): Boolean {
@@ -134,16 +161,9 @@ class PeriActivity : Activity() {
     }
 
     private companion object {
-        const val REQUEST_PERMISSIONS = 1
+        const val REQUEST_NEED = 1
         const val REQUEST_SCREENING = 2
-        val PERMISSIONS = listOf(
-            Manifest.permission.RECORD_AUDIO,
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.CALL_PHONE,
-            Manifest.permission.SEND_SMS,
-            Manifest.permission.RECEIVE_SMS,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        )
+        const val SCREENING = "screening"
+        const val NOTIFICATIONS = "notifications"
     }
 }

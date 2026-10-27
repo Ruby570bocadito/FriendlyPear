@@ -6,7 +6,19 @@
     <string name="listening">Soy toda oídos…</string>
     <string name="notification_access">Dejar que Peri lea tus avisos de mensajes</string>
     <string name="no_recognizer">Vaya, este móvil no entiende la voz. Aun así, aquí puedes leer lo que te digo.</string>
-    <string name="permissions_why">Te voy a pedir unos permisos para poder cuidarte: para entenderte, saber quién es de tu familia, avisarte durante una llamada, llamar y mandar mensajes solo cuando tú digas que sí y, únicamente en una emergencia, decir dónde estás. Todo se queda en tu móvil.</string>
     <string name="listener_name">Peri: lector de mensajes</string>
     <string name="calls_why">Para avisarte antes de descolgar cuando te llame un número que no está en tu agenda, te voy a pedir revisar las llamadas entrantes. Solo veo el número: nunca bloqueo ni escucho tus llamadas.</string>
+    <string name="why_contacts">Para saber quién es de tu familia y darme cuenta si alguien se hace pasar por ellos, necesito ver tu agenda. Solo la miro en tu móvil y nunca la envío a ningún sitio. ¿Me dejas?</string>
+    <string name="denied_contacts">No pasa nada. Sin tu agenda puedo seguir avisándote de mensajes sospechosos, pero no puedo comprobar si alguien es de verdad de tu familia.</string>
+    <string name="why_sms_read">Para avisarte de los SMS trampa, también los que traen códigos, necesito leer los SMS que te llegan. Solo los leo en tu móvil, y solo los dudosos salen de él.</string>
+    <string name="denied_sms_read">Vale. Seguiré mirando los avisos de mensajes, pero se me pueden escapar los SMS con códigos.</string>
+    <string name="why_phone_state">Para avisarte si te llega un código mientras hablas por teléfono, necesito saber cuándo estás en una llamada. Nunca escucho tus llamadas.</string>
+    <string name="denied_phone_state">De acuerdo. No sabré cuándo estás en una llamada, así que no podré avisarte de códigos durante ellas.</string>
+    <string name="why_mic">Para entenderte cuando me hablas, necesito el micrófono. Solo escucho cuando pulsas el botón o cuando te acabo de preguntar algo.</string>
+    <string name="denied_mic">No te preocupes. Puedes seguir leyendo aquí en la pantalla todo lo que te digo.</string>
+    <string name="why_call">Para llamar a tu familia cuando me lo pidas, necesito permiso para hacer llamadas. Siempre te pregunto antes, y nunca llamo a nadie por mi cuenta.</string>
+    <string name="why_sms_send">Para mandar los mensajes que me dictes, y para avisar a tu familia en una emergencia, necesito permiso para enviar SMS. Siempre te los leo antes.</string>
+    <string name="why_location">Solo en una emergencia, para que tu familia sepa dónde estás, me gustaría poner tu ubicación en el aviso. Nunca la uso para nada más.</string>
+    <string name="denied_location">Entendido. En una emergencia avisaré igual a tu familia, solo que sin tu ubicación.</string>
+    <string name="why_notifications">Una última cosa: para leer los avisos de WhatsApp y del correo, deja que Peri los lea en la pantalla siguiente. Solo los leo en tu móvil.</string>
 </resources>

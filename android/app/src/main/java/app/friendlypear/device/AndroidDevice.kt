@@ -12,21 +12,25 @@ import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import android.telephony.SmsManager
+import app.friendlypear.core.agent.Capability
 import app.friendlypear.core.agent.DevicePort
 import app.friendlypear.core.model.Lang
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
- * The phone side of [DevicePort]. A missing permission or a failed intent throws, which the agent
- * reads as a failed action and answers with a plan B.
+ * The phone side of [DevicePort]. Permissions are asked through [ask] the first time they're needed; a missing
+ * permission or a failed intent at the moment of acting throws, which the agent answers with a plan B.
  */
 class AndroidDevice(
     context: Context,
     private val lang: Lang,
     private val onSpeech: (String) -> Unit,
     private val onSpeechDone: () -> Unit,
+    private val ask: (Capability, (Boolean) -> Unit) -> Unit,
 ) : DevicePort {
+    override fun prepare(capability: Capability, then: (Boolean) -> Unit) = ask(capability, then)
+
     private val context = context.applicationContext
     private val main = Handler(Looper.getMainLooper())
     private val queued = ArrayDeque<String>()

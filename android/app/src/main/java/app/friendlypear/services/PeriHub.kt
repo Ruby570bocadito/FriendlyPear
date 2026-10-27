@@ -8,6 +8,8 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import app.friendlypear.BuildConfig
+import app.friendlypear.config.Need
+import app.friendlypear.config.PermissionGate
 import app.friendlypear.config.PhoneContacts
 import app.friendlypear.core.agent.ApprovalKind
 import app.friendlypear.core.agent.ApprovalPort
@@ -41,7 +43,7 @@ class PeriHub(context: Context) {
     /** Read once: Peri keeps one language for the whole session. */
     val lang = phoneLang()
 
-    private val device = AndroidDevice(
+    private val device: AndroidDevice = AndroidDevice(
         this.context,
         lang,
         onSpeech = { text ->
@@ -49,7 +51,11 @@ class PeriHub(context: Context) {
             onSaid?.invoke(text)
         },
         onSpeechDone = { onSpeechDone?.invoke() },
+        ask = { capability, then -> permissions.ask(Need.of(capability), then) },
     )
+
+    /** One permission at a time, with Peri's explanation; the screen registers itself to show Android's dialog. */
+    val permissions: PermissionGate = PermissionGate(this.context) { text -> device.speak(text) }
     private var contacts: List<Contact>? = null
     private val approvalClient = ApprovalClient(BuildConfig.BACKEND_URL, BuildConfig.DEVICE_TOKEN)
     /** Waiting for a guardian can take minutes, so it never shares a thread with second opinions. */
@@ -134,6 +140,9 @@ class PeriHub(context: Context) {
         agent.onIncomingCall(number)
         Log.i(TAG, "incoming call screened")
     }
+
+    /** Peri says something outside the agent, e.g. why she needs a permission. */
+    fun say(text: String) = main.post { device.speak(text) }
 
     fun heard(utterance: String) = main.post {
         agent.onHeard(utterance)
