@@ -43,6 +43,12 @@ internal interface Phrases {
     fun notAnyOf(names: String): String
     val officialCaller: String
     val callerAdvice: String
+    fun askingGuardian(names: String): String
+    val guardianApproved: String
+    val guardianRejected: String
+    val guardianSilent: String
+    val couldNotAsk: String
+    fun guardianSms(toName: String, url: String): String
     val or: String
     fun quote(text: String): String
     val link: String
@@ -111,6 +117,15 @@ internal object Spanish : Phrases {
     override val officialCaller =
         "Si decía ser del banco o de una empresa, lo más seguro es colgar y llamar tú al número oficial, el de tu tarjeta o tu factura. Nunca des claves por teléfono."
     override val callerAdvice = "Vale. Si alguien te pide dinero o códigos por teléfono, cuelga y llámale tú a su número de siempre."
+    override fun askingGuardian(names: String) =
+        "Mandar un código es delicado, así que se lo pregunto a $names. En cuanto me conteste, te digo. Mientras, aquí sigo."
+    override val guardianApproved = "¡Buenas noticias! Tu familia lo ha aprobado."
+    override val guardianRejected =
+        "Tu familia prefiere que no lo mandemos, así que no lo envío. Seguro que tienen sus motivos; si quieres, les llamamos."
+    override val guardianSilent = "Tu familia no ha contestado a tiempo, así que no lo mando. Lo más seguro es esperar y preguntarles luego."
+    override val couldNotAsk = "No he podido preguntar a tu familia ahora mismo, así que no lo mando. Lo intentamos más tarde."
+    override fun guardianSms(toName: String, url: String) =
+        "Peri: tu familiar quiere mandar a $toName un mensaje con un código y te pide permiso. Decide aquí (caduca en 15 minutos): $url"
     override val or = "o"
     override fun quote(text: String) = "«$text»"
     override val link = "un enlace"
@@ -169,6 +184,15 @@ internal object English : Phrases {
     override val officialCaller =
         "If they said they were your bank or a company, the safest thing is to hang up and call the official number yourself, the one on your card or bill. Never give passwords over the phone."
     override val callerAdvice = "OK. If anyone asks you for money or codes on the phone, hang up and call them back on their usual number."
+    override fun askingGuardian(names: String) =
+        "Sending a code is delicate, so I'm asking $names. As soon as they answer, I'll tell you. I'm still here meanwhile."
+    override val guardianApproved = "Good news! Your family has approved it."
+    override val guardianRejected =
+        "Your family would rather we didn't send it, so I won't. I'm sure they have their reasons; we can call them if you like."
+    override val guardianSilent = "Your family didn't answer in time, so I won't send it. The safest thing is to wait and ask them later."
+    override val couldNotAsk = "I couldn't ask your family right now, so I won't send it. Let's try again later."
+    override fun guardianSms(toName: String, url: String) =
+        "Peri: your relative wants to send $toName a message with a code and asks for your OK. Decide here (expires in 15 minutes): $url"
     override val or = "or"
     override fun quote(text: String) = "\"$text\""
     override val link = "a link"

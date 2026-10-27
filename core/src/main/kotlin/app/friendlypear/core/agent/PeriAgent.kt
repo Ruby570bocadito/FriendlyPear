@@ -32,7 +32,17 @@ class PeriAgent(
     private val shield: Shield = Shield(lang = lang),
     /** Whether the family agreed a secret word. Peri reminds people to ask for it, and never says it. */
     private val hasFamilyWord: Boolean = false,
+    /** Family MFA for high-risk actions; without it they are refused, never done alone. */
+    private val approvals: ApprovalPort? = null,
 ) {
+    /** A high-risk action waiting for a guardian. Kept apart from [pending]: Peri keeps helping meanwhile. */
+    private data class AwaitingGuardian(val ticket: String, val action: Action)
+
+    private var awaitingGuardian: AwaitingGuardian? = null
+    private var tickets = 0
+
+    /** True while a guardian's answer is awaited; Android polls the backend until then. */
+    val isAwaitingGuardian: Boolean get() = awaitingGuardian != null
     private val p = Phrases.of(lang)
     private val speech = SafeSpeech(p)
 
@@ -250,7 +260,14 @@ class PeriAgent(
                 say(p.countdown(emergencyContacts().firstOrNull()?.name))
             }
             Command.Yes -> say(p.whatToDo)
-            Command.No, Command.Cancel -> say(p.ok)
+            Command.No, Command.Cancel ->
+                if (awaitingGuardian != null) {
+                    // Changing one's mind cancels the request: a later yes from the family won't send anything.
+                    awaitingGuardian = null
+                    say(p.doingNothing)
+                } else {
+                    say(p.ok)
+                }
             Command.Repeat -> say(lastSaid.ifEmpty { p.nothingSaidYet })
             is Command.Unknown -> say(p.help)
         }
@@ -290,8 +307,34 @@ class PeriAgent(
             }
             Risk.HIGH -> {
                 pending = null
-                say(p.needsGuardian)
+                askGuardian(action)
             }
+        }
+    }
+
+    private fun askGuardian(action: Action) {
+        val guardians = emergencyContacts()
+        if (approvals == null || guardians.isEmpty() || awaitingGuardian != null) return say(p.needsGuardian)
+        val ticket = "approval-${++tickets}"
+        awaitingGuardian = AwaitingGuardian(ticket, action)
+        say(p.askingGuardian(speech.names(guardians.take(3).map { it.name })))
+        approvals.request(ticket, ApprovalKind.SEND_CODE, action.contact.name, guardians.take(3)) { url ->
+            p.guardianSms(action.contact.name, url)
+        }
+    }
+
+    /** A guardian decided, the link expired or the request failed. Only an explicit yes lets the action go ahead. */
+    fun onApprovalResult(ticket: String, result: ApprovalResult) {
+        val waiting = awaitingGuardian?.takeIf { it.ticket == ticket } ?: return
+        awaitingGuardian = null
+        when (result) {
+            ApprovalResult.APPROVED -> {
+                say(p.guardianApproved)
+                perform(waiting.action)
+            }
+            ApprovalResult.REJECTED -> say(p.guardianRejected)
+            ApprovalResult.EXPIRED -> say(p.guardianSilent)
+            ApprovalResult.FAILED -> say(p.couldNotAsk)
         }
     }
 

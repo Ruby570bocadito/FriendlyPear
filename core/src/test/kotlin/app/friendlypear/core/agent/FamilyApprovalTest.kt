@@ -1,0 +1,142 @@
+package app.friendlypear.core.agent
+
+import app.friendlypear.core.model.Contact
+import app.friendlypear.core.model.Lang
+import app.friendlypear.core.model.Relation
+import app.friendlypear.core.model.TrustLevel
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+
+private class SmsDevice : DevicePort {
+    val said = mutableListOf<String>()
+    val sms = mutableListOf<Pair<String, String>>()
+    override fun speak(text: String) {
+        said += text
+    }
+    override fun call(phone: String) = Unit
+    override fun sendSms(phone: String, text: String) {
+        sms += phone to text
+    }
+    override fun lastKnownLocation(): String? = null
+}
+
+private class FakeApprovals : ApprovalPort {
+    data class Asked(val ticket: String, val kind: ApprovalKind, val toName: String, val guardians: List<Contact>, val sms: String)
+    val asked = mutableListOf<Asked>()
+    override fun request(ticket: String, kind: ApprovalKind, toName: String, guardians: List<Contact>, smsFor: (url: String) -> String) {
+        asked += Asked(ticket, kind, toName, guardians, smsFor("http://10.0.2.2:8711/a/TOKEN"))
+    }
+}
+
+class FamilyApprovalTest {
+    private val laura = Contact("1", "Laura", listOf("5556"), Relation.CHILD, trust = TrustLevel.GUARDIAN)
+    private val pablo = Contact("2", "Pablo", listOf("600333444"), Relation.GRANDCHILD)
+
+    private fun agent(d: SmsDevice, approvals: FakeApprovals?, lang: Lang = Lang.ES) =
+        PeriAgent(d, listOf(laura, pablo), lang, approvals = approvals)
+
+    @Test
+    fun `dictating a code asks the guardian instead of sending it`() {
+        val d = SmsDevice()
+        val mfa = FakeApprovals()
+        val a = agent(d, mfa)
+        a.onHeard("dile a Pablo que el código es 4821")
+        assertTrue(d.sms.isEmpty())
+        assertTrue(a.isAwaitingGuardian)
+        assertTrue(d.said.last().startsWith("Mandar un código es delicado, así que se lo pregunto a Laura."))
+        val asked = mfa.asked.single()
+        assertEquals(ApprovalKind.SEND_CODE, asked.kind)
+        assertEquals("Pablo", asked.toName)
+        assertEquals(listOf(laura), asked.guardians)
+    }
+
+    @Test
+    fun `the guardian's SMS has the link but never the code`() {
+        val mfa = FakeApprovals()
+        agent(SmsDevice(), mfa).onHeard("dile a Pablo que el código es 4821")
+        val sms = mfa.asked.single().sms
+        assertTrue(sms.contains("http://10.0.2.2:8711/a/TOKEN"))
+        assertTrue(sms.contains("caduca en 15 minutos"))
+        assertFalse(sms.contains("4821"))
+    }
+
+    @Test
+    fun `an approval sends the message`() {
+        val d = SmsDevice()
+        val mfa = FakeApprovals()
+        val a = agent(d, mfa)
+        a.onHeard("dile a Pablo que el código es 4821")
+        a.onApprovalResult(mfa.asked.single().ticket, ApprovalResult.APPROVED)
+        assertEquals(listOf("600333444" to "el código es 4821"), d.sms)
+        assertTrue(d.said.any { it == "¡Buenas noticias! Tu familia lo ha aprobado." })
+        assertFalse(a.isAwaitingGuardian)
+    }
+
+    @Test
+    fun `a rejection, silence or a failure never sends it`() {
+        for (result in listOf(ApprovalResult.REJECTED, ApprovalResult.EXPIRED, ApprovalResult.FAILED)) {
+            val d = SmsDevice()
+            val mfa = FakeApprovals()
+            val a = agent(d, mfa)
+            a.onHeard("dile a Pablo que el código es 4821")
+            a.onApprovalResult(mfa.asked.single().ticket, result)
+            assertTrue(d.sms.isEmpty(), "$result must not send")
+            assertFalse(a.isAwaitingGuardian)
+        }
+    }
+
+    @Test
+    fun `changing one's mind cancels the request`() {
+        val d = SmsDevice()
+        val mfa = FakeApprovals()
+        val a = agent(d, mfa)
+        a.onHeard("dile a Pablo que el código es 4821")
+        a.onHeard("cancela")
+        a.onApprovalResult(mfa.asked.single().ticket, ApprovalResult.APPROVED)
+        assertTrue(d.sms.isEmpty())
+    }
+
+    @Test
+    fun `an old or unknown ticket does nothing`() {
+        val d = SmsDevice()
+        val mfa = FakeApprovals()
+        val a = agent(d, mfa)
+        a.onHeard("dile a Pablo que el código es 4821")
+        a.onApprovalResult("approval-999", ApprovalResult.APPROVED)
+        assertTrue(d.sms.isEmpty())
+        assertTrue(a.isAwaitingGuardian)
+    }
+
+    @Test
+    fun `Peri keeps helping while the family decides`() {
+        val d = SmsDevice()
+        val mfa = FakeApprovals()
+        val a = agent(d, mfa)
+        a.onHeard("dile a Pablo que el código es 4821")
+        a.onHeard("léeme los mensajes")
+        assertTrue(d.said.last().startsWith("No tienes mensajes nuevos"))
+        assertTrue(a.isAwaitingGuardian)
+    }
+
+    @Test
+    fun `without approvals or guardians it is refused, never done alone`() {
+        val d = SmsDevice()
+        agent(d, null).onHeard("dile a Pablo que el código es 4821")
+        assertTrue(d.sms.isEmpty())
+        assertTrue(d.said.last().contains("lo apruebe alguien de tu familia"))
+    }
+
+    @Test
+    fun `in english too`() {
+        val d = SmsDevice()
+        val mfa = FakeApprovals()
+        val a = agent(d, mfa, Lang.EN)
+        a.onHeard("tell Pablo that the code is 4821")
+        assertTrue(d.said.last().startsWith("Sending a code is delicate, so I'm asking Laura."))
+        assertTrue(mfa.asked.single().sms.startsWith("Peri: your relative wants to send Pablo a message with a code"))
+        a.onApprovalResult(mfa.asked.single().ticket, ApprovalResult.REJECTED)
+        assertTrue(d.said.last().startsWith("Your family would rather we didn't send it"))
+    }
+}
