@@ -10,11 +10,13 @@
   - Coste de las 3 pruebas: ~1.400 tokens de entrada y ~440 de salida (< 0,01 $).
   - Caché en memoria por petición idéntica; `untrusted()` delimita el texto del mensaje.
 
+- glimmer-servido (preparado, sin medir): cliente `backend/src/models/glimmer.ts` sobre el cliente común `chat.ts`, script `models/glimmer/latencia.ts` y pasos en `models/glimmer/README.md`.
+
 ## En curso
-- glimmer-servido: cliente `backend/src/models/glimmer.ts` (sobre el cliente común `chat.ts`), script `models/glimmer/latencia.ts` y pasos de Baseten en `models/glimmer/README.md`.
+- voz-y-agenda.
 
 ## Bloqueado
-- glimmer-servido: falta desplegar Glimmer en Baseten (lo hace la persona) para medir la latencia.
+- glimmer-servido, aparcado (P1) el 2026-10-27: los 150 $ de Meta Model API no incluyen Glimmer (solo se aloja en Together AI o en hardware propio). Créditos de Baseten solicitados el 27 oct: si llegan, la capa abierta será Muse Spark Open (`meta-models/muse-spark-open-1026`) en Baseten, que también cuenta para el premio de pesos abiertos; si no, Glimmer en el PC con Ollama (GGUF Q4, ~17 GB, 16 GB de VRAM). Se retoma el 30 oct.
 
 ## Peticiones
 - PUL: poner `META_API_BASE=https://api.meta.ai/v1` en `backend/.env.example`.
