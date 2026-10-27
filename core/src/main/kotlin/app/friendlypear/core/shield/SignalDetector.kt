@@ -13,7 +13,7 @@ data class Detection(
 
 internal object SignalDetector {
     private val urgency = Text.anyOf(listOf(
-        "urgente", "urgencia", "inmediato", "inmediatamente", "hoy mismo", "ahora mismo", "cuanto antes", "ultimo aviso",
+        "urgente", "urgentemente", "urgencia", "inmediato", "inmediatamente", "hoy mismo", "ahora mismo", "cuanto antes", "ultimo aviso",
         "de lo contrario", "evite el recargo", "en 24 horas", "en 24h", "en 48 horas", "en 48h", "antes de 24", "plazo",
         "bloqueada", "bloqueado", "suspendida", "suspendido", "cancelada", "retenido", "retenida", "caduca", "caducado",
         "expira", "accidente", "hospital", "detenido", "comisaria",
