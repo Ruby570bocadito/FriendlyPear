@@ -74,7 +74,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [ ] (IMP-1) denuncia-un-toque — [S] P2: informe para policía o 017 generado con Muse Spark — backend/src/investigator/
 - [ ] (IMP-2) vineta-trampa — [S] P2: viñeta de 3 escenas con Muse Image tras una estafa — android/, assets/peri/
 - [ ] (DIR) peri-referencia-video — [S] imagen de referencia de Peri y prueba de Higgsfield MCP — docs/demo/
-- [ ] (IMP-1) mira-esta-imagen — [M] Muse Spark multimodal + SAM 3.1 marcando QR o enlace — backend/src/models/, investigator/
+- [x] (IMP-1) mira-esta-imagen — [M] Muse Spark multimodal + SAM 3.1 marcando QR o enlace — backend/src/models/, investigator/ · hecho 2026-10-27 (`POST /v1/picture`: Spark con imagen + SAM 3.1 para el QR; botón "Mira esta imagen" y compartir con Peri desde cualquier app; prueba real: timo 97 %, QR marcado)
 - [x] (IMP-1) glimmer-primera-opinion — [M] Glimmer como primera opinión privada en dudosos — backend/src/models/ · hecho 2026-10-27 (resuelta con Muse Spark Open en Baseten en lugar de Glimmer)
 - [ ] (IMP-2) peri-estados-extra — [M] llamando, esperando a la familia, contenta (confeti) y dormida; vibraciones y sonidos suaves — android/.../ui/peri/
 - [ ] (IMP-2) escudos-ganados — [S] P1: escuditos por estafas frenadas y por preguntar antes — android/, core/

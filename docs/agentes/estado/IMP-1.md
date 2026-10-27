@@ -21,7 +21,8 @@
 - pedir-ayuda: `VoiceCommands` (`askForHelp`, `helpTail`) y `Relation.PARENT`. Emulador: "avisa a mi hija que necesito ayuda" → "Sure! Shall I call Ana?".
 - pausa-segura: `PeriAgent.onAppOpened` + `RecentRisk` (30 min tras un timo, un dudoso o una llamada desconocida contestada) → `DevicePort.showPause`; `onPauseAnswer` (llamar, salir, seguir); el "sí" hablado también llama. `watchesApps` mantiene el vigilante de apps solo mientras hay riesgo.
 - vista-guardian (backend): `guardians/` (`store.ts`, `page.ts`), `POST/DELETE /v1/guardians/links`, `POST /v1/events` (solo nivel y canal, o la respuesta de la pausa), `GET /g/:token`. En disco (`backend/data/guardians.json`, ignorado por git): sobrevive a un reinicio (probado).
-- Tests: core (179) y backend (58) en verde.
+- mira-esta-imagen: `investigator/picture.ts` + `models/sam.ts` (SAM 3.1 por `/v1/responses`, acepta data URL; cajas en píxeles). Solo se marca el QR: SAM no encontró la dirección web (texto). Límite 20/h. Prueba real: 1 Spark (1.624 + 152 tokens) y 3 SAM.
+- Tests: core (180) y backend (68) en verde.
 
 ## En curso
 - Nada.
@@ -36,5 +37,4 @@
 ## Propuestas para el roadmap
 - Resuelto: la aprobación de las 09:39 fue un toque de la persona en la ventana del emulador. Investigado: ni la espera ni WAKEUP, BACK o ENDCALL aprueban nada; abrir el enlace solo hace GET.
 - Entre dos emuladores, el SMS largo (varias partes) no llegó; en la prueba se entregó con `adb emu sms send`. Probar en móviles reales.
-- `muse-spark-1.3-contributor` es ~20 veces más barato, pero Meta entrena con los prompts: solo para datos sintéticos.
-- pesos-aprendidos debe producir un `ShieldWeights` que `Shield` ya acepta.
+- `muse-spark-1.3-contributor` es ~20 veces más barato, pero Meta entrena con los prompts: solo para datos sintéticos. pesos-aprendidos debe producir un `ShieldWeights` que `Shield` ya acepta.

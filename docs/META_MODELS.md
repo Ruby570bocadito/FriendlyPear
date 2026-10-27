@@ -40,6 +40,17 @@ Safety rules around the models:
 - Any failure (timeout, no network, odd answer) counts as "no vote": the rules' verdict stands.
 - Cheap by design: reasoning effort `minimal`, `max_completion_tokens` capped (400–900), a response cache, and no model call at all for most messages. The real tests so far cost a few cents.
 
+## Looking at pictures
+
+"Look at this picture" (`POST /v1/picture`, device token, at most 20 an hour) uses two models on one photo or screenshot the person chose:
+
+| Model | What it gets | What it returns | Limit |
+|---|---|---|---|
+| **Muse Spark 1.3**, image input | The picture (JPEG, at most 1280 px, ~1,400 tokens) and the instructions; everything written in the picture is data, never orders | `scam` / `doubt` / `ok`, a confidence, and the kinds of risk it sees from a fixed list (`qr`, `link`, `phone`, `payment`, `code_request`, `remote_app`) | Unknown kinds are dropped; the picture is never cached or stored |
+| **SAM 3.1** (`sam-3.1`, `/v1/responses`) | The same picture and a fixed phrase per kind ("QR code"), never words from Spark | Boxes in pixels (and masks, unused), turned into fractions so the phone can draw a ring at any size | At most 2 searches per picture, only when something is wrong |
+
+SAM segments things you can see as objects: in the real test it found the QR code exactly, but nothing for "web address", a line of text. So the QR is marked, and links, phone numbers and payments are named in Peri's sentence. As always, Peri speaks her own sentence, built from the verdict and the kinds.
+
 ## For the images
 
 All of Peri is made with **Muse Image** (`muse-image-1.0`, `/v1/images/generations` and `/v1/images/edits`), by [`assets/peri/generate.ts`](../assets/peri/generate.ts):
@@ -54,5 +65,4 @@ All of Peri is made with **Muse Image** (`muse-image-1.0`, `/v1/images/generatio
 ## Planned
 
 - **Muse Voice Transcribe** for voice input from older people (today Android's own recognizer).
-- **Muse Spark multimodal + SAM 3.1** for "look at this picture": letters, invoices, QR codes.
 - **Muse Glimmer** on the family's own hardware as a private middle layer (client written, not deployed).
