@@ -381,6 +381,8 @@ class MiniPeriService : Service(), PeriView {
             clipChildren = false
             background = GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, intArrayOf(SHADE, 0x00000000))
             setPadding(dp(16), dp(48), dp(16), dp(40))
+            // The disc grows when Peri is over it: it may reach into the padding without being cut flat.
+            clipToPadding = false
             alpha = 0f
             visibility = View.GONE
             addView(circle, LinearLayout.LayoutParams(dp(TARGET_DP), dp(TARGET_DP)).apply { bottomMargin = dp(10) })
