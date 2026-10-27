@@ -12,7 +12,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 - [x] (IMP-1) muse-voz — [M] Muse Voice Transcribe como oídos de Peri (Ajustes, desactivado por defecto): grabación con fin por silencio, `POST /v1/transcribe`, vuelta al reconocedor de Android — backend/src/models/voice.ts, android/.../device/VoiceRecorder.kt · hecho 2026-10-27
 - [ ] (IMP-2) voice-transcribe — [S] 10 órdenes en español dichas por personas mayores; comparar con el reconocedor de Android — android/app/src/main/java/app/friendlypear/device/
 - [ ] (IMP-1) glimmer-servido — [M] servir Muse Glimmer en local o en Modal/Baseten y medir latencia — models/glimmer/
-- [ ] (IMP-1) finetune-viable — [S] comprobar si Modal o Fireworks permiten LoRA de Muse Glimmer / Spark Open y su coste — training/
+- [x] (IMP-1) finetune-viable — [S] comprobar si Modal o Fireworks permiten LoRA de Muse Glimmer / Spark Open y su coste — training/ · hecho 2026-10-27: Glimmer sí (Unsloth, gratis en Kaggle), pero servir el adaptador exige un despliegue propio; Spark Open (816B) no es viable aquí. Recomendación: no afinar en el hackathon (`training/FINETUNE.md`)
 - [ ] (TEST) reservado-200 — [M] recoger 200 mensajes reales anonimizados que nunca se usan para entrenar — eval/data/ (no se sube) · a medias: 200 escritos a mano en `eval/reservado-200/` (no reales); faltan los reales de familias
 - [x] (TEST) prueba-20-20 — [S] 20 estafas actuales y 20 mensajes reales anonimizados por Spark y Glimmer; criterio de pivote si fallan más de un tercio — eval/ · hecho 2026-10-27 con 40 sintéticos (es/en) y Muse Spark Open: sin pivote; repetir con reales
 - [ ] (DIR) bases-y-dudas — [S] confirmar en #questions que el diseño previo está permitido; guardar la respuesta — docs/agentes/
@@ -65,7 +65,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 
 ## Día 5 · 31 oct — confianza y emergencia
 - [x] (IMP-2) te-estan-guiando — [M] avisos al instalar apps de control remoto y al abrir la app del banco durante una llamada desconocida — android/.../services/ · hecho 2026-10-27 (apps de control remoto y app del banco en llamada desconocida; probado con el puente de depuración, sin apps reales)
-- [ ] (IMP-1) finetune-glimmer-1 — [L] apuesta: LoRA de Glimmer con el dataset — training/
+- [ ] (IMP-1) finetune-glimmer-1 — [L] apuesta: LoRA de Glimmer con el dataset — training/ · aparcada 27 oct: pendiente de que la persona decida; el porqué en `training/FINETUNE.md`
 - [x] (IMP-2) emergencia — [M] cuenta atrás, llamada y SMS con ubicación — android/ · hecho (ya estaba): "me he caído" → 10 s para cancelar, SMS a la familia con la última ubicación y llamada (`PeriAgent.onEmergencyTimeout`, tests en es y en)
 - [x] (IMP-2) config-familia — [M] guardianes, alias, relaciones, números oficiales — android/.../config/ · hecho 2026-10-27 (guardianes, relaciones, apodos y palabra de la familia sin guardarla; faltan los números oficiales)
 - [ ] (IMP-2) panel-permisos — [M] "Lo que Peri puede hacer": estado de cada permiso, para qué sirve, botón para quitarlo y registro de usos sensibles — android/.../ui/peri/, config/
