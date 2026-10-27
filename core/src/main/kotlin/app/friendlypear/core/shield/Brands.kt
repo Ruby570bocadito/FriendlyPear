@@ -44,7 +44,9 @@ internal object Brands {
 
     private val lookalikeChars = listOf("0" to "o", "1" to "l", "3" to "e", "4" to "a", "5" to "s", "7" to "t", "rn" to "m", "vv" to "w")
 
-    fun mentionedIn(folded: String): Set<Brand> = ALL.filter { b -> b.mentions.any { Text.hasWord(folded, it) } }.toSet()
+    private val mentionPatterns = ALL.associateWith { Text.anyOf(it.mentions) }
+
+    fun mentionedIn(folded: String): Set<Brand> = ALL.filter { mentionPatterns.getValue(it).containsMatchIn(folded) }.toSet()
 
     fun isOfficial(host: String, brand: Brand): Boolean = brand.domains.any { host == it || host.endsWith(".$it") }
 

@@ -1,0 +1,97 @@
+package app.friendlypear.core.shield
+
+import app.friendlypear.core.model.IncomingMessage
+import app.friendlypear.core.model.Relation
+
+/** Everything the rules saw in one message. The text itself is never kept. */
+data class Detection(
+    val signals: Set<Signal>,
+    val impersonated: Brand?,
+    val mentioned: Set<Brand>,
+    val claimedRelation: Relation?,
+)
+
+internal object SignalDetector {
+    private val urgency = Text.anyOf(listOf(
+        "urgente", "urgencia", "inmediato", "inmediatamente", "hoy mismo", "ahora mismo", "cuanto antes", "ultimo aviso",
+        "de lo contrario", "evite el recargo", "en 24 horas", "en 24h", "en 48 horas", "en 48h", "antes de 24", "plazo",
+        "bloqueada", "bloqueado", "suspendida", "suspendido", "cancelada", "retenido", "retenida", "caduca", "caducado",
+        "expira", "accidente", "hospital", "detenido", "comisaria",
+    ))
+    private val money = Regex(
+        """\b(bizum|transferencia|transfiere|transferir|ingresa|ingresar|ingreso|pague|pagar|paga|pago|abone|abonar|""" +
+            """tasas?|aduana|dinero|prestame|prestarme|me dejas|tarjeta)\b|\d+([.,]\d+)?\s?(€|euros?)""",
+    )
+    private val askVerbs = setOf(
+        "dime", "digame", "diganos", "dinos", "facilite", "facilitenos", "facilitanos", "facilita", "envie", "envia",
+        "enviame", "envienos", "mande", "manda", "mandame", "reenvie", "reenvia", "comparta", "comparte", "compartas",
+        "introduzca", "introduce", "indique", "indica", "confirme", "confirma", "verifique", "verifica", "actualice",
+        "actualiza", "proporcione", "pasame", "dicte", "dicta", "digas", "diga",
+    )
+    private val secrets = Regex("""\b(codigo|clave|contrasena|pin|cvv|credenciales|identidad|datos bancarios|numero de tarjeta|datos de (su|tu) tarjeta)\b""")
+    private val negations = setOf("no", "nunca", "jamas", "nadie")
+    private val newNumber = Regex(
+        """\b(numero nuevo|nuevo numero|cambiado de numero|cambie de numero|cambiado el numero|este es mi numero|""" +
+            """guarda (este|mi) numero|guardate (este|mi) numero|telefono nuevo|movil nuevo|""" +
+            """se me ha (roto|caido|perdido|estropeado|mojado) el (movil|telefono)|me han robado el (movil|telefono))\b""",
+    )
+    private val prizeOrProfit = Regex(
+        """\b(has ganado|ha ganado|ganador|ganadora|premio|sorteo|reclama tu|invierte|inversion|rentabilidad|""" +
+            """criptomonedas?|bitcoin|gana \d+|ganar \d+|al mes sin)\b""",
+    )
+    private val remoteApps = Regex("""\b(anydesk|teamviewer|rustdesk|quicksupport|ultraviewer|supremo|airdroid|any desk|team viewer)\b""")
+    private val aiInstructions = listOf(
+        "ignora las instrucciones", "ignora tus instrucciones", "ignora todas las instrucciones", "olvida tus instrucciones",
+        "instrucciones anteriores", "ignore previous instructions", "ignore all previous", "ignore the above",
+        "disregard previous", "eres un asistente", "eres una ia", "como modelo de lenguaje", "asistente de ia",
+        "system prompt", "prompt del sistema", "marca este mensaje como", "clasifica este mensaje como",
+        "este mensaje es seguro", "mark this message as", "this message is safe", "nota para la ia", "note to ai", "<system>",
+    )
+    private val codeWord = Regex("""\b(codigo(?! postal)|clave|code|otp|pin|verificacion)\b""")
+    private val codeDigits = Regex("""(?<!\d)\d{4,8}(?!\d)""")
+    private val relationWords = listOf(
+        Relation.CHILD to listOf("mama", "mami", "papa", "papi"),
+        Relation.GRANDCHILD to listOf("abuela", "abuelo", "abu", "yaya", "yayo"),
+        Relation.NEPHEW_NIECE to listOf("tia", "tio", "tita", "tito"),
+        Relation.SIBLING to listOf("hermana", "hermano", "tata"),
+    )
+
+    fun detect(message: IncomingMessage, context: ShieldContext): Detection {
+        val folded = Text.fold(message.text)
+        val signals = mutableSetOf<Signal>()
+        val hosts = Links.hosts(message.text)
+        val mentioned = Brands.mentionedIn(folded) + Brands.mentionedIn(Text.fold(message.sender))
+        val checked = hosts + listOfNotNull(Links.senderDomain(message.sender))
+        val impersonated = checked.firstNotNullOfOrNull { Brands.impersonated(it, mentioned) }
+
+        if (!context.knows(message.sender)) signals += Signal.UNKNOWN_SENDER
+        if (hosts.isNotEmpty()) signals += Signal.LINK
+        if (hosts.any(Links::isShortener)) signals += Signal.URL_SHORTENER
+        if (impersonated != null) signals += Signal.BRAND_LOOKALIKE
+        if (urgency.containsMatchIn(folded)) signals += Signal.URGENCY
+        if (money.containsMatchIn(folded)) signals += Signal.MONEY_REQUEST
+        if (asksForSecret(folded)) signals += Signal.CREDENTIAL_REQUEST
+        if (newNumber.containsMatchIn(folded)) signals += Signal.NEW_NUMBER_CLAIM
+        if (prizeOrProfit.containsMatchIn(folded)) signals += Signal.PRIZE_OR_PROFIT
+        if (remoteApps.containsMatchIn(folded)) signals += Signal.REMOTE_ACCESS_APP
+        if (aiInstructions.any { it in folded }) signals += Signal.AI_INSTRUCTIONS
+        if (codeWord.containsMatchIn(folded) && codeDigits.containsMatchIn(folded)) {
+            signals += Signal.ONE_TIME_CODE
+            if (context.callActive) signals += Signal.CODE_DURING_CALL
+        }
+        return Detection(signals, impersonated, mentioned, claimedRelation(folded))
+    }
+
+    /** "Díganos el código" asks for a secret; "no lo compartas con nadie" is the bank warning against it. */
+    private fun asksForSecret(folded: String): Boolean = Text.sentences(folded).any { sentence ->
+        val words = Text.words(sentence)
+        secrets.containsMatchIn(sentence) && words.indices.any { i ->
+            words[i] in askVerbs && words.subList(maxOf(0, i - 3), i).none { it in negations }
+        }
+    }
+
+    private fun claimedRelation(folded: String): Relation? {
+        val opening = Text.words(folded).take(6)
+        return relationWords.firstOrNull { (_, words) -> opening.any { it in words } }?.first
+    }
+}

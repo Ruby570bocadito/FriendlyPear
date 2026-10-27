@@ -14,7 +14,8 @@ internal object Text {
 
     fun words(folded: String): List<String> = word.findAll(folded).map { it.value }.toList()
 
-    fun hasWord(folded: String, phrase: String): Boolean = Regex("\\b${Regex.escape(phrase)}\\b").containsMatchIn(folded)
+    /** One pattern that matches any of the phrases as whole words. */
+    fun anyOf(phrases: List<String>): Regex = Regex(phrases.joinToString("|", "\\b(", ")\\b") { Regex.escape(it) })
 
     /** Digits only, without the Spanish prefix, so "+34 612 34 56 78" and "612345678" match. */
     fun phoneDigits(s: String): String {
