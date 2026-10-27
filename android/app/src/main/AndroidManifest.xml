@@ -144,6 +144,11 @@
             android:label="@string/guardian_channel" />
 
         <activity
+            android:name=".ui.peri.TrapActivity"
+            android:exported="false"
+            android:label="@string/trap_title" />
+
+        <activity
             android:name=".ui.peri.ReportActivity"
             android:exported="false"
             android:label="@string/report_title" />

@@ -201,9 +201,15 @@ class PeriActivity : Activity() {
                     }
                 }, LinearLayout.LayoutParams(dp(44), dp(44)))
             })
-            addView(Pill(this@PeriActivity, getString(R.string.report_card_button), R.drawable.ic_message, primary = false).apply {
-                setOnClickListener { startActivity(Intent(this@PeriActivity, ReportActivity::class.java)) }
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply {
+            // How the trick worked (three panels), or have it written up for the police.
+            addView(LinearLayout(this@PeriActivity).apply {
+                addView(Pill(this@PeriActivity, getString(R.string.trap_card_how), R.drawable.ic_image_search, primary = false).apply {
+                    setOnClickListener { startActivity(Intent(this@PeriActivity, TrapActivity::class.java)) }
+                }, LinearLayout.LayoutParams(0, dp(56), 1f).apply { marginEnd = dp(5) })
+                addView(Pill(this@PeriActivity, getString(R.string.report_card_button), R.drawable.ic_message, primary = false).apply {
+                    setOnClickListener { startActivity(Intent(this@PeriActivity, ReportActivity::class.java)) }
+                }, LinearLayout.LayoutParams(0, dp(56), 1f).apply { marginStart = dp(5) })
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                 topMargin = dp(10)
                 marginEnd = dp(8)
             })

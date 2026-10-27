@@ -9,7 +9,8 @@ import org.json.JSONObject
  * the phone only if they ask for the report. Hiding the offer, or a newer scam, replaces it.
  */
 class LastScam(context: Context) {
-    data class Scam(val channel: String, val sender: String, val text: String, val at: Long, val reason: String, val signals: List<String>)
+    /** [kind] is the kind of trap, for "How the trap worked" ([app.friendlypear.ui.peri.TrapActivity.kindOf]). */
+    data class Scam(val channel: String, val sender: String, val text: String, val at: Long, val reason: String, val signals: List<String>, val kind: String = "link")
 
     private val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
@@ -21,6 +22,7 @@ class LastScam(context: Context) {
             .put("at", scam.at)
             .put("reason", scam.reason)
             .put("signals", JSONArray(scam.signals))
+            .put("kind", scam.kind)
         prefs.edit().putString(KEY, json.toString()).putBoolean(HIDDEN, false).apply()
     }
 
@@ -39,6 +41,7 @@ class LastScam(context: Context) {
             at,
             json.optString("reason"),
             (0 until signals.length()).map { signals.optString(it) },
+            json.optString("kind", "link"),
         )
     }
 

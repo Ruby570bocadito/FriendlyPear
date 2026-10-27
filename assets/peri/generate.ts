@@ -12,6 +12,7 @@
  *   cd backend; bun ../assets/peri/generate.ts frames calm      only the named states' frames
  *   cd backend; bun ../assets/peri/generate.ts frames --frame=blinkhalf,talkwide   only those frames
  *   cd backend; bun ../assets/peri/generate.ts extras           the app icon and the illustrations for screens
+ *   cd backend; bun ../assets/peri/generate.ts traps            "how the trap worked": 3 panels for 6 kinds of scam (18 images)
  * Then `python assets/peri/cutout.py` cuts the cream background out for the app.
  */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -80,6 +81,31 @@ export const EXTRAS: Record<string, { from: string; prompt: string }> = {
   shield: { from: "calm", prompt: "Peri holding a big green shield with a white leaf emblem in front of the body, confident and friendly smile." },
 };
 
+/**
+ * "How the trap worked": three panels per kind of scam, each an edit of the calm Peri so she stays the same
+ * character. The words go under each panel in the app (both languages), never in the picture.
+ */
+export const TRAPS: Record<string, string> = {
+  trap_parcel_1: "Peri holds a smartphone in both hands; on its screen a small cardboard parcel with a red exclamation mark. She looks a little puzzled.",
+  trap_parcel_2: "A sneaky clay fishing hook, baited with a tiny cardboard parcel, comes out of a smartphone screen trying to hook a bank card. Peri watches with wide, surprised eyes.",
+  trap_parcel_3: "Peri smiles under a big coral umbrella, holding a real cardboard parcel safely in one arm and giving a thumbs up with the other hand.",
+  trap_link_1: "Peri holds a smartphone; on its screen a small bank building with a red warning sign. She looks worried.",
+  trap_link_2: "A sneaky clay fishing hook, baited with a small golden key, comes out of a smartphone screen trying to catch a padlock. Peri watches with wide, surprised eyes.",
+  trap_link_3: "Peri points proudly at a big closed padlock with a green check mark beside her, confident and kind.",
+  trap_code_1: "Peri holds a phone to her ear and looks unsure, while a shadowy grey silhouette whispers into a second phone on the other side of the image.",
+  trap_code_2: "A small golden key flies out of Peri's open hand towards a shadowy grey hand reaching from the edge of the image. Peri looks alarmed.",
+  trap_code_3: "Peri holds the small golden key safely against her chest and kindly shakes her head, with a big green shield standing beside her.",
+  trap_family_1: "Peri holds a smartphone showing a coral heart and a question mark, looking moved and a little worried.",
+  trap_family_2: "A shadowy grey figure hides behind a cardboard mask with a drawn smiley face and holds out an empty open hand, asking for coins. Peri watches, surprised.",
+  trap_family_3: "Peri holds a phone to her ear, smiling warmly, with a soft coral heart floating beside her.",
+  trap_remote_1: "Peri looks at a smartphone whose screen shows a big red warning triangle and a cartoon bug. She looks alarmed.",
+  trap_remote_2: "A shadowy grey hand reaches out of a smartphone screen holding a small remote control. Peri leans back, surprised.",
+  trap_remote_3: "Peri calmly puts a smartphone face down on a small table and smiles, with a big green shield beside her.",
+  trap_prize_1: "Peri holds a smartphone with a shiny golden trophy and golden coins bursting out of the screen. Her eyes are wide with excitement.",
+  trap_prize_2: "Golden coins turn out to be painted cardboard, peeling at the edges, while a shadowy grey hand behind them takes away real coins. Peri looks surprised.",
+  trap_prize_3: "Peri kindly shakes her head with a calm smile, holding a small coin purse safely closed in both hands.",
+};
+
 async function call(path: string, body: unknown): Promise<Buffer> {
   const res = await fetch(`${base}${path}`, {
     method: "POST",
@@ -105,7 +131,8 @@ function save(name: string, image: Buffer, prompt: string) {
 const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const framesMode = args[0] === "frames";
 const extrasMode = args[0] === "extras";
-const only = framesMode || extrasMode ? args.slice(1) : args;
+const trapsMode = args[0] === "traps";
+const only = framesMode || extrasMode || trapsMode ? args.slice(1) : args;
 const pickedFrames = process.argv.find((a) => a.startsWith("--frame="))?.slice(8).split(",");
 const prompts: { name: string; prompt: string }[] = [];
 const baseFile = join(here, "peri_base.webp");
@@ -133,14 +160,23 @@ if (framesMode) {
     const image = await call("/images/edits", { model: "muse-image-1.0", prompt, images: [{ image_url: reference }], n: 1, size: "1024x1024", output_format: "webp" });
     prompts.push(save(name, image, prompt));
   }
+} else if (trapsMode) {
+  const reference = `data:image/webp;base64,${readFileSync(join(here, "peri_calm.webp")).toString("base64")}`;
+  for (const [name, scene] of Object.entries(TRAPS)) {
+    if (only.length && !only.includes(name)) continue;
+    // A small scene: the cream background stays, so each panel sits in its own card.
+    const prompt = `Same character as in the image, same style, same colours and proportions. A simple, friendly comic panel: ${scene} Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, plain flat warm cream background (#FFF8EC).`;
+    const image = await call("/images/edits", { model: "muse-image-1.0", prompt, images: [{ image_url: reference }], n: 1, size: "1024x1024", output_format: "webp" });
+    prompts.push(save(name, image, prompt));
+  }
 } else if (only.length === 0 || !existsSync(baseFile)) {
   const prompt = `${STYLE} ${CHARACTER} Peri standing and smiling, full body, front view.`;
   prompts.push(save("base", await call("/images/generations", { model: "muse-image-1.0", prompt, n: 1, size: "1024x1024", output_format: "webp" }), prompt));
 }
 
-const reference = framesMode || extrasMode ? "" : `data:image/webp;base64,${readFileSync(baseFile).toString("base64")}`;
+const reference = framesMode || extrasMode || trapsMode ? "" : `data:image/webp;base64,${readFileSync(baseFile).toString("base64")}`;
 for (const [name, pose] of Object.entries(STATES)) {
-  if (framesMode || extrasMode || (only.length && !only.includes(name))) continue;
+  if (framesMode || extrasMode || trapsMode || (only.length && !only.includes(name))) continue;
   const prompt = `Same character as in the image, same style, same colours and proportions. ${pose} ${STYLE}`;
   const image = await call("/images/edits", {
     model: "muse-image-1.0",

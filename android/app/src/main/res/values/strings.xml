@@ -399,9 +399,9 @@
         <item quantity="one">%d shield. Tap to see it.</item>
         <item quantity="other">%d shields. Tap to see them.</item>
     </plurals>
-    <string name="report_card_title">Want to report it?</string>
-    <string name="report_card_text">I can write it up for the police or a fraud helpline, in one tap.</string>
-    <string name="report_card_button">Write the report</string>
+    <string name="report_card_title">That was a trap</string>
+    <string name="report_card_text">See how it worked, or have it written up for the police.</string>
+    <string name="report_card_button">Report it</string>
     <string name="report_hide">Hide</string>
     <string name="report_title">Report it</string>
     <string name="report_intro">I\'ll write down what arrived, who sent it and why it\'s a scam, ready for the police or a fraud helpline. To write it, the message and its sender go to Peri\'s server and to Meta\'s Muse Spark. Nothing is kept.</string>
@@ -417,4 +417,25 @@
     <string name="report_none">There\'s no scam to report right now. If one arrives, I\'ll offer to write it up.</string>
     <string name="report_ready">Here\'s your report. You can send it, or show it at the police station.</string>
     <string name="use_report">Sent a scam message to write a report</string>
+    <string name="trap_card_how">See the trap</string>
+    <string name="trap_title">How the trap worked</string>
+    <string name="trap_done">Got it</string>
+    <string name="trap_parcel_1">A text says your parcel is held, and asks for a small fee to release it.</string>
+    <string name="trap_parcel_2">The link copies the courier\'s page: it\'s after your card details, not the fee.</string>
+    <string name="trap_parcel_3">Real couriers don\'t charge by text. Check in their official app, and never pay through a link.</string>
+    <string name="trap_link_1">A message pretends to be your bank or a company you know, and says something is wrong.</string>
+    <string name="trap_link_2">Its link leads to a fake page that keeps your passwords and card details.</string>
+    <string name="trap_link_3">Close it and open the real app yourself. Your bank will never ask for your password by message.</string>
+    <string name="trap_code_1">Someone asks you to read them, or send them, a code you just received.</string>
+    <string name="trap_code_2">That code is the key to your account: whoever has it gets in, or moves your money.</string>
+    <string name="trap_code_3">Never give a code to anyone, not even to \"the bank\". Hang up and call your bank yourself.</string>
+    <string name="trap_family_1">A message says it\'s your son or granddaughter, from a new number, and they need money now.</string>
+    <string name="trap_family_2">It\'s someone pretending: the new number is theirs, and so is the account.</string>
+    <string name="trap_family_3">Call your relative on the number you already have. Your family word helps too.</string>
+    <string name="trap_remote_1">A message or a call says your phone or your bank is in danger, and offers to help.</string>
+    <string name="trap_remote_2">They ask you to install an app that lets them control your phone, and your bank, from far away.</string>
+    <string name="trap_remote_3">Never install an app because a stranger tells you to. Hang up and ask your family.</string>
+    <string name="trap_prize_1">A message says you\'ve won a prize, or offers an investment that can\'t fail.</string>
+    <string name="trap_prize_2">To release it, they ask for a fee or your details. The prize doesn\'t exist.</string>
+    <string name="trap_prize_3">If it sounds too good to be true, it is. Don\'t pay anything, and delete it.</string>
 </resources>

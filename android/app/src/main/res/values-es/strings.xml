@@ -400,9 +400,9 @@
         <item quantity="other">%d escudos. Toca para verlos.</item>
         <item quantity="many">%d escudos. Toca para verlos.</item>
     </plurals>
-    <string name="report_card_title">¿Quieres denunciarlo?</string>
-    <string name="report_card_text">Te lo dejo escrito para la policía o el 017, en un toque.</string>
-    <string name="report_card_button">Escribir la denuncia</string>
+    <string name="report_card_title">Eso era una trampa</string>
+    <string name="report_card_text">Mira cómo funcionaba, o te lo dejo escrito para la policía.</string>
+    <string name="report_card_button">Denunciarlo</string>
     <string name="report_hide">Ocultar</string>
     <string name="report_title">Denúncialo</string>
     <string name="report_intro">Escribo lo que llegó, quién lo mandó y por qué es un timo, listo para la policía o el 017. Para escribirlo, el mensaje y su remitente van al servidor de Peri y a Muse Spark de Meta. No se guarda nada.</string>
@@ -418,4 +418,25 @@
     <string name="report_none">Ahora no hay ningún timo que denunciar. Si llega uno, te ofrezco escribirlo.</string>
     <string name="report_ready">Aquí tienes tu denuncia. Puedes mandarla o enseñarla en comisaría.</string>
     <string name="use_report">Mandó un mensaje de timo para escribir la denuncia</string>
+    <string name="trap_card_how">Ver la trampa</string>
+    <string name="trap_title">Así funcionaba la trampa</string>
+    <string name="trap_done">Entendido</string>
+    <string name="trap_parcel_1">Un SMS dice que tu paquete está retenido y te pide un pago pequeño para soltarlo.</string>
+    <string name="trap_parcel_2">El enlace copia la página de la empresa: lo que busca son los datos de tu tarjeta, no el pago.</string>
+    <string name="trap_parcel_3">Las empresas de paquetería no cobran por SMS. Míralo en su app oficial y nunca pagues desde un enlace.</string>
+    <string name="trap_link_1">Un mensaje se hace pasar por tu banco o por una empresa que conoces, y dice que algo va mal.</string>
+    <string name="trap_link_2">Su enlace lleva a una página falsa que se queda con tus contraseñas y tu tarjeta.</string>
+    <string name="trap_link_3">Ciérralo y abre tú la app de verdad. Tu banco nunca te pide la contraseña por mensaje.</string>
+    <string name="trap_code_1">Alguien te pide que le leas, o le mandes, un código que te acaba de llegar.</string>
+    <string name="trap_code_2">Ese código es la llave de tu cuenta: quien lo tiene entra, o mueve tu dinero.</string>
+    <string name="trap_code_3">Nunca des un código a nadie, ni siquiera «al banco». Cuelga y llama tú a tu banco.</string>
+    <string name="trap_family_1">Un mensaje dice que es tu hijo o tu nieta, desde un número nuevo, y que necesita dinero ya.</string>
+    <string name="trap_family_2">Es alguien que se hace pasar por tu familia: el número nuevo es suyo, y la cuenta también.</string>
+    <string name="trap_family_3">Llama a tu familiar al número que ya tienes. La palabra de la familia también ayuda.</string>
+    <string name="trap_remote_1">Un mensaje o una llamada dice que tu móvil o tu banco están en peligro, y te ofrece ayuda.</string>
+    <string name="trap_remote_2">Te piden instalar una app que les deja manejar tu móvil, y tu banco, desde lejos.</string>
+    <string name="trap_remote_3">Nunca instales una app porque te lo pida un desconocido. Cuelga y pregunta a tu familia.</string>
+    <string name="trap_prize_1">Un mensaje dice que has ganado un premio, o te ofrece una inversión que no puede fallar.</string>
+    <string name="trap_prize_2">Para soltarlo te piden un pago o tus datos. El premio no existe.</string>
+    <string name="trap_prize_3">Si parece demasiado bueno para ser verdad, no lo es. No pagues nada y bórralo.</string>
 </resources>

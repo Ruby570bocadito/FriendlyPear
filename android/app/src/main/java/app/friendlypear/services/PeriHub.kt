@@ -491,7 +491,9 @@ class PeriHub(context: Context) {
         val level = verdict.level
         if (level == Level.SCAM) {
             earn(Shields.Kind.STOPPED)
-            lastScam.save(LastScam.Scam(message.channel.name, message.sender, message.text, message.receivedAtMillis, verdict.explanation, verdict.signals.map { it.name }))
+            val signals = verdict.signals.map { it.name }
+            val kind = app.friendlypear.ui.peri.TrapActivity.kindOf(signals, verdict.brand)
+            lastScam.save(LastScam.Scam(message.channel.name, message.sender, message.text, message.receivedAtMillis, verdict.explanation, signals, kind))
             views.forEach { it.scamToReport() }
         }
         val name = when (level) {
