@@ -16,14 +16,14 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
 - peri-ilustrada: 9 estados con Muse Image (`assets/peri/generate.ts`, base + ediciones; 0,11 $); `core` `Mood` según lo que dice Peri; `ui/peri/PeriFace.kt` con fundido y respiración (sin movimiento si se quitan las animaciones), fondo crema y texto tinta. Probado: tranquila en reposo, protectora con la estafa de Correos.
 - peri-fotogramas y peri-pulido: 70 imágenes de Muse Image en total (0,71 $): estados, fotogramas por edición de cada estado (`_blinkhalf`, `_blink`, `_talk`, `_talkwide`), saludo, icono, ilustraciones. `cutout.py` quita el fondo crema (1024 px con transparencia). `PeriFace`: inclinación, bote y sombra pintada por estado de ánimo; los fotogramas se cambian sin fundido (el fundido entre poses hacía doble contorno). `Style.kt` (paleta, `Pill`), `BubbleDrawable`, chip de estado, tarjeta de pasos pendientes, tema de borde a borde, icono adaptativo. Probado: saludo, lupa → paraguas con la boca, Mini Peri recortada, familia en tarjetas.
 - pausa-segura y vista-guardian (móvil): `PauseOverlay` (pantalla completa sobre la app, "seguir" a los 5 s), `BankWatcher` con `keepGoing`; `SharedNews` + `GuardianClient`; casilla "Que mis guardianes vean las novedades de Peri" y "Lo que ven tus guardianes". Probado: timo → pausa → "Salir de esta app" → la página de Ana muestra 1 aviso y 1 pausa; al quitarlo, el enlace da 404.
+- mini-en-llamadas: al llamar Peri (`onCalling`) o con un desconocido al teléfono, Mini Peri sale junto a la llamada y se va al colgar; la app no la guarda mientras es "de la llamada" (Android trae la app un instante al abrir la llamada). Probado con "llama a mi hija".
 - peri-mini: `MiniPeriService` (servicio en primer plano tipo micrófono, o `specialUse` sin micrófono) con ventana `TYPE_APPLICATION_OVERLAY`: solo la pera (128 dp), bocadillo con cola, se pega al lado más cercano y crece hacia arriba. Botón "Mini Peri" en la app (Peri explica el permiso de mostrarse encima); abrir la app la guarda. `PeriHub` admite varias pantallas (`PeriView`). Probado: tranquila → lupa → paraguas con el bocadillo.
 
 ## Cómo probar sin micrófono (solo builds de depuración)
 - `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`; también `--es installed <paquete>` y `--es opened <paquete>`.
 - Tras `adb install -r`: `cmd notification disallow_listener` y `allow_listener app.friendlypear/app.friendlypear.services.MessageListener`.
 - Mini Peri: `adb shell appops set app.friendlypear SYSTEM_ALERT_WINDOW allow` y pulsar "Mini Peri". `uiautomator dump` falla mientras Peri se mueve (no queda inactiva): usar capturas.
-- Rol de filtro: `adb shell cmd role add-role-holder android.app.role.CALL_SCREENING app.friendlypear`. Acceso al uso: `adb shell appops set app.friendlypear GET_USAGE_STATS allow`.
-- En `adb emu gsm`, esperar a que suene (`mCallState=1`) antes de `accept`.
+- Rol de filtro: `adb shell cmd role add-role-holder android.app.role.CALL_SCREENING app.friendlypear`. En `adb emu gsm`, esperar a que suene (`mCallState=1`) antes de `accept`. Acceso al uso: `adb shell appops set app.friendlypear GET_USAGE_STATS allow`.
 - Backend: `~/.gradle/gradle.properties` con `friendlypear.backendUrl=http://10.0.2.2:8711` y `friendlypear.deviceToken`; `cd backend; bun src/main.ts`.
 
 ## En curso
@@ -37,4 +37,4 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
 - SEG: revisar los permisos del manifiesto (incluido `PACKAGE_USAGE_STATS`), el receptor de depuración exportado y los nuevos de Mini Peri (`SYSTEM_ALERT_WINDOW`, servicio en primer plano de micrófono).
 
 ## Propuestas para el roadmap
-- Grabar los momentos en un móvil real; comprobar allí los nombres de paquete de bancos y apps de control remoto.
+- Grabar los momentos en un móvil real; comprobar allí los nombres de paquete de bancos y apps de control remoto. iPhone: `docs/IPHONE.md`.

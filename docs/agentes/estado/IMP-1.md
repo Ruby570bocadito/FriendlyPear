@@ -20,8 +20,8 @@
 - enlaces-inseguros: `Links.insecure` + `Signal.INSECURE_LINK` (2,5): un enlace de la familia con `http://` ya es dudoso. Emulador: "fotos de la boda" con `http://` → "its link has no padlock…". La prueba 20/20 (solo reglas) no cambia.
 - pedir-ayuda: `VoiceCommands` (`askForHelp`, `helpTail`) y `Relation.PARENT`. Emulador: "avisa a mi hija que necesito ayuda" → "Sure! Shall I call Ana?".
 - pausa-segura: `PeriAgent.onAppOpened` + `RecentRisk` (30 min tras un timo, un dudoso o una llamada desconocida contestada) → `DevicePort.showPause`; `onPauseAnswer` (llamar, salir, seguir); el "sí" hablado también llama. `watchesApps` mantiene el vigilante de apps solo mientras hay riesgo.
-- vista-guardian (backend): `guardians/` (`store.ts`, `page.ts`), `POST/DELETE /v1/guardians/links`, `POST /v1/events` (solo nivel y canal, o la respuesta de la pausa), `GET /g/:token`. En memoria.
-- Tests: core (178) y backend (57) en verde.
+- vista-guardian (backend): `guardians/` (`store.ts`, `page.ts`), `POST/DELETE /v1/guardians/links`, `POST /v1/events` (solo nivel y canal, o la respuesta de la pausa), `GET /g/:token`. En disco (`backend/data/guardians.json`, ignorado por git): sobrevive a un reinicio (probado).
+- Tests: core (179) y backend (58) en verde.
 
 ## En curso
 - Nada.
