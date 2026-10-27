@@ -6,7 +6,6 @@
   - Meta Model API en `https://api.meta.ai/v1`, formato OpenAI; clave `LLM|id|secreto`; `muse-spark-1.3`.
   - El razonamiento cuenta en `max_completion_tokens` incluso con "minimal" (~150 tokens): por defecto 400, tope 512.
   - `tool_choice` solo "auto"; llamadas en paralelo. Pruebas reales: 3 peticiones, < 0,01 $.
-- glimmer-servido (preparado, sin medir): `glimmer.ts`, `models/glimmer/latencia.ts`, pasos en `models/glimmer/README.md`.
 - voz-y-agenda: órdenes, alias, diminutivos, apodos, relaciones; `RelationWords` para "Laura hija".
 - agente-base: `PeriAgent` con confirmación por voz, riesgo, verificación, plan B, lectura segura y emergencia.
 - peri-bilingue: `Lang.ES`/`Lang.EN`.
@@ -21,8 +20,12 @@
 ## Bloqueado
 - Nada.
 
+- segunda-opinion: Muse Spark Open en Baseten Model APIs (`inference.baseten.co/v1`, `Bearer`, sin desplegar H100).
+  - `investigator/opinion.ts` + `POST /v1/opinion` con token del dispositivo: solo nivel DOUBT; JSON scam/doubt/ok + confianza → voto ±2.
+  - 2 peticiones reales (~0,005 $): sobrino pidiendo dinero → scam +1,9 (2,8 s); dentista → ok −1,86 (2,0 s). Razona 325–561 tokens: tope 900.
+
 ## Siguiente
-- Capa de pesos abiertos desbloqueada: `BASETEN_API_KEY` en `backend/.env`; Model APIs de Baseten (`https://inference.baseten.co/v1`, `Authorization: Api-Key`) sirve `meta-models/muse-spark-open` (herramientas, 1M de contexto, 1,25 $/4,25 $ por millón, de los créditos de Baseten). Sin desplegar H100.
+- IMP-2: cliente en `android/.../net/` que, si el escudo da DOUBT, llame a `/v1/opinion` y aplique `Shield.withModelOpinion`; sin red, se queda el veredicto de las reglas.
 
 ## Peticiones
 - PUL: poner `META_API_BASE=https://api.meta.ai/v1` en `backend/.env.example`.
