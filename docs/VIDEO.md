@@ -2,6 +2,8 @@
 
 > **28 oct (D11):** Higgsfield queda descartado. Las escenas de historia se sustituyen por los fondos del mundo de Peri (cielos y lugares que van cambiando, `docs/DISENO.md` §2) detrás de los clips reales. El guion se rehace con la persona en la tarea `r2-guion`; lo que sigue de Higgsfield es histórico.
 
+> **28 oct, noche: anuncio de ejemplo con Remotion.** 20 s en vertical, hecho como código en [`video/`](../video/) con la skill oficial de Remotion como referencia: clips reales del emulador (`video/scripts/record.sh`), tres lugares del mundo de Peri con Muse Image (`video/scripts/backdrops.ts`, 0,03 $), Peri con sus propios fotogramas y las fuentes de la app. Se renderiza en el PC (`cd video && npm run render` → `video/out/ad.mp4`, ignorado por git). La API de Meta no tiene modelo de vídeo ni de voz: la música y la voz van en el montaje final. Remotion es gratis para equipos de hasta 3 personas.
+
 Dos piezas distintas:
 
 | Pieza | Para qué | Duración | Formato |

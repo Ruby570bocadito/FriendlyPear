@@ -95,7 +95,8 @@ are gone after 15 minutes or when that phone is disconnected.
   posters with no network and six with the model: a lookalike parcel site, an address hiding behind "@", invisible
   right-to-left letters, `javascript:`, a pay SMS, a fake bank contact, a light-on-dark code, two codes on one page,
   AnyDesk from the store, and two that tell the AI the code is safe. All were traps, nothing was opened, and the logs
-  held none of their addresses or numbers.
+  held none of their addresses or numbers. `eval/qr/posters.py` makes the posters and `eval/qr/share.sh` shares them
+  with the app.
 - The last scam (for "report it") and the last junk website notice (to silence that site) are kept on the phone for
   three days, sealed with the keystore key, never backed up. `VIBRATE` and `ACCESS_NETWORK_STATE` are normal permissions Android grants at install:
   touches with warnings, and seeing whether Private DNS is on.

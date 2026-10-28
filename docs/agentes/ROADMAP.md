@@ -90,6 +90,8 @@ Por orden: primero lo que corta un timo en curso o impide que el propio Peri se 
 - [x] (IMP-1) r3-escena-estable — [S] con mucho texto el fondo se acercaba y alejaba de golpe — android/.../ui/peri/ · hecho 2026-10-28: bocadillo de una sola altura (letra grande si es corto) y Peri que se desliza a su nuevo tamaño desde los pies
 - [x] (IMP-1) r3-animacion-fluida — [M] más fotogramas y más fluidez — assets/peri/, PeriFace.kt · hecho 2026-10-28: fundido corto entre fotogramas del cuerpo y medios pasos de Muse Image en siete estados de ánimo (pasos en cuatro fases)
 - [x] (IMP-1) r3-permisos-deprisa — [S] al dar los permisos muy deprisa el chat avanzaba solo y el fondo se ampliaba — android/.../ui/peri/PeriActivity.kt · hecho 2026-10-28: mientras se piden uno tras otro la pantalla se queda quieta (la tarjeta y el estado, al final) y las frases salen enteras
+- [x] (IMP-1) r3-anuncio-ejemplo — [S] un anuncio de ejemplo con modelos de Meta, con una skill de vídeo como referencia — video/ · hecho 2026-10-28: Remotion (skill oficial), clips reales del emulador, tres fondos con Muse Image (0,03 $), 20 s en vertical; la API de Meta no tiene modelo de vídeo ni de voz
+- [x] (IMP-1) r3-parpadeo — [S] al hablar justo después de un gesto el cuerpo de Peri se volvía transparente un instante (visto grabando el anuncio) — android/.../ui/peri/PeriFace.kt · hecho 2026-10-28: un cambio de boca corta el fundido en curso; comprobado midiendo el verde de Peri fotograma a fotograma en una grabación
 - [x] (IMP-1) r3-ui-pulida — [S] cuidar la UI entera — android/.../ui/peri/ · hecho 2026-10-28: «Las herramientas de Peri» en Aprende como tarjeta con iconos, revisión de las pantallas principales
 
 ### Se llevan de antes
