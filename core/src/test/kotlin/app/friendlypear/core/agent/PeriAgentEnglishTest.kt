@@ -116,4 +116,14 @@ class PeriAgentEnglishTest {
         agent(d).onHeard("llama a mi hija")
         assertEquals("Sure! Shall I call Laura?", d.said.last())
     }
+
+    @Test
+    fun `small talk in English`() {
+        val d = RecordingDevice()
+        val a = agent(d)
+        a.onHeard("hi Peri")
+        assertTrue(d.said.last().startsWith("Hello!"))
+        a.onHeard("who are you?")
+        assertTrue(d.said.last().startsWith("I'm Peri"))
+    }
 }

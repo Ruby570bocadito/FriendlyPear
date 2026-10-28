@@ -367,7 +367,8 @@ class PeriAgent(
                     say(p.doingNothing)
                 }
                 Command.Repeat -> say(w.question)
-                is Command.Unknown -> say(p.yesOrNo(w.question))
+                // "Gracias" or "hola" to "shall I call Laura?" is no answer: the question again.
+                is Command.Unknown, is Command.Chat -> say(p.yesOrNo(w.question))
                 else -> {
                     pending = null
                     handle(command)
@@ -505,6 +506,18 @@ class PeriAgent(
                 }
             Command.Repeat -> say(lastSaid.ifEmpty { p.nothingSaidYet })
             is Command.Unknown -> say(p.help)
+            is Command.Chat -> {
+                val n = chats[command.kind.ordinal]++
+                // Feeling lonely, with family to call: someone they love is one "yes" away.
+                val someone = if (command.kind == SmallTalk.LONELY) emergencyContacts().firstOrNull() else null
+                if (someone != null) {
+                    val question = p.lonelyCall(someone.name)
+                    pending = Pending.Confirm(Action.Call(someone), question)
+                    say(question)
+                } else {
+                    say(p.chat(command.kind, n), if (command.kind in HAPPY_TALK) Mood.HAPPY else Mood.CALM)
+                }
+            }
         }
     }
 
@@ -698,7 +711,13 @@ class PeriAgent(
         device.speak(text)
     }
 
+    /** How many times each kind of small talk came up: her lines go round instead of repeating. */
+    private val chats = IntArray(SmallTalk.entries.size)
+
     private companion object {
+        /** Small talk that makes her jump for joy. */
+        val HAPPY_TALK = setOf(SmallTalk.THANKS, SmallTalk.JOKE, SmallTalk.LOVE)
+
         const val RISK_WINDOW_MILLIS = 30 * 60_000L
         const val MAX_UNREAD = 50
 

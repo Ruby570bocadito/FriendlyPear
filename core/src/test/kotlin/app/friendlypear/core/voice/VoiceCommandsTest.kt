@@ -110,4 +110,22 @@ class VoiceCommandsTest {
     fun `help inside an order is not an emergency`() {
         assertEquals(Command.Call("laura"), parse("help me call Laura"))
     }
+
+    @Test
+    fun `a hello, a thank you or a joke is small talk, after any order or question`() {
+        assertEquals(Command.Chat(app.friendlypear.core.agent.SmallTalk.HELLO), parse("hola"))
+        assertEquals(Command.Chat(app.friendlypear.core.agent.SmallTalk.HELLO), parse("Oye Peri"))
+        assertEquals(Command.Chat(app.friendlypear.core.agent.SmallTalk.HOW_ARE_YOU), parse("Hola, ¿qué tal?"))
+        assertEquals(Command.Chat(app.friendlypear.core.agent.SmallTalk.THANKS), parse("¡Muchas gracias!"))
+        assertEquals(Command.Chat(app.friendlypear.core.agent.SmallTalk.JOKE), parse("cuéntame un chiste"))
+        assertEquals(Command.Chat(app.friendlypear.core.agent.SmallTalk.WHAT_CAN_YOU_DO), parse("¿Para qué sirves?"))
+        assertEquals(Command.Chat(app.friendlypear.core.agent.SmallTalk.WHAT_CAN_YOU_DO), parse("What can you do?"))
+        assertEquals(Command.Chat(app.friendlypear.core.agent.SmallTalk.LONELY), parse("me siento sola"))
+        assertEquals(Command.Chat(app.friendlypear.core.agent.SmallTalk.GOOD_NIGHT), parse("buenas noches"))
+        // Orders, questions and answers still win.
+        assertIs<Command.Call>(parse("hola, llama a Laura"))
+        assertIs<Command.Advise>(parse("Hola, me ha llamado el banco, ¿qué hago?"))
+        assertEquals(Command.No, parse("no, gracias"))
+        assertEquals(Command.Cancel, parse("para"))
+    }
 }

@@ -20,6 +20,9 @@ sealed interface Command {
     /** "Me ha llamado el banco, ¿qué hago?": a question about staying safe, answered with reviewed advice. */
     data class Advise(val topic: app.friendlypear.core.agent.Topic) : Command
 
+    /** "Hola", "gracias", "cuéntame un chiste": what people say to a friend, answered in Peri's own words. */
+    data class Chat(val kind: app.friendlypear.core.agent.SmallTalk) : Command
+
     data object Yes : Command
     data object No : Command
     data object Cancel : Command

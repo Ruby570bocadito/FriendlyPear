@@ -16,6 +16,9 @@
     <string name="chat_unknown">Eso aún no sé responderlo. Prueba con una de estas preguntas, o cuéntame lo que ha pasado con otras palabras.</string>
     <string name="chat_read_elsewhere">Tus mensajes te los leo en voz alta desde mi pantalla principal, para que nunca se mezclen con lo que hablamos aquí.</string>
     <string name="chat_s_bank">Me ha llamado mi banco</string>
+    <string name="chat_s_joke">Cuéntame un chiste</string>
+    <string name="chat_s_who">¿Quién eres?</string>
+    <string name="chat_typing">Peri está escribiendo</string>
     <string name="chat_s_code">Me piden un código</string>
     <string name="chat_s_link">¿Es seguro este enlace?</string>
     <string name="chat_s_family">Un familiar me pide dinero</string>

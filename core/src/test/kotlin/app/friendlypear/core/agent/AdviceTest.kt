@@ -76,7 +76,8 @@ class AdviceTest {
         assertTrue(VoiceCommands.parse("léeme los mensajes") is Command.ReadMessages)
         assertEquals(Breach.CODE, (VoiceCommands.parse("le he dado el código a uno del banco") as? Command.Gave)?.what)
         assertEquals(Breach.SOMETHING, (VoiceCommands.parse("creo que les he dado algo") as? Command.Gave)?.what)
-        assertTrue(VoiceCommands.parse("buenos días") is Command.Unknown)
+        // A greeting is small talk, never advice.
+        assertEquals(Command.Chat(SmallTalk.HELLO), VoiceCommands.parse("buenos días"))
     }
 
     @Test

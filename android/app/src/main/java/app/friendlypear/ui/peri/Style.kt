@@ -481,6 +481,8 @@ internal fun View.reveal(show: Boolean) {
  * tap still works.
  */
 internal fun View.alive(onTap: (() -> Unit)? = null) {
+    // A sticker, not a field: no grey focus square around her when the phone is driven by keys.
+    defaultFocusHighlightEnabled = false
     val lift = context.dp(4).toFloat()
     val jump = context.dp(20).toFloat()
     var hopAt = -HOP_MS

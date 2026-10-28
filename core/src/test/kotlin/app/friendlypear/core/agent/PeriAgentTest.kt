@@ -258,4 +258,36 @@ class PeriAgentTest {
         a.onHeard("¿cómo?")
         assertEquals("¡Claro! ¿Llamo a Laura?", d.said.last())
     }
+
+    @Test
+    fun `a hello gets a hello, and her lines go round`() {
+        val d = FakeDevice()
+        val a = agent(d)
+        a.onHeard("hola")
+        a.onHeard("hola")
+        assertTrue(d.said[0].startsWith("¡Hola!"))
+        assertTrue(d.said[0] != d.said[1])
+        a.onHeard("gracias")
+        assertEquals(Mood.HAPPY, a.mood)
+    }
+
+    @Test
+    fun `feeling lonely offers to call family, and a yes calls`() {
+        val d = FakeDevice()
+        val a = agent(d)
+        a.onHeard("me siento sola")
+        assertEquals("Aquí estoy contigo. ¿Te apetece que llame a Laura?", d.said.last())
+        a.onHeard("sí")
+        assertEquals(listOf("600111222"), d.calls)
+    }
+
+    @Test
+    fun `small talk during a question asks the question again`() {
+        val d = FakeDevice()
+        val a = agent(d)
+        a.onHeard("llama a Laura")
+        a.onHeard("gracias")
+        assertTrue(d.calls.isEmpty())
+        assertEquals("Perdona, no te he oído bien. Dime «sí» o «no»: ¡Claro! ¿Llamo a Laura?", d.said.last())
+    }
 }

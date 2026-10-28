@@ -1,5 +1,7 @@
 package app.friendlypear.core.voice
 
+import app.friendlypear.core.agent.SmallTalk
+
 import app.friendlypear.core.shield.Text
 
 /**
@@ -68,15 +70,21 @@ object VoiceCommands {
         "nope", "no thanks", "no thank you", "not now", "don t", "dont", "don t call", "better not", "nothing",
     )
 
+    private const val SMALL_TALK_WORDS = 10
+
     fun parse(utterance: String): Command {
         val folded = Text.fold(utterance)
         val clean = fillers.replace(folded, " ").replace(Regex("[^a-z0-9 ]"), " ").replace(Regex("\\s+"), " ").trim()
-        if (clean.isEmpty()) return Command.Unknown(utterance)
+        // Only "oye", "Peri", "hey": calling her by her name is a hello.
+        if (clean.isEmpty()) {
+            return if (folded.any { it.isLetter() }) Command.Chat(SmallTalk.of(folded) ?: SmallTalk.HELLO) else Command.Unknown(utterance)
+        }
 
         if (emergency.containsMatchIn(clean) || clean in shortCry) return Command.Emergency
         if (clean in yes) return Command.Yes
         if (clean in no) return Command.No
-        if (cancel.containsMatchIn(clean) && clean.split(" ").size <= 3) return Command.Cancel
+        // "Para" stops; "¿para qué sirves?" asks what she does.
+        if (cancel.containsMatchIn(clean) && clean.split(" ").size <= 3 && !clean.startsWith("para que")) return Command.Cancel
         // Already given away: before calls ("he dado el código a Pablo" isn't a call to Pablo). Unless it says nothing
         // given and asks about something else: "me han robado el móvil, ¿qué hago?" is advice, not first aid.
         val advice = app.friendlypear.core.agent.Advice.of(clean)
@@ -98,6 +106,10 @@ object VoiceCommands {
         if (messageWords.containsMatchIn(clean) && (readVerbs.containsMatchIn(clean) || clean.split(" ").size <= 3)) {
             return Command.ReadMessages(onlyLast = lastWords.containsMatchIn(clean))
         }
+        // A hello, a thank you, a joke: after orders and safety questions, so those always win, and short, so a long
+        // question Peri doesn't know isn't answered with a hello. Before "what?" (say it again): on the words as said,
+        // since "what can you do" is only "what do" once cleaned.
+        if (clean.split(" ").size <= SMALL_TALK_WORDS) SmallTalk.of(folded)?.let { return Command.Chat(it) }
         if (repeat.containsMatchIn(clean) && clean.split(" ").size <= 4) return Command.Repeat
         // A few words that are nothing else: "phishing", "bizum seguro".
         if (clean.split(" ").size <= 4) app.friendlypear.core.agent.Advice.topicOnly(clean)?.let { return Command.Advise(it) }

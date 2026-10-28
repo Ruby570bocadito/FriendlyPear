@@ -30,6 +30,10 @@ internal interface Phrases {
     fun familyWillHangUp(name: String): String
     fun aftercare(what: Breach): String
     fun advice(topic: Topic): String
+    /** Small talk: the [n]th of her lines for [kind], round and round. */
+    fun chat(kind: SmallTalk, n: Int): String
+    /** Feeling lonely, with someone from the family to call. */
+    fun lonelyCall(name: String): String
     fun keptCall(name: String): String
     fun smsSent(name: String): String
     fun smsFailedOfferCall(name: String): String
@@ -110,6 +114,90 @@ internal interface Phrases {
 private fun mapsLink(location: String) = "https://maps.google.com/?q=$location"
 
 internal object Spanish : Phrases {
+    override fun chat(kind: SmallTalk, n: Int) = talk.getValue(kind).let { it[n % it.size] }
+    override fun lonelyCall(name: String) = "Aquí estoy contigo. ¿Te apetece que llame a $name?"
+    private val talk = mapOf(
+        SmallTalk.HELLO to listOf(
+            "¡Hola! Qué alegría verte por aquí. ¿En qué te ayudo?",
+            "¡Hola, hola! Aquí estoy, fresquita como una pera. ¿Qué tal todo?",
+            "¡Buenas! Me encanta que me escribas. Cuéntame, ¿qué necesitas?",
+            "¡Hola! Te estaba esperando. ¿Charlamos o miramos algo juntos?",
+            "¡Hola! Todo tranquilo por aquí: tus mensajes, vigilados. ¿Qué te apetece?",
+            "¡Qué bien que vengas! ¿Te ayudo con algo o te cuento un chiste?",
+        ),
+        SmallTalk.HOW_ARE_YOU to listOf(
+            "¡Muy bien, gracias! Con la hoja al sol y vigilando tus mensajes. ¿Y tú, qué tal?",
+            "¡Estupenda! Hoy me siento muy pera. ¿Cómo va tu día?",
+            "Contenta de que me lo preguntes. Todo en calma por aquí. ¿Y por ahí?",
+            "Pues aquí, madurando ideas. ¿Qué tal te va?",
+            "¡De maravilla! Hoy no se me ha escapado ni un timo. ¿Y tú, qué tal estás?",
+            "Muy bien, gracias. ¿Y tú? Si algo te preocupa, me lo cuentas.",
+        ),
+        SmallTalk.THANKS to listOf(
+            "¡De nada! Para eso estoy.",
+            "¡Un placer! Me hace muy feliz ayudarte.",
+            "¡A ti! Da gusto cuidarte.",
+            "No hay de qué. Aquí me tienes para lo que haga falta.",
+            "¡Gracias a ti! Me pongo colorada como una pera madura.",
+            "¡Siempre a tu lado! ¿Te ayudo con algo más?",
+        ),
+        SmallTalk.WHO_ARE_YOU to listOf(
+            "Soy Peri, una pera de plastilina que vive en tu móvil. Te cuido de los timos y te hago compañía.",
+            "¡Me llamo Peri! Vigilo tus mensajes y llamadas, y si algo huele a timo, te aviso.",
+            "Soy Peri, tu compañera. Miro lo que llega antes que tú y, si hace falta, avisamos a tu familia.",
+            "Peri, para servirte: una pera con muy buen ojo para los estafadores.",
+            "Soy Peri. Me mudé a tu móvil para que nadie te engañe. ¡Y para charlar contigo!",
+            "Me llamo Peri. Puedo llamar a tu familia, leerte los mensajes y decirte si algo es un timo.",
+        ),
+        SmallTalk.WHAT_CAN_YOU_DO to listOf(
+            "Puedo llamar a tu familia, leerte los mensajes y avisarte si algo es un timo. Prueba: «llama a mi hija».",
+            "Miro tus mensajes y llamadas por si hay timos, te enseño cómo funcionan y, si me lo pides, llamo por ti.",
+            "Si te llega algo raro, enséñamelo con «Mira esta imagen». Y si tienes una duda, pregúntame aquí.",
+            "Puedo mandar un mensaje a quien quieras. Di, por ejemplo: «dile a Laura que llego tarde».",
+            "Te enseño las trampas más típicas en Aprende, con un juego para practicar. ¿Jugamos?",
+            "Te cuido y, si hace falta, aviso a tu familia, siempre contigo. ¿Qué te gustaría probar?",
+        ),
+        SmallTalk.JOKE to listOf(
+            "¿Qué le dice una pera a otra? ¡Qué pera-fecta estás hoy!",
+            "¿Por qué la pera no va al gimnasio? ¡Porque ya tiene buena figura!",
+            "Yo no me enfado nunca. Como mucho, me pongo un poco… ¡madura!",
+            "¿Sabes por qué los estafadores no pueden conmigo? Porque siempre digo: ¡es-pera, que lo compruebo!",
+            "¿Qué hace una pera en el cine? ¡Es-pera a que empiece la película!",
+            "Me dicen que soy muy dulce. ¡Será que soy de buena cosecha!",
+        ),
+        SmallTalk.GOOD_NIGHT to listOf(
+            "¡Buenas noches! Que descanses. Yo me quedo vigilando.",
+            "Que duermas muy bien. Si llega algo raro, mañana te lo cuento.",
+            "Buenas noches. Me pongo el gorrito, pero con un ojo abierto por ti.",
+            "¡Dulces sueños! Hoy lo has hecho muy bien.",
+            "A descansar. Aquí no se cuela nada mientras duermes.",
+            "Buenas noches. Mañana seguimos, ¿vale?",
+        ),
+        SmallTalk.BYE to listOf(
+            "¡Hasta luego! Aquí sigo cuidándote.",
+            "¡Adiós! Vuelve cuando quieras, que me alegras el día.",
+            "¡Hasta pronto! Si te llega algo raro, ya sabes dónde estoy.",
+            "¡Chao! Me quedo vigilando tus mensajes.",
+            "¡Hasta la próxima! Un abrazo de pera.",
+            "¡Nos vemos! Que tengas un día estupendo.",
+        ),
+        SmallTalk.LOVE to listOf(
+            "¡Ay, qué bonito! Yo también te quiero mucho.",
+            "¡Me pongo colorada! Eres lo mejor de mi día.",
+            "¡Y yo a ti! Por eso me mudé a tu móvil.",
+            "Qué cosas más bonitas me dices. Un abrazo de pera.",
+            "¡Gracias! Tú también eres la mejor compañía.",
+            "Me has alegrado el día entero. ¿Te ayudo con algo?",
+        ),
+        SmallTalk.LONELY to listOf(
+            "Aquí estoy contigo. ¿Te apetece que charlemos un rato?",
+            "Lo siento mucho. Charlamos un rato y, si quieres, llamo a quien tú me digas.",
+            "Me tienes a mí para hacerte compañía. ¿Jugamos a «¿Timo o no?» o te cuento un chiste?",
+            "Gracias por contármelo. A veces hablar con alguien ayuda: dime a quién llamo.",
+            "Te entiendo. ¿Qué tal si sales a que te dé el sol un ratito? Yo voy contigo en el bolsillo.",
+            "Estoy aquí para ti. Dime a quién te gustaría oír y lo llamo ahora.",
+        ),
+    )
     override fun offerCall(explanation: String, name: String) = "$explanation Si me dices «sí», llamo ahora mismo a $name."
     override fun callUsual(name: String) = "¿Llamo a $name a su número de siempre?"
     override fun whoToCall(names: String) = "¿A quién llamo, a $names?"
@@ -279,6 +367,90 @@ internal object Spanish : Phrases {
 }
 
 internal object English : Phrases {
+    override fun chat(kind: SmallTalk, n: Int) = talk.getValue(kind).let { it[n % it.size] }
+    override fun lonelyCall(name: String) = "I'm right here with you. Would you like me to call $name?"
+    private val talk = mapOf(
+        SmallTalk.HELLO to listOf(
+            "Hello! So lovely to see you. How can I help?",
+            "Hi there! Here I am, fresh as a pear. How's everything?",
+            "Hello! I love it when you write to me. What do you need?",
+            "Hi! I was hoping you'd drop by. Shall we chat, or look at something together?",
+            "Hello! All calm here: your messages are in good hands. What would you like?",
+            "How nice of you to come by! Can I help with something, or shall I tell you a joke?",
+        ),
+        SmallTalk.HOW_ARE_YOU to listOf(
+            "Very well, thank you! Leaf in the sun, keeping an eye on your messages. And you?",
+            "Wonderful! I'm feeling very pear-ky today. How's your day going?",
+            "Happy you asked! All calm here. How about you?",
+            "Just here, ripening ideas. How are you doing?",
+            "Marvellous! Not a single scam got past me today. How are you?",
+            "Very well, thanks. And you? If anything worries you, tell me.",
+        ),
+        SmallTalk.THANKS to listOf(
+            "You're welcome! That's what I'm here for.",
+            "My pleasure! Helping you makes me very happy.",
+            "Thank you! It's a joy to look after you.",
+            "Not at all. I'm here whenever you need me.",
+            "Thank you! I'm blushing like a ripe pear.",
+            "Always by your side! Anything else I can help with?",
+        ),
+        SmallTalk.WHO_ARE_YOU to listOf(
+            "I'm Peri, a clay pear who lives in your phone. I keep scams away and keep you company.",
+            "My name's Peri! I watch your messages and calls, and if something smells like a scam, I tell you.",
+            "I'm Peri, your companion. I look at what arrives before you do and, if needed, we tell your family.",
+            "Peri, at your service: a pear with a very good eye for scammers.",
+            "I'm Peri. I moved into your phone so nobody can trick you. And to chat with you!",
+            "My name's Peri. I can call your family, read you your messages and tell you if something is a scam.",
+        ),
+        SmallTalk.WHAT_CAN_YOU_DO to listOf(
+            "I can call your family, read you your messages and warn you about scams. Try: “call my daughter”.",
+            "I watch your messages and calls for scams, show you how they work and, if you ask, I make calls for you.",
+            "If something odd arrives, show it to me with “Look at this picture”. And if you have a question, ask me here.",
+            "I can send a message to anyone you like. Say, for example: “tell Laura I'll be late”.",
+            "I'll show you the most common traps in Learn, with a game to practise. Shall we play?",
+            "I look after you and, if needed, I tell your family, always with you. What would you like to try?",
+        ),
+        SmallTalk.JOKE to listOf(
+            "What did one pear say to the other? We make a great pear!",
+            "Why are scammers scared of me? Because I always say: let me pear-sonally check that!",
+            "I'm not just a fruit. I'm a pear-fectly good friend!",
+            "What's my favourite TV show? Pears and Recreation!",
+            "Why did the pear go to the doctor? It wasn't peeling well. Oh wait, that's the banana's joke!",
+            "People say I'm very sweet. Must be a good harvest!",
+        ),
+        SmallTalk.GOOD_NIGHT to listOf(
+            "Good night! Sleep well. I'll keep watch.",
+            "Sleep tight. If anything odd arrives, I'll tell you tomorrow.",
+            "Good night. On goes my night cap, but with one eye open for you.",
+            "Sweet dreams! You did really well today.",
+            "Time to rest. Nothing gets past me while you sleep.",
+            "Good night. We'll carry on tomorrow, shall we?",
+        ),
+        SmallTalk.BYE to listOf(
+            "See you later! I'll keep looking after you.",
+            "Bye! Come back whenever you like, you brighten my day.",
+            "See you soon! If anything odd arrives, you know where I am.",
+            "Bye for now! I'll keep an eye on your messages.",
+            "Until next time! A big pear hug.",
+            "See you! Have a wonderful day.",
+        ),
+        SmallTalk.LOVE to listOf(
+            "Aww, that's lovely! I love you too.",
+            "I'm blushing! You're the best part of my day.",
+            "Me too! That's why I moved into your phone.",
+            "What lovely things you say. A big pear hug.",
+            "Thank you! You're the best company too.",
+            "You've made my whole day. Can I help with anything?",
+        ),
+        SmallTalk.LONELY to listOf(
+            "I'm right here with you. Shall we chat for a while?",
+            "I'm so sorry. Let's chat for a while and, if you like, I'll call whoever you say.",
+            "You've got me for company. Shall we play “Scam or not?” or shall I tell you a joke?",
+            "Thank you for telling me. Sometimes talking to someone helps: tell me who to call.",
+            "I understand. How about stepping out into the sun for a bit? I'll come along in your pocket.",
+            "I'm here for you. Tell me who you'd like to hear and I'll call them now.",
+        ),
+    )
     override fun offerCall(explanation: String, name: String) = "$explanation If you say \"yes\", I'll call $name right away."
     override fun callUsual(name: String) = "Shall I call $name on their usual number?"
     override fun whoToCall(names: String) = "Who shall I call: $names?"

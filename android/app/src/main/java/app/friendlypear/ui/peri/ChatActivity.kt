@@ -3,7 +3,10 @@ package app.friendlypear.ui.peri
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.os.Bundle
+import android.os.SystemClock
 import android.text.InputType
 import android.view.Gravity
 import android.view.KeyEvent
@@ -20,6 +23,8 @@ import android.widget.TextView
 import app.friendlypear.PeriApp
 import app.friendlypear.R
 import app.friendlypear.core.agent.Topic
+import kotlin.math.PI
+import kotlin.math.sin
 
 /**
  * "Ask Peri": a written chat about staying safe, for anyone who'd rather type, or can't talk to her (no microphone).
@@ -135,10 +140,52 @@ class ChatActivity : Activity() {
         addMine(text)
         hub.ask(text) { lines, topic ->
             if (isFinishing) return@ask
-            lines.forEach { addPeri(it) }
-            peri.setImageResource(if (topic != null && topic !in CALM) R.drawable.peri_protective else R.drawable.peri_calm)
-            suggest(FOLLOW_UPS[topic] ?: START)
+            answer(lines) {
+                peri.setImageResource(if (topic != null && topic !in CALM) R.drawable.peri_protective else R.drawable.peri_calm)
+                suggest(FOLLOW_UPS[topic] ?: START)
+            }
         }
+    }
+
+    /** Her answer after a moment of "writing" (her three dots bounce), one line after another, her mouth moving. */
+    private fun answer(lines: List<String>, then: () -> Unit) {
+        if (lines.isEmpty()) {
+            talking(false)
+            return then()
+        }
+        val dots = typing()
+        add(dots, mine = false)
+        talking(true)
+        val wait = if (animationsOn()) (450L + lines.first().length * 10L).coerceAtMost(1_300L) else 0L
+        list.postDelayed({
+            if (isFinishing) return@postDelayed
+            list.removeView(dots)
+            addPeri(lines.first())
+            answer(lines.drop(1), then)
+        }, wait)
+    }
+
+    /** Her picture in the header says the answer: three mouth shapes in turn, then her smile again. */
+    private val mouth = object : Runnable {
+        var step = 0
+        override fun run() {
+            peri.setImageResource(MOUTHS[step++ % MOUTHS.size])
+            peri.postDelayed(this, MOUTH_MS)
+        }
+    }
+
+    private fun talking(on: Boolean) {
+        peri.removeCallbacks(mouth)
+        if (on && animationsOn()) peri.post(mouth) else peri.setImageResource(R.drawable.peri_calm)
+    }
+
+    /** Peri "writing": a white bubble with her three dots bouncing one after another. */
+    private fun typing(): View = LinearLayout(this).apply {
+        background = rounded(Palette.WHITE, dp(22).toFloat(), Palette.LINE, dp(1))
+        setPadding(dp(14), dp(14), dp(14), dp(14))
+        contentDescription = getString(R.string.chat_typing)
+        accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+        addView(TypingDots(this@ChatActivity), LinearLayout.LayoutParams(dp(54), dp(20)))
     }
 
     private fun addMine(text: String) = add(bubble(text, mine = true), mine = true)
@@ -194,9 +241,11 @@ class ChatActivity : Activity() {
         private val CALM = setOf(Topic.WHATSAPP, Topic.PASSWORDS, Topic.WHAT_IS_A_SCAM, Topic.SHOPPING)
 
         private val START = listOf(
-            R.string.chat_s_bank, R.string.chat_s_code, R.string.chat_s_link, R.string.chat_s_family, R.string.chat_s_app,
-            R.string.chat_s_prize, R.string.chat_s_whatsapp, R.string.chat_s_stolen, R.string.chat_s_scam, R.string.chat_s_gave,
+            R.string.chat_s_bank, R.string.chat_s_joke, R.string.chat_s_code, R.string.chat_s_link, R.string.chat_s_who, R.string.chat_s_family,
+            R.string.chat_s_app, R.string.chat_s_prize, R.string.chat_s_whatsapp, R.string.chat_s_stolen, R.string.chat_s_scam, R.string.chat_s_gave,
         )
+        private val MOUTHS = listOf(R.drawable.peri_calm_talk, R.drawable.peri_calm_talkwide, R.drawable.peri_calm_talko, R.drawable.peri_calm_talk)
+        private const val MOUTH_MS = 130L
 
         /** After an answer, what usually comes next. */
         private val FOLLOW_UPS: Map<Topic, List<Int>> = mapOf(
@@ -210,5 +259,24 @@ class ChatActivity : Activity() {
             Topic.WHAT_IS_A_SCAM to listOf(R.string.chat_s_bank, R.string.chat_s_link, R.string.chat_s_police),
             Topic.PRIZE to listOf(R.string.chat_s_link, R.string.chat_s_gave),
         )
+    }
+}
+
+/** Three dots that rise one after another, as while someone writes; still with "remove animations". */
+private class TypingDots(context: Context) : View(context) {
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Palette.GREEN_DARK }
+    private val moves = context.animationsOn()
+
+    override fun onDraw(canvas: Canvas) {
+        val r = height / 5f
+        val gap = (width - 6 * r) / 2f
+        val t = SystemClock.uptimeMillis()
+        for (i in 0 until 3) {
+            val phase = ((t + i * 160) % 900) / 900.0
+            val lift = if (moves) (sin(phase * 2 * PI).coerceAtLeast(0.0) * r * 1.6).toFloat() else 0f
+            paint.alpha = if (moves) (150 + 105 * (lift / (r * 1.6f))).toInt().coerceIn(0, 255) else 200
+            canvas.drawCircle(r + i * (2 * r + gap), height - r - lift, r, paint)
+        }
+        if (moves) postInvalidateOnAnimation()
     }
 }
