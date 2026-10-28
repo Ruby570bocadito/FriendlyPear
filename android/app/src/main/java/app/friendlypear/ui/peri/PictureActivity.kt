@@ -182,7 +182,7 @@ class PictureActivity : Activity() {
         if (worried) parts += v?.kinds.orEmpty().filter { !(it == "qr" && qr?.level == Level.SCAM) }.mapNotNull { DONTS[it] }.map { getString(it) }
         // The rings: the phone's own on its codes (those worth one, or all of them if the model worried about a
         // code), the model's for the rest, except where it ringed a code the phone has ringed already.
-        val flagged = v != null && ("qr" in v.kinds || v.marks.any { it.kind == "qr" })
+        val flagged = worried && v != null && ("qr" in v.kinds || v.marks.any { it.kind == "qr" })
         val ours = codes.filter { (_, j) -> j.level != Level.OK || flagged }.map { (found, j) ->
             found.mark to getString(if (j.level == Level.SCAM) R.string.qr_label_trap else R.string.picture_label_qr)
         }

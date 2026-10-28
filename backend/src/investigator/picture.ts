@@ -58,6 +58,7 @@ Decide whether it is a scam and list the risky things it contains, using only th
 - "code_request": it asks for a code, PIN or password
 - "remote_app": it asks to install a remote-control app
 Real official letters rarely ask for small urgent fees through QR codes or links; brand-new or odd web addresses, urgency and threats are scam signs.
+A QR code or a link on its own is not a scam sign: menus, timetables, tickets, guides and notices use them every day. If nothing asks for money, a code, a password, personal data or an app, and nothing threatens, hurries or promises a prize, the verdict is "ok".
 Answer with JSON only: {"verdict":"scam"|"doubt"|"ok","confidence":0.0-1.0,"kinds":["qr","link",...]}`;
 
 /** Checks what the phone sent: a picture of a known type and size, and the language. */
