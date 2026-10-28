@@ -1,0 +1,14 @@
+{
+  "home": {
+    "prompt": "A cosy living room in a Spanish flat: a soft armchair with a knitted blanket, a small side table with a cup of tea, a standing lamp, plants on the window sill, a window with a pale blue sky. Soft 3D clay diorama, matte plasticine texture, rounded shapes, warm pastel colours with fresh greens and a soft sky blue, gentle afternoon light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space in the middle. No people, no animals, no characters, no text, no letters, no numbers, no logos.",
+    "size": "1024x1536"
+  },
+  "street": {
+    "prompt": "A quiet sunny street in a Spanish town: a pavement with a parking meter at one side, small parked cars, balconies with flower pots, a tree, a pale blue sky. Soft 3D clay diorama, matte plasticine texture, rounded shapes, warm pastel colours with fresh greens and a soft sky blue, gentle afternoon light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space in the middle. No people, no animals, no characters, no text, no letters, no numbers, no logos.",
+    "size": "1024x1536"
+  },
+  "sky": {
+    "prompt": "An open evening sky above gentle green hills and a small village with warm lit windows, soft pink and peach clouds, the first stars. Soft 3D clay diorama, matte plasticine texture, rounded shapes, warm pastel colours with fresh greens and a soft sky blue, gentle afternoon light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space in the middle. No people, no animals, no characters, no text, no letters, no numbers, no logos.",
+    "size": "1024x1536"
+  }
+}

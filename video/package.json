@@ -1,0 +1,20 @@
+{
+  "name": "friendlypear-video",
+  "private": true,
+  "description": "FriendlyPear's ad, made with Remotion from the app's real recordings and Peri's Muse Image pictures.",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render Ad out/ad.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.535",
+    "@remotion/fonts": "4.0.535",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.535"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "typescript": "5.9.3"
+  }
+}

@@ -32,5 +32,9 @@ training/data/
 # Demo video clips: large, they go to the video host, not the repo
 dist/demo/
 
+# The ad's recordings and renders (video/): large, made again with video/scripts/record.sh and npm run render
+video/public/clips/
+video/out/
+
 # Python caches from the asset scripts
 __pycache__/
