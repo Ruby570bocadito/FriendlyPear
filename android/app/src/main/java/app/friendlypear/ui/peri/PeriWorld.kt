@@ -487,10 +487,10 @@ class PeriWorld(context: Context) : View(context) {
         }
         far.reset()
         far.moveTo(-edge, -24 * d)
-        far.lineTo(0f, -26 * d)
-        far.cubicTo(w * 0.10f, -60 * d, w * 0.26f, -78 * d, w * 0.38f, -52 * d)
-        far.cubicTo(w * 0.48f, -34 * d, w * 0.58f, -40 * d, w * 0.68f, -58 * d)
-        far.cubicTo(w * 0.80f, -82 * d, w * 0.93f, -62 * d, w, -40 * d)
+        far.lineTo(0f, FAR_CREST[1] * d)
+        for (o in FAR_CREST.indices step 8) {
+            far.cubicTo(w * FAR_CREST[o + 2], FAR_CREST[o + 3] * d, w * FAR_CREST[o + 4], FAR_CREST[o + 5] * d, w * FAR_CREST[o + 6], FAR_CREST[o + 7] * d)
+        }
         far.lineTo(w + edge, -36 * d)
         farCrest.set(far)
         far.lineTo(w + edge, down)
@@ -797,28 +797,29 @@ class PeriWorld(context: Context) : View(context) {
         fill.shader = farShade.of(lit(blend(colors[0], Palette.WHITE, 0.14f)), lit(colors[0]), lit(blend(colors[0], SHADES.getValue(place), 0.28f)))
         canvas.drawPath(far, fill)
         fill.shader = null
-        // Light on its crest too.
-        stroke.color = lit(blend(colors[0], Palette.WHITE, 0.45f))
+        // Light on its crest too; snow gets a cool edge instead, or it melts into the sky.
+        stroke.color = if (place == Place.SNOW) lit(blend(colors[0], SHADES.getValue(place), 0.5f)) else lit(blend(colors[0], Palette.WHITE, 0.45f))
         stroke.alpha = 170
         stroke.strokeWidth = 2.5f * d
         canvas.drawPath(farCrest, stroke)
         stroke.alpha = 255
         when (place) {
             Place.ORCHARD -> {
-                tree(canvas, w * 0.11f, -50 * d, 1f, 0xFF6FAE4C.toInt(), 0xFF5E9E40.toInt(), pears = true)
-                tree(canvas, w * 0.26f, -70 * d, 0.7f, 0xFF7DBA55.toInt(), 0xFF6FAE4C.toInt(), pears = true)
-                tree(canvas, w * 0.88f, -62 * d, 1.1f, 0xFF6FAE4C.toInt(), 0xFF5E9E40.toInt(), pears = true)
+                tree(canvas, w * 0.11f, onFar(0.11f), 1f, 0xFF6FAE4C.toInt(), 0xFF5E9E40.toInt(), pears = true)
+                tree(canvas, w * 0.26f, onFar(0.26f), 0.7f, 0xFF7DBA55.toInt(), 0xFF6FAE4C.toInt(), pears = true)
+                tree(canvas, w * 0.88f, onFar(0.88f), 1.1f, 0xFF6FAE4C.toInt(), 0xFF5E9E40.toInt(), pears = true)
             }
             Place.AUTUMN -> {
-                tree(canvas, w * 0.12f, -52 * d, 1f, 0xFFE8833A.toInt(), 0xFFD9532F.toInt(), pears = false)
-                tree(canvas, w * 0.27f, -70 * d, 0.72f, 0xFFF2B33D.toInt(), 0xFFE8833A.toInt(), pears = false)
-                tree(canvas, w * 0.87f, -64 * d, 1.1f, 0xFFD9532F.toInt(), 0xFFF2B33D.toInt(), pears = false)
+                tree(canvas, w * 0.12f, onFar(0.12f), 1f, 0xFFE8833A.toInt(), 0xFFD9532F.toInt(), pears = false)
+                tree(canvas, w * 0.27f, onFar(0.27f), 0.72f, 0xFFF2B33D.toInt(), 0xFFE8833A.toInt(), pears = false)
+                tree(canvas, w * 0.87f, onFar(0.87f), 1.1f, 0xFFD9532F.toInt(), 0xFFF2B33D.toInt(), pears = false)
             }
             Place.SNOW -> {
-                pine(canvas, w * 0.08f, -40 * d, 1f)
-                pine(canvas, w * 0.18f, -58 * d, 0.8f)
-                pine(canvas, w * 0.84f, -66 * d, 1.1f)
-                snowman(canvas, w * 0.95f, -50 * d, 0.85f)
+                pine(canvas, w * 0.07f, onFar(0.07f), 1f)
+                pine(canvas, w * 0.17f, onFar(0.17f), 0.8f)
+                cabin(canvas, w * 0.775f, onFar(0.775f), 0.85f)
+                pine(canvas, w * 0.87f, onFar(0.87f), 1.05f)
+                snowman(canvas, w * 0.955f, onFar(0.955f), 0.8f)
             }
             else -> Unit
         }
@@ -883,6 +884,21 @@ class PeriWorld(context: Context) : View(context) {
         canvas.drawPath(path, fill)
     }
 
+    /** How high the far hills' crest is at [share] of the width, in px from the ground line (up is negative). */
+    private fun farAt(share: Float): Float {
+        val o = 8 * (0 until FAR_CREST.size / 8).first { share <= FAR_CREST[it * 8 + 6] || it == FAR_CREST.size / 8 - 1 }
+        var lo = 0f
+        var hi = 1f
+        repeat(18) {
+            val mid = (lo + hi) / 2
+            if (bez(mid, FAR_CREST[o], FAR_CREST[o + 2], FAR_CREST[o + 4], FAR_CREST[o + 6]) < share) lo = mid else hi = mid
+        }
+        return bez((lo + hi) / 2, FAR_CREST[o + 1], FAR_CREST[o + 3], FAR_CREST[o + 5], FAR_CREST[o + 7]) * d
+    }
+
+    /** Where something stands on the far crest: a little into the hill, so it grows out of it. */
+    private fun onFar(share: Float): Float = farAt(share) + 3 * d
+
     private fun frontAt(fx: Float, g: Float): Float {
         // Follows the front hill's two curves closely enough to set things on it.
         return if (fx <= 0.5f) bez(fx / 0.5f, g + 40 * d, g + 8 * d, g, g) else bez((fx - 0.5f) / 0.5f, g, g, g + 6 * d, g + 34 * d)
@@ -928,7 +944,7 @@ class PeriWorld(context: Context) : View(context) {
                 fallenLeaves(canvas, w, g)
                 for (fx in AUTUMN_BUSHES) bush(canvas, w * fx, frontAt(fx, g) + 16 * d, 0xFFC9792F.toInt())
             }
-            Place.SNOW -> Unit
+            Place.SNOW -> gulls(canvas, w, g, hidden)
         }
         // Petals, leaves and snowflakes, everywhere in the sky; fireflies by the ground at night.
         val snow = place == Place.SNOW
@@ -1020,6 +1036,7 @@ class PeriWorld(context: Context) : View(context) {
         groundShadow(canvas, x + 2 * u, base + 3 * u, 13 * u)
         fill.color = lit(0xFF7A5238.toInt())
         canvas.drawRect(x - 2.5f * u, base - 6 * u, x + 2.5f * u, base + 4 * u, fill)
+        mound(canvas, x, base + 2 * u, 9 * u)
         for (tier in 0..2) {
             val top = base - (22 + tier * 14) * u
             val half = (16 - tier * 4) * u
@@ -1048,10 +1065,69 @@ class PeriWorld(context: Context) : View(context) {
         }
     }
 
+    /** A little heap of snow where something stands, so it grows out of the hill instead of floating on it. */
+    private fun mound(canvas: Canvas, x: Float, base: Float, rx: Float) {
+        fill.color = lit(0xFFD3DEEF.toInt())
+        oval.set(x - rx, base - rx * 0.3f, x + rx, base + rx * 0.22f)
+        canvas.drawOval(oval, fill)
+        fill.color = lit(Palette.WHITE)
+        oval.set(x - rx * 0.86f, base - rx * 0.36f, x + rx * 0.5f, base + rx * 0.04f)
+        canvas.drawOval(oval, fill)
+    }
+
+    /** A little wooden cabin with a snowy roof: its window glows warm at dusk and at night, and its chimney smokes. */
+    private fun cabin(canvas: Canvas, x: Float, base: Float, s: Float) {
+        val u = d * s
+        groundShadow(canvas, x + 2 * u, base + 2 * u, 22 * u)
+        // The smoke, behind the chimney: soft puffs that rise, grow and fade.
+        for (i in 0 until 3) {
+            val k = (time * 0.32f + i / 3f) % 1f
+            fill.color = lit(0xFFF2F5FA.toInt())
+            fill.alpha = (170 * (1f - k)).toInt()
+            canvas.drawCircle(x + 9 * u + k * 7 * u + sin(time * 0.9f + i) * 1.5f * u, base - 33 * u - k * 26 * u, (3f + k * 5f) * u, fill)
+        }
+        fill.alpha = 255
+        fill.color = lit(0xFF7A5238.toInt())
+        canvas.drawRect(x + 6 * u, base - 31 * u, x + 12 * u, base - 19 * u, fill)
+        // The walls, the right one in shade like everything here.
+        fill.color = lit(0xFFB97A4D.toInt())
+        canvas.drawRect(x - 15 * u, base - 18 * u, x + 15 * u, base + 2 * u, fill)
+        fill.color = lit(0xFF9A633C.toInt())
+        canvas.drawRect(x + 5 * u, base - 18 * u, x + 15 * u, base + 2 * u, fill)
+        fill.color = lit(0xFF6E4429.toInt())
+        canvas.drawRoundRect(x - 3 * u, base - 10 * u, x + 4 * u, base + 2 * u, 2 * u, 2 * u, fill)
+        // The window: warm light, and a glow around it as the day goes.
+        if (night > 0.05f) {
+            fill.color = 0xFFFFD98A.toInt()
+            fill.alpha = (110 * night).toInt()
+            canvas.drawCircle(x - 9 * u, base - 10 * u, 10 * u, fill)
+            fill.alpha = 255
+        }
+        fill.color = blend(lit(0xFFFFE6A8.toInt()), 0xFFFFD36B.toInt(), night)
+        canvas.drawRect(x - 12 * u, base - 13 * u, x - 6 * u, base - 7 * u, fill)
+        // The roof, deep in snow, its right half in shade.
+        fill.color = lit(Palette.WHITE)
+        path.reset()
+        path.moveTo(x - 19 * u, base - 15 * u)
+        path.quadTo(x - 10 * u, base - 25 * u, x, base - 30 * u)
+        path.quadTo(x + 10 * u, base - 25 * u, x + 19 * u, base - 15 * u)
+        path.close()
+        canvas.drawPath(path, fill)
+        fill.color = lit(0xFFD3DEEF.toInt())
+        path.reset()
+        path.moveTo(x, base - 30 * u)
+        path.quadTo(x + 10 * u, base - 25 * u, x + 19 * u, base - 15 * u)
+        path.lineTo(x, base - 15 * u)
+        path.close()
+        canvas.drawPath(path, fill)
+        mound(canvas, x, base + 2 * u, 20 * u)
+    }
+
     /** A little snowman in a coral scarf, shaded on the right like everything here. */
     private fun snowman(canvas: Canvas, x: Float, base: Float, s: Float) {
         val u = d * s
         groundShadow(canvas, x + 2 * u, base + 1 * u, 13 * u)
+        mound(canvas, x, base + 1 * u, 12 * u)
         val snow = lit(Palette.WHITE)
         val shade = lit(0xFFC9D6EA.toInt())
         fill.color = shade
@@ -1313,7 +1389,7 @@ class PeriWorld(context: Context) : View(context) {
             Place.ORCHARD to intArrayOf(0xFFC6E6C0.toInt(), 0xFF9CCB72.toInt(), 0xFFC3E39E.toInt()),
             Place.SEASIDE to intArrayOf(0xFF63C4EA.toInt(), 0xFFF6DFA8.toInt(), 0xFFFFF0C8.toInt()),
             Place.AUTUMN to intArrayOf(0xFFF2CF9A.toInt(), 0xFFD9A75A.toInt(), 0xFFEBC37F.toInt()),
-            Place.SNOW to intArrayOf(0xFFE2EAF6.toInt(), 0xFFF7FAFF.toInt(), 0xFFFFFFFF.toInt()),
+            Place.SNOW to intArrayOf(0xFFD8E3F3.toInt(), 0xFFF7FAFF.toInt(), 0xFFFFFFFF.toInt()),
         )
 
         fun phaseAt(hour: Int): Phase = when (hour) {
@@ -1353,6 +1429,13 @@ class PeriWorld(context: Context) : View(context) {
             }
             return season[today.get(Calendar.DAY_OF_YEAR) % season.size]
         }
+
+        /** The far hills' crest: three Béziers (start, two controls, end), as share of the width and dp above the ground. */
+        private val FAR_CREST = floatArrayOf(
+            0f, -26f, 0.10f, -60f, 0.26f, -78f, 0.38f, -52f,
+            0.38f, -52f, 0.48f, -34f, 0.58f, -40f, 0.68f, -58f,
+            0.68f, -58f, 0.80f, -82f, 0.93f, -62f, 1f, -40f,
+        )
 
         private fun bez(t: Float, p0: Float, p1: Float, p2: Float, p3: Float): Float {
             val u = 1 - t
