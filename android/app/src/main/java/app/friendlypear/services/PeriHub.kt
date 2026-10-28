@@ -477,8 +477,8 @@ class PeriHub(context: Context) {
      * After giving something away, the person chose to tell the family: for a day their pear asks for a hand
      * ("breach"), if they share Peri's news. Only that: never what was given.
      */
-    fun needsFamilyHelp(what: app.friendlypear.core.agent.Breach) {
-        aftercare.edit().putLong(HELP_UNTIL, System.currentTimeMillis() + HELP_MS).putString(HELP_KIND, what.name).apply()
+    fun needsFamilyHelp() {
+        aftercare.edit().putLong(HELP_UNTIL, System.currentTimeMillis() + HELP_MS).apply()
         publishPear()
     }
 
@@ -1041,7 +1041,6 @@ class PeriHub(context: Context) {
         const val HANGUP_WAIT_MS = 6_000L
         const val FAMILY_NOTES_MS = 60_000L
         const val HELP_UNTIL = "until"
-        const val HELP_KIND = "kind"
         const val HELP_MS = 24 * 60 * 60_000L
         const val ALERTS_CHANNEL = "peri_alerts"
         const val WARNED = "warned"

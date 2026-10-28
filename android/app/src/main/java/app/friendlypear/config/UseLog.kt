@@ -19,7 +19,7 @@ class UseLog(context: Context) {
     data class Entry(val at: Long, val kind: Kind, val who: String?)
 
     private val context = context.applicationContext
-    private val prefs = this.context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    private val prefs = this.context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).apply { sealOld(KEY) }
 
     /** [phone] is turned into the contact's name here, if there is one; the same thing again within a few minutes counts once. */
     @Synchronized
@@ -31,12 +31,12 @@ class UseLog(context: Context) {
         list.add(0, Entry(now, kind, who))
         val json = JSONArray()
         list.take(MAX).forEach { e -> json.put(JSONObject().put("at", e.at).put("kind", e.kind.name).put("who", e.who ?: "")) }
-        prefs.edit().putString(KEY, json.toString()).apply()
+        prefs.edit().putSealed(KEY, json.toString()).apply()
     }
 
     /** Newest first. */
     fun all(): List<Entry> {
-        val json = runCatching { JSONArray(prefs.getString(KEY, "[]")) }.getOrNull() ?: return emptyList()
+        val json = runCatching { JSONArray(prefs.getSealed(KEY) ?: "[]") }.getOrNull() ?: return emptyList()
         return (0 until json.length()).mapNotNull { i ->
             val o = json.optJSONObject(i) ?: return@mapNotNull null
             val kind = runCatching { Kind.valueOf(o.optString("kind")) }.getOrNull() ?: return@mapNotNull null

@@ -9,10 +9,10 @@ import org.json.JSONObject
 
 /** The family setup, kept only on this phone. It never travels to the backend or to the guardians. */
 class FamilyStore(context: Context) {
-    private val prefs = context.applicationContext.getSharedPreferences("family", Context.MODE_PRIVATE)
+    private val prefs = context.applicationContext.getSharedPreferences("family", Context.MODE_PRIVATE).apply { sealOld(KEY, PENDING) }
 
     fun load(): FamilyConfig {
-        val raw = prefs.getString(KEY, null) ?: return FamilyConfig()
+        val raw = prefs.getSealed(KEY) ?: return FamilyConfig()
         return try {
             val o = JSONObject(raw)
             FamilyConfig(
@@ -33,12 +33,12 @@ class FamilyStore(context: Context) {
             .put("relations", JSONObject(config.relations.mapValues { it.value.name }))
             .put("aliases", JSONObject(config.aliases.mapValues { JSONArray(it.value) }))
             .put("hasFamilyWord", config.hasFamilyWord)
-        prefs.edit().putString(KEY, o.toString()).apply()
+        prefs.edit().putSealed(KEY, o.toString()).apply()
     }
 
     /** A change of guardians waiting for a guardian's yes and its 48 hours. */
     fun loadPending(): PendingCircleChange? {
-        val raw = prefs.getString(PENDING, null) ?: return null
+        val raw = prefs.getSealed(PENDING) ?: return null
         return try {
             val o = JSONObject(raw)
             PendingCircleChange(
@@ -59,7 +59,7 @@ class FamilyStore(context: Context) {
             .put("requestedAt", pending.requestedAt)
             .put("approved", pending.approved)
             .put("approvalId", pending.approvalId ?: "")
-        prefs.edit().putString(PENDING, o.toString()).apply()
+        prefs.edit().putSealed(PENDING, o.toString()).apply()
     }
 
     private fun JSONArray?.strings(): List<String> = if (this == null) emptyList() else (0 until length()).map { getString(it) }

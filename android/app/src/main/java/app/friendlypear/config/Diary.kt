@@ -15,19 +15,19 @@ class Diary(context: Context) {
     /** [detail] is a word or two at most: the kind of trap ("parcel"), or a score ("5/6"). */
     data class Entry(val at: Long, val kind: Kind, val detail: String = "")
 
-    private val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    private val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).apply { sealOld(KEY) }
 
     @Synchronized
     fun add(kind: Kind, detail: String = "", now: Long = System.currentTimeMillis()) {
         val list = listOf(Entry(now, kind, detail.take(MAX_DETAIL))) + all()
         val json = JSONArray()
         list.take(MAX).forEach { e -> json.put(JSONObject().put("at", e.at).put("kind", e.kind.name).put("detail", e.detail)) }
-        prefs.edit().putString(KEY, json.toString()).apply()
+        prefs.edit().putSealed(KEY, json.toString()).apply()
     }
 
     /** Newest first. */
     fun all(): List<Entry> {
-        val json = runCatching { JSONArray(prefs.getString(KEY, "[]")) }.getOrNull() ?: return emptyList()
+        val json = runCatching { JSONArray(prefs.getSealed(KEY) ?: "[]") }.getOrNull() ?: return emptyList()
         return (0 until json.length()).mapNotNull { i ->
             val o = json.optJSONObject(i) ?: return@mapNotNull null
             val kind = runCatching { Kind.valueOf(o.optString("kind")) }.getOrNull() ?: return@mapNotNull null

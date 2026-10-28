@@ -143,7 +143,7 @@ class AftercareActivity : Activity() {
             Act.REPORT -> Intent(this, ReportActivity::class.java)
             Act.WHATSAPP -> packageManager.getLaunchIntentForPackage("com.whatsapp")
             Act.FAMILY -> {
-                hub.needsFamilyHelp(kind)
+                hub.needsFamilyHelp()
                 hub.guardianPhone()?.let { Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", it, null)) } ?: run {
                     // No guardian's number here: the family's phones already show it, if Peri shares its news;
                     // if not, the dialer, to call someone trusted.

@@ -10,13 +10,14 @@ import android.content.Context
 class WebNotice(context: Context) {
     data class Notice(val browser: String, val channel: String?, val site: String?, val at: Long)
 
-    private val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    // The site, and the browser's channel for it (which names the site too), are sealed.
+    private val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).apply { sealOld(CHANNEL, SITE) }
 
     fun save(notice: Notice) {
         prefs.edit()
             .putString(BROWSER, notice.browser)
-            .putString(CHANNEL, notice.channel)
-            .putString(SITE, notice.site)
+            .putString(CHANNEL, notice.channel?.let(Sealed::seal))
+            .putString(SITE, notice.site?.let(Sealed::seal))
             .putLong(AT, notice.at)
             .putBoolean(HIDDEN, false)
             .apply()
@@ -27,7 +28,7 @@ class WebNotice(context: Context) {
         val browser = prefs.getString(BROWSER, null) ?: return null
         val at = prefs.getLong(AT, 0)
         if (prefs.getBoolean(HIDDEN, false) || now - at > KEEP_MS) return null
-        return Notice(browser, prefs.getString(CHANNEL, null), prefs.getString(SITE, null), at)
+        return Notice(browser, prefs.getSealed(CHANNEL), prefs.getSealed(SITE), at)
     }
 
     fun hide() {

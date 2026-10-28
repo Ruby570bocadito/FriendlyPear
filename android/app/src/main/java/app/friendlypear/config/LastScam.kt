@@ -12,7 +12,7 @@ class LastScam(context: Context) {
     /** [kind] is the kind of trap, for "How the trap worked" ([app.friendlypear.ui.peri.TrapActivity.kindOf]). */
     data class Scam(val channel: String, val sender: String, val text: String, val at: Long, val reason: String, val signals: List<String>, val kind: String = "link")
 
-    private val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    private val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE).apply { sealOld(KEY) }
 
     fun save(scam: Scam) {
         val json = JSONObject()
@@ -23,14 +23,14 @@ class LastScam(context: Context) {
             .put("reason", scam.reason)
             .put("signals", JSONArray(scam.signals))
             .put("kind", scam.kind)
-        prefs.edit().putString(KEY, json.toString()).putBoolean(HIDDEN, false).apply()
+        prefs.edit().putSealed(KEY, json.toString()).putBoolean(HIDDEN, false).apply()
     }
 
     /** The scam to offer a report for: recent, and not hidden by the person. */
     fun offer(now: Long = System.currentTimeMillis()): Scam? = load(now)?.takeIf { !prefs.getBoolean(HIDDEN, false) }
 
     fun load(now: Long = System.currentTimeMillis()): Scam? {
-        val json = runCatching { JSONObject(prefs.getString(KEY, null) ?: return null) }.getOrNull() ?: return null
+        val json = runCatching { JSONObject(prefs.getSealed(KEY) ?: return null) }.getOrNull() ?: return null
         val at = json.optLong("at")
         if (now - at > KEEP_MS) return null.also { clear() }
         val signals = json.optJSONArray("signals") ?: JSONArray()

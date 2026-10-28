@@ -9,16 +9,16 @@ data class InvestigationEntry(val at: Long, val verdict: String, val evidence: L
 
 /** The last investigations, on the phone only, for the family to see in the family setup. */
 class InvestigationLog(context: Context) {
-    private val prefs = context.applicationContext.getSharedPreferences("investigations", Context.MODE_PRIVATE)
+    private val prefs = context.applicationContext.getSharedPreferences("investigations", Context.MODE_PRIVATE).apply { sealOld(KEY) }
 
     fun add(entry: InvestigationEntry) {
         val kept = (listOf(entry) + load()).take(MAX_ENTRIES)
         val json = JSONArray(kept.map { JSONObject().put("at", it.at).put("verdict", it.verdict).put("evidence", JSONArray(it.evidence)) })
-        prefs.edit().putString(KEY, json.toString()).apply()
+        prefs.edit().putSealed(KEY, json.toString()).apply()
     }
 
     fun load(): List<InvestigationEntry> {
-        val json = runCatching { JSONArray(prefs.getString(KEY, "[]")) }.getOrNull() ?: return emptyList()
+        val json = runCatching { JSONArray(prefs.getSealed(KEY) ?: "[]") }.getOrNull() ?: return emptyList()
         return (0 until json.length()).mapNotNull { i ->
             val o = json.optJSONObject(i) ?: return@mapNotNull null
             val lines = o.optJSONArray("evidence") ?: JSONArray()
