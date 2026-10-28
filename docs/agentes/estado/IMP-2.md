@@ -8,7 +8,7 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
   - Llamadas: con la línea ocupada la llamada espera; botón de colgar en la pausa (`ANSWER_PHONE_CALLS`); «colgar su llamada» para la familia (`/v1/pears/:id/hangup`, `/v1/hangup`, pera con kind `call`); bloquear el número de un timo (`BlockList`, `CallScreener`, Ajustes). Probado con dos emuladores.
   - `FamilyNotes`: noticias de la familia como notificaciones con la app cerrada; «¿has sido tú?» se contesta desde la notificación (probado).
   - Estrellas de plastilina (Muse Image) en `Sparkles.Effect.STARS`; el pueblo con sprites de Muse se probó y se retiró: la persona prefiere el mundo dibujado a mano.
-  - Roadmap de seguridad: sección F de `docs/agentes/ROADMAP.md`.
+  - Roadmap de seguridad: sección F de `docs/agentes/ROADMAP.md`. Hecho de ella: colgar con aviso, cuidador en llamada (sí en espera), límites por móvil, release sin token (`eval/release_check.py`), apps que controlan la pantalla (`ScreenAccess`; prueba: `--es intruder "paquete|nombre"`), burbuja de Mini Peri en ventana propia.
   - Pulido: dos anclajes por imagen (cara para gafas y cuello, cabeza para sombreros: al mirar a un lado gira la cara); una tarjeta cada vez, fondo más tranquilo, tarjetas con muelle; pruebas de estrés (`eval/stress.py` + monkey) sin fallos; Peri suelta sus fotogramas cuando no se ve (121 → 76 MB).
 - 28 oct, tarde: fondo con profundidad y luz de plastilina, «¿has sido tú?», campaña, la pera de quien pide, `docs/SECURITY.md`.
 - 28 oct, antes: armario, peras de la familia, bienvenida, `PeriWorld`, fuentes, apartados, juego, poses y gestos, frases de Muse Wonder.
