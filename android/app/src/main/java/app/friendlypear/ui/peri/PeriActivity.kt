@@ -323,6 +323,16 @@ class PeriActivity : Activity() {
                     android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
                     Gravity.BOTTOM or Gravity.START,
                 ).apply { bottomMargin = dp(10) })
+                // Her wardrobe, beside her other foot: a hat, glasses, a bow tie...
+                addView(ImageView(this@PeriActivity).apply {
+                    setImageResource(R.drawable.ic_wardrobe)
+                    setColorFilter(Palette.GREEN_DARK)
+                    contentDescription = getString(R.string.wardrobe_open)
+                    background = pressable(rounded(Palette.WHITE, dp(26).toFloat()), Palette.RIPPLE_DARK)
+                    setPadding(dp(12), dp(12), dp(12), dp(12))
+                    stateListAnimator = pressScale()
+                    setOnClickListener { startActivity(Intent(this@PeriActivity, WardrobeActivity::class.java)) }
+                }, android.widget.FrameLayout.LayoutParams(dp(52), dp(52), Gravity.BOTTOM or Gravity.END).apply { bottomMargin = dp(8) })
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(4) })
             addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
             addView(web, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
@@ -631,6 +641,7 @@ class PeriActivity : Activity() {
             greet(away, first)
         }
         world.refreshPlace()
+        face.outfit = Outfit.load(this)
         if (tab != TAB_PERI) (page(tab) as? Page)?.refresh()
         sensors?.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER)?.let { sensors?.registerListener(shake, it, android.hardware.SensorManager.SENSOR_DELAY_UI) }
         showShieldCount(hub.shields.total, pop = false)

@@ -817,4 +817,44 @@
         <item>whatsapp</item>
         <item>sms</item>
     </string-array>
+    <!-- Peri's wardrobe: accessories made with Muse Image, worn in every pose. -->
+    <string name="wardrobe_title">Peri\'s wardrobe</string>
+    <string name="wardrobe_open">Dress Peri</string>
+    <string name="wardrobe_head">On her head</string>
+    <string name="wardrobe_eyes">On her eyes</string>
+    <string name="wardrobe_neck">Below her smile</string>
+    <string name="wardrobe_none">Nothing</string>
+    <string name="wardrobe_surprise">Surprise me</string>
+    <string name="wardrobe_done">Done</string>
+    <string name="wear_straw">Straw hat</string>
+    <string name="wear_beanie">Woolly hat</string>
+    <string name="wear_crown">Crown</string>
+    <string name="wear_flowers">Flower crown</string>
+    <string name="wear_bow">Bow</string>
+    <string name="wear_sunglasses">Sunglasses</string>
+    <string name="wear_hearts">Heart glasses</string>
+    <string name="wear_glasses">Glasses</string>
+    <string name="wear_bowtie">Bow tie</string>
+    <string name="wear_tie">Tie</string>
+    <string name="wear_bandana">Neckerchief</string>
+    <string-array name="peri_outfit">
+        <item>I love it! Don\'t I look lovely?</item>
+        <item>So stylish! The smartest pear in the orchard.</item>
+        <item>Trying it on… and keeping it!</item>
+        <item>Ooh, it really suits me! Thank you.</item>
+        <item>Even the scammers won\'t recognise me now!</item>
+        <item>I feel like a catwalk pear.</item>
+        <item>Perfect! Well, pear-fect.</item>
+        <item>Something new to wear! I\'m putting it on right away.</item>
+    </string-array>
+    <string-array name="peri_outfit_off">
+        <item>Au naturel, fresh off the tree.</item>
+        <item>I\'m comfy like this too.</item>
+        <item>Off it comes! Now you can see my leaf.</item>
+        <item>Back to my usual look.</item>
+        <item>Lighter than ever.</item>
+        <item>Simple and happy, like a good pear.</item>
+        <item>I\'ll keep it in the wardrobe for another day.</item>
+        <item>My leaf says thank you!</item>
+    </string-array>
 </resources>

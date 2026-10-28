@@ -786,4 +786,44 @@
         <item>Una vecina que ya conoces, sin prisas ni pagos. Todo en orden.</item>
         <item>Te informa sin pedir pagos ni que pulses enlaces. Así escriben las empresas de verdad.</item>
     </string-array>
+    <!-- Peri's wardrobe: accessories made with Muse Image, worn in every pose. -->
+    <string name="wardrobe_title">El armario de Peri</string>
+    <string name="wardrobe_open">Vestir a Peri</string>
+    <string name="wardrobe_head">En la cabeza</string>
+    <string name="wardrobe_eyes">En los ojos</string>
+    <string name="wardrobe_neck">Bajo la sonrisa</string>
+    <string name="wardrobe_none">Nada</string>
+    <string name="wardrobe_surprise">Sorpréndeme</string>
+    <string name="wardrobe_done">Hecho</string>
+    <string name="wear_straw">Sombrero de paja</string>
+    <string name="wear_beanie">Gorro de lana</string>
+    <string name="wear_crown">Corona</string>
+    <string name="wear_flowers">Corona de flores</string>
+    <string name="wear_bow">Lazo</string>
+    <string name="wear_sunglasses">Gafas de sol</string>
+    <string name="wear_hearts">Gafas de corazón</string>
+    <string name="wear_glasses">Gafas</string>
+    <string name="wear_bowtie">Pajarita</string>
+    <string name="wear_tie">Corbata</string>
+    <string name="wear_bandana">Pañuelo</string>
+    <string-array name="peri_outfit">
+        <item>¡Me encanta! ¿A que estoy guapísima?</item>
+        <item>¡Qué estilo! Soy la pera más elegante del huerto.</item>
+        <item>Me lo pruebo… ¡y me lo quedo!</item>
+        <item>¡Uy, qué bien me sienta! Gracias.</item>
+        <item>¡Con esto no me reconocen ni los timadores!</item>
+        <item>Me siento como una pera de pasarela.</item>
+        <item>¡Perfecto! Bueno, pera-fecto.</item>
+        <item>¡Qué ilusión estrenar algo! Me lo pongo ya.</item>
+    </string-array>
+    <string-array name="peri_outfit_off">
+        <item>Al natural, como recién cogida del árbol.</item>
+        <item>Sin nada también estoy a gusto.</item>
+        <item>¡Fuera! Así se me ve bien la hoja.</item>
+        <item>Vuelvo a mi estilo de siempre.</item>
+        <item>Más ligera que nunca.</item>
+        <item>Sencilla y feliz, como una buena pera.</item>
+        <item>Lo guardo en el armario para otro día.</item>
+        <item>¡Mi hoja me lo agradece!</item>
+    </string-array>
 </resources>

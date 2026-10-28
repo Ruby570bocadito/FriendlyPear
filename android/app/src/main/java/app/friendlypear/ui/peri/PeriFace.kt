@@ -91,6 +91,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private var rise = 0f
     private val rig = FrameLayout(context)
     private val sparkles = Sparkles(context)
+    /** What she wears, drawn over her picture inside the rig, so it moves with her. */
+    private val outfitLayer = OutfitLayer(context)
     private var front = layer()
     private var back = layer()
     private var shown: Mood? = null
@@ -128,6 +130,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
     init {
         rig.addView(back, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         rig.addView(front, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        rig.addView(outfitLayer, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        outfitLayer.outfit = Outfit.load(context)
         addView(rig, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         addView(sparkles, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         back.alpha = 0f
@@ -219,6 +223,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         shown = mood
         action = null
         frames = FRAMES.getValue(mood)
+        outfitLayer.anchor = frames.still
         contentDescription = context.getString(DESCRIPTIONS.getValue(mood))
         // Only this mood's frames stay in memory: each is a full-quality illustration.
         loaded.keys.retainAll(frames.all)
@@ -236,6 +241,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
             back.setImageDrawable(still)
             back.alpha = 0f
             back.bringToFront()
+            outfitLayer.bringToFront()
             val leaving = front
             back.animate().alpha(1f).setDuration(MOOD_FADE).withEndAction {
                 leaving.alpha = 0f
@@ -250,6 +256,13 @@ class PeriFace(context: Context) : FrameLayout(context) {
         // The other frames decode in the background, so the change itself is instant.
         preload()
     }
+
+    /** What she wears, saved (every Peri on screen puts it on) or being tried on in her wardrobe. */
+    internal var outfit: Outfit
+        get() = outfitLayer.outfit
+        set(value) {
+            outfitLayer.outfit = value
+        }
 
     /** The mouth moves while Peri's voice plays. */
     fun speaking(on: Boolean) {
@@ -290,6 +303,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         posing = true
         action = null
         front.setImageDrawable(decode(res))
+        outfitLayer.anchor = res
         popStart = SystemClock.uptimeMillis()
         if (moves) when (moment) {
             app.friendlypear.services.PeriMoment.SORRY, app.friendlypear.services.PeriMoment.LETTER, app.friendlypear.services.PeriMoment.GLASSES,
@@ -307,6 +321,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
 
     private val endPose = Runnable {
         posing = false
+        outfitLayer.anchor = frames.still
         put(frames.still)
     }
 
