@@ -3,12 +3,15 @@
  * "No" comes first and "Yes" last, behind a second "are you sure?" page: when in doubt, the safe answer is the
  * easy one. No scripts, no tracking, no third-party anything; images come from this server only.
  */
+import { outfitWords, pearFigure } from "../pears/look";
 import type { Approval, Lang } from "./store";
 
 const T = {
   es: {
     title: "Peri te pide permiso",
     heading: "Tu familiar te necesita",
+    pear_title: (name: string) => `Lo pide la pera de ${esc(name)}`,
+    pear_note: (words: string) => `${words ? `Lleva ${words}. ` : ""}Si no es la pera que conoces, no sigas: puede ser una página falsa.`,
     send_code: (name: string) => `Tu familiar quiere mandar a ${esc(name)} un mensaje con un código.`,
     circle_change: (name: string) => `Se ha pedido un cambio en los guardianes de tu familiar: ${esc(name)}.`,
     alert_title: "Posible timo en curso",
@@ -47,6 +50,8 @@ const T = {
   en: {
     title: "Peri is asking for your OK",
     heading: "Your relative needs you",
+    pear_title: (name: string) => `Asked by ${esc(name)}'s pear`,
+    pear_note: (words: string) => `${words ? `Wearing ${words}. ` : ""}If it isn't the pear you know, stop: it may be a fake page.`,
     send_code: (name: string) => `Your relative wants to send ${esc(name)} a message with a code.`,
     circle_change: (name: string) => `Someone asked to change your relative's guardians: ${esc(name)}.`,
     alert_title: "Possible scam in progress",
@@ -133,7 +138,15 @@ button:focus-visible,.button:focus-visible{outline:4px solid #f2c46d;outline-off
 .check{list-style:none;padding:0;margin:8px 0 0}.check li{padding:8px 0 8px 36px;position:relative}
 .check li:before{content:"";position:absolute;left:0;top:10px;width:22px;height:22px;border-radius:7px;border:3px solid #25541a}
 .small{font-size:15px;color:#3f4d39;margin:6px 0}.center{text-align:center}
-.done{text-align:center;padding-top:16px}.done .peri{margin:0 auto 10px;display:block}.done h1{margin-bottom:10px}`;
+.done{text-align:center;padding-top:16px}.done .peri{margin:0 auto 10px;display:block}.done h1{margin-bottom:10px}
+.who{display:flex;gap:14px;align-items:center}.pear{position:relative;flex:none}.pear img{position:absolute;display:block}`;
+
+/** Who's asking: their pear as the family knows it, a sign a fake page can't copy. */
+function who(a: Approval): string {
+  if (!a.pear) return "";
+  const t = T[a.lang];
+  return `<section class="card who">${pearFigure(a.pear.outfit)}<div><h2>${t.pear_title(a.pear.name)}</h2><p class="small">${t.pear_note(outfitWords(a.pear.outfit, a.lang))}</p></div></section>`;
+}
 
 export function layout(lang: Lang, body: string, title: string = T[lang].title, css = ""): string {
   return `<!doctype html><html lang="${lang}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -151,7 +164,7 @@ export function askPage(a: Approval, token: string, now: number): string {
   return layout(
     a.lang,
     `<header class="hero">${peri(a.onCall ? ART.alert : ART.ask)}<h1>${t.heading}</h1></header>
-<section class="card ask"><p>${t[a.kind](a.toName)}</p></section>${alert}
+<section class="card ask"><p>${t[a.kind](a.toName)}</p></section>${who(a)}${alert}
 <form method="post" action="${action}">
 <button class="no" name="decision" value="reject">${t[`no_${a.kind}`]}</button>
 <button class="call" name="decision" value="callback">${t.ask_call}</button>
@@ -169,7 +182,7 @@ export function confirmPage(a: Approval, token: string): string {
   const action = `/a/${encodeURIComponent(token)}`;
   return layout(
     a.lang,
-    `<header class="hero">${peri(ART.confirm)}<h1>${t.confirm_title}</h1></header>
+    `<header class="hero">${peri(ART.confirm)}<h1>${t.confirm_title}</h1></header>${who(a)}
 <section class="card"><p>${t.confirm_intro}</p><ul class="check"><li>${t.confirm_1}</li><li>${t.confirm_2(a.toName)}</li><li>${t.confirm_3}</li></ul></section>
 <form method="post" action="${action}">
 <button class="no" name="decision" value="reject">${t.confirm_no}</button>

@@ -355,7 +355,11 @@ function routes(config: Config, services: Services) {
       if (!KINDS.includes(body?.kind)) return json({ error: "bad_request", detail: "unknown kind" }, 400);
       if (typeof body.toName !== "string" || !NAME.test(body.toName)) return json({ error: "bad_request", detail: "bad name" }, 400);
       const lang = body.lang === "en" ? "en" : "es";
-      const { approval, token } = approvals.create(body.kind as Kind, body.toName, lang, body.onCall === true);
+      // Asked from a phone with its own key and a pear: the guardian will see that pear, as the family knows it.
+      const me = ownDevice(req, devices);
+      const mine = me ? services.pears?.list().find((p) => p.device === me.id) : undefined;
+      const pear = mine ? { name: mine.name, outfit: mine.outfit } : undefined;
+      const { approval, token } = approvals.create(body.kind as Kind, body.toName, lang, body.onCall === true, pear);
       return json({ id: approval.id, url: `${config.publicBaseUrl}/a/${token}`, expiresAt: approval.expiresAt }, 201);
     }
 
@@ -418,8 +422,8 @@ function routes(config: Config, services: Services) {
       if (req.method === "GET" && (req.headers.get("accept") ?? "").includes("application/json")) {
         const a = approvals.byLink(token);
         if (!a) return json({ error: "not_found" }, 404);
-        const { kind, toName, lang, onCall, status, expiresAt } = a;
-        return json({ kind, toName, lang, onCall, status, expiresAt });
+        const { kind, toName, lang, onCall, status, expiresAt, pear } = a;
+        return json({ kind, toName, lang, onCall, status, expiresAt, pear: pear ?? null });
       }
       if (req.method === "GET") {
         const a = approvals.byLink(token);
@@ -446,7 +450,7 @@ function routes(config: Config, services: Services) {
       }
     }
 
-    if (req.method === "GET" && pathname.startsWith("/p/")) {
+    if (req.method === "GET" && (pathname.startsWith("/p/") || pathname.startsWith("/w/"))) {
       const picture = asset(pathname);
       if (picture) return picture;
     }

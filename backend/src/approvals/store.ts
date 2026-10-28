@@ -26,6 +26,8 @@ export interface Approval {
   expiresAt: number;
   status: Status;
   decidedAt?: number;
+  /** The asking phone's pear when it asked (its name and outfit), shown to the guardian as a sign only the family knows. */
+  pear?: { name: string; outfit: string };
 }
 
 const hash = (token: string) => createHash("sha256").update(token).digest("hex");
@@ -38,11 +40,11 @@ export class ApprovalStore {
 
   constructor(private readonly now: () => number = Date.now) {}
 
-  create(kind: Kind, toName: string, lang: Lang, onCall = false): { approval: Approval; token: string } {
+  create(kind: Kind, toName: string, lang: Lang, onCall = false, pear?: { name: string; outfit: string }): { approval: Approval; token: string } {
     this.sweep();
     const token = randomId(32);
     const at = this.now();
-    const approval: Approval = { id: randomId(12), kind, toName, lang, onCall, createdAt: at, expiresAt: at + TTL_MS, status: "pending" };
+    const approval: Approval = { id: randomId(12), kind, toName, lang, onCall, createdAt: at, expiresAt: at + TTL_MS, status: "pending", ...(pear ? { pear } : {}) };
     this.byId.set(approval.id, approval);
     this.byToken.set(hash(token), approval.id);
     return { approval, token };

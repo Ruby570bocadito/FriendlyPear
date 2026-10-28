@@ -1,6 +1,8 @@
 import { expect, test } from "bun:test";
 import { ApprovalStore, TTL_MS } from "../../src/approvals/store";
 import { loadConfig } from "../../src/config";
+import { DeviceStore } from "../../src/devices/store";
+import { PearStore } from "../../src/pears/store";
 import { createHandler } from "../../src/server";
 
 const token = "x".repeat(32);
@@ -100,7 +102,34 @@ test("the guardian's Peri can read the request as data, never the code", async (
   const { url } = (await res.json()) as { url: string };
   const data = (await (await handle(new Request(url, { headers: { accept: "application/json" } }))).json()) as Record<string, unknown>;
   expect(data).toMatchObject({ kind: "send_code", toName: "Pablo", lang: "es", onCall: true, status: "pending" });
-  expect(Object.keys(data).sort()).toEqual(["expiresAt", "kind", "lang", "onCall", "status", "toName"]);
+  expect(Object.keys(data).sort()).toEqual(["expiresAt", "kind", "lang", "onCall", "pear", "status", "toName"]);
+  // Asked with the shared test token, there's no phone and no pear behind it.
+  expect(data.pear).toBeNull();
+});
+
+test("asked from a family phone with its pear, the guardian sees that pear dressed as the family knows it", async () => {
+  let now = 1_000_000;
+  const devices = new DeviceStore(() => now);
+  const pears = new PearStore(() => now);
+  const approvals = new ApprovalStore(() => now);
+  const admin = "a".repeat(32);
+  const h = createHandler(loadConfig({ DEVICE_TOKEN: token, ADMIN_TOKEN: admin, PUBLIC_BASE_URL: "http://10.0.2.2:8711" }), { approvals, devices, pears });
+  const ask = (method: string, path: string, auth: string, body?: unknown) =>
+    new Request(`http://x${path}`, { method, headers: { authorization: `Bearer ${auth}`, "content-type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+  const { code } = (await (await h(ask("POST", "/v1/pairing", admin))).json()) as { code: string };
+  const { key } = (await (await h(new Request("http://x/v1/devices", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ code, name: "Pixel" }) }))).json()) as { key: string };
+  await h(ask("PUT", "/v1/pears/self", key, { name: "Mamá", outfit: "STRAW,,BOWTIE", role: "protected", state: "attention" }));
+  const { url } = (await (await h(ask("POST", "/v1/approvals", key, { kind: "send_code", toName: "Pablo", lang: "es" }))).json()) as { url: string };
+  const page = await (await h(new Request(url))).text();
+  expect(page).toContain("Lo pide la pera de Mamá");
+  expect(page).toContain("Lleva un sombrero de paja y una pajarita.");
+  expect(page).toContain('src="/w/straw.webp"');
+  expect(page).toContain('src="/w/bowtie.webp"');
+  const data = (await (await h(new Request(url, { headers: { accept: "application/json" } }))).json()) as any;
+  expect(data.pear).toEqual({ name: "Mamá", outfit: "STRAW,,BOWTIE" });
+  // The accessories are served by this server, like Peri's poses; anything else isn't.
+  expect((await h(new Request("http://x/w/straw.webp"))).headers.get("content-type")).toBe("image/webp");
+  expect((await h(new Request("http://x/w/../.env"))).status).toBe(404);
 });
 
 test("Peri's pictures are served from here, and the page allows only those", async () => {
