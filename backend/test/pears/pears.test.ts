@@ -110,6 +110,9 @@ test("the same trap reaching two family phones within half an hour is a campaign
 test("a pear is drawn only with the accessories the app has, whatever its outfit says", () => {
   expect(pearFigure("constructor,toString,__proto__")).not.toContain("/w/");
   expect(pearFigure("STRAW,,BOWTIE")).toContain('src="/w/straw.webp"');
+  // Under a hat she's bare-headed; with only a bow tie, her leaf stays.
+  expect(pearFigure("STRAW,,BOWTIE")).toContain('src="/p/bare.webp"');
+  expect(pearFigure(",,BOWTIE")).toContain('src="/p/calm.webp"');
   expect(outfitWords("STRAW,HEARTS,TIE", "en")).toBe("a straw hat, heart glasses and a tie");
   expect(outfitWords(",,", "es")).toBe("");
 });

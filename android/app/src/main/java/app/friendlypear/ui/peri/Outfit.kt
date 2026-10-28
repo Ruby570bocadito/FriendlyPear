@@ -74,6 +74,9 @@ internal data class Outfit(val head: Item? = null, val eyes: Item? = null, val n
             context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString(KEY, outfit.code()).apply()
         }
 
+        /** Hats that cover the top of her head: under them she's drawn bare-headed ([BareHead]), or her leaf pokes out. A bow sits by it. */
+        val HATS = setOf(Item.STRAW, Item.BEANIE, Item.CROWN, Item.FLOWERS)
+
         fun random(): Outfit = Outfit(
             Item.entries.filter { it.slot == Slot.HEAD }.random(),
             Item.entries.filter { it.slot == Slot.EYES }.plus(listOf(null)).random(),

@@ -7,7 +7,8 @@ import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { WEAR_NAMES } from "./pears/look";
 
-export const ASSET_NAMES = ["waiting", "protective", "thinking", "thumbsup", "calling", "sorry", "calm", "guardian", "urgent"] as const;
+// "bare": the calm Peri without her leaf and stem, for a family pear in a hat (assets/peri/tops.py).
+export const ASSET_NAMES = ["waiting", "protective", "thinking", "thumbsup", "calling", "sorry", "calm", "guardian", "urgent", "bare"] as const;
 
 const dir = fileURLToPath(new URL("../public/", import.meta.url));
 const assets = new Map<string, Uint8Array>();

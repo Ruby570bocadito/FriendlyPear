@@ -98,6 +98,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private var shown: Mood? = null
     private var frames = FRAMES.getValue(Mood.CALM)
     private val loaded = HashMap<Int, Drawable>()
+    /** Her bare head for under a hat ([PeriTops]), decoded at her size like the frames; and the picture on show. */
+    private val tops = HashMap<Int, Drawable>()
+    private var onShow = 0
     private var talking = false
     private var fading = false
     private var popStart = 0L
@@ -162,6 +165,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         if (target > decodedSide || target < decodedSide * 3 / 4) {
             decodedSide = target
             loaded.clear()
+            tops.clear()
             if (shown != null) preload()
         }
         // A view squeezed to nothing (a crowded screen) has no room for a shadow: a zero radius would crash.
@@ -183,6 +187,25 @@ class PeriFace(context: Context) : FrameLayout(context) {
     }
 
     private fun drawable(res: Int): Drawable = loaded.getOrPut(res) { decode(res) }
+
+    /** Under a hat her leaf would poke out: the picture with her head bare instead, where there is one. */
+    private fun dressed(res: Int, picture: Drawable): Drawable {
+        onShow = res
+        if (!bare(outfitLayer.outfit)) return picture
+        val spec = PeriTops.TOPS[res] ?: return picture
+        return BareHead(picture, tops.getOrPut(spec.picture) { decodeTop(spec) }, spec)
+    }
+
+    private fun bare(outfit: Outfit) = outfit.head in Outfit.HATS && Outfit.Slot.HEAD !in Outfit.BUSY[outfitLayer.base].orEmpty()
+
+    private fun decodeTop(spec: PeriTops.Top): Drawable {
+        val side = decodedSide
+        if (side <= 0) return context.getDrawable(spec.picture)!!
+        val wide = maxOf(1, (spec.box[2] * side / 1024f).toInt())
+        return ImageDecoder.decodeDrawable(ImageDecoder.createSource(context.resources, spec.picture)) { decoder, info, _ ->
+            if (info.size.width > wide) decoder.setTargetSize(wide, maxOf(1, wide * info.size.height / info.size.width))
+        }
+    }
 
     private var decodedSide = 0
 
@@ -228,7 +251,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
         contentDescription = context.getString(DESCRIPTIONS.getValue(mood))
         // Only this mood's frames stay in memory: each is a full-quality illustration.
         loaded.keys.retainAll(frames.all)
-        val still = drawable(frames.still)
+        tops.keys.retainAll(setOfNotNull(PeriTops.TOPS[frames.still]?.picture))
+        val still = dressed(frames.still, drawable(frames.still))
         // A change during the previous fade: stop it first, or its end would hide the new mood.
         front.animate().cancel()
         back.animate().cancel()
@@ -262,7 +286,10 @@ class PeriFace(context: Context) : FrameLayout(context) {
     internal var outfit: Outfit
         get() = outfitLayer.outfit
         set(value) {
+            val wasBare = bare(outfitLayer.outfit)
             outfitLayer.outfit = value
+            // A hat on or off: her leaf goes or comes back on the picture on show.
+            if (bare(value) != wasBare && onShow != 0) front.setImageDrawable(dressed(onShow, loaded[onShow] ?: decode(onShow)))
         }
 
     /** The mouth moves while Peri's voice plays. */
@@ -303,9 +330,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
         fading = false
         posing = true
         action = null
-        front.setImageDrawable(decode(res))
         outfitLayer.base = res
         outfitLayer.anchor = res
+        front.setImageDrawable(dressed(res, decode(res)))
         popStart = SystemClock.uptimeMillis()
         if (moves) when (moment) {
             app.friendlypear.services.PeriMoment.SORRY, app.friendlypear.services.PeriMoment.LETTER, app.friendlypear.services.PeriMoment.GLASSES,
@@ -354,6 +381,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
             if (shown != null) preload()
         } else {
             loaded.clear()
+            tops.clear()
         }
     }
 
@@ -363,7 +391,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         // A blink or wave scheduled before a mood change never shows a frame of the old mood.
         val waving = shown == Mood.CALM && (res == R.drawable.peri_calm_wave1 || res == R.drawable.peri_calm_wave2)
         if (fading || posing || (res !in frames.all && !waving)) return
-        front.setImageDrawable(drawable(res))
+        front.setImageDrawable(dressed(res, drawable(res)))
         // Each frame places her outfit from its own eyes: a step or a gesture moves her a little.
         outfitLayer.anchor = res
     }

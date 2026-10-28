@@ -23,6 +23,9 @@ const WEAR: Record<string, { size: [number, number]; width: number; ax: number; 
 /** The accessories' files under `/w/`, lower case: "straw", "bowtie". */
 export const WEAR_NAMES = Object.keys(WEAR).map((k) => k.toLowerCase());
 
+/** Hats that cover her head: under them she's drawn bare-headed, or her leaf pokes out (Outfit.HATS in the app). */
+const HATS = new Set(["STRAW", "BEANIE", "CROWN", "FLOWERS"]);
+
 /** The calm Peri's eyes in her 1024 px picture (PeriAnchors.kt). */
 const EYES = [410, 461, 616, 462];
 
@@ -48,7 +51,8 @@ export function pearFigure(outfit: string, size = 150): string {
     const style = `left:${pct(px - w.ax * width)};top:${pct(py - w.ay * height)};width:${pct(width)};transform-origin:${w.ax * 100}% ${w.ay * 100}%;transform:rotate(${((angle * 180) / Math.PI).toFixed(2)}deg)`;
     return `<img src="/w/${key.toLowerCase()}.webp" style="${style}" alt="">`;
   });
-  return `<div class="pear" style="width:${size}px;height:${size}px" aria-hidden="true"><img src="/p/calm.webp" style="left:0;top:0;width:100%" alt="">${layers.join("")}</div>`;
+  const base = items(outfit).some((k) => HATS.has(k)) ? "bare" : "calm";
+  return `<div class="pear" style="width:${size}px;height:${size}px" aria-hidden="true"><img src="/p/${base}.webp" style="left:0;top:0;width:100%" alt="">${layers.join("")}</div>`;
 }
 
 /** "a straw hat and a bow tie", "un sombrero de paja y una pajarita"; empty if she wears nothing. */
