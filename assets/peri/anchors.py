@@ -11,6 +11,10 @@ each pose (an idea, her cape...) has its own. A mood's frames are edits of its s
 moves her a little (up to 22 px): each frame gets the still's eyes moved as far as her head moved, found by matching
 the still's head (leaf, stem and the top of her face, never the eyes or the mouth, which change) in the frame.
 Where a pose hides her eyes (peekaboo, spirals), the calm Peri's are used.
+
+Two anchors per picture: HEADS, where the top of her head is (the still's eyes moved as far as her leaf and stem moved),
+for hats; and EYES, her face, for glasses and what she wears under her smile. In a frame whose own eyes can be measured
+(not a blink) they are used for the face: when she looks to one side her face turns while the top of her head stays.
 """
 import os
 import sys
@@ -91,6 +95,18 @@ def whole(luma: np.ndarray, at) -> tuple[float, float]:
     return x0 + m["m10"] / m["m00"], y0 + m["m01"] / m["m00"]
 
 
+def trusted(seen, head) -> bool:
+    """A frame's own eyes, if they look like her eyes: as far apart as usual and close to where her head says (a blink
+    or a wink finds something else)."""
+    if seen is None:
+        return False
+    lx, ly, rx, ry = head
+    d0 = ((rx - lx) ** 2 + (ry - ly) ** 2) ** 0.5
+    d1 = ((seen[2] - seen[0]) ** 2 + (seen[3] - seen[1]) ** 2) ** 0.5
+    near = max(abs(seen[0] - lx), abs(seen[1] - ly), abs(seen[2] - rx), abs(seen[3] - ry)) < 0.35 * d0
+    return 0.9 <= d1 / d0 <= 1.1 and near
+
+
 def grey(path: str) -> np.ndarray:
     """Her picture on a mid grey, in grey levels: her outline counts as much as what's inside it."""
     rgba = np.asarray(Image.open(path).convert("RGBA")).astype(np.float32)
@@ -104,7 +120,8 @@ def shift(still: np.ndarray, frame: np.ndarray, eyes_still) -> tuple[int, int, f
     lx, ly, rx, ry = eyes_still
     d = ((rx - lx) ** 2 + (ry - ly) ** 2) ** 0.5
     cx, cy = (lx + rx) / 2, (ly + ry) / 2
-    top, bottom = max(0, int(cy - 1.9 * d)), int(cy - 0.35 * d)
+    # The top of her head only (leaf, stem, its outline): her face may turn while it stays.
+    top, bottom = max(0, int(cy - 1.9 * d)), int(cy - 0.9 * d)
     left, right = max(0, int(cx - 1.4 * d)), min(still.shape[1], int(cx + 1.4 * d))
     head = still[top:bottom, left:right]
     y0, x0 = max(0, top - REACH), max(0, left - REACH)
@@ -128,6 +145,8 @@ def main() -> None:
     for name, e in found.items():
         if e is None:
             found[name] = calm
+    heads = dict(found)
+    faces = 0
     # Each mood's frames: the still's eyes, moved as far as her head moved in that frame.
     for mood in MOODS:
         still = grey(os.path.join(DRAWABLES, f"peri_{mood}.webp"))
@@ -140,7 +159,12 @@ def main() -> None:
             dx, dy, score = shift(still, grey(path), found[mood])
             if score < 0.6:
                 dx, dy = 0, 0
-            found[f"{mood}{f}"] = (lx + dx, ly + dy, rx + dx, ry + dy)
+            head = (lx + dx, ly + dy, rx + dx, ry + dy)
+            heads[f"{mood}{f}"] = head
+            seen = eyes(path)
+            if trusted(seen, head):
+                faces += 1
+            found[f"{mood}{f}"] = seen if trusted(seen, head) else head
             if dx or dy:
                 moved.append(f"{f[1:]} {dx:+d},{dy:+d}")
         print(f"{mood}: " + (", ".join(moved) if moved else "frames in place"))
@@ -155,11 +179,17 @@ def main() -> None:
         " * 1024 px square), so her outfit sits on her whatever the pose and whichever frame is on show.",
         " */",
         "internal object PeriAnchors {",
+        "    /** Her face: glasses go on these eyes, and what she wears under her smile below them. */",
         "    val EYES: Map<Int, FloatArray> = mapOf(",
     ]
     for name, (lx, ly, rx, ry) in found.items():
         lines.append(f"        R.drawable.peri_{name} to floatArrayOf({lx:.0f}f, {ly:.0f}f, {rx:.0f}f, {ry:.0f}f),")
+    lines += ["    )", "", "    /** The top of her head, given as where her eyes would be if her face hadn't turned: hats go by these. */",
+              "    val HEADS: Map<Int, FloatArray> = mapOf("]
+    for name, (lx, ly, rx, ry) in heads.items():
+        lines.append(f"        R.drawable.peri_{name} to floatArrayOf({lx:.0f}f, {ly:.0f}f, {rx:.0f}f, {ry:.0f}f),")
     lines += ["    )", "}", ""]
+    print(f"{faces} frames use their own eyes for her face")
     open(KOTLIN, "w", encoding="utf-8", newline="\n").write("\n".join(lines))
     print(f"wrote {os.path.relpath(KOTLIN, HERE)} ({len(found)} images)")
 

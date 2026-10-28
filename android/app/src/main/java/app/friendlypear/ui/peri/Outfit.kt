@@ -111,8 +111,9 @@ internal data class Outfit(val head: Item? = null, val eyes: Item? = null, val n
 
 /**
  * Draws Peri's outfit over her picture, inside her rig so it tilts, bobs and squashes with her. [anchor] is the frame
- * on show, whose eyes place everything (a step moves her up to 35 px); [base] is its mood's still image or the pose,
- * which says what's bare.
+ * on show: its face places glasses and what's under her smile, the top of its head places a hat (a step moves her up
+ * to 40 px; a glance turns her face but not her head). [base] is its mood's still image or the pose, which says
+ * what's bare.
  */
 @SuppressLint("ViewConstructor")
 internal class OutfitLayer(context: Context) : View(context) {
@@ -146,23 +147,26 @@ internal class OutfitLayer(context: Context) : View(context) {
 
     override fun onDraw(canvas: Canvas) {
         if (outfit.items.isEmpty() || width == 0 || height == 0) return
-        val eyes = PeriAnchors.EYES[anchor] ?: PeriAnchors.EYES[base] ?: PeriAnchors.EYES.getValue(R.drawable.peri_calm)
+        val face = PeriAnchors.EYES[anchor] ?: PeriAnchors.EYES[base] ?: PeriAnchors.EYES.getValue(R.drawable.peri_calm)
+        // A hat goes by the top of her head, which stays put when she glances aside and her face turns.
+        val head = PeriAnchors.HEADS[anchor] ?: face
         val busy = Outfit.BUSY[base].orEmpty()
         // Her picture is a square drawn centred (fit) in this view, at 1024 px.
         val side = minOf(width, height).toFloat()
         val left = (width - side) / 2
         val top = (height - side) / 2
         val k = side / 1024f
-        val lx = left + eyes[0] * k
-        val ly = top + eyes[1] * k
-        val rx = left + eyes[2] * k
-        val ry = top + eyes[3] * k
-        val d = hypot(rx - lx, ry - ly)
-        val angle = atan2(ry - ly, rx - lx)
-        val cx = (lx + rx) / 2
-        val cy = (ly + ry) / 2
         for (item in outfit.items) {
             if (item.slot in busy) continue
+            val eyes = if (item.slot == Outfit.Slot.HEAD) head else face
+            val lx = left + eyes[0] * k
+            val ly = top + eyes[1] * k
+            val rx = left + eyes[2] * k
+            val ry = top + eyes[3] * k
+            val d = hypot(rx - lx, ry - ly)
+            val angle = atan2(ry - ly, rx - lx)
+            val cx = (lx + rx) / 2
+            val cy = (ly + ry) / 2
             val w = item.width * d
             val picture = Pictures.get(context, item.picture, w) ?: continue
             val h = w * picture.height / picture.width.coerceAtLeast(1)

@@ -35,8 +35,8 @@ REACH = 60  # px the redrawn picture may have moved
 
 
 def anchors() -> dict[str, list[float]]:
-    """Her eyes in each picture, as the app has them (PeriAnchors.kt)."""
-    text = open(KOTLIN, encoding="utf-8").read()
+    """Where the top of her head is in each picture, as the app has it (PeriAnchors.HEADS): the bare-head pieces go by it."""
+    text = open(KOTLIN, encoding="utf-8").read().split("val HEADS")[1]
     found = re.finditer(r"R\.drawable\.peri_(\w+) to floatArrayOf\(([-\d.]+)f, ([-\d.]+)f, ([-\d.]+)f, ([-\d.]+)f\)", text)
     return {m.group(1): [float(v) for v in m.group(2, 3, 4, 5)] for m in found}
 
