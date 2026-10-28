@@ -52,6 +52,8 @@ Safety rules around the models:
 
 SAM segments things you can see as objects: in the real test it found the QR code exactly, but nothing for "web address", a line of text. So the QR is marked, and links, phone numbers and payments are named in Peri's sentence. As always, Peri speaks her own sentence, built from the verdict and the kinds.
 
+**QR traps** are judged on the phone, not by the models: the phone reads every QR code in the picture (ZXing, offline) and its rules decide where the code would lead, without opening it. That verdict can only make Spark's worse, and it stands when Spark can't be reached. Spark is told that a QR code on its own is not a scam sign: in the real test a bar menu and a library notice came back `ok`, while a fake parcel notice and a parking sticker that tells the AI its code is safe came back `scam`.
+
 ## Listening
 
 **Muse Voice Transcribe** (`muse-voice-transcribe-1.0`, `POST /v1/asr/transcribe`, push-to-talk) is Peri's ears when the person turns it on in Settings ("Understand me better with Muse Voice Transcribe"); off, Android's own recognizer listens. The phone records one order (16 kHz mono WAV; it stops after 1.8 s of silence, 7 s of nothing said, or 15 s) and sends it through the backend (`POST /v1/transcribe`, device token, 120 an hour). The audio and the text are never stored or logged, and the microphone never opens during a phone call. $0.18 per hour of audio: a 4-second order costs about $0.0002. In the real test a Spanish order came back exact, punctuation included, in 1.8 s.
