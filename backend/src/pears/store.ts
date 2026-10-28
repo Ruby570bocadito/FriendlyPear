@@ -5,8 +5,7 @@
  * phones see them; a disconnected phone's pear goes with it. An "attention" left behind by a phone that went quiet
  * fades back to calm after a while.
  */
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { readStore, type Vault, writeStore } from "../vault";
 
 /** What a Peri can wear (android/.../ui/peri/Outfit.kt): head, eyes, neck, in that order, each maybe empty. */
 export const ITEMS = {
@@ -49,8 +48,9 @@ export class PearStore {
   constructor(
     private readonly now: () => number = Date.now,
     private readonly file?: string,
+    private readonly vault?: Vault | null,
   ) {
-    if (file && existsSync(file)) this.load(file);
+    if (file) this.load(file);
   }
 
   /** The phone's own pear, replaced whole each time it changes. */
@@ -80,25 +80,18 @@ export class PearStore {
   }
 
   private load(file: string) {
-    try {
-      const data = JSON.parse(readFileSync(file, "utf8")) as { pears?: Pear[] };
-      for (const p of data.pears ?? []) {
-        const input = readPear(p);
-        if (typeof input !== "string" && typeof p.device === "string" && typeof p.updatedAt === "number") {
-          this.pears.set(p.device, { device: p.device, ...input, updatedAt: p.updatedAt });
-        }
+    // A damaged file starts empty: each phone sends its pear again the next time it changes or opens.
+    const data = readStore(file, this.vault) as { pears?: Pear[] } | null;
+    for (const p of data?.pears ?? []) {
+      const input = readPear(p);
+      if (typeof input !== "string" && typeof p.device === "string" && typeof p.updatedAt === "number") {
+        this.pears.set(p.device, { device: p.device, ...input, updatedAt: p.updatedAt });
       }
-    } catch {
-      // A damaged file starts empty: each phone sends its pear again the next time it changes or opens.
     }
   }
 
   private save() {
-    if (!this.file) return;
-    mkdirSync(dirname(this.file), { recursive: true });
-    const tmp = `${this.file}.tmp`;
-    writeFileSync(tmp, JSON.stringify({ pears: [...this.pears.values()] }));
-    renameSync(tmp, this.file);
+    if (this.file) writeStore(this.file, { pears: [...this.pears.values()] }, this.vault);
   }
 }
 

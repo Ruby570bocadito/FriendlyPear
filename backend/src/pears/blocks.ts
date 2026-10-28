@@ -5,8 +5,7 @@
  * each time and goes when the phone is disconnected. The salt is made here once and given only to paired phones.
  */
 import { randomBytes } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { readStore, type Vault, writeStore } from "../vault";
 
 /** At most this many blocked numbers per phone. */
 export const MAX_PRINTS = 100;
@@ -16,8 +15,11 @@ export class BlockStore {
   private readonly prints = new Map<string, string[]>();
   private familySalt = "";
 
-  constructor(private readonly file?: string) {
-    if (file && existsSync(file)) this.load(file);
+  constructor(
+    private readonly file?: string,
+    private readonly vault?: Vault | null,
+  ) {
+    if (file) this.load(file);
     if (!this.familySalt) {
       this.familySalt = randomBytes(32).toString("base64url");
       this.save();
@@ -48,24 +50,17 @@ export class BlockStore {
   }
 
   private load(file: string) {
-    try {
-      const data = JSON.parse(readFileSync(file, "utf8")) as { salt?: unknown; prints?: Record<string, unknown> };
-      if (typeof data.salt === "string" && data.salt.length >= 32) this.familySalt = data.salt;
-      for (const [device, list] of Object.entries(data.prints ?? {})) {
-        const prints = readPrints({ prints: list });
-        if (typeof prints !== "string" && prints.length > 0) this.prints.set(device, prints);
-      }
-    } catch {
-      // A damaged file starts again with a new salt: each phone fetches it and sends its fingerprints again.
+    // A damaged file starts again with a new salt: each phone fetches it and sends its fingerprints again.
+    const data = readStore(file, this.vault) as { salt?: unknown; prints?: Record<string, unknown> } | null;
+    if (typeof data?.salt === "string" && data.salt.length >= 32) this.familySalt = data.salt;
+    for (const [device, list] of Object.entries(data?.prints ?? {})) {
+      const prints = readPrints({ prints: list });
+      if (typeof prints !== "string" && prints.length > 0) this.prints.set(device, prints);
     }
   }
 
   private save() {
-    if (!this.file) return;
-    mkdirSync(dirname(this.file), { recursive: true });
-    const tmp = `${this.file}.tmp`;
-    writeFileSync(tmp, JSON.stringify({ salt: this.familySalt, prints: Object.fromEntries(this.prints) }));
-    renameSync(tmp, this.file);
+    if (this.file) writeStore(this.file, { salt: this.familySalt, prints: Object.fromEntries(this.prints) }, this.vault);
   }
 }
 

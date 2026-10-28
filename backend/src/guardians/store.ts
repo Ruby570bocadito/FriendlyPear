@@ -5,8 +5,7 @@
  * With a [file], links and news survive a restart of the backend; each save replaces the file in one step.
  */
 import { createHash, randomBytes } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { readStore, type Vault, writeStore } from "../vault";
 import type { Lang } from "../approvals/store";
 
 export const CHANNELS = ["SMS", "WHATSAPP", "EMAIL", "BROWSER_NOTIFICATION"] as const;
@@ -35,26 +34,20 @@ export class GuardianStore {
   constructor(
     private readonly now: () => number = Date.now,
     private readonly file?: string,
+    private readonly vault?: Vault | null,
   ) {
-    if (file && existsSync(file)) this.load(file);
+    if (file) this.load(file);
   }
 
   private load(file: string) {
-    try {
-      const data = JSON.parse(readFileSync(file, "utf8")) as { links?: [string, GuardianLink][]; events?: FamilyEvent[] };
-      for (const [key, link] of data.links ?? []) if (/^[0-9a-f]{64}$/.test(key)) this.links.set(key, link);
-      this.events = (data.events ?? []).filter((e) => typeof e?.at === "number");
-    } catch {
-      // A damaged file starts empty rather than stopping the backend.
-    }
+    // A damaged file starts empty rather than stopping the backend.
+    const data = readStore(file, this.vault) as { links?: [string, GuardianLink][]; events?: FamilyEvent[] } | null;
+    for (const [key, link] of data?.links ?? []) if (/^[0-9a-f]{64}$/.test(key)) this.links.set(key, link);
+    this.events = (data?.events ?? []).filter((e) => typeof e?.at === "number");
   }
 
   private save() {
-    if (!this.file) return;
-    mkdirSync(dirname(this.file), { recursive: true });
-    const tmp = `${this.file}.tmp`;
-    writeFileSync(tmp, JSON.stringify({ links: [...this.links], events: this.events }));
-    renameSync(tmp, this.file);
+    if (this.file) writeStore(this.file, { links: [...this.links], events: this.events }, this.vault);
   }
 
   createLink(name: string, lang: Lang): { link: GuardianLink; token: string } {

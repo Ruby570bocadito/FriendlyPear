@@ -100,7 +100,10 @@ function fromDevice(req: Request, config: Config, devices?: DeviceStore | null):
   return config.allowSharedToken && sameSecret(req, config.deviceToken);
 }
 
-const fromAdmin = (req: Request, config: Config) => sameSecret(req, config.adminToken);
+/** The admin token, or the one before the last rotation while its day of overlap lasts. */
+const fromAdmin = (req: Request, config: Config) =>
+  sameSecret(req, config.adminToken) ||
+  (config.previousAdminToken !== null && Date.now() < config.previousAdminUntil && sameSecret(req, config.previousAdminToken));
 
 async function readJson(req: Request, max = MAX_BODY): Promise<unknown | Response> {
   const raw = await readLimited(req, max);
@@ -203,6 +206,14 @@ function routes(config: Config, services: Services) {
       services.hangups?.forget(me.id);
       services.blocks?.forget(me.id);
       return json({ ok: true });
+    }
+
+    // A phone changes its own key now and then: asked with the current one, which stops working at once.
+    if (req.method === "POST" && pathname === "/v1/devices/self/key") {
+      const me = ownDevice(req, devices);
+      if (!me) return json({ error: "unauthorized" }, 401);
+      const key = devices!.rotate(me.id);
+      return key ? json({ key }, 201) : json({ error: "not_found" }, 404);
     }
 
     // The family sees and disconnects the paired phones.
@@ -482,8 +493,8 @@ function routes(config: Config, services: Services) {
     const link = pathname.match(/^\/a\/([A-Za-z0-9_-]{20,64})$/);
     if (link && approvals) {
       const token = link[1];
-      // Audit trail without the secret: who decided is a browser, so we keep the method and its user agent.
-      console.log(`guardian link ${req.method} ua=${(req.headers.get("user-agent") ?? "-").slice(0, 80)}`);
+      // Audit trail with nothing personal: not the token, not the browser, not who it's for; only that a link was used.
+      console.log(`guardian link ${req.method}`);
       // The guardian's own Peri asks for the same request as data, to show it in the app; the link is still the key.
       if (req.method === "GET" && (req.headers.get("accept") ?? "").includes("application/json")) {
         const a = approvals.byLink(token);

@@ -13,25 +13,30 @@ import { sparkOpenFromEnv } from "./models/spark-open";
 import { voiceFromEnv } from "./models/voice";
 import { clientIp } from "./limits";
 import { createHandler } from "./server";
+import { Vault } from "./vault";
 
 const config = loadConfig();
+// Everything kept on disk is sealed with a key that lives apart from the data (see vault.ts).
+const vault = Vault.fromEnv();
+const dataDir = process.env.DATA_DIR ?? "data";
 const opinion = sparkOpenFromEnv();
 const investigator = sparkFromEnv();
 const sam = samFromEnv();
 const voice = voiceFromEnv();
-const approvals = new ApprovalStore();
+// Pending approvals survive a restart: a guardian's link sent a minute ago still works.
+const approvals = new ApprovalStore(Date.now, join(dataDir, "approvals.json"), vault);
 // Guardians' links (hashes only) and Peri's news survive restarts; DATA_DIR is git-ignored by default.
-const guardians = new GuardianStore(Date.now, join(process.env.DATA_DIR ?? "data", "guardians.json"));
+const guardians = new GuardianStore(Date.now, join(dataDir, "guardians.json"), vault);
 // Paired phones (key hashes only), next to the guardians' file.
-const devices = new DeviceStore(Date.now, join(process.env.DATA_DIR ?? "data", "devices.json"));
+const devices = new DeviceStore(Date.now, join(dataDir, "devices.json"), vault);
 // The family's pears (a name, an outfit, calm or attention), next to the phones they belong to.
-const pears = new PearStore(Date.now, join(process.env.DATA_DIR ?? "data", "pears.json"));
-// "Was it you?" questions between the family's phones: 15 minutes each, in memory only.
-const checks = new CheckStore();
+const pears = new PearStore(Date.now, join(dataDir, "pears.json"), vault);
+// "Was it you?" questions between the family's phones: 15 minutes each, kept sealed across a restart.
+const checks = new CheckStore(Date.now, join(dataDir, "checks.json"), vault);
 // "Hang up their call" requests: two minutes each, in memory only.
 const hangups = new HangUpStore();
 // Fingerprints of the numbers each phone blocked (never the numbers), with the family's salt.
-const blocks = new BlockStore(join(process.env.DATA_DIR ?? "data", "blocks.json"));
+const blocks = new BlockStore(join(dataDir, "blocks.json"), vault);
 const handle = createHandler(config, { opinion, investigator, sam, voice, approvals, guardians, devices, pears, checks, hangups, blocks });
 // Behind a tunnel or proxy (TRUST_PROXY=1) the client's IP is the one the proxy added; otherwise the socket's.
 const trustProxy = process.env.TRUST_PROXY === "1";

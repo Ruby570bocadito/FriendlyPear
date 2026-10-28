@@ -6,6 +6,7 @@
  * never the message text or the code.
  */
 import { createHash, randomBytes } from "node:crypto";
+import { readStore, type Vault, writeStore } from "../vault";
 
 export const TTL_MS = 15 * 60 * 1000;
 export const KINDS = ["send_code", "circle_change"] as const;
@@ -61,7 +62,14 @@ export class ApprovalStore {
   /** sha256(link token) → whose link and for which request; the token itself is never stored. */
   private readonly byToken = new Map<string, Link>();
 
-  constructor(private readonly now: () => number = Date.now) {}
+  /** With a [file], requests survive a restart (sealed by the [vault]): a guardian's link sent a minute ago still works. */
+  constructor(
+    private readonly now: () => number = Date.now,
+    private readonly file?: string,
+    private readonly vault?: Vault | null,
+  ) {
+    if (file) this.load(file);
+  }
 
   /**
    * A request with a link per guardian in [guardians] (first names), or a single link for all of them if none are
@@ -89,6 +97,7 @@ export class ApprovalStore {
       this.byToken.set(hash(token), { id: approval.id, name });
       return { name, token };
     });
+    this.save();
     return { approval, token: links[0]!.token, links };
   }
 
@@ -122,7 +131,10 @@ export class ApprovalStore {
     const who = by ?? link.name;
     if (decision === "approve") {
       a.yes.push(who);
-      if (a.yes.length < a.needed) return a;
+      if (a.yes.length < a.needed) {
+        this.save();
+        return a;
+      }
       a.status = "approved";
     } else {
       a.status = decision === "reject" ? "rejected" : "callback";
@@ -130,6 +142,7 @@ export class ApprovalStore {
     a.decidedAt = this.now();
     if (who) a.decidedBy = who;
     for (const [k, l] of this.byToken) if (l.id === a.id) this.byToken.delete(k);
+    this.save();
     return a;
   }
 
@@ -141,6 +154,17 @@ export class ApprovalStore {
 
   private expireIfDue(a: Approval) {
     if (a.status === "pending" && this.now() >= a.expiresAt) a.status = "expired";
+  }
+
+  private load(file: string) {
+    const data = readStore(file, this.vault) as { approvals?: Approval[]; links?: [string, Link][] } | null;
+    for (const a of data?.approvals ?? []) if (typeof a?.id === "string" && KINDS.includes(a.kind)) this.byId.set(a.id, { ...a, asked: a.asked ?? [], yes: a.yes ?? [], needed: a.needed ?? 1 });
+    for (const [key, link] of data?.links ?? []) if (/^[0-9a-f]{64}$/.test(key) && this.byId.has(link?.id)) this.byToken.set(key, link);
+    this.sweep();
+  }
+
+  private save() {
+    if (this.file) writeStore(this.file, { approvals: [...this.byId.values()], links: [...this.byToken] }, this.vault);
   }
 
   /** Forgets requests older than a day, so the store never grows without bound. */

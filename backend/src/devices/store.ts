@@ -4,8 +4,7 @@
  * keys; a phone can be disconnected on its own without touching the others.
  */
 import { createHash, randomBytes, randomInt } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { readStore, type Vault, writeStore } from "../vault";
 
 export const CODE_TTL_MS = 10 * 60 * 1000;
 /** No 0/O, 1/I/L: easy to read aloud and type on a phone. */
@@ -18,6 +17,8 @@ export interface Device {
   /** What the phone called itself ("Pixel 8"), for the list; never a person's name or number. */
   name: string;
   createdAt: number;
+  /** When its key last changed ([DeviceStore.rotate]). */
+  rotatedAt?: number;
 }
 
 const hash = (s: string) => createHash("sha256").update(s).digest("hex");
@@ -31,8 +32,9 @@ export class DeviceStore {
   constructor(
     private readonly now: () => number = Date.now,
     private readonly file?: string,
+    private readonly vault?: Vault | null,
   ) {
-    if (file && existsSync(file)) this.load(file);
+    if (file) this.load(file);
   }
 
   /** A fresh one-time code, like "K7PM-3XQD". */
@@ -68,6 +70,22 @@ export class DeviceStore {
     return [...this.byKey.values()].sort((a, b) => a.createdAt - b.createdAt);
   }
 
+  /**
+   * A new key for a paired phone, asked with its current key: the old one stops working at once, so a key copied off
+   * the phone some time ago is worth nothing. The new key is returned this one time.
+   */
+  rotate(id: string): string | null {
+    for (const [k, d] of this.byKey) {
+      if (d.id !== id) continue;
+      const key = randomBytes(32).toString("base64url");
+      this.byKey.delete(k);
+      this.byKey.set(hash(key), { ...d, rotatedAt: this.now() });
+      this.save();
+      return key;
+    }
+    return null;
+  }
+
   /** Disconnects one phone: its key stops working at once. */
   revoke(id: string): boolean {
     for (const [k, d] of this.byKey) {
@@ -86,19 +104,12 @@ export class DeviceStore {
   }
 
   private load(file: string) {
-    try {
-      const data = JSON.parse(readFileSync(file, "utf8")) as { devices?: [string, Device][] };
-      for (const [k, d] of data.devices ?? []) if (/^[0-9a-f]{64}$/.test(k) && typeof d?.id === "string") this.byKey.set(k, d);
-    } catch {
-      // A damaged file starts empty: phones pair again rather than the backend stopping.
-    }
+    // A damaged file starts empty: phones pair again rather than the backend stopping.
+    const data = readStore(file, this.vault) as { devices?: [string, Device][] } | null;
+    for (const [k, d] of data?.devices ?? []) if (/^[0-9a-f]{64}$/.test(k) && typeof d?.id === "string") this.byKey.set(k, d);
   }
 
   private save() {
-    if (!this.file) return;
-    mkdirSync(dirname(this.file), { recursive: true });
-    const tmp = `${this.file}.tmp`;
-    writeFileSync(tmp, JSON.stringify({ devices: [...this.byKey] }));
-    renameSync(tmp, this.file);
+    if (this.file) writeStore(this.file, { devices: [...this.byKey] }, this.vault);
   }
 }
