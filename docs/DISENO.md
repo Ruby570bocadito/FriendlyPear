@@ -65,6 +65,9 @@ El texto sobre coral fuerte es siempre tinta oscura (con blanco solo llega a 4,4
 - **Chips:** píldoras con tinte del color de su apartado.
 - **Entradas:** cada pieza sube y aparece una tras otra (340 ms, 70 ms entre piezas). Cambio de apartado: 220 ms.
 - Nada parpadea más de 3 veces por segundo (seguro para fotosensibilidad).
+- **Elegir** (28 oct, noche): nada de botones de radio ni casillas de Android. Cada opción es una ficha de goma; la elegida, verde pera con borde verde bosque y un tic (color, forma y "seleccionado" en TalkBack). En Ajustes, cada lugar del mundo se ve en su ficha: es el mismo mundo de Peri dibujado más pequeño, y el elegido se mueve. Los sí/no son interruptores de goma grandes (`Choices.kt`).
+- **Peri viva en todas partes:** donde sale como pegatina en una pantalla tranquila (cabeceras de los apartados, Ajustes, chat, revisión, familia), respira y se balancea despacio desde los pies. Si la tocas, da un saltito, y en las cabeceras cambia de frase (`alive` en `Style.kt`). En avisos, primeros auxilios o la petición de un guardián se queda quieta.
+- **Línea de tiempo:** el Diario y "Lo que ven tus guardianes" se leen igual. Cada día lleva su título, cada cosa su icono sobre una línea que la une a las demás del día, el texto ocupa todo el ancho y la hora va debajo. Los canales se escriben con palabras ("SMS", "correo"), nunca con su nombre de código.
 
 ## 6. Navegación
 
