@@ -3,6 +3,7 @@
 Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (API 37).
 
 ## Hecho (24 h)
+- 28 oct, noche 6 (la persona: «móntala»): Peri por capas en prueba. `assets/peri/layers.py` (16 ojos, 19 bocas y 7 cuerpos de Muse; cada píxel al tipo de imagen que más lo cambia; sin costuras), `LayeredPeri` (parpadeo, boca en cualquier cara, manos, mirada al dedo, diez caras) y `LayersActivity` en Ajustes > Más de Peri; hablando, 24 ms de mediana en el emulador. Falta llevarla a todo.
 - 28 oct, noche 5 (la persona: la app parece básica y muerta; lista de sprites antes de nada): `docs/PERI_SPRITES.md` (183 imágenes en siete lotes para otro agente; el lote 1 de prueba y parar). Sin imágenes: Peri charla (`SmallTalk` en core, chat con tres puntitos y boca), la nieve sin pinos flotando (cresta de verdad, montoncitos, cabaña con humo, pájaros), logotipo de plastilina animado (`Wordmark`), bocadillo en Fredoka con palabras que aparecen y mueven la boca, la pose no congela la boca, adornos flotantes en los apartados (`Floaties`), botones de color.
 - 28 oct, noche 4 (la persona: latencia, más funciones y roadmap, viñetas de las trampas nuevas): la latencia venía de cuatro emuladores pidiendo ~20 núcleos a 12 (uno llevaba 11,6 h con swap): ahora `-cores 2` y pantalla apagada a los 5 min; Peri en calma a 30 fps y a 20 sin tocar, con el mundo en los mismos fotogramas (`Rest`): fotograma mediano de 150–450 ms a 25 ms. Cinco trampas con viñetas de Muse Image (`callback`, `payment`, `official`, `bill`, `romance`; 16 imágenes, ~0,16 $) y cuatro preguntas del juego. Letras disfrazadas (`DISGUISED_LETTERS`; `Text.fold` sin invisibles y con cirílicas y griegas; `Links.shown` para xn--). El sí del guardián espera si su móvil está en peligro (423). Las secciones ya no pasan bajo el reloj.
 - 28 oct, noche 3 (seguridad): equipo rojo con Spark contributor (`eval/redteam/`: `redteam.ts`, `report.py`, tres lotes, informes en `resultados/`; los mensajes se quedan en local). Juzgado sin leerlo, el último lote pasa del 40 % al 80 % de avisos; cinco señales nuevas (`CALLBACK_REQUEST`, `CHANNEL_SWITCH`, `MISTAKEN_PAYMENT`, `COMPANY_FROM_MOBILE`, `SAFE_PAYMENT_BAIT`), enlaces `.co.uk`, marcas de compraventa y NHS; `reservado-200` 88 → 91 % con las mismas falsas alarmas. «Mira esta imagen» rechaza direcciones prestadas (contactos, SMS, la propia app).
@@ -11,7 +12,6 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
 - 28 oct, noche (la persona: ropa, acciones de la familia, notificaciones, estrellas, dos fondos, roadmap de seguridad, qué hacer tras dar datos):
   - Llamadas: con la línea ocupada la llamada espera; botón de colgar en la pausa (`ANSWER_PHONE_CALLS`); «colgar su llamada» para la familia (`/v1/pears/:id/hangup`, `/v1/hangup`, pera con kind `call`); bloquear el número de un timo (`BlockList`, `CallScreener`, Ajustes). Probado con dos emuladores. `FamilyNotes`: noticias de la familia con la app cerrada; «¿has sido tú?» se contesta desde la notificación.
   - Roadmap de seguridad: sección F de `docs/agentes/ROADMAP.md`. Hecho de ella: colgar con aviso, cuidador en llamada (sí en espera), límites por móvil, release sin token (`eval/release_check.py`), apps que controlan la pantalla (`ScreenAccess`; prueba: `--es intruder "paquete|nombre"`), burbuja de Mini Peri en ventana propia; primeros auxilios tras un timo (`Breach`, `AftercareActivity`, `AftercareReminder`; prueba: `--es text 'le he dado los datos de la tarjeta'`); lo guardado en el móvil, sellado con la clave del Keystore (`Sealed`); bloqueo familiar por huellas (`FamilyBlocks`, `/v1/blocks`; forzar la sincronización: `cmd jobscheduler run -f app.friendlypear 4202`); dos guardianes para lo más arriesgado (enlace por guardián, `needed`, `yes`); señales de robo de SIM (`LineWatch`; prueba: `emu gsm voice unregistered` y `gsm data unregistered`, un minuto en debug, o `--es sim new|lost|back`).
-  - Pulido: dos anclajes por imagen (cara para gafas y cuello, cabeza para sombreros: al mirar a un lado gira la cara); una tarjeta cada vez, fondo más tranquilo, tarjetas con muelle; pruebas de estrés (`eval/stress.py` + monkey) sin fallos; Peri suelta sus fotogramas cuando no se ve (121 → 76 MB).
 
 ## Cómo probar (solo builds de depuración)
 - Voz: `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`.
@@ -28,7 +28,7 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
 - Dos guardianes: Mamá (5556) tiene a Ana y Papá. Los SMS entre emuladores no llegan: el enlace está en `content://sms/sent` de Mamá y se entrega con `emu sms send 15555215556 "texto"`.
 
 ## En curso
-- Nada.
+- r4-peri-capas: la Peri por capas al inicio, a los estados, con la ropa pegada a la cara y en Mini Peri, cuando la persona la vea en la prueba.
 
 ## Bloqueado
 - Nada.

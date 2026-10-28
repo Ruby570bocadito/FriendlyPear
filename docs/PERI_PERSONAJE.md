@@ -104,6 +104,7 @@ Cada lista se baraja y da la vuelta entera antes de repetir.
 | Una frase del agente | `core/.../agent/Phrases.kt` | `Spanish` y `English`, con test |
 | Una interacción | `ui/peri/PeriActivity.kt` (toques, `touch` y `shake`) y `PeriFace.kt` (animación, `drag`) | Solo si `playful()`; respetar "quitar animaciones" y la accesibilidad (TalkBack) |
 | Un lugar del mundo | `ui/peri/PeriWorld.kt` (`Place`, `HILLS`, `drawPlaceLife`) | Colores de colinas, lo que vive allí y en qué estación sale; añadirlo en Ajustes |
+| Una cara o un cuerpo por capas | `assets/peri/sprites/` (Muse Image, [`PERI_SPRITES.md`](PERI_SPRITES.md)) y `EYES`, `MOUTHS` o `BODIES` de `assets/peri/layers.py` | `python assets/peri/layers.py` recorta las piezas y escribe `PeriLayerData.kt`; un cuerpo necesita su imagen de origen en `PeriAnchors` (`assets/peri/anchors.py`); mirarlo en «La nueva Peri (prueba)» |
 | Un accesorio | `WEAR` en `generate.ts`, luego `Outfit.Item` | `generate.ts wear <nombre>` (0,01 $), `python assets/peri/wear.py`; en `Outfit.Item`, ancho y punto de apoyo en distancias entre ojos; añadirlo a `ITEMS` de `backend/src/pears/store.ts`; si se añaden poses, `python assets/peri/anchors.py` |
 
 **Antes de dar algo por bueno:** verlo en el emulador, leerlo en voz alta en los dos idiomas y comprobar que no rompe ninguna regla de la sección 2.

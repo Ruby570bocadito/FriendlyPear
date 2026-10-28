@@ -92,6 +92,8 @@ Barra inferior flotante con cuatro apartados, cada uno con su color; Ajustes en 
 
 **Cómo se hace:** ilustraciones de plastilina 3D de **Muse Image** (`assets/peri/`), recortadas, con fotogramas (parpadeo, boca, miradas, pasos, gestos) y animación en código (`PeriFace`): bote, balanceo, aplastar y estirar, sombra. Personalidad, poses e interacciones: [`PERI_PERSONAJE.md`](PERI_PERSONAJE.md); voz: [`PERI_VOZ.md`](PERI_VOZ.md).
 
+**Por capas (ronda 4, en prueba):** un cuerpo sin cara y encima los ojos y la boca, recortados de las imágenes de Muse (`assets/peri/layers.py`, lista en [`PERI_SPRITES.md`](PERI_SPRITES.md)). Cualquier cara va en cualquier cuerpo, puesta donde tenía los ojos la imagen de la que salió (`PeriAnchors`): habla con la boca en cualquier expresión y pose, y a ratos con las manos; parpadea; sigue el dedo con la mirada y gira un poco la cara hacia él; pone diez caras (contenta, risa, sorpresa, amor, estrellas, preocupada, valiente, sueño, guiño, triste), cada una con su salto o su efecto. Se ve en Ajustes > Más de Peri > «La nueva Peri (prueba)» antes de llevarla a todas las pantallas.
+
 | Estado | Cuándo | Animación | Mundo |
 |---|---|---|---|
 | Tranquila | Sin novedades | Respira, parpadea, mira, a veces salta o baila | Cielo de la hora |
@@ -119,6 +121,7 @@ Barra inferior flotante con cuatro apartados, cada uno con su color; Ajustes en 
 | Ritmo tranquilo | `Rest.kt`: sin tocar la pantalla, Peri respira a 30 fps y a 20 tras 20 s, y el mundo y los adornos van en los mismos fotogramas; un dedo, una frase o una acción devuelven todos (ronda 4) |
 | Mundo | `PeriWorld.kt`: cielo, astros, nubes, colinas, lugares y partículas en `Canvas`, a 30 fps y parado si no se ve; formas y degradados en caché (`shape`, `Shade`), paralaje con `tilt` |
 | Peri | `PeriFace.kt` + `Sparkles.kt`; ilustraciones de Muse Image en `res/drawable-nodpi/` |
+| Peri por capas | `LayeredPeri.kt` con `PeriLayerData.kt` (generado por `assets/peri/layers.py`): cuerpo, ojos y boca como mapas de bits del tamaño al que se dibujan, la cara puesta con `PeriAnchors`; en prueba en `LayersActivity` (ronda 4) |
 | Fuentes | `res/font/`: Atkinson por el tema; Fredoka variable con `android.graphics.fonts.Font` a 500, 600 y 700 |
 | Vibración | `Haptics` con patrones cortos por estado |
 

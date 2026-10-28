@@ -25,6 +25,8 @@ Así cualquier cuerpo lleva cualquier cara: boca al ritmo de la voz, parpadeos, 
 Muchas caras ya existen en los fotogramas de la Peri tranquila (ojos abiertos, medio cerrados y cerrados, mirada a
 cada lado, guiño, tres bocas, risa, sorpresa, mareo) y se reutilizan: esta lista solo pide lo que falta.
 
+**En la app (28 oct):** `assets/peri/layers.py` recorta las piezas: lo que cambian las imágenes de ojos y las de boca respecto a `peri_calm`, lejos del contorno, y cada píxel para el tipo de imagen que más lo cambia (Muse retoca a veces un ojo en una boca, como en `face_mouth_smirk`). La mirada a la derecha de siempre (`peri_calm_glanceright`) es un giro de cabeza y la de la izquierda apenas mueve el brillo: no son piezas, Peri mira a los lados moviendo los ojos. Los cuerpos sin cara mantienen el encuadre de su imagen (3 px como mucho), así que la cara va donde `PeriAnchors` dice que estaban sus ojos.
+
 ## Reglas para todas las imágenes
 
 - **Modelo:** `muse-image-1.0`. `POST {META_API_BASE}/images/edits` con la imagen de referencia de cada fila
