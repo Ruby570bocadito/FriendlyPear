@@ -55,6 +55,7 @@ internal class Wordmark(context: Context, private val name: String) : View(conte
     private val leafPath = Path()
     private var size = 0f
     private val x = FloatArray(name.length)
+    private val widths = FloatArray(name.length)
     private var baseline = 0f
     private var top = 0f
     private var dotX = 0f
@@ -80,7 +81,7 @@ internal class Wordmark(context: Context, private val name: String) : View(conte
     }
 
     private fun shadowFor() {
-        if (dark) edge.setShadowLayer(4 * d, 0f, 0f, GLOW) else edge.setShadowLayer(3 * d, 0f, 2 * d, SHADOW)
+        if (dark) edge.setShadowLayer(4 * d, 0f, 0f, GLOW) else edge.setShadowLayer(2.5f * d, 0f, 1.5f * d, SHADOW)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -98,11 +99,12 @@ internal class Wordmark(context: Context, private val name: String) : View(conte
         super.onSizeChanged(w, h, oldw, oldh)
         fill.textSize = size
         edge.textSize = size
-        edge.strokeWidth = size * 0.14f
+        edge.strokeWidth = size * EDGE_WIDTH
         var at = 4 * d
         for (i in name.indices) {
             x[i] = at
-            at += fill.measureText(name, i, i + 1)
+            widths[i] = fill.measureText(name, i, i + 1)
+            at += widths[i]
         }
         val bounds = Rect()
         fill.getTextBounds("F", 0, 1, bounds)
@@ -194,28 +196,44 @@ internal class Wordmark(context: Context, private val name: String) : View(conte
     }
 
     private val m = FloatArray(2)
+    private val lifts = FloatArray(name.length)
+    private val squashes = FloatArray(name.length)
 
+    /**
+     * Every letter's edge first, then every letter, then the light on each: drawn letter by letter, an edge covered
+     * the letter before it, and the name looked like one text on top of another.
+     */
     override fun onDraw(canvas: Canvas) {
         if (size <= 0f) return
         val now = SystemClock.uptimeMillis()
         for (i in name.indices) {
             motion(i, now, m)
-            val w = fill.measureText(name, i, i + 1)
-            canvas.save()
-            canvas.translate(0f, m[0])
-            canvas.scale(1f + m[1], 1f - m[1], x[i] + w / 2, baseline)
-            canvas.drawText(name, i, i + 1, x[i], baseline, edge)
-            fill.shader = if (i < split) firstShade else secondShade
-            canvas.drawText(name, i, i + 1, x[i], baseline, fill)
-            fill.shader = null
-            // A soft light on the top left of each letter, like light on plasticine.
-            fill.color = HIGHLIGHT
-            canvas.clipRect(x[i], top - size, x[i] + w * 0.6f, top + size * 0.32f)
-            canvas.drawText(name, i, i + 1, x[i] - size * 0.012f, baseline - size * 0.02f, fill)
-            fill.color = 0xFF000000.toInt()
-            canvas.restore()
-            if (name[i] == 'i') drawLeaf(canvas, m[0])
+            lifts[i] = m[0]
+            squashes[i] = m[1]
         }
+        for (pass in 0..2) for (i in name.indices) {
+            canvas.save()
+            canvas.translate(0f, lifts[i])
+            canvas.scale(1f + squashes[i], 1f - squashes[i], x[i] + widths[i] / 2, baseline)
+            when (pass) {
+                0 -> canvas.drawText(name, i, i + 1, x[i], baseline, edge)
+                1 -> {
+                    fill.shader = if (i < split) firstShade else secondShade
+                    canvas.drawText(name, i, i + 1, x[i], baseline, fill)
+                    fill.shader = null
+                }
+                // A soft light on the top of each letter, like light on plasticine: the letter itself, clipped.
+                else -> {
+                    fill.color = HIGHLIGHT
+                    canvas.clipRect(x[i] - size, top - size, x[i] + widths[i] + size, top + (baseline - top) * LIGHT)
+                    canvas.drawText(name, i, i + 1, x[i], baseline, fill)
+                    fill.color = 0xFF000000.toInt()
+                }
+            }
+            canvas.restore()
+        }
+        val dot = name.indexOf('i')
+        if (dot >= 0) drawLeaf(canvas, lifts[dot])
     }
 
     /** A pear leaf for the dot of the "i", tilted, with its vein. */
@@ -251,6 +269,9 @@ internal class Wordmark(context: Context, private val name: String) : View(conte
         const val HOP_MS = 600L
         const val WAVE_EVERY_MIN = 9_000L
         const val WAVE_EVERY_MAX = 16_000L
+        /** The dark clay edge around the letters, as a share of their size; and how far down the light reaches. */
+        const val EDGE_WIDTH = 0.10f
+        const val LIGHT = 0.36f
         const val EDGE = 0xFF1B4612.toInt()
         const val SHADOW = 0x55173A10
         const val GLOW = 0x88FFF8EC.toInt()
