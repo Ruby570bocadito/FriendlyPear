@@ -5,7 +5,8 @@ with --sheet <png>, a contact sheet with the eyes marked to check them by eye.
 
     python assets/peri/anchors.py [--sheet sheet.png]
 
-Eyes are the two largest dark blobs at the same height in the upper part of her body; each mood's still image and
+Eyes are the two largest dark blobs at the same height in the upper part of her body, each then taken whole (its lit
+side and its glint too, or a lit eye would pull the outfit to the left); each mood's still image and
 each pose (an idea, her cape...) has its own. A mood's frames are edits of its still image, but a step or a gesture
 moves her a little (up to 22 px): each frame gets the still's eyes moved as far as her head moved, found by matching
 the still's head (leaf, stem and the top of her face, never the eyes or the mouth, which change) in the frame.
@@ -32,6 +33,8 @@ FRAMES = ["_blink", "_blinkhalf", "_talk", "_talkwide", "_talko", "_glanceleft",
 REACH = 48
 # Poses whose eyes can't be found (hidden by her hands, or spirals): the calm Peri's eyes stand in.
 HIDDEN = {"calm_peekaboo", "calm_dizzy"}
+# Darker than this around a pupil is still the eye: its lit side and the rim of its glint.
+WHOLE_EYE = 80
 
 
 def eyes(path: str):
@@ -63,7 +66,29 @@ def eyes(path: str):
         return None
     _, c1, c2 = best
     l, r = (c1, c2) if c1[0] < c2[0] else (c2, c1)
-    return float(l[0]), float(l[1]), float(r[0]), float(r[1])
+    (lx, ly), (rx, ry) = whole(luma, l), whole(luma, r)
+    return lx, ly, rx, ry
+
+
+def whole(luma: np.ndarray, at) -> tuple[float, float]:
+    """The centre of the whole eye around a dark blob: a looser threshold, then its outline's convex hull."""
+    x, y = int(at[0]), int(at[1])
+    r = 80
+    x0, y0 = max(0, x - r), max(0, y - r)
+    crop = (luma[y0: y + r, x0: x + r] < WHOLE_EYE).astype(np.uint8)
+    count, labels, stats, _ = cv2.connectedComponentsWithStats(crop, connectivity=4)
+    label = labels[y - y0, x - x0]
+    if label == 0:
+        # The blob's centre can fall on a lighter spot of the eye: then the biggest dark shape around it.
+        if count < 2:
+            return float(at[0]), float(at[1])
+        label = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
+    contours, _ = cv2.findContours((labels == label).astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    hull = cv2.convexHull(max(contours, key=cv2.contourArea))
+    m = cv2.moments(cv2.drawContours(np.zeros(crop.shape, np.uint8), [hull], -1, 1, -1), True)
+    if m["m00"] == 0:
+        return float(at[0]), float(at[1])
+    return x0 + m["m10"] / m["m00"], y0 + m["m01"] / m["m00"]
 
 
 def grey(path: str) -> np.ndarray:

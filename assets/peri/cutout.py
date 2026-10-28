@@ -54,7 +54,8 @@ def large_regions(mask: Image.Image) -> np.ndarray:
         label += 1
 
 
-def cut(path: str, remove_floor: bool = True) -> Image.Image:
+def cut(path: str, remove_floor: bool = True, threshold: int = FILL_THRESHOLD) -> Image.Image:
+    """Her picture without its cream background; a lower [threshold] keeps things nearly as light as the cream (a white frame)."""
     image = Image.open(path).convert("RGB").resize((SIZE, SIZE), Image.LANCZOS)
     rgb = np.asarray(image).astype(np.int32)
     bg = background_colour(rgb)
@@ -71,11 +72,11 @@ def cut(path: str, remove_floor: bool = True) -> Image.Image:
 
     def near_edge(x: int, y: int) -> bool:
         edge = "top" if y == 0 else "bottom" if y == h - 1 else "left" if x == 0 else "right"
-        return np.abs(rgb[y, x] - edges[edge]).sum() < FILL_THRESHOLD
+        return np.abs(rgb[y, x] - edges[edge]).sum() < threshold
 
     for x, y in seeds:
-        if (diff[y, x] < FILL_THRESHOLD or near_edge(x, y)) and filled.getpixel((x, y)) != SENTINEL:
-            ImageDraw.floodfill(filled, (x, y), SENTINEL, thresh=FILL_THRESHOLD)
+        if (diff[y, x] < threshold or near_edge(x, y)) and filled.getpixel((x, y)) != SENTINEL:
+            ImageDraw.floodfill(filled, (x, y), SENTINEL, thresh=threshold)
     outside = np.all(np.asarray(filled) == SENTINEL, axis=2)
 
     # Cream pockets enclosed by her outline: an opening drops thin strokes and small highlights.

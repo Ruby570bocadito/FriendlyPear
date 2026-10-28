@@ -14,6 +14,7 @@
  *   cd backend; bun ../assets/peri/generate.ts extras           the app icon and the illustrations for screens
  *   cd backend; bun ../assets/peri/generate.ts traps            "how the trap worked": 3 panels for 6 kinds of scam (18 images)
  *   cd backend; bun ../assets/peri/generate.ts wear             accessories to dress Peri in (11 images, then assets/peri/wear.py)
+ *   cd backend; bun ../assets/peri/generate.ts tops calm happy  her head without leaf and stem, for hats (then assets/peri/tops.py)
  * Then `python assets/peri/cutout.py` cuts the cream background out for the app.
  */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -125,13 +126,18 @@ export const WEAR: Record<string, string> = {
   wear_crown: "A small shiny golden crown with five rounded points, each tipped with a tiny coloured gem.",
   wear_flowers: "A flower headband as worn, seen from the front: a gentle arch of little pink, yellow and white flowers with green leaves, much wider than tall, open at the bottom.",
   wear_bow: "A small coral ribbon bow with a little knot in the middle and two short tails.",
-  wear_sunglasses: "A pair of round black sunglasses with a thin gold frame, seen exactly from the front, arms folded out of sight.",
-  wear_hearts: "A pair of heart-shaped pink sunglasses with a thin white frame, seen exactly from the front.",
-  wear_glasses: "A pair of round tortoiseshell glasses with clear empty lenses, seen exactly from the front.",
+  // No arms at all: on a pear seen from the front they would stick out through her sides or show through the lenses.
+  wear_sunglasses: "A pair of round black sunglasses with a thin gold frame, seen exactly from the front, with no temple arms at all: only the two round lenses joined by a small bridge.",
+  wear_hearts: "A pair of heart-shaped pink sunglasses with a thin white frame, seen exactly from the front, with no temple arms at all: only the two hearts joined by a small bridge.",
+  wear_glasses: "A pair of round tortoiseshell glasses with clear empty lenses, seen exactly from the front, with no temple arms at all and nothing behind or inside the lenses: only the two round rims joined by a small bridge.",
   wear_bowtie: "A small red bow tie with white polka dots, seen exactly from the front.",
   wear_tie: "A short necktie with coral and navy blue diagonal stripes and a neat knot at the top, seen exactly from the front.",
   wear_bandana: "A small sky blue neckerchief with white dots, tied at the top, its triangle pointing down, seen from the front.",
 };
+
+/** Her head without its leaf and stem, for when she wears a hat; only the top of each picture is used (tops.py). */
+export const BARE =
+  "Exactly the same image: same character, same pose, same face, same arms, same framing, same size and position, same background. Only one change: the pear has no leaf and no stem on top; the top of her head is smooth, rounded green clay.";
 
 async function call(path: string, body: unknown): Promise<Buffer> {
   const res = await fetch(`${base}${path}`, {
@@ -160,7 +166,9 @@ const framesMode = args[0] === "frames";
 const extrasMode = args[0] === "extras";
 const trapsMode = args[0] === "traps";
 const wearMode = args[0] === "wear";
-const only = framesMode || extrasMode || trapsMode || wearMode ? args.slice(1) : args;
+const topsMode = args[0] === "tops";
+const special = framesMode || extrasMode || trapsMode || wearMode || topsMode;
+const only = special ? args.slice(1) : args;
 const pickedFrames = process.argv.find((a) => a.startsWith("--frame="))?.slice(8).split(",");
 const prompts: { name: string; prompt: string }[] = [];
 const baseFile = join(here, "peri_base.webp");
@@ -204,14 +212,24 @@ if (framesMode) {
     const prompt = `${item} Soft 3D clay render of one single small accessory, isolated and centered, straight front view, symmetrical, no character, no person, no face, no text, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.`;
     prompts.push(save(name, await call("/images/generations", { model: "muse-image-1.0", prompt, n: 1, size: "1024x1024", output_format: "webp" }), prompt));
   }
+} else if (topsMode) {
+  for (const name of only) {
+    const reference = `data:image/webp;base64,${readFileSync(join(here, `peri_${name}.webp`)).toString("base64")}`;
+    const prompt = `${BARE} ${STYLE}`;
+    const image = await call("/images/edits", { model: "muse-image-1.0", prompt, images: [{ image_url: reference }], n: 1, size: "1024x1024", output_format: "webp" });
+    // Kept here only: tops.py cuts the top of it for the app.
+    writeFileSync(join(here, `peri_bare_${name}.webp`), image);
+    console.log(`bare_${name}: ${Math.round(image.length / 1024)} KB`);
+    prompts.push({ name: `bare_${name}`, prompt });
+  }
 } else if (only.length === 0 || !existsSync(baseFile)) {
   const prompt = `${STYLE} ${CHARACTER} Peri standing and smiling, full body, front view.`;
   prompts.push(save("base", await call("/images/generations", { model: "muse-image-1.0", prompt, n: 1, size: "1024x1024", output_format: "webp" }), prompt));
 }
 
-const reference = framesMode || extrasMode || trapsMode || wearMode ? "" : `data:image/webp;base64,${readFileSync(baseFile).toString("base64")}`;
+const reference = special ? "" : `data:image/webp;base64,${readFileSync(baseFile).toString("base64")}`;
 for (const [name, pose] of Object.entries(STATES)) {
-  if (framesMode || extrasMode || trapsMode || wearMode || (only.length && !only.includes(name))) continue;
+  if (special || (only.length && !only.includes(name))) continue;
   const prompt = `Same character as in the image, same style, same colours and proportions. ${pose} ${STYLE}`;
   const image = await call("/images/edits", {
     model: "muse-image-1.0",
