@@ -22,6 +22,13 @@ export const LIMITS = {
   voice: { max: 120, windowMs: 60 * 60_000 },
   /** Redeeming pairing codes: a family pairs a phone or two; guessing a code takes far more tries than this. */
   pair: { max: 10, windowMs: 15 * 60_000 },
+  /**
+   * Per paired phone, whatever its IP: a family on one home wifi shares an IP, and a stolen key used from many places
+   * still counts as one phone. A phone polls its family every half minute; this is a lot more.
+   */
+  phone: { max: 120, windowMs: 60_000 },
+  /** "Hang up their call" asked by one phone: a family member in trouble needs one or two. */
+  hangup: { max: 5, windowMs: 10 * 60_000 },
   /** Wrong device tokens; after this many the IP waits out the window, even with the right one. */
   badToken: { max: 10, windowMs: 15 * 60_000 },
 } satisfies Record<string, Limit>;

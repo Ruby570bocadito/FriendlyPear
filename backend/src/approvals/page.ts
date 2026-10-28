@@ -45,6 +45,7 @@ const T = {
     expired: "Este enlace ha caducado y no se aprobó nada. Si hace falta, Peri pedirá otro.",
     unknown: "Este enlace no es válido.",
     busy: "Demasiados intentos seguidos. Espera un minuto y vuelve a abrir el enlace.",
+    oncall: "Estás hablando con un número que no conoces. Cuelga primero y luego decide: así nadie te puede guiar.",
     thanks: "Gracias por cuidar de tu familia.",
   },
   en: {
@@ -85,11 +86,12 @@ const T = {
     expired: "This link has expired and nothing was approved. Peri will ask again if needed.",
     unknown: "This link isn't valid.",
     busy: "Too many tries in a row. Wait a minute and open the link again.",
+    oncall: "You're on a call with a number you don't know. Hang up first, then decide: that way nobody can talk you into it.",
     thanks: "Thank you for looking after your family.",
   },
 };
 
-export type Outcome = "approved" | "rejected" | "callback" | "used" | "expired" | "unknown" | "busy";
+export type Outcome = "approved" | "rejected" | "callback" | "used" | "expired" | "unknown" | "busy" | "oncall";
 
 /** Which picture of Peri goes with each moment (served by this server from backend/public/). */
 const ART: Record<Outcome | "ask" | "alert" | "confirm", string> = {
@@ -103,6 +105,7 @@ const ART: Record<Outcome | "ask" | "alert" | "confirm", string> = {
   expired: "sorry",
   unknown: "sorry",
   busy: "waiting",
+  oncall: "protective",
 };
 
 export function esc(s: string): string {

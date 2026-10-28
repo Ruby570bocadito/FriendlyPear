@@ -26,6 +26,8 @@ export interface Approval {
   expiresAt: number;
   status: Status;
   decidedAt?: number;
+  /** Who decided, when it was decided from a guardian's own Peri (their pear's name); a web page has no name. */
+  decidedBy?: string;
   /** The asking phone's pear when it asked (its name and outfit), shown to the guardian as a sign only the family knows. */
   pear?: { name: string; outfit: string };
 }
@@ -63,7 +65,7 @@ export class ApprovalStore {
   }
 
   /** One decision per link: afterwards, or after 15 minutes, the link no longer works. */
-  decide(token: string, decision: Decision): Approval | "used" | "expired" | "unknown" {
+  decide(token: string, decision: Decision, by?: string): Approval | "used" | "expired" | "unknown" {
     const key = hash(token);
     const id = this.byToken.get(key);
     const a = id ? this.get(id) : undefined;
@@ -72,6 +74,7 @@ export class ApprovalStore {
     if (a.status !== "pending") return "used";
     a.status = decision === "approve" ? "approved" : decision === "reject" ? "rejected" : "callback";
     a.decidedAt = this.now();
+    if (by) a.decidedBy = by;
     this.byToken.delete(key);
     return a;
   }

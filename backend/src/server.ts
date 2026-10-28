@@ -147,6 +147,14 @@ export function createHandler(config: Config, services: Services = {}, limiter =
     if (pathname === "/v1/report" && limiter.hit(`report:${ip}`, LIMITS.report) > LIMITS.report.max) {
       return secure(tooMany(limiter.retryAfter(`report:${ip}`, LIMITS.report), false), https);
     }
+    // A paired phone counts as itself too, wherever it calls from.
+    const phone = api ? ownDevice(req, services.devices) : null;
+    if (phone) {
+      if (limiter.hit(`phone:${phone.id}`, LIMITS.phone) > LIMITS.phone.max) return secure(tooMany(limiter.retryAfter(`phone:${phone.id}`, LIMITS.phone), false), https);
+      if (req.method === "POST" && /^\/v1\/pears\/[^/]+\/hangup$/.test(pathname) && limiter.hit(`hangup:${phone.id}`, LIMITS.hangup) > LIMITS.hangup.max) {
+        return secure(tooMany(limiter.retryAfter(`hangup:${phone.id}`, LIMITS.hangup), false), https);
+      }
+    }
     const res = await route(req, pathname);
     if (api && res.status === 401) limiter.hit(`token:${ip}`, LIMITS.badToken);
     return secure(res, https);
@@ -471,7 +479,14 @@ function routes(config: Config, services: Services) {
         if (decision === "approve" && form.get("confirm") !== "yes" && pending?.status === "pending") {
           return html(confirmPage(pending, token));
         }
-        const result = approvals.decide(token, decision as Decision);
+        // A guardian's own Peri sends its key: if that phone is on a call with a number it doesn't know right now,
+        // a yes waits. Someone on the line may be talking them into it.
+        const guardian = ownDevice(req, devices);
+        const guardianPear = guardian ? services.pears?.list().find((p) => p.device === guardian.id) : undefined;
+        if (decision === "approve" && guardianPear?.state === "attention" && guardianPear.kind === "call") {
+          return html(resultPage(lang, "oncall"), 409);
+        }
+        const result = approvals.decide(token, decision as Decision, guardianPear?.name);
         if (typeof result === "string") return html(resultPage(lang, result), result === "unknown" ? 404 : 410);
         return html(resultPage(result.lang, result.status === "approved" ? "approved" : result.status === "callback" ? "callback" : "rejected"));
       }
