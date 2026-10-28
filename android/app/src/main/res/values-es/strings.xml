@@ -166,6 +166,11 @@
     <string name="news_empty">Aún nada. Cuando Peri te avise o te pare, también saldrá aquí.</string>
     <string name="news_scam">Avisó de un mensaje que parecía un timo (%1$s)</string>
     <string name="news_doubt">Propuso comprobar un mensaje dudoso (%1$s)</string>
+    <string name="news_channel_sms">SMS</string>
+    <string name="news_channel_whatsapp">WhatsApp</string>
+    <string name="news_channel_email">correo</string>
+    <string name="news_channel_web">aviso de una web</string>
+    <string name="news_channel_message">mensaje</string>
     <string name="news_pause_call">Pausa de seguridad: elegiste llamar a la familia</string>
     <string name="news_pause_leave">Pausa de seguridad: saliste de la app</string>
     <string name="news_pause_continue">Pausa de seguridad: seguiste adelante</string>

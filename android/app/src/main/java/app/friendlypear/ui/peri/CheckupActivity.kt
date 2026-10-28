@@ -67,6 +67,7 @@ class CheckupActivity : Activity() {
             addView(ImageView(this@CheckupActivity).apply {
                 setImageResource(if (ok == checks.size) R.drawable.peri_calm_thumbsup else R.drawable.peri_calm_detective)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                alive()
             }, LinearLayout.LayoutParams(dp(130), dp(130)))
             addView(heading(getString(R.string.checkup_title)).apply { gravity = Gravity.CENTER })
             addView(TextView(this@CheckupActivity).apply {

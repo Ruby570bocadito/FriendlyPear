@@ -41,6 +41,7 @@ class ChatActivity : Activity() {
         peri = ImageView(this).apply {
             setImageResource(R.drawable.peri_calm)
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            alive()
         }
         val header = LinearLayout(this).apply {
             gravity = Gravity.CENTER_VERTICAL

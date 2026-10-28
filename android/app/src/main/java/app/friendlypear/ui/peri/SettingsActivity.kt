@@ -12,8 +12,6 @@ import android.view.WindowInsets
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.RadioButton
-import android.widget.RadioGroup
 import android.widget.ScrollView
 import app.friendlypear.R
 
@@ -22,6 +20,17 @@ import app.friendlypear.R
  * Spanish or English stay put whatever the phone says (families mix them). Peri still understands both.
  */
 class SettingsActivity : Activity() {
+    /** Each place's little world, by its key; the chosen one moves. */
+    private val worlds = LinkedHashMap<String, PeriWorld>()
+    private var chosenPlace = PeriWorld.AUTO
+    /** "A surprise every time" shows a different place every couple of seconds. */
+    private val surprise = object : Runnable {
+        override fun run() {
+            worlds[PeriWorld.RANDOM]?.let { w -> w.preview(PeriWorld.Place.entries.filter { it != w.place }.random(), chosenPlace == PeriWorld.RANDOM, ZOOM) }
+            window.decorView.postDelayed(this, SURPRISE_MS)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val list = LinearLayout(this).apply {
@@ -34,6 +43,7 @@ class SettingsActivity : Activity() {
             addView(ImageView(this@SettingsActivity).apply {
                 setImageResource(R.drawable.peri_calm_wave1)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                alive()
             }, LinearLayout.LayoutParams(dp(96), dp(96)))
             addView(heading(getString(R.string.settings_title)).apply { setPadding(dp(12), 0, 0, 0) })
         })
@@ -46,61 +56,55 @@ class SettingsActivity : Activity() {
         card.addView(heading(getString(R.string.settings_language), TextSize.BODY))
         card.addView(body(getString(R.string.settings_language_note), TextSize.SMALL).apply { setPadding(0, dp(4), 0, dp(6)) })
         val options = listOf("" to getString(R.string.language_phone), "es" to "Español", "en" to "English")
-        val group = RadioGroup(this)
         val supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
         val current = if (supported) chosenLanguage() else ""
-        options.forEach { (tag, label) ->
-            group.addView(RadioButton(this).apply {
-                id = View.generateViewId()
-                text = label
-                sizeSp(TextSize.BODY)
-                typeface = weight(600)
-                setTextColor(Palette.INK)
-                minHeight = dp(56)
-                isEnabled = supported
-                isChecked = tag == current
-                setOnClickListener { if (supported) choose(tag) }
-                if (tag.isNotEmpty()) textLocale = java.util.Locale(tag)
-            })
-        }
-        card.addView(group)
+        val group = ChoiceGroup(this, columns = 1) { tag -> if (supported) choose(tag) }
+        options.forEach { (tag, label) -> group.add(tag, ChoiceTile(this, label).apply { isEnabled = supported }) }
+        group.choose(current)
+        card.addView(group, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(6) })
         if (!supported) card.addView(body(getString(R.string.settings_language_old_android), TextSize.SMALL).apply { setPadding(0, dp(6), 0, 0) })
         list.addView(card, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
             topMargin = dp(14)
         })
 
         // Peri's world: a different place each day with the season, or the one the person likes best.
+        // Each place is shown as a little window onto it, drawn by the world itself; the chosen one moves.
         val places = getSharedPreferences(PeriWorld.PREFS, MODE_PRIVATE)
-        val chosenPlace = places.getString(PeriWorld.PLACE, PeriWorld.AUTO)
+        chosenPlace = places.getString(PeriWorld.PLACE, PeriWorld.AUTO)
             .takeIf { it == PeriWorld.RANDOM || PeriWorld.Place.entries.any { p -> p.name == it } } ?: PeriWorld.AUTO
+        val worldChoice = ChoiceGroup(this, columns = 2) { key ->
+            places.edit().putString(PeriWorld.PLACE, key).apply()
+            chosenPlace = key
+            worlds.forEach { (k, w) -> w.preview(w.place, k == key, ZOOM) }
+        }
+        listOf(
+            PeriWorld.AUTO to R.string.place_auto,
+            PeriWorld.RANDOM to R.string.place_random,
+            PeriWorld.Place.MEADOW.name to R.string.place_meadow,
+            PeriWorld.Place.ORCHARD.name to R.string.place_orchard,
+            PeriWorld.Place.SEASIDE.name to R.string.place_seaside,
+            PeriWorld.Place.AUTUMN.name to R.string.place_autumn,
+            PeriWorld.Place.SNOW.name to R.string.place_snow,
+        ).forEach { (key, label) ->
+            val shown = when (key) {
+                PeriWorld.AUTO -> PeriWorld.seasonal()
+                PeriWorld.RANDOM -> PeriWorld.Place.entries.random()
+                else -> PeriWorld.Place.valueOf(key)
+            }
+            val world = PeriWorld(this).apply { preview(shown, key == chosenPlace, ZOOM) }
+            worlds[key] = world
+            worldChoice.add(key, ChoiceTile(this, getString(label), preview = world))
+        }
+        worldChoice.done()
+        worldChoice.choose(chosenPlace)
         val worldCard = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
             setPadding(dp(18), dp(16), dp(18), dp(18))
+            clipChildren = false
             addView(heading(getString(R.string.settings_world), TextSize.BODY))
-            addView(body(getString(R.string.settings_world_note), TextSize.SMALL).apply { setPadding(0, dp(4), 0, dp(6)) })
-            addView(RadioGroup(this@SettingsActivity).apply {
-                listOf(
-                    PeriWorld.AUTO to R.string.place_auto,
-                    PeriWorld.RANDOM to R.string.place_random,
-                    PeriWorld.Place.MEADOW.name to R.string.place_meadow,
-                    PeriWorld.Place.ORCHARD.name to R.string.place_orchard,
-                    PeriWorld.Place.SEASIDE.name to R.string.place_seaside,
-                    PeriWorld.Place.AUTUMN.name to R.string.place_autumn,
-                    PeriWorld.Place.SNOW.name to R.string.place_snow,
-                ).forEach { (key, label) ->
-                    addView(RadioButton(this@SettingsActivity).apply {
-                        id = View.generateViewId()
-                        text = getString(label)
-                        sizeSp(TextSize.BODY)
-                        typeface = weight(600)
-                        setTextColor(Palette.INK)
-                        minHeight = dp(56)
-                        isChecked = key == chosenPlace
-                        setOnClickListener { places.edit().putString(PeriWorld.PLACE, key).apply() }
-                    })
-                }
-            })
+            addView(body(getString(R.string.settings_world_note), TextSize.SMALL).apply { setPadding(0, dp(4), 0, dp(10)) })
+            addView(worldChoice)
         }
         list.addView(worldCard, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
             topMargin = dp(14)
@@ -113,17 +117,11 @@ class SettingsActivity : Activity() {
             background = cardBackground()
             setPadding(dp(18), dp(16), dp(18), dp(18))
             addView(heading(getString(R.string.settings_ears), TextSize.BODY))
-            addView(android.widget.CheckBox(this@SettingsActivity).apply {
-                text = getString(R.string.settings_ears_muse)
-                sizeSp(TextSize.BODY)
-                typeface = weight(600)
-                setTextColor(Palette.INK)
-                isChecked = hub.museVoice
+            addView(Toggle(this@SettingsActivity, getString(R.string.settings_ears_muse), hub.museVoice) { on -> hub.museVoice = on }.apply {
                 isEnabled = hub.museVoiceAvailable
-                setOnCheckedChangeListener { _, on -> hub.museVoice = on }
-            })
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(4) })
             addView(body(getString(if (hub.museVoiceAvailable) R.string.settings_ears_note else R.string.settings_ears_unavailable), TextSize.SMALL).apply {
-                setPadding(dp(6), dp(4), 0, 0)
+                setPadding(0, dp(4), 0, 0)
             })
         }
         list.addView(ears, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
@@ -138,27 +136,21 @@ class SettingsActivity : Activity() {
             addView(heading(getString(R.string.settings_voice), TextSize.BODY))
             addView(body(getString(if (hub.googleVoice) R.string.settings_voice_note else R.string.settings_voice_no_google), TextSize.SMALL).apply { setPadding(0, dp(4), 0, dp(6)) })
             val voices = hub.voices()
-            val picker = RadioGroup(this@SettingsActivity)
+            val picker = ChoiceGroup(this@SettingsActivity, columns = 1) { name -> hub.chooseVoice(name) }
             voices.forEachIndexed { i, v ->
-                picker.addView(RadioButton(this@SettingsActivity).apply {
-                    id = View.generateViewId()
-                    // Only what tells them apart: the accent if it isn't the usual one, and whether it needs internet.
-                    val notes = listOfNotNull(
-                        getString(R.string.voice_best).takeIf { i == 0 },
-                        v.locale.displayCountry.takeIf { it.isNotEmpty() && v.locale.country != voices[0].locale.country },
-                        getString(R.string.voice_online).takeIf { v.isNetworkConnectionRequired },
-                    )
-                    text = if (notes.isEmpty()) getString(R.string.voice_label, i + 1)
-                    else getString(R.string.voice_label_notes, i + 1, notes.joinToString(" · "))
-                    sizeSp(TextSize.BODY)
-                    setTextColor(Palette.INK)
-                    minHeight = dp(52)
-                    isChecked = v.name == hub.voiceName
-                    setOnClickListener { hub.chooseVoice(v.name) }
-                })
+                // Only what tells them apart: the accent if it isn't the usual one, and whether it needs internet.
+                val notes = listOfNotNull(
+                    getString(R.string.voice_best).takeIf { i == 0 },
+                    v.locale.displayCountry.takeIf { it.isNotEmpty() && v.locale.country != voices[0].locale.country },
+                    getString(R.string.voice_online).takeIf { v.isNetworkConnectionRequired },
+                )
+                val label = if (notes.isEmpty()) getString(R.string.voice_label, i + 1)
+                else getString(R.string.voice_label_notes, i + 1, notes.joinToString(" · "))
+                picker.add(v.name, ChoiceTile(this@SettingsActivity, label, icon = R.drawable.ic_volume))
             }
+            picker.choose(hub.voiceName.orEmpty())
             if (voices.isEmpty()) addView(body(getString(R.string.settings_voice_none), TextSize.SMALL))
-            addView(picker)
+            addView(picker, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(6) })
             addView(Pill(this@SettingsActivity, getString(R.string.settings_voice_more), R.drawable.ic_mic, primary = false).apply {
                 setOnClickListener { moreVoices() }
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply { topMargin = dp(10) })
@@ -252,6 +244,16 @@ class SettingsActivity : Activity() {
         })
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (animationsOn()) window.decorView.postDelayed(surprise, SURPRISE_MS)
+    }
+
+    override fun onPause() {
+        window.decorView.removeCallbacks(surprise)
+        super.onPause()
+    }
+
     /**
      * More and better voices: Android's speech settings (to pick Google's engine and download voices), or, if the
      * phone hasn't got Google's engine, its page in the Play Store.
@@ -311,5 +313,11 @@ class SettingsActivity : Activity() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU || tag == chosenLanguage()) return
         getSystemService(LocaleManager::class.java)?.applicationLocales =
             if (tag.isEmpty()) LocaleList.getEmptyLocaleList() else LocaleList.forLanguageTags(tag)
+    }
+
+    private companion object {
+        /** The little worlds are the real one drawn at this size, so hills and trees keep their proportions. */
+        const val ZOOM = 0.45f
+        const val SURPRISE_MS = 2_200L
     }
 }

@@ -73,6 +73,12 @@ class PeriWorld(context: Context) : View(context) {
     var place: Place = Place.MEADOW
         private set
 
+    /** Drawn this many times smaller than the world itself (Settings' previews), so hills and trees keep their sizes. */
+    private var zoom = 1f
+    private var previewing = false
+    /** A preview moves only while it's the chosen place; Peri's own world always moves. */
+    private var live = true
+
     private var mood = Mood.CALM
     private var asleep = false
     private var alarm = false
@@ -135,8 +141,25 @@ class PeriWorld(context: Context) : View(context) {
         if (!running) invalidate()
     }
 
+    /**
+     * A small window onto [shown] for Settings, whatever the day: the whole world drawn [zoom] times its size, moving
+     * only while [live] (the chosen place), never with the phone's tilt.
+     */
+    fun preview(shown: Place, live: Boolean, zoom: Float) {
+        previewing = true
+        this.zoom = zoom
+        if (place != shown) {
+            place = shown
+            seedBits()
+        }
+        this.live = live
+        if (live) start() else stop()
+        invalidate()
+    }
+
     /** The place chosen in Settings may have changed. */
     fun refreshPlace() {
+        if (previewing) return
         val chosen = chosenPlace(context)
         if (chosen == place) return
         place = chosen
@@ -197,7 +220,7 @@ class PeriWorld(context: Context) : View(context) {
     }
 
     private fun start() {
-        if (running || !moves || windowVisibility != VISIBLE) return
+        if (running || !moves || !live || windowVisibility != VISIBLE) return
         running = true
         lastStep = SystemClock.uptimeMillis()
         Choreographer.getInstance().postFrameCallback(tick)
@@ -262,7 +285,7 @@ class PeriWorld(context: Context) : View(context) {
         if (alarm) return
         lean += (leanTarget - lean) * (1 - exp(-dt * 2.5f))
         clouds.forEach { c ->
-            c.x += c.speed * d * dt / width.coerceAtLeast(1)
+            c.x += c.speed * d * dt / (width / zoom).coerceAtLeast(1f)
             if (c.x > 1.25f) c.x = -0.3f
         }
         moveBits(dt)
@@ -270,7 +293,7 @@ class PeriWorld(context: Context) : View(context) {
         if (target == Phase.NIGHT && now > nextShooting) {
             shooting = now
             nextShooting = now + Random.nextLong(12_000, 26_000)
-            shootFrom = floatArrayOf(width * (0.1f + Random.nextFloat() * 0.5f), ground * (0.05f + Random.nextFloat() * 0.25f))
+            shootFrom = floatArrayOf(width / zoom * (0.1f + Random.nextFloat() * 0.5f), ground / zoom * (0.05f + Random.nextFloat() * 0.25f))
         }
     }
 
@@ -400,10 +423,20 @@ class PeriWorld(context: Context) : View(context) {
     private var shadowShader: RadialGradient? = null
 
     override fun onDraw(canvas: Canvas) {
-        val w = width.toFloat()
-        val h = height.toFloat()
-        if (w <= 0f || h <= 0f) return
-        val g = if (ground < 0f) h * 0.55f else ground
+        if (width <= 0 || height <= 0) return
+        // A preview draws the world at its full size, scaled down to fit.
+        val w = width / zoom
+        val h = height / zoom
+        val g = (if (ground < 0f) height * 0.55f else ground) / zoom
+        if (zoom != 1f) {
+            canvas.save()
+            canvas.scale(zoom, zoom)
+        }
+        drawWorld(canvas, w, h, g)
+        if (zoom != 1f) canvas.restore()
+    }
+
+    private fun drawWorld(canvas: Canvas, w: Float, h: Float, g: Float) {
         shape(w, h)
         // Each part sets its own alpha; nothing carries over from the last frame (the sky would fade).
         fill.alpha = 255
@@ -1299,6 +1332,11 @@ class PeriWorld(context: Context) : View(context) {
             val chosen = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(PLACE, AUTO)
             Place.entries.firstOrNull { it.name == chosen }?.let { return it }
             if (chosen == RANDOM) return Place.entries.random()
+            return seasonal(today)
+        }
+
+        /** Today's place when it changes every day: one of three for the season, a different one each day. */
+        fun seasonal(today: Calendar = Calendar.getInstance()): Place {
             val season = when (today.get(Calendar.MONTH)) {
                 Calendar.DECEMBER, Calendar.JANUARY, Calendar.FEBRUARY -> listOf(Place.SNOW, Place.ORCHARD, Place.SEASIDE)
                 Calendar.MARCH, Calendar.APRIL, Calendar.MAY -> listOf(Place.MEADOW, Place.ORCHARD, Place.SEASIDE)

@@ -167,6 +167,11 @@
     <string name="news_empty">Nothing yet. When Peri warns you or pauses you, it will appear here too.</string>
     <string name="news_scam">Warned about a message that looked like a scam (%1$s)</string>
     <string name="news_doubt">Suggested checking a doubtful message (%1$s)</string>
+    <string name="news_channel_sms">SMS</string>
+    <string name="news_channel_whatsapp">WhatsApp</string>
+    <string name="news_channel_email">email</string>
+    <string name="news_channel_web">web notice</string>
+    <string name="news_channel_message">message</string>
     <string name="news_pause_call">Safety pause: you chose to call family</string>
     <string name="news_pause_leave">Safety pause: you left the app</string>
     <string name="news_pause_continue">Safety pause: you carried on</string>

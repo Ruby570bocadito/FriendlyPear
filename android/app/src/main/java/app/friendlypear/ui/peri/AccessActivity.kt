@@ -54,6 +54,7 @@ class AccessActivity : Activity() {
             addView(ImageView(this@AccessActivity).apply {
                 setImageResource(R.drawable.peri_shield)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                alive()
             }, LinearLayout.LayoutParams(dp(96), dp(96)))
             addView(heading(getString(R.string.access_title)).apply { setPadding(dp(12), 0, 0, 0) },
                 LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))

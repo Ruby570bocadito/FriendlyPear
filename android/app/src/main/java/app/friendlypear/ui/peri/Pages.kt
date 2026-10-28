@@ -33,20 +33,25 @@ import java.util.concurrent.Executors
  * poses; titles never sit right on the sky, so they read the same by day and by night.
  */
 
-/** A section's first card: its title, a line from Peri and one of her poses, in the section's colour. */
-internal fun Context.heroCard(title: String, line: String, pose: Int, face: Int, lip: Int, ink: Int): View = FrameLayout(this).apply {
+/**
+ * A section's first card: its title, a line of Peri's from [bank] and one of her poses, in the section's colour.
+ * Peri breathes there; a tap makes her hop and say another line.
+ */
+internal fun Context.heroCard(title: String, bank: Int, pose: Int, face: Int, lip: Int, ink: Int): View = FrameLayout(this).apply {
     clipChildren = false
     clipToPadding = false
+    val line = body(Lines.next(this@heroCard, bank), 17f).apply {
+        setTextColor(Palette.INK)
+        setPadding(0, dp(6), 0, 0)
+        accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+    }
     val text = LinearLayout(this@heroCard).apply {
         orientation = LinearLayout.VERTICAL
         background = tintedCard(face, lip)
         setPadding(dp(20), dp(18), dp(124), dp(22))
         minimumHeight = dp(128)
         addView(heading(title).apply { setTextColor(ink) })
-        addView(body(line, 17f).apply {
-            setTextColor(Palette.INK)
-            setPadding(0, dp(6), 0, 0)
-        })
+        addView(line)
     }
     addView(text, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
     // Peri peeks over the top edge of her card.
@@ -54,6 +59,14 @@ internal fun Context.heroCard(title: String, line: String, pose: Int, face: Int,
         setImageDrawable(sized(pose, dp(124)))
         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         popIn(160)
+        alive {
+            val next = Lines.next(this@heroCard, bank)
+            if (!animationsOn()) line.text = next
+            else line.animate().alpha(0f).setDuration(120).withEndAction {
+                line.text = next
+                line.animate().alpha(1f).setDuration(220).start()
+            }.start()
+        }
     }, FrameLayout.LayoutParams(dp(124), dp(124), Gravity.END or Gravity.TOP).apply { marginEnd = dp(2) })
 }
 
@@ -109,6 +122,67 @@ internal fun Context.badge(icon: Int, face: Int, ink: Int, size: Int = 40): View
     }, FrameLayout.LayoutParams(dp(size * 0.55f), dp(size * 0.55f), Gravity.CENTER))
 }
 
+/** Something that happened, for a timeline: when, its badge's icon and colours, and what, in Peri's words. */
+internal class Moment(val at: Long, val icon: Int, val face: Int, val ink: Int, val text: String)
+
+internal const val DAY_MS = 24 * 60 * 60 * 1000L
+
+internal fun dayKey(at: Long): Int = Calendar.getInstance().apply { timeInMillis = at }.let { it.get(Calendar.YEAR) * 1000 + it.get(Calendar.DAY_OF_YEAR) }
+
+/** "Today", "Yesterday", or the day's name and date. */
+internal fun Context.dayName(at: Long): String {
+    val today = dayKey(System.currentTimeMillis())
+    val yesterday = dayKey(System.currentTimeMillis() - DAY_MS)
+    return when (dayKey(at)) {
+        today -> getString(R.string.diary_today)
+        yesterday -> getString(R.string.diary_yesterday)
+        else -> DateFormat.getInstanceForSkeleton("EEEEdMMMM").format(at).replaceFirstChar { it.uppercase() }
+    }
+}
+
+/**
+ * [moments], newest first, as a timeline by day: a heading in [dayInk] for each day, then each moment's badge on a
+ * line that joins it to the day's others, what happened across the whole width, and the time under it.
+ */
+internal fun Context.timeline(into: LinearLayout, moments: List<Moment>, dayInk: Int) {
+    var day = -1
+    val time = DateFormat.getTimeInstance(DateFormat.SHORT)
+    moments.forEachIndexed { i, m ->
+        val key = dayKey(m.at)
+        if (key != day) {
+            day = key
+            into.addView(heading(dayName(m.at), 18f).apply {
+                setTextColor(dayInk)
+                setPadding(0, if (into.childCount == 0) 0 else dp(12), 0, dp(8))
+            })
+        }
+        val first = i == 0 || dayKey(moments[i - 1].at) != key
+        val last = i == moments.lastIndex || dayKey(moments[i + 1].at) != key
+        into.addView(moment(m, time.format(m.at), first, last))
+    }
+}
+
+private fun Context.moment(m: Moment, at: String, first: Boolean, last: Boolean): View {
+    val badge = dp(40)
+    val centre = dp(4) + badge / 2
+    return LinearLayout(this).apply {
+        addView(FrameLayout(this@moment).apply {
+            if (!(first && last)) addView(View(this@moment).apply { setBackgroundColor(Palette.LINE_STRONG) }, FrameLayout.LayoutParams(
+                dp(3),
+                if (last) centre else FrameLayout.LayoutParams.MATCH_PARENT,
+                Gravity.CENTER_HORIZONTAL or Gravity.TOP,
+            ).apply { if (first) topMargin = centre })
+            addView(badge(m.icon, m.face, m.ink), FrameLayout.LayoutParams(badge, badge, Gravity.CENTER_HORIZONTAL or Gravity.TOP).apply { topMargin = dp(4) })
+        }, LinearLayout.LayoutParams(badge, LinearLayout.LayoutParams.MATCH_PARENT))
+        addView(LinearLayout(this@moment).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(14), dp(6), 0, dp(16))
+            addView(body(m.text, 18f).apply { setTextColor(Palette.INK) })
+            addView(body(at, 15f).apply { setPadding(0, dp(3), 0, 0) })
+        }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+    }
+}
+
 private fun Context.below(top: Int = 14) = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(top) }
 
 /** A section's scroll, padded by Peri's screen to clear the bars. */
@@ -143,11 +217,9 @@ internal abstract class Page(context: Context) : ScrollView(context) {
  */
 @SuppressLint("ViewConstructor")
 internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(context) {
-    private class Line(val at: Long, val icon: Int, val face: Int, val ink: Int, val text: String)
-
     override fun build() {
         val c = context
-        list.addView(c.heroCard(c.getString(R.string.diary_title), Lines.next(c, R.array.diary_hello), R.drawable.peri_calm_glasses, Palette.SUN_TINT, Palette.SUN_LIP, Palette.AMBER_INK))
+        list.addView(c.heroCard(c.getString(R.string.diary_title), R.array.diary_hello, R.drawable.peri_calm_glasses, Palette.SUN_TINT, Palette.SUN_LIP, Palette.AMBER_INK))
         list.addView(stats(), c.below())
         val lines = lines()
         if (lines.isEmpty()) {
@@ -156,6 +228,7 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
                 addView(ImageView(c).apply {
                     setImageDrawable(c.sized(R.drawable.peri_calm_thumbsup, c.dp(120)))
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                    alive()
                 }, LinearLayout.LayoutParams(c.dp(120), c.dp(120)))
                 addView(c.body(c.getString(R.string.diary_empty)).apply {
                     setTextColor(Palette.INK)
@@ -165,28 +238,7 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
             return
         }
         val card = c.whiteCard()
-        var day = -1
-        val time = DateFormat.getTimeInstance(DateFormat.SHORT)
-        lines.forEach { line ->
-            val key = dayKey(line.at)
-            if (key != day) {
-                day = key
-                card.addView(c.heading(dayName(line.at), 18f).apply {
-                    setTextColor(Palette.AMBER_INK)
-                    setPadding(0, if (card.childCount == 0) 0 else c.dp(16), 0, c.dp(6))
-                })
-            }
-            card.addView(LinearLayout(c).apply {
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(0, c.dp(7), 0, c.dp(7))
-                addView(c.badge(line.icon, line.face, line.ink), LinearLayout.LayoutParams(c.dp(40), c.dp(40)))
-                addView(c.body(line.text, 18f).apply {
-                    setTextColor(Palette.INK)
-                    setPadding(c.dp(12), 0, c.dp(8), 0)
-                }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-                addView(c.body(time.format(line.at), 15f))
-            })
-        }
+        c.timeline(card, lines, Palette.AMBER_INK)
         list.addView(card, c.below())
     }
 
@@ -234,53 +286,40 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
         }
     }
 
-    private fun lines(): List<Line> {
+    private fun lines(): List<Moment> {
         val c = context
         val diary = hub.diary.all().mapNotNull { e ->
             when (e.kind) {
-                Diary.Kind.SCAM_STOPPED -> Line(e.at, R.drawable.ic_shield, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(SCAMS[e.detail] ?: R.string.diary_scam_link))
-                Diary.Kind.DOUBT_CHECKED -> Line(e.at, R.drawable.ic_message, Palette.SUN_TINT, Palette.AMBER_INK, c.getString(R.string.diary_doubt))
-                Diary.Kind.PAUSE_LEFT -> Line(e.at, R.drawable.ic_bank, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(R.string.diary_pause_left))
-                Diary.Kind.FAMILY_CALLED -> Line(e.at, R.drawable.ic_family, Palette.LILAC_TINT, Palette.LILAC_INK, c.getString(R.string.diary_family_called))
-                Diary.Kind.FAMILY_ASKED -> Line(e.at, R.drawable.ic_family, Palette.LILAC_TINT, Palette.LILAC_INK, c.getString(R.string.diary_family_asked))
-                Diary.Kind.WEB_SILENCED -> Line(e.at, R.drawable.ic_notifications, Palette.SKY_TINT, Palette.SKY_INK, c.getString(R.string.diary_web))
-                Diary.Kind.QUIZ -> Line(e.at, R.drawable.ic_learn, Palette.SKY_TINT, Palette.SKY_INK, c.getString(R.string.diary_quiz, e.detail))
-                Diary.Kind.FAMILY_CHECKED -> Line(e.at, R.drawable.ic_family, Palette.LILAC_TINT, Palette.LILAC_INK, c.getString(R.string.diary_family_checked))
-                Diary.Kind.BLOCKED_CALL -> Line(e.at, R.drawable.ic_shield, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(if (e.detail == Diary.BY_FAMILY) R.string.diary_family_blocked_call else R.string.diary_blocked_call))
-                Diary.Kind.BLOCKED_TEXT -> Line(e.at, R.drawable.ic_shield, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(if (e.detail == Diary.BY_FAMILY) R.string.diary_family_blocked_text else R.string.diary_blocked_text))
-                Diary.Kind.SCREEN_INTRUDER -> Line(e.at, R.drawable.ic_shield, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(R.string.diary_intruder))
-                Diary.Kind.LINE_ALERT -> Line(e.at, R.drawable.ic_shield, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(if (e.detail == "new") R.string.diary_line_new else R.string.diary_line_lost))
+                Diary.Kind.SCAM_STOPPED -> Moment(e.at, R.drawable.ic_shield, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(SCAMS[e.detail] ?: R.string.diary_scam_link))
+                Diary.Kind.DOUBT_CHECKED -> Moment(e.at, R.drawable.ic_message, Palette.SUN_TINT, Palette.AMBER_INK, c.getString(R.string.diary_doubt))
+                Diary.Kind.PAUSE_LEFT -> Moment(e.at, R.drawable.ic_bank, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(R.string.diary_pause_left))
+                Diary.Kind.FAMILY_CALLED -> Moment(e.at, R.drawable.ic_family, Palette.LILAC_TINT, Palette.LILAC_INK, c.getString(R.string.diary_family_called))
+                Diary.Kind.FAMILY_ASKED -> Moment(e.at, R.drawable.ic_family, Palette.LILAC_TINT, Palette.LILAC_INK, c.getString(R.string.diary_family_asked))
+                Diary.Kind.WEB_SILENCED -> Moment(e.at, R.drawable.ic_notifications, Palette.SKY_TINT, Palette.SKY_INK, c.getString(R.string.diary_web))
+                Diary.Kind.QUIZ -> Moment(e.at, R.drawable.ic_learn, Palette.SKY_TINT, Palette.SKY_INK, c.getString(R.string.diary_quiz, e.detail))
+                Diary.Kind.FAMILY_CHECKED -> Moment(e.at, R.drawable.ic_family, Palette.LILAC_TINT, Palette.LILAC_INK, c.getString(R.string.diary_family_checked))
+                Diary.Kind.BLOCKED_CALL -> Moment(e.at, R.drawable.ic_shield, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(if (e.detail == Diary.BY_FAMILY) R.string.diary_family_blocked_call else R.string.diary_blocked_call))
+                Diary.Kind.BLOCKED_TEXT -> Moment(e.at, R.drawable.ic_shield, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(if (e.detail == Diary.BY_FAMILY) R.string.diary_family_blocked_text else R.string.diary_blocked_text))
+                Diary.Kind.SCREEN_INTRUDER -> Moment(e.at, R.drawable.ic_shield, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(R.string.diary_intruder))
+                Diary.Kind.LINE_ALERT -> Moment(e.at, R.drawable.ic_shield, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(if (e.detail == "new") R.string.diary_line_new else R.string.diary_line_lost))
             }
         }
         val uses = hub.uses.all().map { e ->
             val who = e.who ?: c.getString(R.string.use_someone)
             when (e.kind) {
-                UseLog.Kind.CALL -> Line(e.at, R.drawable.ic_call, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(R.string.diary_call, who))
-                UseLog.Kind.TEXT -> Line(e.at, R.drawable.ic_message, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(R.string.diary_text, who))
-                UseLog.Kind.LOCATION -> Line(e.at, R.drawable.ic_location, Palette.LILAC_TINT, Palette.LILAC_INK, c.getString(R.string.diary_location))
-                UseLog.Kind.PICTURE -> Line(e.at, R.drawable.ic_image_search, Palette.SKY_TINT, Palette.SKY_INK, c.getString(R.string.diary_picture))
-                UseLog.Kind.VOICE -> Line(e.at, R.drawable.ic_mic, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(R.string.diary_voice))
-                UseLog.Kind.REPORT -> Line(e.at, R.drawable.ic_message, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(R.string.diary_report))
-                UseLog.Kind.HANG_UP -> Line(e.at, R.drawable.ic_call, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(R.string.diary_hang_up))
+                UseLog.Kind.CALL -> Moment(e.at, R.drawable.ic_call, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(R.string.diary_call, who))
+                UseLog.Kind.TEXT -> Moment(e.at, R.drawable.ic_message, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(R.string.diary_text, who))
+                UseLog.Kind.LOCATION -> Moment(e.at, R.drawable.ic_location, Palette.LILAC_TINT, Palette.LILAC_INK, c.getString(R.string.diary_location))
+                UseLog.Kind.PICTURE -> Moment(e.at, R.drawable.ic_image_search, Palette.SKY_TINT, Palette.SKY_INK, c.getString(R.string.diary_picture))
+                UseLog.Kind.VOICE -> Moment(e.at, R.drawable.ic_mic, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(R.string.diary_voice))
+                UseLog.Kind.REPORT -> Moment(e.at, R.drawable.ic_message, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(R.string.diary_report))
+                UseLog.Kind.HANG_UP -> Moment(e.at, R.drawable.ic_call, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(R.string.diary_hang_up))
             }
         }
         return (diary + uses).sortedByDescending { it.at }.take(MAX_LINES)
     }
 
-    private fun dayKey(at: Long): Int = Calendar.getInstance().apply { timeInMillis = at }.let { it.get(Calendar.YEAR) * 1000 + it.get(Calendar.DAY_OF_YEAR) }
-
-    private fun dayName(at: Long): String {
-        val today = dayKey(System.currentTimeMillis())
-        val yesterday = dayKey(System.currentTimeMillis() - DAY_MS)
-        return when (dayKey(at)) {
-            today -> context.getString(R.string.diary_today)
-            yesterday -> context.getString(R.string.diary_yesterday)
-            else -> DateFormat.getInstanceForSkeleton("EEEEdMMMM").format(at).replaceFirstChar { it.uppercase() }
-        }
-    }
-
     private companion object {
-        const val DAY_MS = 24 * 60 * 60 * 1000L
         const val MAX_LINES = 40
         val SCAMS = mapOf(
             "parcel" to R.string.diary_scam_parcel,
@@ -301,7 +340,7 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
 internal class LearnPage(context: Context, private val hub: PeriHub, private val open: (Intent) -> Unit) : Page(context) {
     override fun build() {
         val c = context
-        list.addView(c.heroCard(c.getString(R.string.learn_title), Lines.next(c, R.array.learn_hello), R.drawable.peri_calm_detective, Palette.SKY_TINT, 0xFFA9D5F2.toInt(), Palette.SKY_INK))
+        list.addView(c.heroCard(c.getString(R.string.learn_title), R.array.learn_hello, R.drawable.peri_calm_detective, Palette.SKY_TINT, 0xFFA9D5F2.toInt(), Palette.SKY_INK))
         list.addView(quiz(), c.below())
         list.addView(c.label(c.getString(R.string.learn_traps_title)), LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(20) })
         list.addView(traps(), c.below(10))
@@ -332,6 +371,7 @@ internal class LearnPage(context: Context, private val hub: PeriHub, private val
                 addView(ImageView(c).apply {
                     setImageDrawable(c.sized(R.drawable.peri_calm_idea, c.dp(96)))
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                    alive()
                 }, LinearLayout.LayoutParams(c.dp(96), c.dp(96)))
             })
             if (best != null) addView(c.body(c.getString(R.string.quiz_best, best.first, best.second), 16f).apply {
@@ -480,7 +520,7 @@ internal class FamilyPage(context: Context, private val hub: PeriHub, private va
         val c = context
         val store = FamilyStore(c)
         val config = store.load()
-        list.addView(c.heroCard(c.getString(R.string.family_page_title), Lines.next(c, R.array.family_hello), R.drawable.peri_family, Palette.LILAC_TINT, 0xFFCDBEF5.toInt(), Palette.LILAC_INK))
+        list.addView(c.heroCard(c.getString(R.string.family_page_title), R.array.family_hello, R.drawable.peri_family, Palette.LILAC_TINT, 0xFFCDBEF5.toInt(), Palette.LILAC_INK))
         list.addView(pears(), c.below())
         val guardians = c.whiteCard().apply {
             addView(c.heading(c.getString(R.string.family_guardians_title), TextSize.BODY))

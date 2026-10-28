@@ -84,40 +84,27 @@ class FamilyActivity : Activity() {
         list.addView(cancel, spaced().apply { height = dp(56) })
 
         list.addView(card().apply {
-            addView(CheckBox(this@FamilyActivity).apply {
-                text = getString(R.string.family_word_agreed)
-                sizeSp(TextSize.BODY)
-                typeface = weight(600)
-                setTextColor(Palette.INK)
-                isChecked = config.hasFamilyWord
-                setOnCheckedChangeListener { _, checked -> update(config.copy(hasFamilyWord = checked)) }
+            addView(Toggle(this@FamilyActivity, getString(R.string.family_word_agreed), config.hasFamilyWord) { checked ->
+                update(config.copy(hasFamilyWord = checked))
             })
-            addView(body(getString(R.string.family_word_note), TextSize.SMALL).apply { setPadding(dp(6), dp(4), 0, 0) })
+            addView(body(getString(R.string.family_word_note), TextSize.SMALL).apply { setPadding(0, dp(4), 0, 0) })
         }, spaced())
 
         // Sharing Peri's news with the guardians is the person's choice, off until they turn it on.
         val hub = PeriApp.hub(this)
         val shared = card()
-        val sharing = CheckBox(this).apply {
-            text = getString(R.string.share_news)
-            sizeSp(TextSize.BODY)
-            typeface = weight(600)
-            setTextColor(Palette.INK)
-            isChecked = hub.news.sharing
-        }
-        sharing.setOnCheckedChangeListener { box, checked ->
-            if (syncing) return@setOnCheckedChangeListener
-            box.isEnabled = false
+        // The switch shows what the server ended up with, which may not be what was asked (no network).
+        lateinit var sharing: Toggle
+        sharing = Toggle(this, getString(R.string.share_news), hub.news.sharing) { checked ->
+            sharing.isEnabled = false
             hub.shareNews(checked) { on ->
-                syncing = true
-                box.isChecked = on
-                syncing = false
-                box.isEnabled = true
+                sharing.set(on)
+                sharing.isEnabled = true
                 showNews()
             }
         }
         shared.addView(sharing)
-        shared.addView(body(getString(R.string.share_news_note), TextSize.SMALL).apply { setPadding(dp(6), dp(4), 0, 0) })
+        shared.addView(body(getString(R.string.share_news_note), TextSize.SMALL).apply { setPadding(0, dp(4), 0, 0) })
         newsList = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         shared.addView(newsList)
         list.addView(shared, spaced())
@@ -207,17 +194,17 @@ class FamilyActivity : Activity() {
         box.addView(heading(getString(R.string.news_title), TextSize.BODY).apply { setPadding(0, dp(14), 0, dp(4)) })
         val entries = hub.news.load()
         if (entries.isEmpty()) box.addView(body(getString(R.string.news_empty), TextSize.SMALL))
-        val format = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-        entries.forEach { e ->
-            val what = when {
-                e.kind == "warning" && e.level == "scam" -> getString(R.string.news_scam, e.channel.lowercase().replace('_', ' '))
-                e.kind == "warning" -> getString(R.string.news_doubt, e.channel.lowercase().replace('_', ' '))
-                e.answer == "call_family" -> getString(R.string.news_pause_call)
-                e.answer == "leave" -> getString(R.string.news_pause_leave)
-                else -> getString(R.string.news_pause_continue)
+        // The latest ones, as a timeline like the diary's, each channel in words.
+        timeline(box, entries.sortedByDescending { it.at }.take(MAX_NEWS).map { e ->
+            val channel = getString(CHANNELS[e.channel] ?: R.string.news_channel_message)
+            when {
+                e.kind == "warning" && e.level == "scam" -> Moment(e.at, R.drawable.ic_shield, Palette.CORAL_TINT, Palette.CORAL_INK, getString(R.string.news_scam, channel))
+                e.kind == "warning" -> Moment(e.at, R.drawable.ic_message, Palette.SUN_TINT, Palette.AMBER_INK, getString(R.string.news_doubt, channel))
+                e.answer == "call_family" -> Moment(e.at, R.drawable.ic_call, Palette.GREEN_TINT, Palette.GREEN_DARK, getString(R.string.news_pause_call))
+                e.answer == "leave" -> Moment(e.at, R.drawable.ic_bank, Palette.GREEN_TINT, Palette.GREEN_DARK, getString(R.string.news_pause_leave))
+                else -> Moment(e.at, R.drawable.ic_bank, Palette.SUN_TINT, Palette.AMBER_INK, getString(R.string.news_pause_continue))
             }
-            box.addView(body("${format.format(Date(e.at))} · $what", TextSize.SMALL).apply { setPadding(0, dp(6), 0, 0) })
-        }
+        }, Palette.LILAC_INK)
     }
 
     /** A pending change of guardians, in plain words, with its state and a way to cancel it. */
@@ -355,6 +342,7 @@ class FamilyActivity : Activity() {
             addView(ImageView(this@FamilyActivity).apply {
                 setImageResource(image)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                alive()
             }, LinearLayout.LayoutParams(dp(size), dp(size)))
             addView(title.apply { setPadding(dp(12), 0, 0, 0) }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         })
@@ -363,6 +351,14 @@ class FamilyActivity : Activity() {
 
     private companion object {
         const val MAX_RESULTS = 20
+        /** What the guardians saw lately: enough to see what Peri shares, never a long scroll. */
+        const val MAX_NEWS = 8
+        val CHANNELS = mapOf(
+            "SMS" to R.string.news_channel_sms,
+            "WHATSAPP" to R.string.news_channel_whatsapp,
+            "EMAIL" to R.string.news_channel_email,
+            "BROWSER_NOTIFICATION" to R.string.news_channel_web,
+        )
         const val REQUEST_CONTACTS = 7
 
         val VERDICTS = mapOf("scam" to R.string.verdict_scam, "doubt" to R.string.verdict_doubt, "ok" to R.string.verdict_ok)

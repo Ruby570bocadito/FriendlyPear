@@ -12,6 +12,7 @@ import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.RectF
+import android.os.SystemClock
 import android.graphics.Typeface
 import android.graphics.fonts.Font
 import android.graphics.fonts.FontFamily
@@ -24,12 +25,16 @@ import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.View
 import android.view.animation.DecelerateInterpolator
+import android.view.animation.LinearInterpolator
 import android.view.animation.OvershootInterpolator
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import app.friendlypear.R
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.sin
 
 /**
  * FriendlyPear's look, shared by every screen: Peri's world. Pear green and forest for what you press, sun, sky,
@@ -191,12 +196,32 @@ internal fun Context.animationsOn(): Boolean = Settings.Global.getFloat(contentR
 
 /**
  * A soft rubber shape: a rounded face resting on a darker lip [lipPx] tall. [press] (0 to 1) sinks the face onto
- * the lip, which is how buttons and tiles show a touch.
+ * the lip, which is how buttons and tiles show a touch. Its colours can change, and a [ring] inside the face's edge
+ * marks what's chosen.
  */
-internal class RubberDrawable(private val face: Int, private val lip: Int, private val lipPx: Float, private val radius: Float) : Drawable() {
+internal class RubberDrawable(face: Int, lip: Int, private val lipPx: Float, private val radius: Float) : Drawable() {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val ringPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
     private val rect = RectF()
     private var alphaValue = 255
+
+    var face = face
+        set(value) {
+            field = value
+            invalidateSelf()
+        }
+    var lip = lip
+        set(value) {
+            field = value
+            invalidateSelf()
+        }
+    /** 0 for none. */
+    var ring = 0
+        set(value) {
+            field = value
+            invalidateSelf()
+        }
+    var ringWidth = 0f
 
     var press = 0f
         set(value) {
@@ -216,6 +241,13 @@ internal class RubberDrawable(private val face: Int, private val lip: Int, priva
         paint.alpha = alphaValue
         rect.set(b.left.toFloat(), b.top + down, b.right.toFloat(), b.bottom - lipPx + down)
         canvas.drawRoundRect(rect, r, r, paint)
+        if (ring != 0 && ringWidth > 0f) {
+            ringPaint.color = ring
+            ringPaint.alpha = alphaValue
+            ringPaint.strokeWidth = ringWidth
+            rect.inset(ringWidth / 2f, ringWidth / 2f)
+            canvas.drawRoundRect(rect, r - ringWidth / 2f, r - ringWidth / 2f, ringPaint)
+        }
     }
 
     override fun setAlpha(alpha: Int) {
@@ -442,6 +474,45 @@ internal fun View.reveal(show: Boolean) {
     animate().alpha(1f).translationY(0f).scaleX(1f).scaleY(1f).setDuration(380)
         .setInterpolator(android.view.animation.OvershootInterpolator(1.1f)).start()
 }
+
+/**
+ * A sticker of Peri that's alive: while it's on screen she bobs and sways a little from her feet, slowly, and a tap
+ * makes her hop (then [onTap] runs: another line of hers, say). With "remove animations" she stays still, and the
+ * tap still works.
+ */
+internal fun View.alive(onTap: (() -> Unit)? = null) {
+    val lift = context.dp(4).toFloat()
+    val jump = context.dp(20).toFloat()
+    var hopAt = -HOP_MS
+    if (context.animationsOn()) {
+        val loop = ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 3_400
+            repeatCount = ValueAnimator.INFINITE
+            interpolator = LinearInterpolator()
+            addUpdateListener {
+                val a = (it.animatedValue as Float) * 2f * PI.toFloat()
+                val since = SystemClock.uptimeMillis() - hopAt
+                val hop = if (since in 0 until HOP_MS) sin(PI * since / HOP_MS).toFloat() * jump else 0f
+                pivotX = width / 2f
+                pivotY = height * 0.92f
+                translationY = -abs(sin(a)) * lift - hop
+                rotation = sin(a) * 2.2f
+            }
+        }
+        addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) = loop.start()
+            override fun onViewDetachedFromWindow(v: View) = loop.cancel()
+        })
+        if (isAttachedToWindow) loop.start()
+    }
+    setOnClickListener {
+        performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+        hopAt = SystemClock.uptimeMillis()
+        onTap?.invoke()
+    }
+}
+
+private const val HOP_MS = 460L
 
 /** A playful entrance for small things (a sticker, a chip, a medal): it pops up from small with a bounce. */
 internal fun View.popIn(delay: Long = 0L) {
