@@ -3,6 +3,7 @@
 Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (API 37).
 
 ## Hecho (24 h)
+- 28 oct, noche 2 (la persona: permisos deprisa, trampas QR): pantalla quieta mientras se piden los permisos (`settingUp`); QR en «Mira esta imagen» con `QrReader` (ZXing 3.5.4) y `QrTraps` (core), el QR solo empeora el veredicto y vale sin red.
 - 28 oct, tarde 2 (la persona: bienvenida, chat, paraguas, permisos negados, vida, más seguridad, APK): sección G del roadmap. Paraguas sin tercera mano (`BUSY_HANDS`); «Pregúntale a Peri» (`Advice`, `ChatActivity`, `PeriHub.ask`); sin micrófono se abre el chat; bienvenida con puntos y progreso; cinco momentos de calma (`CALM_MOMENTS`); revisión de seguridad (`CheckupActivity`); APK de prueba con `-Pfriendlypear.backendUrl=http://192.168.1.131:8711` (nunca se sube). Después: escena estable (bocadillo de altura fija, Peri se desliza), fundidos y medios pasos, herramientas en Aprende; servidor duro (`vault.ts`, `bun rotate`, clave del móvil mensual; la clave de datos está en `~/.friendlypear/data.key`).
 - 28 oct, noche (la persona: ropa, acciones de la familia, notificaciones, estrellas, dos fondos, roadmap de seguridad, qué hacer tras dar datos):
   - Ropa: gafas nuevas de Muse Image sin patillas; cada ojo medido entero (el derecho, más iluminado, se medía por la mitad y todo iba a la izquierda); cada prenda centrada en su eje (`wear.py`); sin hoja bajo los sombreros: 48 cabezas redibujadas por Muse Image (`generate.ts tops`, `tops.py`, `PeriTops.kt`, `BareHead`), también en la página de aprobación (`/p/bare.webp`).
@@ -21,6 +22,7 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
 - Notificaciones: la app de Ana en segundo plano (HOME) y un SMS de número nuevo a Mamá; llegan en un minuto.
 - Lugar: `shared_prefs/world.xml` con `place` (SNOW, SEASIDE…). Hora: `adb shell service call alarm 3 s16 Pacific/Auckland` (noche), volver con `GMT`.
 - `uiautomator dump` se atasca mientras Peri se mueve: mejor tocar por coordenadas.
+- Imagen compartida: copiarla con `run-as app.friendlypear` a `files/` y `am start -a android.intent.action.SEND -t image/png --eu android.intent.extra.STREAM file:///data/data/app.friendlypear/files/x.png -n app.friendlypear/.ui.peri.PictureActivity`; sin red: `svc wifi disable; svc data disable`.
 - Familia de cuatro: AVDs `Peri_Papa` (5558) y `Peri_Pablo` (5560) además de los dos; `python eval/family4.py`. Email simulado: `am broadcast -a app.friendlypear.debug.HEAR --es email "remitente|texto"` (todo entre comillas en el shell del móvil).
 - Backend: `cd backend; PUBLIC_BASE_URL=http://10.0.2.2:8711 bun src/main.ts`.
 - Dos guardianes: Mamá (5556) tiene a Ana y Papá. Los SMS entre emuladores no llegan: el enlace está en `content://sms/sent` de Mamá y se entrega con `emu sms send 15555215556 "texto"`.
