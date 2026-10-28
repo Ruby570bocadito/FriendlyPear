@@ -4,16 +4,20 @@
 #   newnumber          a "Hi Mum, new number" text arrives; Peri warns and, on "yes", calls the real Ana
 #   qrtrap <poster>    a poster with a trap QR code is shared with "Look at this picture" (one Muse Spark call)
 # Voice orders go in through the debug broadcast, since the emulator has no microphone.
+# Smooth clips need a quiet computer: pause the other virtual phones first (adb -s <serial> emu avd stop, and
+# avd start after). With four running, a third of the frames came out late and the app looked laggy.
 export MSYS_NO_PATHCONV=1
 ADB="${ADB:-adb}"
 MUM="$ADB -s ${MUM_SERIAL:-emulator-5556}"
 ANA="$ADB -s ${ANA_SERIAL:-emulator-5554}"
 OUT="video/public/clips"
+# Enough for the phone in the video, and lighter for the emulator to record than its full 1080x2400.
+SIZE="${SIZE:-864x1920}"
 mkdir -p "$OUT"
 
 start() {
   $MUM shell rm -f "/data/local/tmp/$1.mp4"
-  ($MUM shell screenrecord --bit-rate 8000000 --time-limit 90 "/data/local/tmp/$1.mp4" > /dev/null 2>&1 &)
+  ($MUM shell screenrecord --size $SIZE --bit-rate 8000000 --time-limit 90 "/data/local/tmp/$1.mp4" > /dev/null 2>&1 &)
   sleep 1
 }
 stop() {
@@ -24,8 +28,10 @@ stop() {
 hangup() {
   for d in "$MUM" "$ANA"; do
     for i in 1 2 3; do
-      [ "$($d shell dumpsys telephony.registry | grep -m1 mCallState | tr -dc '0-9')" = "0" ] && break
-      $d shell input keyevent KEYCODE_ENDCALL
+      # Ringing (1) or on a call (2); a paused phone never answers, so it's left alone after a few seconds.
+      state="$(timeout 5 $d shell dumpsys telephony.registry | grep -m1 mCallState | tr -dc '0-9')"
+      [ "$state" = "1" ] || [ "$state" = "2" ] || break
+      timeout 5 $d shell input keyevent KEYCODE_ENDCALL
       sleep 1
     done
   done

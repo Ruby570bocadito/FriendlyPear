@@ -22,7 +22,7 @@ export const Ad = () => {
         <FadeIn>
           <Backdrop name="street" length={190} />
           <Caption text="A QR code on a parking meter?" from={4} to={84} />
-          <Phone clip="qrtrap" trimBefore={6.5 * fps} enterAt={6} />
+          <Phone clip="qrtrap" trimBefore={5.6 * fps} enterAt={6} />
           <Caption text="Peri reads it without opening it." from={88} to={190} />
         </FadeIn>
       </Sequence>
