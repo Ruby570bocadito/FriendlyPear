@@ -113,6 +113,8 @@ test("a pear is drawn only with the accessories the app has, whatever its outfit
   // Under a hat she's bare-headed; with only a bow tie, her leaf stays.
   expect(pearFigure("STRAW,,BOWTIE")).toContain('src="/p/bare.webp"');
   expect(pearFigure(",,BOWTIE")).toContain('src="/p/calm.webp"');
+  // A crown keeps her leaf.
+  expect(pearFigure("CROWN,,")).toContain('src="/p/calm.webp"');
   expect(outfitWords("STRAW,HEARTS,TIE", "en")).toBe("a straw hat, heart glasses and a tie");
   expect(outfitWords(",,", "es")).toBe("");
 });

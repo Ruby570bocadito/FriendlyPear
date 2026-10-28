@@ -24,7 +24,7 @@ const WEAR: Record<string, { size: [number, number]; width: number; ax: number; 
 export const WEAR_NAMES = Object.keys(WEAR).map((k) => k.toLowerCase());
 
 /** Hats that cover her head: under them she's drawn bare-headed, or her leaf pokes out (Outfit.HATS in the app). */
-const HATS = new Set(["STRAW", "BEANIE", "CROWN", "FLOWERS"]);
+const HATS = new Set(["STRAW", "BEANIE"]);
 
 /** The calm Peri's eyes in her 1024 px picture (PeriAnchors.kt). */
 const EYES = [410, 461, 616, 462];
