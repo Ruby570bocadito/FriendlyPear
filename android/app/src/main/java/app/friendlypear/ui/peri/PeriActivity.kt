@@ -643,6 +643,10 @@ class PeriActivity : Activity() {
      */
     private fun showSaid(text: CharSequence) {
         said.removeCallbacks(typing)
+        if (revealing) {
+            revealing = false
+            face.speaking(hub.speaking)
+        }
         said.text = text
         said.post {
             val root = said.rootView.height.takeIf { it > 0 } ?: return@post
@@ -676,6 +680,9 @@ class PeriActivity : Activity() {
     private var typed = ""
     private var typing = Runnable { }
 
+    /** Words still appearing in her bubble: her mouth keeps moving even if her voice is off or already done. */
+    private var revealing = false
+
     /**
      * Reveals [text] word by word, each one fading in as if she were saying it. The words are all laid out from the
      * start (only their transparency changes), so the bubble keeps its size and nothing jumps. TalkBack hears the whole
@@ -688,6 +695,9 @@ class PeriActivity : Activity() {
         val spans = words.map { r -> FadeSpan(Palette.INK).also { spannable.setSpan(it, r.first, r.last + 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) } }
         said.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_NONE
         said.text = spannable
+        // Her mouth moves while the words come, voice or no voice.
+        revealing = true
+        face.speaking(true)
         val start = android.os.SystemClock.uptimeMillis()
         // About a word every 150 ms, a little ahead of her voice; a long sentence is all there in under four seconds.
         val per = (WORDS_MS / words.size).coerceIn(80L, 160L)
@@ -703,6 +713,8 @@ class PeriActivity : Activity() {
                 if (done) {
                     said.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
                     said.text = text
+                    revealing = false
+                    face.speaking(hub.speaking)
                 } else {
                     said.postOnAnimation(this)
                 }
@@ -1405,7 +1417,7 @@ class PeriActivity : Activity() {
         override fun scamToReport() = showSetup()
 
         override fun speaking(on: Boolean) {
-            face.speaking(on)
+            face.speaking(on || revealing)
             if (!on && resumed && hub.isWaitingForAnswer && voice.available && hub.permissions.granted(Need.MIC)) voice.listen()
         }
     }

@@ -321,7 +321,16 @@ class PeriFace(context: Context) : FrameLayout(context) {
         if (on == talking) return
         talking = on
         main.removeCallbacks(mouth)
-        if (on && moves) main.post(mouth) else if (!on && shown != null) put(frames.still)
+        if (on && moves) {
+            // A pose holds her face still: she strikes it a moment, then talks with her mouth moving.
+            if (posing) {
+                main.removeCallbacks(endPose)
+                main.postDelayed(endPose, maxOf(0L, POSE_TALK_MS - (SystemClock.uptimeMillis() - popStart)))
+            }
+            main.post(mouth)
+        } else if (!on && shown != null) {
+            put(frames.still)
+        }
     }
 
     /** One of the poses for a couple of seconds, with a little pop, then back to her mood. */
@@ -829,6 +838,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
         const val BLEND_MS = 110L
         const val CHEER_MILLIS = 2_200L
         const val POSE_MILLIS = 2_800L
+        /** How long a pose holds once she starts talking, before her talking face takes over. */
+        const val POSE_TALK_MS = 1_000L
         /** One background thread for every Peri on screen: decoding is quick, and never on the main thread. */
         val DECODER = Executors.newSingleThreadExecutor { r -> Thread(r, "peri-frames").apply { isDaemon = true; priority = Thread.NORM_PRIORITY - 1 } }
         const val POP_MS = 420f
