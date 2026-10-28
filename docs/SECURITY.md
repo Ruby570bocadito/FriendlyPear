@@ -2,7 +2,7 @@
 
 FriendlyPear stands between an older person and people actively trying to rob them, so the app itself must be hard
 to turn against them. This page lists each threat, what stops it, and what is still open. Everything marked ✅ is
-in the code and covered by tests or by the two-phone test of Oct 27.
+in the code and covered by tests or by the two-phone tests of Oct 27 and 28.
 
 ## Who we defend against
 
@@ -22,6 +22,9 @@ in the code and covered by tests or by the two-phone test of Oct 27.
 | 1 | "Open your bank app now" | Safety pause before money and remote-control apps during or after a stranger's call | ✅ |
 | 2 | Fake Peri request | The guardian's own Peri only accepts links to **Peri's own server** (same scheme, host and port), from a **saved contact**, and reads the request from the server, never from the SMS. Anything that talks like Peri but links elsewhere is a firm scam: *"this message pretends to be from me"* | ✅ |
 | 2 | Fake family member | "New number", secrecy ("don't tell dad"), romance and scareware signals; Peri offers to call the real relative at the saved number | ✅ |
+| 2 | "Mum, it's me, new number" | **"Was it you?"**: Peri quietly asks the family's other phones whether any of them wrote from a new number. Each answers once with a tap, with its own key, and Peri says what they answered, or that nobody did. An answer never turns a warning into an OK: even "yes, it was me" ends with "call them on their usual number first". 15 minutes, at most 3 open questions per phone, only while Peri's news is shared | ✅ |
+| 2 | The same trap reaching the family | When two or more family pears turn to attention with the same kind of trap within 30 minutes, every Peri warns that it is going around | ✅ |
+| 2 | A fake approval page | The guardian sees **the asking family member's pear, dressed as the family knows it** (taken from that phone when it asked), on the web page and in the app: a fake page can't copy it. Only the app's own accessories are drawn and names are escaped | ✅ |
 | 3 | Someone approves on the guardian's phone | In the app, a yes needs three checks **and the phone's own lock** (fingerprint, face or PIN). On the web page, a yes needs a second "are you sure?" step | ✅ |
 | 3 | Someone removes the guardians | Opening the family setup needs the phone's lock once a guardian exists; any change to the guardians needs a current guardian's yes and waits 48 hours, and the person can cancel | ✅ |
 | 4 | A leaked or previewed link | One-time, 15 minutes, only its SHA-256 hash is stored. Opening it (GET) never decides anything, so link previews are harmless. Silence never approves | ✅ |
@@ -29,6 +32,7 @@ in the code and covered by tests or by the two-phone test of Oct 27.
 | 5 | Prompt injection | "Ignore previous instructions"-style text is its own signal. Models only vote, within ±2, on doubtful messages; hard rules can't be overridden; Peri never reads a model's words aloud | ✅ |
 | 6 | A stolen or extracted device token | Each phone gets **its own key**, paired in person: `bun pair` on the server shows a one-time code and its QR (10 minutes, single use, only its hash kept); the phone's camera opens FriendlyPear, which asks before connecting. The server keeps only a hash of each key; the key sits on the phone encrypted by the Android Keystore, never backed up. Any phone can be disconnected alone. `ALLOW_SHARED_TOKEN=0` turns the shared test token off | ✅ |
 | 6 | A QR that points Peri elsewhere | The phone only pairs with **its own server** (same scheme, host and port as its build); any other QR is refused with a warning | ✅ |
+| 6 | Odd requests | A request whose address can't be read gets a 400, not a crash; ids are checked against their exact format before any lookup | ✅ |
 | 6 | Backups leaking keys or family setup | `allowBackup="false"` and data-extraction rules exclude everything from cloud backups and device transfers | ✅ |
 | 6 | Floods and guessing | Per-IP limits on links, the API, pictures, voice and pairing (10 codes tried per 15 minutes); behind the tunnel the client IP is the one the proxy adds, so a forged header can't dodge them; an IP sending wrong device tokens is locked out for 15 minutes; body size limits; timing-safe token check | ✅ |
 
@@ -43,7 +47,13 @@ what the guardians see, and can stop sharing at any moment; every link dies at o
 only with a phone's own key, never the shared test token. Each pear is a name the person chose ("Mum", "Ana"), what
 their Peri wears, their role (looked after, or looks after the family) and one word: calm or attention. Attention
 is shared only while the person shares Peri's news, and an attention nobody refreshes fades back to calm after two
-hours. Never a number, a message, a call, a place or an app; a disconnected phone's pear goes with it.
+hours. Never a number, a message, a call, a place or an app; a disconnected phone's pear goes with it. With an
+attention, and only then, goes the kind of trap in one word (parcel, link, code, family, remote, prize), so the family
+can see the same trap going around.
+
+**"Was it you?"** carries the asking pear's name and one word, `new_number`: never the message, the number or who it
+claims to be. Only the phone that asked reads the answers, each phone answers once, and the question and its answers
+are gone after 15 minutes or when that phone is disconnected.
 
 ## On the phone
 
@@ -70,6 +80,6 @@ hours. Never a number, a message, a call, a place or an app; a disconnected phon
   the on-phone rules, which still warn).
 - **SMS is not encrypted.** The link travels by SMS, so it is short-lived, single-use and guarded by the "are you
   sure?" step and the phone lock. A spoofed sender number alone is not enough: the request must exist on the server.
-- **Pending requests live in memory** and are lost if the server restarts (the request then simply expires: nothing
-  is ever approved by itself).
+- **Pending requests and "was it you?" questions live in memory** and are lost if the server restarts (a request then
+  simply expires: nothing is ever approved by itself, and Peri's warning stands).
 - A public HTTPS address (a tunnel or a host) is needed for phones outside the developer's network.
