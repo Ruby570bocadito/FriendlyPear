@@ -114,8 +114,9 @@ class PeriActivity : Activity() {
             typeface = weight(500)
             setTextColor(Palette.INK)
             setLineSpacing(0f, 1.15f)
-            maxLines = 7
+            maxLines = 9
             ellipsize = TextUtils.TruncateAt.END
+            gravity = Gravity.CENTER_VERTICAL or Gravity.START
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
             val tail = dp(14).toFloat()
             background = BubbleDrawable(Palette.WHITE, Palette.LINE, dp(1).toFloat(), dp(24).toFloat(), tail, BubbleDrawable.Tail.TOP)
@@ -617,9 +618,11 @@ class PeriActivity : Activity() {
     private fun placeGround() {
         if (!::world.isInitialized || world.height == 0) return
         if (tab != TAB_PERI || face.height == 0) return world.setGround(world.height - dp(GROUND_LOW_DP).toFloat())
-        val at = IntArray(2).also { face.getLocationInWindow(it) }
+        // From her parent, which never moves: while she glides to a new size, the hill heads straight for her feet.
+        val parent = face.parent as? View ?: return
+        val at = IntArray(2).also { parent.getLocationInWindow(it) }
         val origin = IntArray(2).also { world.getLocationInWindow(it) }
-        world.setGround(at[1] - origin[1] + face.feetY + dp(3))
+        world.setGround(at[1] + face.top - origin[1] + face.feetY + dp(3))
     }
 
     /** By night the sky is dark: the name turns light, and so do the system bars' icons. */
@@ -637,13 +640,22 @@ class PeriActivity : Activity() {
         super.onBackPressed()
     }
 
-    /** What Peri says, at most about a quarter of the screen tall, so she always has room. */
+    /**
+     * What Peri says, in a bubble of one height whatever the sentence (about a fifth of the screen): a long one never
+     * shrinks her, so her world doesn't zoom in and out. A short sentence is big and easy to read; a long one smaller.
+     */
     private fun showSaid(text: CharSequence) {
         said.removeCallbacks(typing)
         said.text = text
         said.post {
             val root = said.rootView.height.takeIf { it > 0 } ?: return@post
-            said.fitInto((root * BUBBLE_SHARE).toInt(), SAID_SP, TextSize.SMALL)
+            val tall = (root * BUBBLE_SHARE).toInt()
+            // Measured free of its fixed height, so a long sentence is seen to be long and gets smaller letters.
+            said.minHeight = 0
+            said.maxHeight = Int.MAX_VALUE
+            said.fitInto(tall, SAID_MAX_SP, SAID_MIN_SP)
+            said.minHeight = tall
+            said.maxHeight = tall
             // New words appear bit by bit, as if she were saying them; the same sentence again just shows.
             if (text.toString() != typed && animationsOn()) type(text)
             typed = text.toString()
@@ -1425,7 +1437,10 @@ class PeriActivity : Activity() {
         const val TYPE_MS = 22L
         /** However long the sentence, it's all there in about this many steps (~2 s). */
         const val TYPE_STEPS = 90
-        const val BUBBLE_SHARE = 0.24f
+        const val BUBBLE_SHARE = 0.19f
+        /** A short sentence fills her bubble in big letters; a long one gets smaller, down to this. */
+        const val SAID_MAX_SP = 23f
+        const val SAID_MIN_SP = 13f
         const val REQUEST_SCREENING = 2
         const val REQUEST_WELCOME = 3
         const val SCREENING = "screening"

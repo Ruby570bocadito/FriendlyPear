@@ -51,8 +51,11 @@ class PeriFace(context: Context) : FrameLayout(context) {
         val gestureA: Int? = null,
         val gestureB: Int? = null,
         val wink: Int? = null,
+        /** The foot only just leaving the ground: a step in four phases rather than two. */
+        val stepLeftHalf: Int? = null,
+        val stepRightHalf: Int? = null,
     ) {
-        val all = setOfNotNull(still, half, closed, talk, wide, round, left, right, stepLeft, stepRight, gestureA, gestureB, wink)
+        val all = setOfNotNull(still, half, closed, talk, wide, round, left, right, stepLeft, stepRight, stepLeftHalf, stepRightHalf, gestureA, gestureB, wink)
     }
 
     /** Little tricks the screens can ask for, e.g. when she's tapped. */
@@ -148,6 +151,24 @@ class PeriFace(context: Context) : FrameLayout(context) {
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
     }
 
+    /**
+     * Her room changed (a card came or went below her): she grows or shrinks to it smoothly, her feet staying on the
+     * ground, instead of jumping to the new size. Only her own view moves; the rig keeps bobbing as always.
+     */
+    private fun glide(oldSide: Float, side: Float, oldFeet: Float, w: Int) {
+        if (oldSide <= 0f || side <= 0f || !moves || !isAttachedToWindow) return
+        val ratio = oldSide / side
+        if (kotlin.math.abs(ratio - 1f) < 0.01f) return
+        animate().cancel()
+        pivotX = w / 2f
+        pivotY = feetY
+        scaleX = ratio
+        scaleY = ratio
+        translationY = oldFeet - feetY
+        animate().scaleX(1f).scaleY(1f).translationY(0f).setDuration(GLIDE_MS)
+            .setInterpolator(android.view.animation.DecelerateInterpolator(1.6f)).start()
+    }
+
     /** Mini Peri handles touches itself (tap, drag, long press) and reports a tap here, for accessibility. */
     override fun performClick(): Boolean = super.performClick()
 
@@ -155,7 +176,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         val side = min(w, h).toFloat()
+        val wasFeet = feetY
         feetY = (h - side) / 2 + side * FEET
+        glide(min(oldw, oldh).toFloat(), side, wasFeet, w)
         shadowWidth = side * 0.44f
         rig.pivotX = w / 2f
         rig.pivotY = feetY
@@ -377,8 +400,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
     fun greet() {
         if (!moves || shown != Mood.CALM || talking) return
         val steps = listOf(R.drawable.peri_calm_wave1, R.drawable.peri_calm_wave2, R.drawable.peri_calm_wave1, R.drawable.peri_calm_wave2, R.drawable.peri_calm_wave1)
-        steps.forEachIndexed { i, res -> main.postDelayed({ if (shown == Mood.CALM && !talking) put(res) }, WAVE_START + i * WAVE_STEP) }
-        main.postDelayed({ if (shown == Mood.CALM && !talking) put(frames.still) }, WAVE_START + steps.size * WAVE_STEP)
+        steps.forEachIndexed { i, res -> main.postDelayed({ if (shown == Mood.CALM && !talking) put(res, blend = true) }, WAVE_START + i * WAVE_STEP) }
+        main.postDelayed({ if (shown == Mood.CALM && !talking) put(frames.still, blend = true) }, WAVE_START + steps.size * WAVE_STEP)
     }
 
     /**
@@ -396,12 +419,33 @@ class PeriFace(context: Context) : FrameLayout(context) {
     }
 
     /** Swaps the frame at once: blinks and the mouth are quick, and a swap never blends two pictures. */
-    private fun put(res: Int) {
+    /**
+     * [res] on her now. With [blend], the new frame comes in over the old one in a breath (a step, a gesture, a
+     * wave), so her body flows from pose to pose; blinks and her mouth stay instant, as they are in life.
+     */
+    private fun put(res: Int, blend: Boolean = false) {
         if (windowVisibility != VISIBLE) return
         // A blink or wave scheduled before a mood change never shows a frame of the old mood.
         val waving = shown == Mood.CALM && (res == R.drawable.peri_calm_wave1 || res == R.drawable.peri_calm_wave2)
         if (fading || posing || (res !in frames.all && !waving)) return
-        front.setImageDrawable(dressed(res, drawable(res)))
+        val next = dressed(res, drawable(res))
+        if (blend && moves) {
+            front.animate().cancel()
+            back.animate().cancel()
+            val leaving = front
+            leaving.alpha = 1f
+            back.setImageDrawable(next)
+            back.alpha = 0f
+            back.bringToFront()
+            outfitLayer.bringToFront()
+            back.animate().alpha(1f).setDuration(BLEND_MS).withEndAction { leaving.alpha = 0f }.start()
+            front = back
+            back = leaving
+        } else {
+            front.setImageDrawable(next)
+            front.alpha = 1f
+            back.alpha = 0f
+        }
         // Each frame places her outfit from its own eyes: a step or a gesture moves her a little.
         outfitLayer.anchor = res
     }
@@ -415,14 +459,16 @@ class PeriFace(context: Context) : FrameLayout(context) {
             if (gesture.isNotEmpty() && last !in gesture && Random.nextInt(9) == 0) {
                 val g = gesture.random()
                 last = g
-                put(g)
+                put(g, blend = true)
                 nodStart = SystemClock.uptimeMillis()
                 main.postDelayed(this, Random.nextLong(700, 1_050))
                 return
             }
             val next = listOf(frames.talk, frames.wide, frames.round, frames.still).filter { it != last }.random()
+            // Out of a gesture her arms come down softly; between mouth shapes it's instant.
+            val fromGesture = last == frames.gestureA || last == frames.gestureB
             last = next
-            put(next)
+            put(next, blend = fromGesture)
             if (next != frames.still) nodStart = SystemClock.uptimeMillis()
             main.postDelayed(this, if (next == frames.still) Random.nextLong(110, 180) else Random.nextLong(140, 230))
         }
@@ -486,9 +532,14 @@ class PeriFace(context: Context) : FrameLayout(context) {
                 action = idle
                 actionStart = now
                 busyUntil = now + STEPS * STEP_MS
-                val steps = (0 until STEPS).map { if (it % 2 == 0) (if (it % 4 == 0) l else r) else frames.still }
-                steps.forEachIndexed { i, res -> main.postDelayed({ if (!talking && action == Idle.STEPS) put(res) }, i * STEP_MS) }
-                main.postDelayed({ if (!talking) put(frames.still) }, STEPS * STEP_MS)
+                val lh = frames.stepLeftHalf
+                val rh = frames.stepRightHalf
+                // A foot lifts, is up, comes down, rests; then the other one. Two such strides, in STEPS beats.
+                val stride = if (lh != null && rh != null) listOf(lh, l, lh, frames.still, rh, r, rh, frames.still) else listOf(l, frames.still, r, frames.still)
+                val beat = STEP_MS * 4 / stride.size
+                val steps = stride + stride
+                steps.forEachIndexed { i, res -> main.postDelayed({ if (!talking && action == Idle.STEPS) put(res, blend = true) }, i * beat) }
+                main.postDelayed({ if (!talking) put(frames.still, blend = true) }, steps.size * beat)
             }
             Idle.LOOK -> {
                 busyUntil = now + 2_100
@@ -516,9 +567,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
                 actionStart = now
                 busyUntil = now + DANCE_STEPS * DANCE_MS
                 (0 until DANCE_STEPS).forEach { i ->
-                    main.postDelayed({ if (!talking && action == Idle.DANCE) put(if (i % 2 == 0) l else r) }, i * DANCE_MS)
+                    main.postDelayed({ if (!talking && action == Idle.DANCE) put(if (i % 2 == 0) l else r, blend = true) }, i * DANCE_MS)
                 }
-                main.postDelayed({ if (!talking) put(frames.still) }, DANCE_STEPS * DANCE_MS)
+                main.postDelayed({ if (!talking) put(frames.still, blend = true) }, DANCE_STEPS * DANCE_MS)
             }
         }
     }
@@ -702,7 +753,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
                 val step = t / m.bobMs
                 if (step != lastRun) {
                     lastRun = step
-                    (if (step % 2 == 0L) frames.stepLeft else frames.stepRight)?.let { put(it) }
+                    (if (step % 2 == 0L) frames.stepLeft else frames.stepRight)?.let { put(it, blend = true) }
                 }
             }
             invalidate()
@@ -755,12 +806,16 @@ class PeriFace(context: Context) : FrameLayout(context) {
 
     private companion object {
         const val MOOD_FADE = 200L
+        /** One body frame flowing into the next: shorter than a beat of her steps. */
+        const val BLEND_MS = 110L
         const val CHEER_MILLIS = 2_200L
         const val POSE_MILLIS = 2_800L
         /** One background thread for every Peri on screen: decoding is quick, and never on the main thread. */
         val DECODER = Executors.newSingleThreadExecutor { r -> Thread(r, "peri-frames").apply { isDaemon = true; priority = Thread.NORM_PRIORITY - 1 } }
         const val POP_MS = 420f
         const val IDLE_FIRST = 3_500L
+        /** Growing or shrinking to new room: about as long as her hill takes to follow. */
+        const val GLIDE_MS = 420L
         /** Her calm moments (Muse Image, like her other poses), a little longer than a reaction. */
         val CALM_MOMENTS = listOf(R.drawable.peri_calm_hum, R.drawable.peri_calm_butterfly, R.drawable.peri_calm_tea, R.drawable.peri_calm_flower, R.drawable.peri_calm_phone)
         const val CALM_MOMENT_MILLIS = 3_200L
@@ -811,6 +866,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
                 R.drawable.peri_calm_talkwide, R.drawable.peri_calm_talko, R.drawable.peri_calm_glanceleft, R.drawable.peri_calm_glanceright,
                 R.drawable.peri_calm_stepleft, R.drawable.peri_calm_stepright,
                 R.drawable.peri_calm_gesturea, R.drawable.peri_calm_gestureb, R.drawable.peri_calm_wink,
+                stepLeftHalf = R.drawable.peri_calm_steplefthalf, stepRightHalf = R.drawable.peri_calm_steprighthalf,
             ),
             Mood.LISTENING to Frames(
                 R.drawable.peri_listening, R.drawable.peri_listening_blinkhalf, R.drawable.peri_listening_blink, R.drawable.peri_listening_talk,
@@ -823,36 +879,42 @@ class PeriFace(context: Context) : FrameLayout(context) {
                 R.drawable.peri_thinking_talkwide, R.drawable.peri_thinking_talko, R.drawable.peri_thinking_glanceleft, R.drawable.peri_thinking_glanceright,
                 R.drawable.peri_thinking_stepleft, R.drawable.peri_thinking_stepright,
                 R.drawable.peri_thinking_gesturea, R.drawable.peri_thinking_gestureb, R.drawable.peri_thinking_wink,
+                stepLeftHalf = R.drawable.peri_thinking_steplefthalf, stepRightHalf = R.drawable.peri_thinking_steprighthalf,
             ),
             Mood.WORRIED to Frames(
                 R.drawable.peri_worried, R.drawable.peri_worried_blinkhalf, R.drawable.peri_worried_blink, R.drawable.peri_worried_talk,
                 R.drawable.peri_worried_talkwide, R.drawable.peri_worried_talko, R.drawable.peri_worried_glanceleft, R.drawable.peri_worried_glanceright,
                 R.drawable.peri_worried_stepleft, R.drawable.peri_worried_stepright,
                 R.drawable.peri_worried_gesturea, R.drawable.peri_worried_gestureb, R.drawable.peri_worried_wink,
+                stepLeftHalf = R.drawable.peri_worried_steplefthalf, stepRightHalf = R.drawable.peri_worried_steprighthalf,
             ),
             Mood.PROTECTIVE to Frames(
                 R.drawable.peri_protective, R.drawable.peri_protective_blinkhalf, R.drawable.peri_protective_blink, R.drawable.peri_protective_talk,
                 R.drawable.peri_protective_talkwide, R.drawable.peri_protective_talko, R.drawable.peri_protective_glanceleft, R.drawable.peri_protective_glanceright,
                 R.drawable.peri_protective_stepleft, R.drawable.peri_protective_stepright,
                 R.drawable.peri_protective_gesturea, R.drawable.peri_protective_gestureb, R.drawable.peri_protective_wink,
+                stepLeftHalf = R.drawable.peri_protective_steplefthalf, stepRightHalf = R.drawable.peri_protective_steprighthalf,
             ),
             Mood.CALLING to Frames(
                 R.drawable.peri_calling, R.drawable.peri_calling_blinkhalf, R.drawable.peri_calling_blink, R.drawable.peri_calling_talk,
                 R.drawable.peri_calling_talkwide, R.drawable.peri_calling_talko, R.drawable.peri_calling_glanceleft, R.drawable.peri_calling_glanceright,
                 R.drawable.peri_calling_stepleft, R.drawable.peri_calling_stepright,
                 R.drawable.peri_calling_gesturea, R.drawable.peri_calling_gestureb, R.drawable.peri_calling_wink,
+                stepLeftHalf = R.drawable.peri_calling_steplefthalf, stepRightHalf = R.drawable.peri_calling_steprighthalf,
             ),
             Mood.WAITING to Frames(
                 R.drawable.peri_waiting, R.drawable.peri_waiting_blinkhalf, R.drawable.peri_waiting_blink, R.drawable.peri_waiting_talk,
                 R.drawable.peri_waiting_talkwide, R.drawable.peri_waiting_talko, R.drawable.peri_waiting_glanceleft, R.drawable.peri_waiting_glanceright,
                 R.drawable.peri_waiting_stepleft, R.drawable.peri_waiting_stepright,
                 R.drawable.peri_waiting_gesturea, R.drawable.peri_waiting_gestureb, R.drawable.peri_waiting_wink,
+                stepLeftHalf = R.drawable.peri_waiting_steplefthalf, stepRightHalf = R.drawable.peri_waiting_steprighthalf,
             ),
             Mood.HAPPY to Frames(
                 R.drawable.peri_happy, R.drawable.peri_happy_blinkhalf, R.drawable.peri_happy_blink, R.drawable.peri_happy_talk,
                 R.drawable.peri_happy_talkwide, R.drawable.peri_happy_talko, R.drawable.peri_happy_glanceleft, R.drawable.peri_happy_glanceright,
                 R.drawable.peri_happy_stepleft, R.drawable.peri_happy_stepright,
                 R.drawable.peri_happy_gesturea, R.drawable.peri_happy_gestureb, R.drawable.peri_happy_wink,
+                stepLeftHalf = R.drawable.peri_happy_steplefthalf, stepRightHalf = R.drawable.peri_happy_steprighthalf,
             ),
             Mood.SLEEPING to Frames(
                 R.drawable.peri_sleeping, R.drawable.peri_sleeping_blinkhalf, R.drawable.peri_sleeping_blink, R.drawable.peri_sleeping_talk,
