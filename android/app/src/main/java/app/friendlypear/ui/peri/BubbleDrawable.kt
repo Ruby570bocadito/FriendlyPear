@@ -11,7 +11,8 @@ import android.graphics.RectF
 import android.graphics.drawable.Drawable
 
 /**
- * A speech bubble with a small tail pointing at Peri: up to her in the app, down to her in Mini Peri.
+ * A speech bubble with a small tail pointing at Peri: up to her in the app, down to her in Mini Peri, and to the
+ * left where she stands beside it (the game "Scam or not?").
  * Its outline follows the shape, so where the bubble floats (Mini Peri, over other apps) its shadow matches.
  */
 class BubbleDrawable(
@@ -24,7 +25,7 @@ class BubbleDrawable(
     /** For the bottom tails: how far the tail's tip is from that side, so it points at Peri's middle. */
     private val tailInset: Float = 0f,
 ) : Drawable() {
-    enum class Tail { TOP, BOTTOM_START, BOTTOM_END }
+    enum class Tail { TOP, BOTTOM_START, BOTTOM_END, LEFT }
 
     private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = fill }
     private val strokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -39,10 +40,10 @@ class BubbleDrawable(
         super.onBoundsChange(bounds)
         val half = strokeWidth / 2
         val body = RectF(
-            bounds.left + half,
+            bounds.left + half + if (tail == Tail.LEFT) tailSize else 0f,
             bounds.top + half + if (tail == Tail.TOP) tailSize else 0f,
             bounds.right - half,
-            bounds.bottom - half - if (tail == Tail.TOP) 0f else tailSize,
+            bounds.bottom - half - if (tail == Tail.BOTTOM_START || tail == Tail.BOTTOM_END) tailSize else 0f,
         )
         path.reset()
         path.addRoundRect(body, radius, radius, Path.Direction.CW)
@@ -59,6 +60,12 @@ class BubbleDrawable(
                 tip.moveTo(x - tailSize, body.bottom - 1)
                 tip.lineTo(x, body.bottom + tailSize)
                 tip.lineTo(x + tailSize, body.bottom - 1)
+            }
+            Tail.LEFT -> {
+                val y = body.centerY()
+                tip.moveTo(body.left + 1, y - tailSize)
+                tip.lineTo(body.left - tailSize, y)
+                tip.lineTo(body.left + 1, y + tailSize)
             }
         }
         tip.close()

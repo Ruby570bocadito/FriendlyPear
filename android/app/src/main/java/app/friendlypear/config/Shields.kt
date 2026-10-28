@@ -4,11 +4,11 @@ import android.content.Context
 
 /**
  * The little shields Peri gives: one each time a scam is stopped, and each time the person asks before doing
- * something risky (shows her a picture, checks with the family). Only counts, on this phone. [unseen] are the
- * ones Peri hasn't congratulated the person for yet.
+ * something risky (shows her a picture, checks with the family), and for a round of "Scam or not?" played well.
+ * Only counts, on this phone. [unseen] are the ones Peri hasn't congratulated the person for yet.
  */
 class Shields(context: Context) {
-    enum class Kind { STOPPED, ASKED, FAMILY }
+    enum class Kind { STOPPED, ASKED, FAMILY, LEARNED }
 
     private val prefs = context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 

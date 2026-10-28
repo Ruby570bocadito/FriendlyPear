@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Edge to edge on cream: dark system icons, and green for checkboxes, spinners and the cursor. -->
+    <!-- Edge to edge on Peri's world: dark system icons, and green for checkboxes, spinners and the cursor. -->
     <style name="Theme.FriendlyPear" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:colorAccent">@color/green_dark</item>
         <item name="android:colorPrimary">@color/green_dark</item>
         <item name="android:colorControlActivated">@color/green_dark</item>
         <item name="android:windowBackground">@color/cream</item>
+        <!-- Atkinson Hyperlegible for everything you read; titles and buttons use Fredoka (Style.kt). -->
+        <item name="android:fontFamily">@font/atkinson</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>

@@ -453,4 +453,368 @@
     <string name="web_dns_copy">Copy the name</string>
     <string name="web_dns_open">Open settings</string>
     <string name="web_dns_copied">Copied: %1$s. Paste it in Private DNS.</string>
+    <!-- Round 2: Peri's world, her sections and her new lines. -->
+    <string name="tab_peri">Peri</string>
+    <string name="tab_diary">Diary</string>
+    <string name="tab_learn">Learn</string>
+    <string name="diary_title">Peri\'s diary</string>
+    <string name="diary_today">Today</string>
+    <string name="diary_yesterday">Yesterday</string>
+    <string name="diary_empty">Nothing has happened yet, and that\'s good news! I\'ll note down here everything I do for you.</string>
+    <string name="diary_scam_parcel">I stopped a fake parcel message</string>
+    <string name="diary_scam_link">I stopped a message pretending to be your bank or a company</string>
+    <string name="diary_scam_code">I stopped someone who wanted your code</string>
+    <string name="diary_scam_family">I stopped someone pretending to be family</string>
+    <string name="diary_scam_remote">I stopped a fake helper who wanted your phone</string>
+    <string name="diary_scam_prize">I stopped a prize that was too good to be true</string>
+    <string name="diary_doubt">I checked a doubtful message for you</string>
+    <string name="diary_pause_left">You left a money app in time</string>
+    <string name="diary_family_called">You chose to call your family first</string>
+    <string name="diary_family_asked">I asked your family before going ahead</string>
+    <string name="diary_web">We silenced a website\'s junk notices</string>
+    <string name="diary_quiz">You played Scam or not?: %1$s right</string>
+    <string name="diary_call">I called %1$s for you</string>
+    <string name="diary_text">I texted %1$s for you</string>
+    <string name="diary_location">I shared where you were with your family</string>
+    <string name="diary_picture">I looked at a picture with you</string>
+    <string name="diary_voice">I listened to something you asked me</string>
+    <string name="diary_report">I wrote up a scam for you to report</string>
+    <string name="learn_title">Learn with Peri</string>
+    <string name="learn_traps_title">Traps I know</string>
+    <string name="learn_tips_title">My golden rules</string>
+    <string name="tip_1">Nobody real asks for codes or passwords by message.</string>
+    <string name="tip_2">If they rush you, stop and breathe.</string>
+    <string name="tip_3">Call back on the number you always use.</string>
+    <string name="tip_4">Before paying or giving details, ask me.</string>
+    <string name="trap_name_parcel">The held parcel</string>
+    <string name="trap_name_link">The fake bank</string>
+    <string name="trap_name_code">The code</string>
+    <string name="trap_name_family">The fake relative</string>
+    <string name="trap_name_remote">The fake helper</string>
+    <string name="trap_name_prize">The big prize</string>
+    <string name="family_page_title">Your family</string>
+    <string name="family_guardians_title">Your guardians</string>
+    <string name="family_no_guardians">Nobody yet. Choose the people you trust in “Change my family”.</string>
+    <string name="family_word_yes">You have a family word agreed</string>
+    <string name="family_word_no">No family word yet: agree one in person</string>
+    <string name="family_news_on">Your guardians see Peri\'s news</string>
+    <string name="family_news_off">Your guardians don\'t see Peri\'s news</string>
+    <string name="family_pending_short">A change of guardians is waiting for their OK</string>
+    <string name="family_change">Change my family</string>
+    <string name="quiz_title">Scam or not?</string>
+    <string name="quiz_card_text">I\'ll show you some messages. You decide if they\'re a trap.</string>
+    <string name="quiz_play">Play</string>
+    <string name="quiz_best">Your best: %1$d of %2$d</string>
+    <string name="quiz_scam_button">It\'s a trap</string>
+    <string name="quiz_ok_button">It\'s fine</string>
+    <string name="quiz_was_scam">It was a trap</string>
+    <string name="quiz_was_ok">It was fine</string>
+    <string name="quiz_next">Next</string>
+    <string name="quiz_see_result">See my result</string>
+    <string name="quiz_progress">%1$d of %2$d</string>
+    <string name="quiz_score">Right: %1$d of %2$d</string>
+    <string name="quiz_again">Play again</string>
+    <string name="quiz_back">Back to Peri</string>
+    <string name="quiz_channel_sms">Text message</string>
+    <string name="quiz_channel_whatsapp">WhatsApp</string>
+    <string name="quiz_channel_call">Phone call</string>
+    <string name="quiz_link_note">Links here are pretend: tapping them does nothing.</string>
+    <string name="shields_learned">Rounds of Scam or not? played well</string>
+    <string name="settings_world">Peri\'s world</string>
+    <string name="settings_world_note">The place behind Peri changes every day with the season. You can keep one if you prefer.</string>
+    <string name="place_auto">Changes every day</string>
+    <string name="place_meadow">Meadow</string>
+    <string name="place_orchard">Orchard</string>
+    <string name="place_seaside">Seaside</string>
+    <string name="place_autumn">Autumn hills</string>
+    <string name="place_snow">Snow</string>
+    <string name="back">Back</string>
+    <plurals name="quiz_intro">
+        <item quantity="one">I\'ll show you %1$d message. Is it a trap, or fine?</item>
+        <item quantity="other">I\'ll show you %1$d messages. Is each one a trap, or fine?</item>
+    </plurals>
+    <plurals name="diary_stat_shields">
+        <item quantity="one">shield</item>
+        <item quantity="other">shields</item>
+    </plurals>
+    <plurals name="diary_stat_scams">
+        <item quantity="one">scam stopped</item>
+        <item quantity="other">scams stopped</item>
+    </plurals>
+    <plurals name="diary_stat_days">
+        <item quantity="one">day with you</item>
+        <item quantity="other">days with you</item>
+    </plurals>
+    <!-- Peri's new banks: proposed by Muse Wonder, reviewed line by line. -->
+    <string-array name="peri_tickle">
+        <item>Hahaha! That really tickles!</item>
+        <item>Stop, stop, I can\'t stop laughing!</item>
+        <item>My little leaf is wobbling! Hahaha!</item>
+        <item>I\'m a very ticklish pear, a-pear-ently!</item>
+        <item>Haha! You found my tickly spot!</item>
+        <item>Oh no, here come the giggles again!</item>
+        <item>Hahaha! My tummy is all giggles!</item>
+        <item>That tickle was pear-fectly silly!</item>
+    </string-array>
+    <string-array name="peri_drag">
+        <item>Wheee! What a lovely little ride!</item>
+        <item>I flew across the screen! Hopping back now.</item>
+        <item>That was fun! Like a tiny fairground ride.</item>
+        <item>Zoom, and back I go! Thank you for that.</item>
+        <item>Hop, I\'m back in my place! Brilliant fun.</item>
+        <item>I\'m a travelling pear today! Back home now.</item>
+        <item>Wheee, that was speedy! And I landed upright, nearly.</item>
+        <item>Off I went, and back I bounce! Lovely.</item>
+    </string-array>
+    <string-array name="peri_shake">
+        <item>Whoa, everything\'s spinning! I feel a bit dizzy.</item>
+        <item>What a wobble! My leaf went the other way.</item>
+        <item>Everything\'s dancing about! Give me a moment.</item>
+        <item>That was a funny shake! I\'m fine, just dizzy.</item>
+        <item>Ooh, the screen is swaying! Hold on, little leaf.</item>
+        <item>What a dance with no music! I\'m steadying now.</item>
+        <item>My head\'s going round and round! Nearly better.</item>
+        <item>Everything wobbled except my smile!</item>
+    </string-array>
+    <string-array name="peri_leaf">
+        <item>Mmm, that\'s lovely on my leaf. A little more, please.</item>
+        <item>Oh, that feels so nice! I love leaf scratches.</item>
+        <item>I\'d purr if I could. Happy pear here.</item>
+        <item>What a gentle fuss. My leaf is delighted.</item>
+        <item>Mmm, just there. So relaxing.</item>
+        <item>I\'m melting with happiness. Nearly, anyway: I\'m clay.</item>
+        <item>My little leaf is wiggling with joy. Keep going!</item>
+        <item>This feels better than morning sunshine.</item>
+    </string-array>
+    <string-array name="peri_peekaboo">
+        <item>Peekaboo! I\'m so glad to see you!</item>
+        <item>Peekaboo, surprise! I was hoping you\'d pop by.</item>
+        <item>Here I am! Hands over my eyes, then ta-da!</item>
+        <item>Peekaboo! I popped out as soon as you arrived.</item>
+        <item>Surprise! It\'s lovely to have you back.</item>
+        <item>Peekaboo! I\'ve been looking forward to this.</item>
+        <item>Peekaboo! My leaf lights up when I see you.</item>
+        <item>Ta-da, here I am! What a lovely surprise.</item>
+    </string-array>
+    <string-array name="peri_bye">
+        <item>I\'ll go tiny and stay right here. See you soon.</item>
+        <item>Mini Peri mode on. I\'m still with you.</item>
+        <item>Shrinking down small. Still here, still watching.</item>
+        <item>Staying right here, nice and small. You carry on.</item>
+        <item>Going mini with a smile. Not leaving, just shrinking.</item>
+        <item>Mini Peri ready. I\'ll keep you company from my corner.</item>
+        <item>Still with you, just mini-sized. Rather handy, really.</item>
+        <item>Tucking into my corner. I\'m here whenever you need me.</item>
+    </string-array>
+    <string-array name="peri_hero">
+        <item>All calm now, and you\'re safe. You did brilliantly.</item>
+        <item>I\'m wearing my cape with pride. The credit is yours.</item>
+        <item>Everything\'s peaceful again. I\'m so proud of you.</item>
+        <item>Cape on, big smile ready. You\'re safe now.</item>
+        <item>Stopping to think was so brave. All calm now.</item>
+        <item>My cape is fluttering with joy. The important bit is done.</item>
+        <item>That\'s all behind us now. Time for a calm breath.</item>
+        <item>I\'m your little clay hero, but you led the way. Well done.</item>
+    </string-array>
+    <string-array name="quiz_right">
+        <item>Exactly right! What a sharp eye you have.</item>
+        <item>Well done! You spotted that straight away.</item>
+        <item>That\'s it! I take my leaf off to you.</item>
+        <item>You got it! That makes me so happy.</item>
+        <item>Nicely spotted! Nothing gets past you today.</item>
+        <item>Brilliant! You hit the nail on the head.</item>
+        <item>That\'s the one! I\'m very proud.</item>
+        <item>Spot on! That was pear-fectly judged.</item>
+    </string-array>
+    <string-array name="quiz_wrong">
+        <item>Nearly there. That\'s what practising is for.</item>
+        <item>That one was tricky. The next may feel easier.</item>
+        <item>No harm done. This is a great way to learn.</item>
+        <item>Good try. It happens to everyone.</item>
+        <item>That one was confusing. Thanks for trying with me.</item>
+        <item>No worries at all. Every practice helps a lot.</item>
+        <item>That was hard to spot. Let\'s try the next one.</item>
+        <item>Getting it wrong here is safe. That\'s the point.</item>
+    </string-array>
+    <string-array name="quiz_end_great">
+        <item>What a game! You were brilliant at this.</item>
+        <item>You shone from start to finish. Well done indeed.</item>
+        <item>You play this so well. I\'m really impressed.</item>
+        <item>A pear-fect round from you. Well done!</item>
+        <item>You did splendidly. Keep that calm thinking going.</item>
+        <item>What a great run. The practice really shows.</item>
+        <item>You caught those tricks so well. Brilliant work.</item>
+        <item>That deserves a happy leaf twirl. Fantastic!</item>
+    </string-array>
+    <string-array name="quiz_end_good">
+        <item>Good game. You\'re really getting the hang of this.</item>
+        <item>You\'re on a very good path. Keep practising calmly.</item>
+        <item>Good work today. It gets clearer every time.</item>
+        <item>A very decent game. I\'m pleased with your progress.</item>
+        <item>You got plenty right and learned more. Well done.</item>
+        <item>This is taking shape nicely. Rather like me, in clay.</item>
+        <item>A good practice session. Next time may go even better.</item>
+        <item>You\'re getting an eye for tricks. That pleases me.</item>
+    </string-array>
+    <string-array name="quiz_end_low">
+        <item>Thank you for playing to the end. Practising is winning.</item>
+        <item>Today felt harder, and that\'s fine. We carry on calmly.</item>
+        <item>Those tricks were very tangled. That was a good effort.</item>
+        <item>This is learned little by little. I\'m here to practise.</item>
+        <item>I loved playing with you. We\'ll spot more next time.</item>
+        <item>You stuck with the whole game. That says a lot.</item>
+        <item>Every try teaches something new. Step by step.</item>
+        <item>I\'m a patient pear. We\'ll practise whenever you like.</item>
+    </string-array>
+    <string-array name="diary_hello">
+        <item>Here I note down what I do for you. Have a look.</item>
+        <item>Welcome to my diary. Everything noted with care.</item>
+        <item>This is my little notebook of help. Come and see.</item>
+        <item>My diary\'s ready. Let me show you what I\'ve done.</item>
+        <item>Come in, come in. Here\'s everything I looked after.</item>
+        <item>On these pages I note my work. In pear handwriting.</item>
+        <item>Here\'s what I\'ve been up to. No secrets.</item>
+        <item>All noted down, day by day. This is my diary.</item>
+    </string-array>
+    <string-array name="learn_hello">
+        <item>Here we learn to spot scams. Playing is the best teacher.</item>
+        <item>Let me show you the tricks I know. Come and see.</item>
+        <item>This corner is for practising safely. Come and play.</item>
+        <item>Here we train our eyes, step by step. Nothing scary.</item>
+        <item>Welcome to my scam school. I\'m your pear teacher.</item>
+        <item>Here we practise calmly. Mistakes here don\'t hurt.</item>
+        <item>Learning this can be fun. I\'ll teach you through play.</item>
+        <item>This is my gym against tricks. Let\'s train our eyes.</item>
+    </string-array>
+    <string-array name="family_hello">
+        <item>Here\'s your family, looking out with you. What a team.</item>
+        <item>These are the people who stand by you. Me included.</item>
+        <item>Come and see your people. They care for you with me.</item>
+        <item>Here I keep those who wish you well. Full team.</item>
+        <item>Your family and this pear, on the same side. Lovely.</item>
+        <item>Here\'s the team looking out for you. Helping, never spying.</item>
+        <item>Your dear people are here. I alert, they support.</item>
+        <item>Here we all care together. Plus one pear.</item>
+    </string-array>
+    <string-array name="greet_return">
+        <item>It\'s been a while! What a joy to see you.</item>
+        <item>You\'re back! My leaf is wobbling with excitement.</item>
+        <item>I missed you. It\'s so good you\'re here.</item>
+        <item>What a lovely surprise! Welcome back.</item>
+        <item>We haven\'t met for days. I\'m ever so glad.</item>
+        <item>At last, we meet again! I\'m delighted to see you.</item>
+        <item>Look who\'s back! Everything lights up for me.</item>
+        <item>I\'m truly glad to see you again. Really glad.</item>
+    </string-array>
+    <string-array name="peri_medal">
+        <item>A brand new shield! You\'ve truly earned it.</item>
+        <item>Look at that lovely shield. It\'s all yours.</item>
+        <item>Shield earned. I\'m ever so proud of you.</item>
+        <item>Well done on that shield! It shines like sunshine.</item>
+        <item>A new shield for the collection. You did so well.</item>
+        <item>Shield in hand! Well, in leaf. Congratulations.</item>
+        <item>You\'ve earned a beautiful shield. What a lovely moment.</item>
+        <item>One more shield for you. What a pear-fect achievement.</item>
+    </string-array>
+    <string-array name="greet_winter">
+        <item>Brrr, it\'s so cold today. Good thing I have my scarf.</item>
+        <item>A proper winter day. My scarf keeps me lovely and warm.</item>
+        <item>Everything feels chilly. Pear in a scarf, nice and cosy.</item>
+        <item>The cold is biting today. Wrap up warm out there, please.</item>
+        <item>Brrr, even my leaf is shivering. Scarf to the rescue!</item>
+        <item>A cold and pretty day. Wear a warm coat if you go out.</item>
+        <item>Winter has arrived all at once. I\'m ready for it.</item>
+        <item>What a cold morning. A warm cuppa would be pear-fect.</item>
+    </string-array>
+    <!-- "Scam or not?": {...} marks a pretend link; it is never opened. -->
+    <string-array name="quiz_sender">
+        <item>Royal Mail</item>
+        <item>Your bank</item>
+        <item>Unknown number</item>
+        <item>Unknown number</item>
+        <item>Prize Club</item>
+        <item>Tech Support</item>
+        <item>HMRC</item>
+        <item>Energy supplier</item>
+        <item>Gold Investments</item>
+        <item>DVLA</item>
+        <item>Moon Pharmacy</item>
+        <item>GP surgery</item>
+        <item>Laura (daughter)</item>
+        <item>Your bank</item>
+        <item>Marisa (neighbour)</item>
+        <item>Royal Mail</item>
+    </string-array>
+    <string-array name="quiz_text">
+        <item>Your parcel is on hold due to an unpaid £1.99 fee. Pay today here: {royalmail-redeliver.top/pay}</item>
+        <item>We\'ve blocked your card after a suspicious payment. Verify your details at: {customer-security.app}</item>
+        <item>Hi, it\'s me, I\'ve broken my phone and this is my new number. Can you send me some money urgently? I\'ll explain later.</item>
+        <item>Sorry, I sent you a 6-digit code by mistake. Could you send it back to me? It\'s urgent.</item>
+        <item>Congratulations! You\'ve won a new phone. Claim it within 24 hours: {prize-club.win}</item>
+        <item>“Your computer has a virus. Install this app so we can fix it for you remotely.”</item>
+        <item>You are due a tax refund of £312.40. Confirm your bank account at: {tax-refund-uk.com}</item>
+        <item>Notice: your power will be cut off today for an unpaid bill. Avoid it by paying now: {energy-payments.net}</item>
+        <item>Invest £250 today and make £3,000 in a week with our system. Limited places!</item>
+        <item>Your vehicle tax payment failed. Pay today to avoid a fine: {dvla-renew.info}</item>
+        <item>Your prescription is ready to collect. We\'re open from 9:30 to 8pm.</item>
+        <item>Reminder: your appointment is tomorrow at 10:15 with your GP. If you can\'t come, please call the surgery.</item>
+        <item>Hi, I\'ll be there at 8 for dinner. Shall I bring bread?</item>
+        <item>Card purchase of £23.50 at Sun Supermarket with your card ending 4821.</item>
+        <item>I\'ve left your umbrella in the letterbox. Thanks for lending it to me!</item>
+        <item>Your parcel will arrive tomorrow between 9am and 2pm. You don\'t need to do anything.</item>
+    </string-array>
+    <string-array name="quiz_clue">
+        <item>Royal Mail doesn\'t ask for fees by text with a link. If you\'re expecting a parcel, check the official website yourself.</item>
+        <item>Your bank never asks for details through a link. Call the number on the back of your card.</item>
+        <item>A new number, a rush and money: a classic trap. Call their usual number first.</item>
+        <item>A code is like your front door key: never give it to anyone.</item>
+        <item>Nobody gives away surprise prizes, especially in a rush. They want your details.</item>
+        <item>No real technician calls you to install anything. It\'s fine to hang up.</item>
+        <item>HMRC doesn\'t ask for your bank details by text. If in doubt, go to the official website yourself.</item>
+        <item>Scaring you with a cut-off today is a trick. Call the number on your bill yourself.</item>
+        <item>Nobody can promise that much money that fast. If it sounds too good, it\'s a trap.</item>
+        <item>The DVLA doesn\'t chase payments by text with a strange link. Use the official website.</item>
+        <item>It doesn\'t ask for money, details or taps. It just lets you know.</item>
+        <item>A reminder: no payment, no details, and it tells you to call them yourself.</item>
+        <item>A contact you already have, asking for no money or codes. Enjoy dinner!</item>
+        <item>It just tells you about a purchase. If it wasn\'t you, call the number on your card.</item>
+        <item>A neighbour you know, no rush and no payments. All fine.</item>
+        <item>It informs you without asking for payment or taps. That\'s how real companies write.</item>
+    </string-array>
+    <integer-array name="quiz_scam">
+        <item>1</item>
+        <item>1</item>
+        <item>1</item>
+        <item>1</item>
+        <item>1</item>
+        <item>1</item>
+        <item>1</item>
+        <item>1</item>
+        <item>1</item>
+        <item>1</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+    </integer-array>
+    <string-array name="quiz_channel" translatable="false">
+        <item>sms</item>
+        <item>sms</item>
+        <item>whatsapp</item>
+        <item>whatsapp</item>
+        <item>sms</item>
+        <item>call</item>
+        <item>sms</item>
+        <item>sms</item>
+        <item>whatsapp</item>
+        <item>sms</item>
+        <item>sms</item>
+        <item>sms</item>
+        <item>whatsapp</item>
+        <item>sms</item>
+        <item>whatsapp</item>
+        <item>sms</item>
+    </string-array>
 </resources>

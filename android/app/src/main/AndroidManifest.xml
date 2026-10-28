@@ -148,6 +148,11 @@
             android:label="@string/guardian_channel" />
 
         <activity
+            android:name=".ui.peri.QuizActivity"
+            android:exported="false"
+            android:label="@string/quiz_title" />
+
+        <activity
             android:name=".ui.peri.TrapActivity"
             android:exported="false"
             android:label="@string/trap_title" />

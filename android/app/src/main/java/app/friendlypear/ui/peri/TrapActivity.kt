@@ -15,7 +15,7 @@ import app.friendlypear.R
 
 /**
  * "How the trap worked": after Peri stops a scam, three Muse Image panels with a sentence under each, so the
- * person sees how that kind of trick works and spots the next one. The panels are made once per kind of scam
+ * person sees how that kind of trick works and spots the next one. "Learn" opens it for any kind of trap. The panels are made once per kind of scam
  * (`assets/peri/generate.ts traps`), so nothing is sent anywhere to show them.
  */
 class TrapActivity : Activity() {
@@ -23,10 +23,12 @@ class TrapActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val kind = hub.lastScam.load()?.kind ?: intent.getStringExtra(EXTRA_KIND) ?: LINK
+        // From "Learn", the kind asked for; after a scam, the kind of the scam Peri stopped.
+        val chosen = intent.getStringExtra(EXTRA_KIND)
+        val kind = chosen ?: hub.lastScam.load()?.kind ?: LINK
         val panels = PANELS[kind] ?: PANELS.getValue(LINK)
         val list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        list.addView(heading(getString(R.string.trap_title)))
+        list.addView(heading(if (chosen != null) getString(NAMES[kind] ?: R.string.trap_title) else getString(R.string.trap_title)))
         panels.forEach { (image, caption) ->
             list.addView(LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
@@ -53,7 +55,7 @@ class TrapActivity : Activity() {
             addView(Pill(this@TrapActivity, getString(R.string.welcome_listen), R.drawable.ic_mic, primary = false).apply {
                 setOnClickListener { hub.say(panels.joinToString(" ") { getString(it.second) }) }
             }, LinearLayout.LayoutParams(0, dp(58), 1f).apply { marginEnd = dp(6) })
-            if (hub.lastScam.load() != null) addView(Pill(this@TrapActivity, getString(R.string.report_card_button), R.drawable.ic_message, primary = false).apply {
+            if (chosen == null && hub.lastScam.load() != null) addView(Pill(this@TrapActivity, getString(R.string.report_card_button), R.drawable.ic_message, primary = false).apply {
                 setOnClickListener { startActivity(Intent(this@TrapActivity, ReportActivity::class.java)) }
             }, LinearLayout.LayoutParams(0, dp(58), 1f).apply { marginStart = dp(6) })
         }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) })
@@ -89,6 +91,15 @@ class TrapActivity : Activity() {
             brand in COURIERS -> "parcel"
             else -> LINK
         }
+
+        private val NAMES = mapOf(
+            "parcel" to R.string.trap_name_parcel,
+            "link" to R.string.trap_name_link,
+            "code" to R.string.trap_name_code,
+            "family" to R.string.trap_name_family,
+            "remote" to R.string.trap_name_remote,
+            "prize" to R.string.trap_name_prize,
+        )
 
         private val PANELS: Map<String, List<Pair<Int, Int>>> = mapOf(
             "parcel" to listOf(

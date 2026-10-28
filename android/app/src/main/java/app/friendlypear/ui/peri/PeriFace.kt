@@ -84,7 +84,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private val moves = Settings.Global.getFloat(context.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f
     private val main = Handler(Looper.getMainLooper())
     private val shadow = Paint(Paint.ANTI_ALIAS_FLAG)
-    private var feetY = 0f
+    /** Where her feet are, in this view's pixels: the ground of Peri's world goes there. */
+    var feetY = 0f
+        private set
     private var shadowWidth = 0f
     private var rise = 0f
     private val rig = FrameLayout(context)
@@ -114,6 +116,14 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private var pressX = 0f
     private var pressV = 0f
     private var lastFrame = 0L
+    /** Dragged by a finger: where it wants her (px from her place), where she is, and how fast she's going. */
+    private var holding = false
+    private var holdX = 0f
+    private var holdY = 0f
+    private var offX = 0f
+    private var offY = 0f
+    private var velX = 0f
+    private var velY = 0f
 
     init {
         rig.addView(back, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
@@ -159,7 +169,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         if (shadow.shader != null) {
             val scale = 1 - rise * 0.22f
             canvas.save()
-            canvas.translate(width / 2f, feetY)
+            canvas.translate(width / 2f + offX, feetY)
             canvas.scale(scale, scale * SHADOW_FLATNESS)
             shadow.alpha = (255 * (1 - rise * 0.35f)).toInt()
             canvas.drawCircle(0f, 0f, shadowWidth / 2, shadow)
@@ -261,6 +271,16 @@ class PeriFace(context: Context) : FrameLayout(context) {
             app.friendlypear.services.PeriMoment.DIZZY -> R.drawable.peri_calm_dizzy
             app.friendlypear.services.PeriMoment.YAWN -> R.drawable.peri_calm_yawn
             app.friendlypear.services.PeriMoment.LETTER -> R.drawable.peri_calm_letter
+            app.friendlypear.services.PeriMoment.HERO -> R.drawable.peri_calm_hero
+            app.friendlypear.services.PeriMoment.MEDAL -> R.drawable.peri_calm_medal
+            app.friendlypear.services.PeriMoment.PEEKABOO -> R.drawable.peri_calm_peekaboo
+            app.friendlypear.services.PeriMoment.CLAP -> R.drawable.peri_calm_clap
+            app.friendlypear.services.PeriMoment.DETECTIVE -> R.drawable.peri_calm_detective
+            app.friendlypear.services.PeriMoment.SURPRISED -> R.drawable.peri_calm_surprised
+            app.friendlypear.services.PeriMoment.PARTY -> R.drawable.peri_calm_party
+            app.friendlypear.services.PeriMoment.GLASSES -> R.drawable.peri_calm_glasses
+            app.friendlypear.services.PeriMoment.SCARF -> R.drawable.peri_calm_scarf
+            app.friendlypear.services.PeriMoment.BYE -> R.drawable.peri_calm_bye
         }
         front.animate().cancel()
         back.animate().cancel()
@@ -272,8 +292,11 @@ class PeriFace(context: Context) : FrameLayout(context) {
         front.setImageDrawable(decode(res))
         popStart = SystemClock.uptimeMillis()
         if (moves) when (moment) {
-            app.friendlypear.services.PeriMoment.SORRY, app.friendlypear.services.PeriMoment.LETTER -> Unit
-            app.friendlypear.services.PeriMoment.LOVE -> sparkles.play(Sparkles.Effect.HEARTS)
+            app.friendlypear.services.PeriMoment.SORRY, app.friendlypear.services.PeriMoment.LETTER, app.friendlypear.services.PeriMoment.GLASSES,
+            app.friendlypear.services.PeriMoment.DETECTIVE, app.friendlypear.services.PeriMoment.SCARF -> Unit
+            app.friendlypear.services.PeriMoment.LOVE, app.friendlypear.services.PeriMoment.PEEKABOO, app.friendlypear.services.PeriMoment.BYE -> sparkles.play(Sparkles.Effect.HEARTS)
+            app.friendlypear.services.PeriMoment.PARTY, app.friendlypear.services.PeriMoment.HERO -> sparkles.burst(26)
+            app.friendlypear.services.PeriMoment.SURPRISED -> sparkles.burst(6)
             app.friendlypear.services.PeriMoment.YAWN -> sparkles.play(Sparkles.Effect.SLEEPY)
             app.friendlypear.services.PeriMoment.DIZZY -> sparkles.burst(8)
             else -> sparkles.burst()
@@ -465,6 +488,29 @@ class PeriFace(context: Context) : FrameLayout(context) {
         pressTarget = if (on) 1f else 0f
     }
 
+    /**
+     * A finger drags her [dx], [dy] px from her place: she follows, leaning into the movement and stretching with
+     * the speed, a little less the further she goes, like pulling on a rubber band.
+     */
+    fun drag(dx: Float, dy: Float) {
+        if (!moves) return
+        holding = true
+        val reachX = width * 0.38f
+        val reachUp = height * 0.45f
+        val reachDown = height * 0.08f
+        holdX = band(dx, reachX)
+        holdY = if (dy < 0) band(dy, reachUp) else band(dy, reachDown)
+    }
+
+    /** Let go: she springs back to her place, overshoots a little and settles. */
+    fun release() {
+        holding = false
+        holdX = 0f
+        holdY = 0f
+    }
+
+    private fun band(d: Float, reach: Float): Float = if (reach <= 0f) 0f else Math.signum(d) * reach * (1 - kotlin.math.exp(-abs(d) / reach))
+
     /** Where the last touch landed on her, from 0 (top of the leaf) to 1 (her feet). */
     var lastTouch = 0.5f
         private set
@@ -570,12 +616,23 @@ class PeriFace(context: Context) : FrameLayout(context) {
             lastFrame = t
             pressV += (SPRING_K * (pressTarget - pressX) - SPRING_C * pressV) * dt
             pressX += pressV * dt
-            val squash = breath + landing + shape.squash + nod - PRESS_SQUASH * pressX
+            // Dragged, she follows the finger closely; let go, she bounces home.
+            val k = if (holding) DRAG_K else HOME_K
+            val c = if (holding) DRAG_C else HOME_C
+            velX += (k * (holdX - offX) - c * velX) * dt
+            velY += (k * (holdY - offY) - c * velY) * dt
+            offX += velX * dt
+            offY += velY * dt
+            val speed = kotlin.math.sqrt(velX * velX + velY * velY) / density
+            val pull = (speed * 0.00012f).coerceAtMost(0.09f)
+            val squash = breath + landing + shape.squash + nod - PRESS_SQUASH * pressX + pull
             // Two waves at unrelated speeds: her sway never looks like a metronome.
             val sway = (wave(m.tiltMs) + 0.4f * wave((m.tiltMs * 0.61f).toLong())) / 1.4f
-            rig.rotation = sway * m.tilt + shape.tilt
-            rig.translationX = sway * m.sway * density
-            rig.translationY = -(rise * m.bob + lift) * density
+            rig.rotation = sway * m.tilt + shape.tilt + (velX / density * 0.012f).coerceIn(-14f, 14f)
+            rig.translationX = sway * m.sway * density + offX
+            rig.translationY = -(rise * m.bob + lift) * density + offY
+            // Lifted off the ground, her shadow stays behind on it, smaller.
+            if (offY < 0f) rise = maxOf(rise, (-offY / (HOP_DP * 4 * density)).coerceAtMost(1f))
             // Squash and stretch keeps her volume: taller is a touch thinner.
             rig.scaleY = popScale * (1 + squash)
             rig.scaleX = popScale * (1 - squash / 2) * shape.width
@@ -629,6 +686,10 @@ class PeriFace(context: Context) : FrameLayout(context) {
         const val SPRING_K = 260f
         const val SPRING_C = 15f
         const val PRESS_SQUASH = 0.1f
+        const val DRAG_K = 700f
+        const val DRAG_C = 46f
+        const val HOME_K = 190f
+        const val HOME_C = 9f
         const val HOP_MS = 640f
         const val HOP_DP = 18f
         const val STEP_MS = 340L

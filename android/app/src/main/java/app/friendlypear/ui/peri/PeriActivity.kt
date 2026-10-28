@@ -30,7 +30,9 @@ import app.friendlypear.services.PeriHub
 import app.friendlypear.services.PeriView
 
 /**
- * Peri's screen: Peri herself, what she says in a speech bubble, in large letters, and one big button to talk.
+ * Peri's screen, in her world (a sky that follows the hour and her mood, and a place that changes every day), with
+ * four sections along the bottom: Peri, her diary, learning with her and the family. Peri's own section: Peri
+ * standing on her hill, what she says in a speech bubble, in large letters, and one big button to talk.
  * Above, a chip that says whether she's fully protecting the person; below, a card with the setup steps still
  * missing, if any. Permissions are asked one at a time, each with Peri's sentence first: the shield's basics at
  * first start, everything else (microphone, calls, texts, location) the first time it's needed.
@@ -54,6 +56,16 @@ class PeriActivity : Activity() {
     private lateinit var basics: View
     private lateinit var location: View
     private lateinit var sms: View
+    private lateinit var world: PeriWorld
+    private lateinit var tabs: TabBar
+    private lateinit var home: LinearLayout
+    private lateinit var pages: android.widget.FrameLayout
+    private lateinit var wordmark: TextView
+    private var diary: DiaryPage? = null
+    private var learn: LearnPage? = null
+    private var family: FamilyPage? = null
+    private var tab = TAB_PERI
+    private var bars = android.graphics.Insets.NONE
     private var pulse: ObjectAnimator? = null
     private var wantsMini = false
     /** Set while the app steps aside for Mini Peri, so the last resume before that doesn't put her away. */
@@ -75,6 +87,7 @@ class PeriActivity : Activity() {
         face = PeriFace(this).apply {
             isClickable = true
             setOnClickListener { tapped() }
+            setOnTouchListener(touch)
         }
 
         said = TextView(this).apply {
@@ -92,9 +105,6 @@ class PeriActivity : Activity() {
         }
         talk = Pill(this, getString(R.string.talk), R.drawable.ic_mic, primary = true, size = TextSize.TITLE).apply {
             setOnClickListener { listen() }
-        }
-        val family = Pill(this, getString(R.string.family_short), R.drawable.ic_family, primary = false).apply {
-            setOnClickListener { startActivity(Intent(this@PeriActivity, FamilyActivity::class.java)) }
         }
         val mini = Pill(this, getString(R.string.mini_mode), R.drawable.ic_mini, primary = false).apply {
             setOnClickListener { goMini() }
@@ -257,11 +267,11 @@ class PeriActivity : Activity() {
             })
         }
 
-        val wordmark = TextView(this).apply {
+        wordmark = TextView(this).apply {
             text = getString(R.string.app_name)
             sizeSp(TextSize.TITLE)
             maxLines = 1
-            typeface = weight(800)
+            typeface = Fonts.display(700)
             setTextColor(Palette.GREEN_DARK)
         }
         val spacer = View(this)
@@ -274,8 +284,9 @@ class PeriActivity : Activity() {
             setImageResource(R.drawable.ic_settings)
             setColorFilter(Palette.GREEN_DARK)
             contentDescription = getString(R.string.settings_title)
-            background = pressable(rounded(0, dp(24).toFloat()), Palette.RIPPLE_DARK)
-            setPadding(dp(10), dp(10), dp(10), dp(10))
+            // A round white button: it reads on any sky, by day and by night.
+            background = pressable(rounded(Palette.WHITE, dp(24).toFloat()), Palette.RIPPLE_DARK)
+            setPadding(dp(11), dp(11), dp(11), dp(11))
             setOnClickListener { startActivity(Intent(this@PeriActivity, SettingsActivity::class.java)) }
         }
         val header = LinearLayout(this).apply {
@@ -296,14 +307,13 @@ class PeriActivity : Activity() {
             addView(settings, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginStart = dp(10) })
         }
         val secondary = LinearLayout(this).apply {
-            addView(family, LinearLayout.LayoutParams(0, dp(60), 1f).apply { marginEnd = dp(6) })
+            addView(look, LinearLayout.LayoutParams(0, dp(60), 1f).apply { marginEnd = dp(6) })
             addView(mini, LinearLayout.LayoutParams(0, dp(60), 1f).apply { marginStart = dp(6) })
         }
-        val root = LinearLayout(this).apply {
+        home = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            // Cream like Peri's world; ink text on it is 14:1.
-            background = ground()
             clipChildren = false
+            clipToPadding = false
             addView(header)
             addView(android.widget.FrameLayout(this@PeriActivity).apply {
                 clipChildren = false
@@ -315,23 +325,49 @@ class PeriActivity : Activity() {
                 ).apply { bottomMargin = dp(10) })
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(4) })
             addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-            addView(web, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
-            addView(report, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
-            addView(setup, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
-            addView(talk, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(80)).apply { topMargin = dp(16) })
-            addView(look, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(60)).apply { topMargin = dp(12) })
+            addView(web, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
+            addView(report, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
+            addView(setup, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
+            addView(talk, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(76)).apply { topMargin = dp(14) })
             addView(secondary, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) })
         }
-        // Edge to edge: the cream goes under the status and navigation bars, the content stays clear of them.
-        val pad = dp(20)
-        root.setOnApplyWindowInsetsListener { v, insets ->
-            val bars = insets.getInsets(WindowInsets.Type.systemBars())
-            v.setPadding(pad + bars.left, dp(8) + bars.top, pad + bars.right, pad + bars.bottom)
+        world = PeriWorld(this).apply { onTone = { applyTone(it) } }
+        pages = android.widget.FrameLayout(this).apply {
+            clipChildren = false
+            addView(home, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
+        }
+        tabs = TabBar(
+            this,
+            listOf(
+                TabBar.Tab(R.drawable.ic_pear, getString(R.string.tab_peri), Palette.GREEN_TINT, Palette.GREEN_DARK),
+                TabBar.Tab(R.drawable.ic_diary, getString(R.string.tab_diary), Palette.SUN_TINT, Palette.AMBER_INK),
+                TabBar.Tab(R.drawable.ic_learn, getString(R.string.tab_learn), Palette.SKY_TINT, Palette.SKY_INK),
+                TabBar.Tab(R.drawable.ic_family, getString(R.string.family_short), Palette.LILAC_TINT, Palette.LILAC_INK),
+            ),
+        ) { showTab(it) }
+        tabs.select(TAB_PERI, animate = false)
+        val root = android.widget.FrameLayout(this).apply {
+            addView(world, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
+            addView(pages, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
+            addView(tabs, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, dp(TAB_BAR_DP), Gravity.BOTTOM).apply {
+                leftMargin = dp(12)
+                rightMargin = dp(12)
+            })
+        }
+        // Edge to edge: the world goes under the status and navigation bars, the sections stay clear of them.
+        root.setOnApplyWindowInsetsListener { _, insets ->
+            bars = insets.getInsets(WindowInsets.Type.systemBars())
+            padPages()
+            tabs.layoutParams = (tabs.layoutParams as android.widget.FrameLayout.LayoutParams).apply { bottomMargin = bars.bottom + dp(8) }
             insets
         }
+        // Wherever Peri ends up (a longer sentence makes her smaller), her hill rises to her feet.
+        home.viewTreeObserver.addOnGlobalLayoutListener { placeGround() }
         setContentView(root)
+        applyTone(world.dark)
         // The screen says hello: Peri first, then her bubble and the buttons, one by one.
-        listOf(said, setup, talk, look, secondary).forEachIndexed { i, v -> v.floatIn(80L + 70L * i) }
+        listOf(said, setup, talk, secondary).forEachIndexed { i, v -> v.floatIn(80L + 70L * i) }
+        tabs.floatIn(360)
         if (savedInstanceState == null) face.post { face.enter() }
 
         // This screen shows Android's dialog whenever Peri needs a permission, now or later.
@@ -350,6 +386,93 @@ class PeriActivity : Activity() {
         } else {
             firstStart()
         }
+    }
+
+    /** The sections' scrolls clear the status bar at the top and the tab bar at the bottom. */
+    private fun padPages() {
+        val side = dp(20)
+        val bottom = dp(TAB_BAR_DP) + bars.bottom + dp(8) + dp(14)
+        home.setPadding(side + bars.left, dp(8) + bars.top, side + bars.right, bottom)
+        listOfNotNull(diary, learn, family).forEach { it.setPadding(dp(16) + bars.left, dp(12) + bars.top, dp(16) + bars.right, bottom) }
+    }
+
+    /**
+     * Another section: the one on show fades away and the new one rises into place, built again from what's on the
+     * phone now. Peri's hills sink to make room, and come back to her feet on her section.
+     */
+    private fun showTab(next: Int) {
+        if (next == tab) return
+        val from = page(tab)
+        val to = page(next)
+        tab = next
+        tabs.select(next)
+        if (to is Page) {
+            to.refresh()
+            to.scrollTo(0, 0)
+        }
+        to.animate().cancel()
+        from.animate().cancel()
+        to.visibility = View.VISIBLE
+        if (animationsOn()) {
+            from.animate().alpha(0f).setDuration(110).withEndAction {
+                from.visibility = View.GONE
+                from.alpha = 1f
+            }.start()
+            to.alpha = 0f
+            to.translationY = dp(18).toFloat()
+            to.animate().alpha(1f).translationY(0f).setDuration(240).setInterpolator(android.view.animation.DecelerateInterpolator(1.6f)).start()
+        } else {
+            from.visibility = View.GONE
+            to.alpha = 1f
+        }
+        placeGround()
+        if (next == TAB_PERI) showSetup()
+    }
+
+    private fun page(index: Int): View = when (index) {
+        TAB_DIARY -> diary ?: DiaryPage(this, hub).also {
+            diary = it
+            addPage(it)
+        }
+        TAB_LEARN -> learn ?: LearnPage(this, hub) { startActivity(it) }.also {
+            learn = it
+            addPage(it)
+        }
+        TAB_FAMILY -> family ?: FamilyPage(this, hub) { startActivity(it) }.also {
+            family = it
+            addPage(it)
+        }
+        else -> home
+    }
+
+    private fun addPage(page: Page) {
+        page.visibility = View.GONE
+        pages.addView(page, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
+        padPages()
+    }
+
+    /** On Peri's section her hill reaches her feet; on the others it stays low, behind the tab bar. */
+    private fun placeGround() {
+        if (!::world.isInitialized || world.height == 0) return
+        if (tab != TAB_PERI || face.height == 0) return world.setGround(world.height - dp(GROUND_LOW_DP).toFloat())
+        val at = IntArray(2).also { face.getLocationInWindow(it) }
+        val origin = IntArray(2).also { world.getLocationInWindow(it) }
+        world.setGround(at[1] - origin[1] + face.feetY + dp(3))
+    }
+
+    /** By night the sky is dark: the name turns light, and so do the system bars' icons. */
+    private fun applyTone(dark: Boolean) {
+        wordmark.setTextColor(if (dark) Palette.CREAM else Palette.GREEN_DARK)
+        val light = android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+        window.insetsController?.setSystemBarsAppearance(if (dark) 0 else light, light)
+    }
+
+    /** Back from another section goes to Peri's; from hers, it leaves as usual. */
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (tab != TAB_PERI) return showTab(TAB_PERI)
+        @Suppress("DEPRECATION")
+        super.onBackPressed()
     }
 
     /** What Peri says, at most about a quarter of the screen tall, so she always has room. */
@@ -394,8 +517,6 @@ class PeriActivity : Activity() {
         }
         said.post(typing)
     }
-
-    private fun animationsOn() = Settings.Global.getFloat(contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 1f) > 0f
 
     /** She glances towards a touch on the screen beside her. */
     override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
@@ -501,11 +622,17 @@ class PeriActivity : Activity() {
         hub.appVisible = true
         showFace(hub.mood)
         face.speaking(hub.speaking)
-        if (!greeted && asked.getBoolean(WelcomeActivity.WELCOMED, false)) {
+        val now = System.currentTimeMillis()
+        val away = now - asked.getLong(LAST_SEEN, now)
+        if ((!greeted || away > PEEKABOO_MS) && asked.getBoolean(WelcomeActivity.WELCOMED, false)) {
+            val first = !greeted
             greeted = true
             face.greet()
-            greet()
+            greet(away, first)
         }
+        world.refreshPlace()
+        if (tab != TAB_PERI) (page(tab) as? Page)?.refresh()
+        sensors?.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER)?.let { sensors?.registerListener(shake, it, android.hardware.SensorManager.SENSOR_DELAY_UI) }
         showShieldCount(hub.shields.total, pop = false)
         congratulate()
         showSetup()
@@ -521,21 +648,38 @@ class PeriActivity : Activity() {
     }
 
     /**
-     * Peri's hello, by the time of day and a little different each time. It's written every time the app opens,
-     * and said aloud only the first time each day: a friend, not a chatterbox.
+     * Peri's hello, by the time of day and a little different each time: a big hello after days apart, a peekaboo
+     * after hours, her scarf on winter mornings, and her cape once all is calm after she stopped a scam. It's written
+     * every time the app opens, and said aloud only the first time each day: a friend, not a chatterbox.
      */
-    private fun greet() {
-        if (hub.lastSaid.isNotEmpty() || hub.isWaitingForAnswer) return
-        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-        val list = when (hour) {
-            in 6..12 -> R.array.greet_morning
-            in 13..19 -> R.array.greet_afternoon
-            in 20..22 -> R.array.greet_evening
+    private fun greet(away: Long, first: Boolean) {
+        if (hub.isWaitingForAnswer || hub.mood != Mood.CALM) return
+        // A fresh start keeps what she last said (a warning still matters); after hours away she says hello anew.
+        if (hub.lastSaid.isNotEmpty() && away <= PEEKABOO_MS && first) return
+        val cal = Calendar.getInstance()
+        val hour = cal.get(Calendar.HOUR_OF_DAY)
+        val winter = cal.get(Calendar.MONTH) in setOf(Calendar.DECEMBER, Calendar.JANUARY, Calendar.FEBRUARY)
+        val scam = hub.lastScam.load()
+        val hero = scam != null && asked.getLong(HERO_FOR, 0L) != scam.at && System.currentTimeMillis() - scam.at > HERO_AFTER_MS
+        val list = when {
+            hero -> R.array.peri_hero
+            away > RETURN_MS -> R.array.greet_return
+            away > PEEKABOO_MS -> R.array.peri_peekaboo
+            winter && hour in 7..12 -> R.array.greet_winter
+            hour in 7..12 -> R.array.greet_morning
+            hour in 13..19 -> R.array.greet_afternoon
+            hour in 20..21 -> R.array.greet_evening
             else -> R.array.greet_night
         }
-        val text = resources.getStringArray(list).random() + (shieldsLine()?.let { " $it" } ?: "")
-        // At night she says hello with a yawn instead of a wave.
-        if (list == R.array.greet_night) face.postDelayed({ face.moment(app.friendlypear.services.PeriMoment.YAWN) }, YAWN_DELAY_MS)
+        if (hero) asked.edit().putLong(HERO_FOR, scam!!.at).apply()
+        val text = Lines.next(this, list) + (shieldsLine()?.let { " $it" } ?: "")
+        // At night she says hello with a yawn instead of a wave; back after a while, with her heart.
+        when (list) {
+            R.array.greet_night -> face.postDelayed({ face.moment(app.friendlypear.services.PeriMoment.YAWN) }, YAWN_DELAY_MS)
+            R.array.peri_peekaboo, R.array.greet_return -> face.postDelayed({ face.moment(app.friendlypear.services.PeriMoment.PEEKABOO) }, YAWN_DELAY_MS)
+            R.array.peri_hero -> face.postDelayed({ face.moment(app.friendlypear.services.PeriMoment.HERO) }, YAWN_DELAY_MS)
+            R.array.greet_winter -> face.postDelayed({ face.moment(app.friendlypear.services.PeriMoment.SCARF) }, YAWN_DELAY_MS)
+        }
         val today = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
         if (asked.getInt(GREETED_DAY, -1) != today) {
             asked.edit().putInt(GREETED_DAY, today).apply()
@@ -587,7 +731,7 @@ class PeriActivity : Activity() {
         shieldsChip.scaleX = 0.5f
         shieldsChip.scaleY = 0.5f
         shieldsChip.animate().scaleX(1f).scaleY(1f).setDuration(420).setInterpolator(android.view.animation.OvershootInterpolator(3f)).start()
-        face.sparkle()
+        face.moment(app.friendlypear.services.PeriMoment.MEDAL)
     }
 
     /** What each shield was for, in a small card over the screen. */
@@ -609,6 +753,7 @@ class PeriActivity : Activity() {
                 app.friendlypear.config.Shields.Kind.STOPPED to R.string.shields_stopped,
                 app.friendlypear.config.Shields.Kind.ASKED to R.string.shields_asked,
                 app.friendlypear.config.Shields.Kind.FAMILY to R.string.shields_family,
+                app.friendlypear.config.Shields.Kind.LEARNED to R.string.shields_learned,
             ).forEach { (kind, label) ->
                 addView(LinearLayout(this@PeriActivity).apply {
                     gravity = Gravity.CENTER_VERTICAL
@@ -630,15 +775,10 @@ class PeriActivity : Activity() {
 
     private val taps = ArrayDeque<Long>()
     private val single = Runnable { tappedOnce() }
-    /** Each kind of answer goes round its own shuffled list, so nothing repeats until all were heard. */
-    private val decks = HashMap<Int, ArrayDeque<String>>()
     private var round = 0
 
-    private fun next(array: Int): String {
-        val deck = decks.getOrPut(array) { ArrayDeque() }
-        if (deck.isEmpty()) deck.addAll(resources.getStringArray(array).toList().shuffled())
-        return deck.removeFirst()
-    }
+    /** Each kind of answer goes round its own shuffled list, so nothing repeats until all were heard. */
+    private fun next(array: Int): String = Lines.next(this, array)
 
     /**
      * Tapping Peri. One tap (she waits a moment, in case more follow): where you touched her (the leaf, her
@@ -704,6 +844,127 @@ class PeriActivity : Activity() {
         }
     }
 
+    /**
+     * Playing with Peri, beyond taps: hold her and she gets the giggles, drag her and she comes back with a bounce,
+     * rub her leaf and she melts, shake the phone and she gets dizzy. Never while she's warning or waiting for an
+     * answer: the danger comes first.
+     */
+    private val touch = object : View.OnTouchListener {
+        private var downX = 0f
+        private var downY = 0f
+        private var lastX = 0f
+        private var direction = 0f
+        private var turns = 0
+        private var onLeaf = false
+        private var dragging = false
+        private var tickling = false
+        private var rubbed = false
+        private val slop by lazy { android.view.ViewConfiguration.get(this@PeriActivity).scaledTouchSlop }
+        private val tickle = Runnable {
+            if (!playful()) return@Runnable
+            tickling = true
+            hub.haptics.listening()
+            face.moment(app.friendlypear.services.PeriMoment.LAUGH)
+            face.play(PeriFace.Trick.DANCE)
+            if (!hub.speaking) hub.say(next(R.array.peri_tickle))
+        }
+
+        override fun onTouch(v: View, e: android.view.MotionEvent): Boolean {
+            when (e.actionMasked) {
+                android.view.MotionEvent.ACTION_DOWN -> {
+                    downX = e.rawX
+                    downY = e.rawY
+                    lastX = e.x
+                    direction = 0f
+                    turns = 0
+                    dragging = false
+                    tickling = false
+                    rubbed = false
+                    onLeaf = face.lastTouch < LEAF_TOP
+                    face.postDelayed(tickle, TICKLE_MS)
+                }
+                android.view.MotionEvent.ACTION_MOVE -> {
+                    val dx = e.rawX - downX
+                    val dy = e.rawY - downY
+                    // Rubbing her leaf: the finger goes back and forth on top of her head.
+                    if (onLeaf && !dragging && !rubbed) {
+                        val step = e.x - lastX
+                        if (kotlin.math.abs(step) > slop / 3f) {
+                            val now = Math.signum(step)
+                            if (direction != 0f && now != direction) turns++
+                            direction = now
+                            lastX = e.x
+                        }
+                        if (turns >= LEAF_RUBS && playful()) {
+                            rubbed = true
+                            face.removeCallbacks(tickle)
+                            face.moment(app.friendlypear.services.PeriMoment.LOVE)
+                            if (!hub.speaking) hub.say(next(R.array.peri_leaf))
+                        }
+                    }
+                    val far = kotlin.math.hypot(dx, dy) > slop * (if (onLeaf) 4 else 2)
+                    if (far) face.removeCallbacks(tickle)
+                    if (!dragging && !tickling && !rubbed && far && playful() && animationsOn()) {
+                        dragging = true
+                        face.moment(app.friendlypear.services.PeriMoment.SURPRISED)
+                    }
+                    if (dragging) face.drag(dx, dy)
+                }
+                android.view.MotionEvent.ACTION_UP -> {
+                    face.removeCallbacks(tickle)
+                    val moved = kotlin.math.hypot(e.rawX - downX, e.rawY - downY)
+                    when {
+                        dragging -> {
+                            face.release()
+                            face.postDelayed({ face.play(PeriFace.Trick.HOP) }, HOME_MS)
+                            if (!hub.speaking) hub.say(next(R.array.peri_drag))
+                        }
+                        tickling || rubbed -> Unit
+                        moved < slop * 2 -> v.performClick()
+                    }
+                }
+                android.view.MotionEvent.ACTION_CANCEL -> {
+                    face.removeCallbacks(tickle)
+                    if (dragging) face.release()
+                }
+            }
+            return true
+        }
+    }
+
+    /** Peri plays only when all is calm (or she's asleep), never in the middle of a warning or a question. */
+    private fun playful(): Boolean = tab == TAB_PERI && !hub.isWaitingForAnswer && hub.mood in PLAYFUL
+
+    /** Shaking the phone (three strong jolts within a second) makes her spin and get dizzy. */
+    private val shake = object : android.hardware.SensorEventListener {
+        private val jolts = ArrayDeque<Long>()
+        private var lastJolt = 0L
+        private var lastShake = 0L
+
+        override fun onSensorChanged(event: android.hardware.SensorEvent) {
+            val x = event.values[0]
+            val y = event.values[1]
+            val z = event.values[2]
+            val g = kotlin.math.sqrt(x * x + y * y + z * z) / android.hardware.SensorManager.GRAVITY_EARTH
+            if (g < SHAKE_G) return
+            val now = android.os.SystemClock.uptimeMillis()
+            if (now - lastJolt < JOLT_GAP_MS) return
+            lastJolt = now
+            jolts.addLast(now)
+            while (jolts.isNotEmpty() && now - jolts.first() > 1_000) jolts.removeFirst()
+            if (jolts.size < 3 || now - lastShake < 4_000 || !playful()) return
+            lastShake = now
+            jolts.clear()
+            face.play(PeriFace.Trick.SPIN)
+            face.postDelayed({ face.moment(app.friendlypear.services.PeriMoment.DIZZY) }, SPIN_SETTLE_MS)
+            if (!hub.speaking) hub.say(next(R.array.peri_shake))
+        }
+
+        override fun onAccuracyChanged(sensor: android.hardware.Sensor?, accuracy: Int) = Unit
+    }
+
+    private val sensors by lazy { getSystemService(android.hardware.SensorManager::class.java) }
+
     /** The chip and the setup card: what's still missing for Peri to protect the person fully. */
     private fun showSetup() {
         val noAccess = !hasNotificationAccess()
@@ -758,7 +1019,9 @@ class PeriActivity : Activity() {
     }
 
     override fun onPause() {
+        sensors?.unregisterListener(shake)
         resumed = false
+        asked.edit().putLong(LAST_SEEN, System.currentTimeMillis()).apply()
         // Off screen (the call screen, another app), Peri doesn't keep listening.
         voice.stop()
         hub.detach(view)
@@ -838,21 +1101,26 @@ class PeriActivity : Activity() {
         wantsMini = false
         hub.permissions.ask(Need.MIC) {
             leaving = true
+            face.moment(app.friendlypear.services.PeriMoment.BYE)
+            hub.say(next(R.array.peri_bye))
             MiniPeriService.start(this)
             moveTaskToBack(true)
         }
     }
 
-    /** The agent's mood, plus what only the screen knows: the microphone is open, or it's night and all is calm. */
+    /**
+     * The agent's mood, plus what only the screen knows: the microphone is open, or it's night and all is calm.
+     * Her world shows it too: a coral veil while she warns, confetti when she's happy, night while she sleeps.
+     */
     private fun showFace(mood: Mood) {
         val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-        face.show(
-            when {
-                listening -> Mood.LISTENING
-                mood == Mood.CALM && (hour >= 22 || hour < 8) -> Mood.SLEEPING
-                else -> mood
-            },
-        )
+        val shown = when {
+            listening -> Mood.LISTENING
+            mood == Mood.CALM && (hour >= 22 || hour < 7) -> Mood.SLEEPING
+            else -> mood
+        }
+        face.show(shown)
+        if (::world.isInitialized) world.mood(shown)
     }
 
     /** The microphone is asked the first time the person presses the button. */
@@ -886,6 +1154,29 @@ class PeriActivity : Activity() {
         const val NOTIFICATIONS = "notifications"
         const val LOCATION_ASKED = "location_setup"
         const val GREETED_DAY = "greeted_day"
+        const val LAST_SEEN = "last_seen"
+        const val HERO_FOR = "hero_for"
+        /** Away this long, she says "peekaboo"; this long, she missed the person. */
+        const val PEEKABOO_MS = 3 * 60 * 60_000L
+        const val RETURN_MS = 2 * 24 * 60 * 60_000L
+        /** Her cape comes out once things have calmed down after a scam, not in the middle of it. */
+        const val HERO_AFTER_MS = 30 * 60_000L
+        /** Touches above this share of her picture are on her leaf. */
+        const val LEAF_TOP = 0.3f
+        const val LEAF_RUBS = 3
+        const val TICKLE_MS = 550L
+        /** About when she's back in her place after being dragged. */
+        const val HOME_MS = 420L
+        const val SHAKE_G = 2.3f
+        const val JOLT_GAP_MS = 120L
+        val PLAYFUL = setOf(Mood.CALM, Mood.HAPPY, Mood.SLEEPING)
+        const val TAB_PERI = 0
+        const val TAB_DIARY = 1
+        const val TAB_LEARN = 2
+        const val TAB_FAMILY = 3
+        const val TAB_BAR_DP = 76
+        /** Off Peri's section, how far above the bottom her hills stay. */
+        const val GROUND_LOW_DP = 92
         const val DISMISS_SMS = "dismiss_sms"
         const val DISMISS_USAGE = "dismiss_usage"
         /** What Peri can't protect without: who is family, and whether a call is going on. */

@@ -74,6 +74,41 @@ class SettingsActivity : Activity() {
             topMargin = dp(14)
         })
 
+        // Peri's world: a different place each day with the season, or the one the person likes best.
+        val places = getSharedPreferences(PeriWorld.PREFS, MODE_PRIVATE)
+        val chosenPlace = places.getString(PeriWorld.PLACE, PeriWorld.AUTO)
+        val worldCard = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = cardBackground()
+            setPadding(dp(18), dp(16), dp(18), dp(18))
+            addView(heading(getString(R.string.settings_world), TextSize.BODY))
+            addView(body(getString(R.string.settings_world_note), TextSize.SMALL).apply { setPadding(0, dp(4), 0, dp(6)) })
+            addView(RadioGroup(this@SettingsActivity).apply {
+                listOf(
+                    PeriWorld.AUTO to R.string.place_auto,
+                    PeriWorld.Place.MEADOW.name to R.string.place_meadow,
+                    PeriWorld.Place.ORCHARD.name to R.string.place_orchard,
+                    PeriWorld.Place.SEASIDE.name to R.string.place_seaside,
+                    PeriWorld.Place.AUTUMN.name to R.string.place_autumn,
+                    PeriWorld.Place.SNOW.name to R.string.place_snow,
+                ).forEach { (key, label) ->
+                    addView(RadioButton(this@SettingsActivity).apply {
+                        id = View.generateViewId()
+                        text = getString(label)
+                        sizeSp(TextSize.BODY)
+                        typeface = weight(600)
+                        setTextColor(Palette.INK)
+                        minHeight = dp(56)
+                        isChecked = key == chosenPlace
+                        setOnClickListener { places.edit().putString(PeriWorld.PLACE, key).apply() }
+                    })
+                }
+            })
+        }
+        list.addView(worldCard, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+            topMargin = dp(14)
+        })
+
         // Peri's ears: Muse Voice Transcribe understands older voices better, but the order leaves the phone.
         val hub = app.friendlypear.PeriApp.hub(this)
         val ears = LinearLayout(this).apply {

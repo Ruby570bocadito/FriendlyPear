@@ -85,8 +85,12 @@ interface PeriView {
     fun scamToReport() = Unit
 }
 
-/** A pose Peri strikes for a couple of seconds: an idea, sorry, a thumbs up, a laugh, her heart, dizzy, a yawn, a letter. */
-enum class PeriMoment { IDEA, SORRY, THUMBS_UP, LAUGH, LOVE, DIZZY, YAWN, LETTER }
+/**
+ * A pose Peri strikes for a couple of seconds: an idea, sorry, a thumbs up, a laugh, her heart, dizzy, a yawn, a
+ * letter; and since round 2 her cape, a medal, peekaboo, a clap, her detective hat, a surprise, a party, her reading
+ * glasses, her winter scarf and a goodbye.
+ */
+enum class PeriMoment { IDEA, SORRY, THUMBS_UP, LAUGH, LOVE, DIZZY, YAWN, LETTER, HERO, MEDAL, PEEKABOO, CLAP, DETECTIVE, SURPRISED, PARTY, GLASSES, SCARF, BYE }
 
 /**
  * Owns the one [PeriAgent] of the app and feeds it on the main thread: messages from [MessageListener],
@@ -127,6 +131,9 @@ class PeriHub(context: Context) {
 
     /** One for each scam stopped and each time the person asks before acting. */
     val shields = Shields(this.context)
+
+    /** What Peri did, for the "Diary" section: a word or two per entry, never a message's text or sender. */
+    val diary = app.friendlypear.config.Diary(this.context)
 
     /** A website's junk notice, to silence that site: [onWebNotice] keeps it until the verdict says it's junk. */
     val webNotices = WebNotice(this.context)
@@ -196,8 +203,14 @@ class PeriHub(context: Context) {
             agent.onPauseAnswer(answer)
             if (answer == PauseAnswer.LEAVE) views.forEach { it.moment(PeriMoment.THUMBS_UP) }
             when (answer) {
-                PauseAnswer.LEAVE -> earn(Shields.Kind.STOPPED)
-                PauseAnswer.CALL_FAMILY -> earn(Shields.Kind.FAMILY)
+                PauseAnswer.LEAVE -> {
+                    earn(Shields.Kind.STOPPED)
+                    diary.add(app.friendlypear.config.Diary.Kind.PAUSE_LEFT)
+                }
+                PauseAnswer.CALL_FAMILY -> {
+                    earn(Shields.Kind.FAMILY)
+                    diary.add(app.friendlypear.config.Diary.Kind.FAMILY_CALLED)
+                }
                 PauseAnswer.CONTINUE -> Unit
             }
             share(NewsEntry(System.currentTimeMillis(), "pause", answer = answer.name.lowercase()))
@@ -225,6 +238,7 @@ class PeriHub(context: Context) {
                     return@execute
                 }
                 earn(Shields.Kind.FAMILY)
+                main.post { diary.add(app.friendlypear.config.Diary.Kind.FAMILY_ASKED) }
                 val text = smsFor(created.url)
                 val sent = guardians.count { g -> g.phones.firstOrNull()?.let { runCatching { device.sendSms(it, text) }.isSuccess } == true }
                 Log.i(TAG, "approval requested, texted $sent of ${guardians.size} guardian(s)")
@@ -519,8 +533,10 @@ class PeriHub(context: Context) {
             val signals = verdict.signals.map { it.name }
             val kind = app.friendlypear.ui.peri.TrapActivity.kindOf(signals, verdict.brand)
             lastScam.save(LastScam.Scam(message.channel.name, message.sender, message.text, message.receivedAtMillis, verdict.explanation, signals, kind))
+            diary.add(app.friendlypear.config.Diary.Kind.SCAM_STOPPED, kind)
             views.forEach { it.scamToReport() }
         }
+        if (level == Level.DOUBT) diary.add(app.friendlypear.config.Diary.Kind.DOUBT_CHECKED)
         val name = when (level) {
             Level.SCAM -> "scam"
             Level.DOUBT -> "doubt"

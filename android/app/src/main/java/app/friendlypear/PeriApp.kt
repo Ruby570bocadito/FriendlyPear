@@ -11,6 +11,7 @@ class PeriApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        app.friendlypear.ui.peri.Fonts.init(this)
         // The process starts with the phone (the message listener), so the daily check is set up again after a reboot.
         app.friendlypear.services.SummaryReceiver.schedule(this)
     }

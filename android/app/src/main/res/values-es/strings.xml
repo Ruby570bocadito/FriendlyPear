@@ -24,7 +24,7 @@
     <string name="usage_access">Dejar que Peri note la app del banco en las llamadas</string>
     <string name="why_usage">Los falsos bancos te piden abrir la app del banco sin colgar. Para avisarte, necesito ver qué app está abierta, solo durante una llamada que hayas descolgado. En la pantalla siguiente, activa FriendlyPear. Nunca veo lo que haces dentro de tus apps.</string>
     <string name="family_title">Configurar la familia</string>
-    <string name="family_intro">Hacedlo juntos. Los guardianes reciben avisos y aprueban lo arriesgado, pero no pueden leer tus mensajes ni mover dinero. Todo se queda en este móvil.</string>
+    <string name="family_intro">Hacedlo en familia. Los guardianes reciben avisos y aprueban lo arriesgado, pero no pueden leer tus mensajes ni mover dinero. Todo se queda en este móvil.</string>
     <string name="family_word_agreed">Hemos acordado una palabra de la familia</string>
     <string name="family_word_note">Una palabra secreta que solo sabe tu familia, para distinguir una llamada de verdad de una voz clonada. Peri nunca la guarda ni la dice: solo te recuerda que la pidas.</string>
     <string name="family_no_contacts">Para elegir a tus guardianes, Peri necesita ver tus contactos. Nunca salen de este móvil.</string>
@@ -157,13 +157,13 @@
     <string-array name="greet_evening">
         <item>¡Buenas tardes-noches! Hora de descansar un poquito. Aquí estoy.</item>
         <item>¡Buenas noches! ¿Te ha pasado algo bonito hoy?</item>
-        <item>¡Buenas noches! ¿Miramos juntas tus mensajes?</item>
+        <item>¡Buenas noches! ¿Te ayudo a mirar tus mensajes?</item>
         <item>¡Buenas noches! Si esta noche llega un mensaje raro, enséñamelo primero.</item>
         <item>¡Buenas noches! Hora de descansar los pies. Yo vigilo.</item>
     </string-array>
     <string-array name="greet_night">
         <item>¡Qué tarde es! Yo vigilo mientras descansas.</item>
-        <item>¡Hola, trasnochador! Aquí estoy si me necesitas.</item>
+        <item>¡Hola! ¿Noche larga? Aquí estoy si me necesitas.</item>
         <item>Shh… ya es de noche. Te hago compañía.</item>
         <item>¿Todavía sin dormir? Lo que no sea urgente puede esperar a mañana.</item>
         <item>¡Que descanses! Yo me quedo despierta para que tú no tengas que hacerlo.</item>
@@ -241,7 +241,7 @@
         <item>¿Te he dicho ya que me caes genial?</item>
         <item>Si algo te preocupa, cuéntamelo. Para eso estoy.</item>
         <item>Gracias por cuidarte. Tu familia también lo agradece.</item>
-        <item>Un ratito juntos siempre me pone de buen humor.</item>
+        <item>Un ratito contigo siempre me pone de buen humor.</item>
         <item>Preguntar antes de actuar es lo más listo que se puede hacer. Me siento muy orgullosa.</item>
         <item>Pase lo que pase, lo resolvemos en equipo.</item>
     </string-array>
@@ -266,7 +266,7 @@
         <item>¡Todo da vueltas! Soy una pera peonza.</item>
     </string-array>
     <string-array name="peri_giveup">
-        <item>¡Vale, vale, me rindo! Eres más rápido que yo.</item>
+        <item>¡Vale, vale, me rindo! Me ganas en rapidez.</item>
         <item>¡Jajaja! Me has ganado. ¿Seguimos otro ratito?</item>
         <item>¡No puedo seguirte el ritmo! Eres de campeonato.</item>
         <item>¡Uf! Déjame recuperar el aliento. ¡Qué divertido!</item>
@@ -454,4 +454,336 @@
     <string name="web_dns_copy">Copiar el nombre</string>
     <string name="web_dns_open">Abrir ajustes</string>
     <string name="web_dns_copied">Copiado: %1$s. Pégalo en DNS privado.</string>
+    <!-- Round 2: Peri's world, her sections and her new lines. -->
+    <string name="tab_peri">Peri</string>
+    <string name="tab_diary">Diario</string>
+    <string name="tab_learn">Aprende</string>
+    <string name="diary_title">El diario de Peri</string>
+    <string name="diary_today">Hoy</string>
+    <string name="diary_yesterday">Ayer</string>
+    <string name="diary_empty">Todavía no ha pasado nada, ¡y eso es buena señal! Aquí apuntaré todo lo que haga por ti.</string>
+    <string name="diary_scam_parcel">Paré un mensaje falso de un paquete</string>
+    <string name="diary_scam_link">Paré un mensaje que se hacía pasar por tu banco o una empresa</string>
+    <string name="diary_scam_code">Paré a alguien que quería tu código</string>
+    <string name="diary_scam_family">Paré a alguien que se hacía pasar por tu familia</string>
+    <string name="diary_scam_remote">Paré a un falso técnico que quería tu móvil</string>
+    <string name="diary_scam_prize">Paré un premio demasiado bueno para ser verdad</string>
+    <string name="diary_doubt">Revisé contigo un mensaje dudoso</string>
+    <string name="diary_pause_left">Saliste a tiempo de una app de dinero</string>
+    <string name="diary_family_called">Elegiste llamar antes a tu familia</string>
+    <string name="diary_family_asked">Pregunté a tu familia antes de seguir</string>
+    <string name="diary_web">Callamos los avisos basura de una web</string>
+    <string name="diary_quiz">Jugaste a ¿Timo o no?: %1$s aciertos</string>
+    <string name="diary_call">Llamé a %1$s por ti</string>
+    <string name="diary_text">Mandé un SMS a %1$s por ti</string>
+    <string name="diary_location">Compartí dónde estabas con tu familia</string>
+    <string name="diary_picture">Miré contigo una imagen</string>
+    <string name="diary_voice">Escuché algo que me pediste</string>
+    <string name="diary_report">Escribí la denuncia de un timo</string>
+    <string name="learn_title">Aprende con Peri</string>
+    <string name="learn_traps_title">Trampas que conozco</string>
+    <string name="learn_tips_title">Mis reglas de oro</string>
+    <string name="tip_1">Nadie de verdad te pide códigos ni contraseñas por mensaje.</string>
+    <string name="tip_2">Si te meten prisa, para y respira.</string>
+    <string name="tip_3">Llama tú al número de siempre.</string>
+    <string name="tip_4">Antes de pagar o dar datos, pregúntame.</string>
+    <string name="trap_name_parcel">El paquete retenido</string>
+    <string name="trap_name_link">El falso banco</string>
+    <string name="trap_name_code">El código</string>
+    <string name="trap_name_family">El falso familiar</string>
+    <string name="trap_name_remote">El falso técnico</string>
+    <string name="trap_name_prize">El gran premio</string>
+    <string name="family_page_title">Tu familia</string>
+    <string name="family_guardians_title">Tus guardianes</string>
+    <string name="family_no_guardians">Todavía nadie. Elige a las personas de confianza en «Cambiar mi familia».</string>
+    <string name="family_word_yes">Tenéis una palabra de la familia</string>
+    <string name="family_word_no">Aún no hay palabra de la familia: acordadla en persona</string>
+    <string name="family_news_on">Tus guardianes ven las novedades de Peri</string>
+    <string name="family_news_off">Tus guardianes no ven las novedades de Peri</string>
+    <string name="family_pending_short">Un cambio de guardianes espera su sí</string>
+    <string name="family_change">Cambiar mi familia</string>
+    <string name="quiz_title">¿Timo o no?</string>
+    <string name="quiz_card_text">Te enseño unos mensajes y tú decides si son trampa.</string>
+    <string name="quiz_play">Jugar</string>
+    <string name="quiz_best">Tu mejor partida: %1$d de %2$d</string>
+    <string name="quiz_scam_button">Es trampa</string>
+    <string name="quiz_ok_button">Es de fiar</string>
+    <string name="quiz_was_scam">Era trampa</string>
+    <string name="quiz_was_ok">Era de fiar</string>
+    <string name="quiz_next">Siguiente</string>
+    <string name="quiz_see_result">Ver mi resultado</string>
+    <string name="quiz_progress">%1$d de %2$d</string>
+    <string name="quiz_score">Aciertos: %1$d de %2$d</string>
+    <string name="quiz_again">Jugar otra vez</string>
+    <string name="quiz_back">Volver con Peri</string>
+    <string name="quiz_channel_sms">SMS</string>
+    <string name="quiz_channel_whatsapp">WhatsApp</string>
+    <string name="quiz_channel_call">Llamada</string>
+    <string name="quiz_link_note">Los enlaces de aquí son de mentira: tocarlos no hace nada.</string>
+    <string name="shields_learned">Partidas de ¿Timo o no? bien jugadas</string>
+    <string name="settings_world">El mundo de Peri</string>
+    <string name="settings_world_note">El lugar de Peri cambia cada día con la estación. Si lo prefieres, deja uno fijo.</string>
+    <string name="place_auto">Cambia cada día</string>
+    <string name="place_meadow">Pradera</string>
+    <string name="place_orchard">Huerto</string>
+    <string name="place_seaside">Playa</string>
+    <string name="place_autumn">Colinas de otoño</string>
+    <string name="place_snow">Nieve</string>
+    <string name="back">Volver</string>
+    <plurals name="quiz_intro">
+        <item quantity="one">Te enseño %1$d mensaje. ¿Es trampa o es de fiar?</item>
+        <item quantity="many">Te enseño %1$d mensajes. ¿Son trampa o son de fiar?</item>
+        <item quantity="other">Te enseño %1$d mensajes. ¿Son trampa o son de fiar?</item>
+    </plurals>
+    <plurals name="diary_stat_shields">
+        <item quantity="one">escudo</item>
+        <item quantity="many">escudos</item>
+        <item quantity="other">escudos</item>
+    </plurals>
+    <plurals name="diary_stat_scams">
+        <item quantity="one">timo parado</item>
+        <item quantity="many">timos parados</item>
+        <item quantity="other">timos parados</item>
+    </plurals>
+    <plurals name="diary_stat_days">
+        <item quantity="one">día contigo</item>
+        <item quantity="many">días contigo</item>
+        <item quantity="other">días contigo</item>
+    </plurals>
+    <!-- Peri's new banks: proposed by Muse Wonder, reviewed line by line. -->
+    <string-array name="peri_tickle">
+        <item>¡Ay, ay, que me río! Para un poquito, por favor.</item>
+        <item>¡Ja, ja, ja! Me haces cosquillas en la panza.</item>
+        <item>¡No puedo parar de reírme! Mi hoja tiembla de risa.</item>
+        <item>¡Ja, ja! Soy una pera muy cosquillosa.</item>
+        <item>¡Ay, qué risa! Me estoy doblando como una pera madura.</item>
+        <item>¡Para, para, que lloro de risa!</item>
+        <item>¡Me retuerzo de risa! Soy patosa hasta riendo.</item>
+        <item>¡Ay, mi rabito! ¡Ja, ja, ja!</item>
+    </string-array>
+    <string-array name="peri_drag">
+        <item>¡Uiii! ¡Qué viajecito tan divertido!</item>
+        <item>¡He volado por la pantalla! Ya vuelvo de un saltito.</item>
+        <item>¡Hala, qué paseo! Me ha encantado.</item>
+        <item>¡De un lado a otro! Como en una atracción.</item>
+        <item>¡Hop, de vuelta a mi sitio! Ha sido genial.</item>
+        <item>¡Soy una pera viajera! Gracias por el paseo.</item>
+        <item>¡Uf, qué velocidad! Y aterrizo de pie, casi.</item>
+        <item>¡Me lo he pasado de pera! Ya estoy aquí.</item>
+    </string-array>
+    <string-array name="peri_shake">
+        <item>¡Uy, todo da vueltas! Estoy un poco mareada.</item>
+        <item>¡Hala, qué meneo! Mi hoja va por otro lado.</item>
+        <item>¡Todo se mueve! Espera, que me agarro al rabito.</item>
+        <item>¡Qué sacudida tan divertida! Ya se me pasa.</item>
+        <item>¡Uy, uy! Veo la pantalla bailando.</item>
+        <item>¡Menudo baile sin música! Estoy bien, solo mareada.</item>
+        <item>¡La cabeza me da vueltecitas! Dame un segundito.</item>
+        <item>¡Todo tiembla menos mi sonrisa!</item>
+    </string-array>
+    <string-array name="peri_leaf">
+        <item>Mmm, qué gustito en la hoja. Sigue un poquito más.</item>
+        <item>¡Ay, qué bien! Me encanta que me rasques la hoja.</item>
+        <item>Ronronearía si supiera. Soy una pera feliz.</item>
+        <item>Qué mimos tan buenos. Mi hoja está encantada.</item>
+        <item>Mmm, justo ahí. Qué gusto.</item>
+        <item>Me derrito de gusto. Bueno, casi: soy de plastilina.</item>
+        <item>Mi hojita se mueve de gusto. Sigue, sigue.</item>
+        <item>Esto es mejor que el sol de la mañana.</item>
+    </string-array>
+    <string-array name="peri_peekaboo">
+        <item>¡Cucú! ¡Qué alegría verte de nuevo!</item>
+        <item>¡Cucú, sorpresa! Te estaba esperando por aquí.</item>
+        <item>¡Ya estoy! Me tapo los ojos y… ¡aparezco!</item>
+        <item>¡Cucú! He asomado en cuanto has llegado.</item>
+        <item>¡Sorpresa! Qué bien que has vuelto.</item>
+        <item>¡Cucú! Llevaba un ratito con ganas de verte.</item>
+        <item>¡Cucú! Se me ilumina la hoja al verte.</item>
+        <item>¡Hola, hola! ¡Cucú, qué contenta estoy!</item>
+    </string-array>
+    <string-array name="peri_bye">
+        <item>Me hago pequeñita y sigo aquí. Hasta ahora.</item>
+        <item>Mini Peri en marcha. Sigo a tu lado.</item>
+        <item>Me quedo chiquitita en la pantalla. Aquí estoy.</item>
+        <item>Sigo aquí, en modo mini. Tú a lo tuyo.</item>
+        <item>Me encojo con alegría. No me voy, me adapto.</item>
+        <item>Mini Peri lista. Te acompaño desde un rinconcito.</item>
+        <item>Me hago una perita pequeña. Sigo cuidando desde aquí.</item>
+        <item>Sigo contigo en tamaño mini. Qué práctico, ¿verdad?</item>
+    </string-array>
+    <string-array name="peri_hero">
+        <item>Ya pasó todo y estás a salvo. Qué bien lo hiciste.</item>
+        <item>Me pongo mi capa con orgullo. El mérito es tuyo.</item>
+        <item>Todo tranquilo de nuevo. Me siento muy orgullosa de ti.</item>
+        <item>Con capa y todo, celebro este momento. Estás a salvo.</item>
+        <item>Qué valiente fue parar y pensar. Ya todo en calma.</item>
+        <item>Mi capa ondea de alegría. Lo importante está hecho.</item>
+        <item>Todo quedó atrás. Ahora toca respirar con calma.</item>
+        <item>Soy tu heroína de plastilina, pero mandas tú. Enhorabuena.</item>
+    </string-array>
+    <string-array name="quiz_right">
+        <item>¡Exacto! Qué buena vista tienes.</item>
+        <item>¡Muy bien! Lo has pillado al vuelo.</item>
+        <item>¡Eso es! Me quito la hoja ante ti.</item>
+        <item>¡Acertaste! Qué alegría me da.</item>
+        <item>¡Bien visto! Nada se te escapa hoy.</item>
+        <item>¡Genial! Has dado en el clavo.</item>
+        <item>¡Eso mismo! Estoy muy orgullosa.</item>
+        <item>¡Acierto total! Esto se te da de pera.</item>
+    </string-array>
+    <string-array name="quiz_wrong">
+        <item>Casi, casi. Para eso practicamos, sin prisa.</item>
+        <item>Esta era difícil. La próxima saldrá mejor.</item>
+        <item>No pasa nada. Así se aprende de maravilla.</item>
+        <item>Buen intento. Esto le pasa a cualquiera.</item>
+        <item>Esta confundía mucho. Gracias por intentarlo conmigo.</item>
+        <item>Sin agobios. Cada práctica suma un montón.</item>
+        <item>Era difícil de ver. Vamos a por la siguiente.</item>
+        <item>Fallar aquí es seguro. Para eso está el juego.</item>
+    </string-array>
+    <string-array name="quiz_end_great">
+        <item>¡Qué partidaza! Se te da fenomenal.</item>
+        <item>Has estado brillante de principio a fin. Enhorabuena.</item>
+        <item>Qué bien juegas a esto. Me dejas impresionada.</item>
+        <item>¡Partida redonda! Enhorabuena.</item>
+        <item>Lo has hecho de cine. A seguir así.</item>
+        <item>Qué racha tan buena. Se nota la práctica.</item>
+        <item>Has cazado las trampas como nadie. Muy bien.</item>
+        <item>Final feliz y merecido. Qué alegría compartirlo.</item>
+    </string-array>
+    <string-array name="quiz_end_good">
+        <item>Buena partida. Se nota que vas pillando el truco.</item>
+        <item>Vas por muy buen camino. Sigue practicando con calma.</item>
+        <item>Buen trabajo hoy. Cada vez se ve más claro.</item>
+        <item>Partida muy decente. Estoy contenta con tu avance.</item>
+        <item>Has acertado mucho y aprendido más. Bien hecho.</item>
+        <item>Esto va tomando forma. Como yo, de plastilina.</item>
+        <item>Buen rato de práctica. La próxima saldrá aún mejor.</item>
+        <item>Vas ganando vista para las trampas. Me alegra mucho.</item>
+    </string-array>
+    <string-array name="quiz_end_low">
+        <item>Gracias por jugar hasta el final. Practicar ya es ganar.</item>
+        <item>Hoy costó más, y no pasa nada. Seguimos con calma.</item>
+        <item>Las trampas eran muy enrevesadas. Buen esfuerzo el tuyo.</item>
+        <item>Esto se aprende poco a poco. Estoy aquí para practicar.</item>
+        <item>Me ha gustado jugar contigo. La próxima iremos viendo más.</item>
+        <item>Has aguantado toda la partida. Eso ya dice mucho.</item>
+        <item>Cada intento enseña algo nuevo. Vamos paso a paso.</item>
+        <item>Soy una pera paciente. Practicamos cuando quieras, sin prisa.</item>
+    </string-array>
+    <string-array name="diary_hello">
+        <item>Aquí apunto lo que hago por ti. Échale un vistazo.</item>
+        <item>Te doy la bienvenida a mi diario. Todo anotado con cariño.</item>
+        <item>Este es mi cuadernito de ayuda. Pasa y mira.</item>
+        <item>Mi diario está listo. Te cuento lo que he hecho.</item>
+        <item>Pasa, pasa. Aquí está todo lo que he cuidado.</item>
+        <item>En estas páginas apunto mi trabajo. Con letra de pera.</item>
+        <item>Aquí puedes ver lo que he estado haciendo. Sin secretos.</item>
+        <item>Todo apuntadito, día a día. Este es mi diario.</item>
+    </string-array>
+    <string-array name="learn_hello">
+        <item>Aquí aprendemos a cazar timos. Jugando se aprende mejor.</item>
+        <item>Te enseño las trampas que conozco. Pasa y mira.</item>
+        <item>Este rincón es para practicar sin riesgo. Ven a jugar.</item>
+        <item>Aquí entrenamos la vista, tú y yo, paso a paso.</item>
+        <item>Te presento mi escuela de timos. Yo hago de profesora pera.</item>
+        <item>Aquí practicamos con calma. Equivocarse aquí no duele.</item>
+        <item>Aprender esto puede ser divertido. Te lo enseño jugando.</item>
+        <item>Este es mi gimnasio contra trampas. A entrenar la mirada.</item>
+    </string-array>
+    <string-array name="family_hello">
+        <item>Aquí está tu familia, cuidando contigo. Qué buen equipo.</item>
+        <item>Estas son las personas que te acompañan. Y yo con ellas.</item>
+        <item>Pasa a ver a tu gente. Cuidan de ti conmigo.</item>
+        <item>Aquí guardo a quienes te quieren bien. Equipo completo.</item>
+        <item>Tu familia y esta pera, del mismo lado. Qué suerte.</item>
+        <item>Aquí está el equipo que te cuida. Sin espiar, solo ayudar.</item>
+        <item>Tu gente querida está aquí. Yo aviso, ellas acompañan.</item>
+        <item>Aquí cuidamos entre todas las personas. Y una pera.</item>
+    </string-array>
+    <string-array name="greet_return">
+        <item>¡Cuánto tiempo! Qué alegría tan grande verte.</item>
+        <item>¡Has vuelto! Se me mueve la hoja de emoción.</item>
+        <item>Te echaba de menos. Qué bien que estés aquí.</item>
+        <item>¡Qué sorpresa tan buena! Qué bien tenerte de vuelta.</item>
+        <item>Hacía días que no nos veíamos. Me alegro muchísimo.</item>
+        <item>¡Por fin nos vemos! Estoy contentísima de verte.</item>
+        <item>¡Mira quién ha vuelto! Se me ilumina todo.</item>
+        <item>Cuánto me alegro de verte otra vez. De verdad.</item>
+    </string-array>
+    <string-array name="peri_medal">
+        <item>¡Un escudo nuevo! Te lo has ganado a pulso.</item>
+        <item>Mira qué escudo tan bonito. Es todo tuyo.</item>
+        <item>Escudo conseguido. Me siento orgullosísima de ti.</item>
+        <item>¡Enhorabuena por ese escudo! Brilla como mi hoja al sol.</item>
+        <item>Nuevo escudo para la colección. Qué bien lo hiciste.</item>
+        <item>¡Escudo en mano! Bueno, en hoja. Enhorabuena.</item>
+        <item>Te has ganado un escudo precioso. Qué momento tan bonito.</item>
+        <item>Aquí está tu recompensa. Merecidísima, de verdad.</item>
+    </string-array>
+    <string-array name="greet_winter">
+        <item>Brrr, qué frío hace hoy. Menos mal que llevo bufanda.</item>
+        <item>Día de invierno de verdad. Mi bufanda me abriga fenomenal.</item>
+        <item>Qué fresquito está todo. Yo, pera con bufanda, tan calentita.</item>
+        <item>Hoy el frío aprieta. Abrígate bien, que yo ya voy lista.</item>
+        <item>Brrr, hasta mi hoja tirita un poco. ¡Bufanda al rescate!</item>
+        <item>Día frío y bonito. Si sales, abrígate, por favor.</item>
+        <item>El invierno ha llegado de golpe. Yo ya estoy preparada.</item>
+        <item>Qué mañana tan fría. Un té calentito sentaría de pera.</item>
+    </string-array>
+    <!-- "Scam or not?": {...} marks a pretend link; it is never opened. -->
+    <string-array name="quiz_sender">
+        <item>Correos</item>
+        <item>Tu banco</item>
+        <item>Número desconocido</item>
+        <item>Número desconocido</item>
+        <item>Club Premios</item>
+        <item>Soporte Técnico</item>
+        <item>Agencia Tributaria</item>
+        <item>Compañía de la luz</item>
+        <item>Inversiones Oro</item>
+        <item>DGT</item>
+        <item>Farmacia Luna</item>
+        <item>Centro de Salud</item>
+        <item>Laura (hija)</item>
+        <item>Tu banco</item>
+        <item>Marisa (vecina)</item>
+        <item>Correos</item>
+    </string-array>
+    <string-array name="quiz_text">
+        <item>Su paquete está retenido por una tasa pendiente de 1,99 €. Páguela hoy aquí: {correos-entregas.top/pago}</item>
+        <item>Hemos bloqueado su tarjeta por un cargo sospechoso. Verifique sus datos en: {clientes-seguridad.app}</item>
+        <item>Hola, soy yo, se me ha roto el móvil y este es mi número nuevo. ¿Me haces una transferencia urgente? Luego te explico.</item>
+        <item>Perdona, te he enviado un código de 6 cifras por error. ¿Me lo pasas, por favor? Es urgente.</item>
+        <item>¡Enhorabuena! Ha ganado un móvil nuevo. Reclámelo antes de 24 horas: {premio-club.win}</item>
+        <item>«Su ordenador tiene un virus. Instale esta app para que se lo arreglemos a distancia.»</item>
+        <item>Tiene un reembolso pendiente de 312,40 €. Confirme su cuenta bancaria en: {devolucion-renta.com}</item>
+        <item>Aviso: su suministro se cortará hoy por un impago. Evítelo pagando ahora: {pagos-energia.net}</item>
+        <item>Invierte 250 € hoy y gana 3.000 € en una semana con nuestro sistema. ¡Plazas limitadas!</item>
+        <item>Tiene una multa pendiente de 50 €. Pague hoy para evitar el recargo: {dgt-multas.info}</item>
+        <item>Su pedido ya está listo para recoger. Horario: de 9:30 a 20:00.</item>
+        <item>Le recordamos su cita de mañana a las 10:15 con su médico. Si no puede venir, llame al centro.</item>
+        <item>Hola, llego a las 8 para cenar. ¿Llevo pan?</item>
+        <item>Compra de 23,50 € en Supermercado Sol con su tarjeta acabada en 4821.</item>
+        <item>Te he dejado el paraguas en el buzón. ¡Gracias por prestármelo!</item>
+        <item>Su envío llegará mañana entre las 9:00 y las 14:00. No necesita hacer nada.</item>
+    </string-array>
+    <string-array name="quiz_clue">
+        <item>Correos no cobra tasas por SMS con un enlace. Si esperas un paquete, mira tú la web oficial.</item>
+        <item>Tu banco nunca te pide datos por un enlace. Llama tú al número que viene en tu tarjeta.</item>
+        <item>Número nuevo, prisa y dinero: una trampa de las de siempre. Llama antes al número de siempre.</item>
+        <item>Un código es como la llave de tu casa: no se le da a nadie, nunca.</item>
+        <item>Nadie regala premios por sorpresa, y menos con prisas. Quieren tus datos.</item>
+        <item>Ningún técnico de verdad te llama para que instales nada. Cuelga sin miedo.</item>
+        <item>Hacienda no pide la cuenta ni la tarjeta por SMS. Si dudas, entra tú en su web oficial.</item>
+        <item>Asustar con un corte para hoy es un truco. Llama tú al número de tu factura.</item>
+        <item>Nadie puede prometer tanto dinero tan rápido. Si suena demasiado bien, es trampa.</item>
+        <item>Las multas de verdad no llegan por un SMS con un enlace raro. Mira la web oficial.</item>
+        <item>No pide dinero, ni datos, ni pulsar nada. Solo te avisa.</item>
+        <item>Es un recordatorio: no pide pagos ni datos, y te dice que llames tú al centro.</item>
+        <item>Es un contacto que ya tienes y no pide dinero ni códigos. ¡Que aproveche!</item>
+        <item>Solo informa de una compra. Si no la reconoces, llama tú al número de tu tarjeta.</item>
+        <item>Una vecina que ya conoces, sin prisas ni pagos. Todo en orden.</item>
+        <item>Te informa sin pedir pagos ni que pulses enlaces. Así escriben las empresas de verdad.</item>
+    </string-array>
 </resources>
