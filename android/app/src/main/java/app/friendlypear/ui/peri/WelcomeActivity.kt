@@ -2,7 +2,6 @@ package app.friendlypear.ui.peri
 
 import android.app.Activity
 import android.app.LocaleManager
-import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.LocaleList
@@ -11,6 +10,7 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowInsets
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import app.friendlypear.PeriApp
@@ -23,28 +23,41 @@ import kotlin.math.abs
 /**
  * Peri's welcome, before any permission: who she is, what she does, that the family never spies, that she can be
  * dressed up, and that every permission comes with a reason and can be refused. Five short pages with Peri herself
- * (animated, not a picture) standing on her hill in her world, the words on a card. She says only the first one
- * aloud, so the first start isn't a lecture; each page has a button to hear it. On the wardrobe page she shows off
- * a few outfits by herself.
+ * (animated, not a picture) standing on her hill in her world. Each page's card has what it's about, a title, a
+ * sentence and three concrete points with their icons, over a progress bar, so it reads like the product it is.
+ * She says only the first page aloud, so the first start isn't a lecture; the round button reads any page. On the
+ * wardrobe page she shows off a few outfits by herself.
  */
 class WelcomeActivity : Activity() {
-    private data class Page(val title: Int, val text: Int, val mood: Mood, val moment: PeriMoment? = null)
+    private data class Page(val about: Int, val title: Int, val text: Int, val mood: Mood, val points: List<Pair<Int, Int>>, val moment: PeriMoment? = null)
 
     private val pages = listOf(
-        Page(R.string.welcome_1_title, R.string.welcome_1_text, Mood.CALM),
-        Page(R.string.welcome_2_title, R.string.welcome_2_text, Mood.PROTECTIVE),
-        Page(R.string.welcome_3_title, R.string.welcome_3_text, Mood.HAPPY),
-        Page(R.string.welcome_dress_title, R.string.welcome_dress_text, Mood.CALM),
-        Page(R.string.welcome_4_title, R.string.welcome_4_text, Mood.CALM, PeriMoment.THUMBS_UP),
+        Page(R.string.welcome_about_1, R.string.welcome_1_title, R.string.welcome_1_text, Mood.CALM, listOf(
+            R.drawable.ic_mic to R.string.welcome_point_1a, R.drawable.ic_message to R.string.welcome_point_1b, R.drawable.ic_call to R.string.welcome_point_1c,
+        )),
+        Page(R.string.welcome_about_2, R.string.welcome_2_title, R.string.welcome_2_text, Mood.PROTECTIVE, listOf(
+            R.drawable.ic_shield to R.string.welcome_point_2a, R.drawable.ic_call to R.string.welcome_point_2b, R.drawable.ic_warning to R.string.welcome_point_2c,
+        )),
+        Page(R.string.welcome_about_3, R.string.welcome_3_title, R.string.welcome_3_text, Mood.HAPPY, listOf(
+            R.drawable.ic_family to R.string.welcome_point_3a, R.drawable.ic_check to R.string.welcome_point_3b, R.drawable.ic_notifications to R.string.welcome_point_3c,
+        )),
+        Page(R.string.welcome_about_dress, R.string.welcome_dress_title, R.string.welcome_dress_text, Mood.CALM, listOf(
+            R.drawable.ic_wardrobe to R.string.welcome_point_4a, R.drawable.ic_family to R.string.welcome_point_4b,
+        )),
+        Page(R.string.welcome_about_4, R.string.welcome_4_title, R.string.welcome_4_text, Mood.CALM, listOf(
+            R.drawable.ic_check to R.string.welcome_point_5a, R.drawable.ic_close to R.string.welcome_point_5b, R.drawable.ic_settings to R.string.welcome_point_5c,
+        ), PeriMoment.THUMBS_UP),
     )
     private val dressPage = 3
     private lateinit var world: PeriWorld
     private lateinit var dressNow: View
     private var index = 0
     private lateinit var face: PeriFace
+    private lateinit var about: TextView
     private lateinit var title: TextView
     private lateinit var text: TextView
-    private lateinit var dots: LinearLayout
+    private lateinit var points: LinearLayout
+    private lateinit var progress: LinearLayout
     private lateinit var next: Pill
     private lateinit var skip: TextView
     private val hub by lazy { PeriApp.hub(this) }
@@ -60,16 +73,30 @@ class WelcomeActivity : Activity() {
             isClickable = true
             setOnClickListener { listen() }
         }
-        title = heading("").apply { gravity = Gravity.CENTER }
+        about = TextView(this).apply {
+            sizeSp(TextSize.SMALL)
+            typeface = weight(800)
+            letterSpacing = 0.08f
+            isAllCaps = true
+            setTextColor(Palette.GREEN_DARK)
+        }
+        title = heading("").apply { isAccessibilityHeading = true }
         text = body("").apply {
-            gravity = Gravity.CENTER
             setTextColor(Palette.INK)
             setLineSpacing(0f, 1.2f)
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
         }
-        dots = LinearLayout(this).apply { gravity = Gravity.CENTER }
+        points = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        progress = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         next = Pill(this, "", R.drawable.ic_chevron, primary = true, trailing = true).apply { setOnClickListener { forward() } }
-        val hear = Pill(this, getString(R.string.welcome_listen), R.drawable.ic_mic, primary = false).apply {
+        // Hearing the page: a round button beside "Next", so the card keeps the room.
+        val hear = ImageView(this).apply {
+            setImageResource(R.drawable.ic_volume)
+            setColorFilter(Palette.GREEN_DARK)
+            contentDescription = getString(R.string.welcome_listen)
+            background = pressable(cardBackground(), Palette.RIPPLE_DARK)
+            setPadding(dp(20), dp(18), dp(20), dp(22))
+            stateListAnimator = pressScale()
             setOnClickListener { listen() }
         }
         skip = TextView(this).apply {
@@ -89,16 +116,22 @@ class WelcomeActivity : Activity() {
             addView(languages(), LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             addView(skip)
         }
-        // The words on a card: they read the same on any sky and any hill.
+        // The words on a card: what it's about, the title, a sentence, three points and the progress so far.
         val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
             background = cardBackground()
-            setPadding(dp(18), dp(16), dp(18), dp(12))
-            addView(title, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
-            addView(text, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
-            addView(dressNow, LinearLayout.LayoutParams(dp(200), dp(46)).apply { topMargin = dp(12) })
-            addView(dots, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(28)).apply { topMargin = dp(10) })
+            setPadding(dp(20), dp(18), dp(20), dp(16))
+            addView(about)
+            addView(title, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(4) })
+            addView(text, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(6) })
+            addView(points, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) })
+            addView(dressNow, LinearLayout.LayoutParams(dp(200), dp(46)).apply { topMargin = dp(10) })
+            addView(progress, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(8)).apply { topMargin = dp(16) })
+        }
+        val buttons = LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            addView(hear, LinearLayout.LayoutParams(dp(68), dp(68)).apply { marginEnd = dp(10) })
+            addView(next, LinearLayout.LayoutParams(0, dp(68), 1f))
         }
         val column = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -106,8 +139,7 @@ class WelcomeActivity : Activity() {
             addView(top)
             addView(face, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(4) })
             addView(card, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
-            addView(next, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(72)).apply { topMargin = dp(14) })
-            addView(hear, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(58)).apply { topMargin = dp(10) })
+            addView(buttons, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
         }
         world = PeriWorld(this)
         val root = android.widget.FrameLayout(this).apply {
@@ -185,10 +217,34 @@ class WelcomeActivity : Activity() {
         }
     }
 
+    /** One of a page's points: its icon in a soft green circle, and a short line. */
+    private fun point(icon: Int, line: Int): View = LinearLayout(this).apply {
+        gravity = Gravity.CENTER_VERTICAL
+        addView(ImageView(this@WelcomeActivity).apply {
+            setImageResource(icon)
+            setColorFilter(Palette.GREEN_DARK)
+            background = rounded(Palette.GREEN_TINT, dp(18).toFloat())
+            setPadding(dp(8), dp(8), dp(8), dp(8))
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, LinearLayout.LayoutParams(dp(36), dp(36)))
+        addView(body(getString(line), TextSize.SMALL).apply {
+            setTextColor(Palette.INK)
+            typeface = weight(600)
+            setPadding(dp(12), 0, 0, 0)
+        }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+    }
+
     private fun show(first: Boolean = false) {
         val page = pages[index]
+        about.text = getString(page.about)
         title.text = getString(page.title)
         text.text = getString(page.text)
+        points.removeAllViews()
+        page.points.forEachIndexed { i, (icon, line) ->
+            points.addView(point(icon, line), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                if (i > 0) topMargin = dp(8)
+            })
+        }
         face.show(page.mood)
         face.removeCallbacks(fashion)
         face.outfit = Outfit.load(this)
@@ -198,17 +254,18 @@ class WelcomeActivity : Activity() {
         page.moment?.let { m -> face.postDelayed({ face.moment(m) }, 400) }
         next.label = getString(if (index == pages.lastIndex) R.string.welcome_start else R.string.welcome_next)
         skip.visibility = if (index == pages.lastIndex) View.INVISIBLE else View.VISIBLE
-        dots.removeAllViews()
+        // The progress so far: one segment per page, filled up to this one.
+        progress.removeAllViews()
         pages.indices.forEach { i ->
-            dots.addView(View(this).apply {
-                background = GradientDrawable().apply {
-                    shape = GradientDrawable.OVAL
-                    setColor(if (i == index) Palette.GREEN_DARK else Palette.GREEN_TINT)
-                }
-            }, LinearLayout.LayoutParams(dp(if (i == index) 14 else 10), dp(if (i == index) 14 else 10)).apply { marginStart = dp(5); marginEnd = dp(5) })
+            progress.addView(View(this).apply {
+                background = rounded(if (i <= index) Palette.GREEN_DARK else Palette.GREEN_TINT, dp(4).toFloat())
+            }, LinearLayout.LayoutParams(0, dp(6), 1f).apply {
+                marginStart = if (i == 0) 0 else dp(3)
+                marginEnd = if (i == pages.lastIndex) 0 else dp(3)
+            })
         }
-        dots.contentDescription = getString(R.string.welcome_page, index + 1, pages.size)
-        listOf(title, text).forEachIndexed { i, v -> v.floatIn(40L + 60L * i) }
+        progress.contentDescription = getString(R.string.welcome_page, index + 1, pages.size)
+        listOf(about, title, text, points).forEachIndexed { i, v -> v.floatIn(30L + 50L * i) }
         // Only the hello is spoken by itself: the rest at the person's pace, or when they ask.
         if (first && index == 0) hub.say(getString(page.title) + ". " + getString(page.text))
     }
