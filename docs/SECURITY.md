@@ -39,6 +39,12 @@ whether a stranger was on the line (yes or no). **Never** the code, the message,
 location or the apps. Peri's news (optional) carries only the kind of event and its level. The person sees exactly
 what the guardians see, and can stop sharing at any moment; every link dies at once.
 
+**The family's pears** (the Family section) travel only between the phones paired with the family's own server, and
+only with a phone's own key, never the shared test token. Each pear is a name the person chose ("Mum", "Ana"), what
+their Peri wears, their role (looked after, or looks after the family) and one word: calm or attention. Attention
+is shared only while the person shares Peri's news, and an attention nobody refreshes fades back to calm after two
+hours. Never a number, a message, a call, a place or an app; a disconnected phone's pear goes with it.
+
 ## On the phone
 
 - Contacts are read on the phone and never sent. Only doubtful messages leave it, plus what the person chooses (a

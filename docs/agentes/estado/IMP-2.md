@@ -3,22 +3,20 @@
 Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (API 37).
 
 ## Hecho (24 h)
-- Ronda 2, Peri viva (28 oct), probado en el emulador en inglés, de día, al amanecer y de noche, y con "quitar animaciones":
-  - `PeriWorld`: cielo por la hora (amanecer, día, atardecer, noche con luna, estrellas y estrella fugaz) y por el estado (velo coral y todo quieto en un aviso, confeti contenta, noche dormida); 5 lugares por estación (pradera, huerto, playa, otoño, nieve), uno distinto cada día o fijo en Ajustes; colinas a los pies de Peri; 30 fps y parado si no se ve.
-  - `Style.kt`: Fredoka y Atkinson Hyperlegible (OFL, `res/font/`), botones y tarjetas de goma con labio, `pressScale`, `popIn`; `ground()` es el cielo claro de la hora para las pantallas secundarias.
-  - `TabBar` + `Pages.kt`: Peri, Diario (`config/Diary.kt`, sin textos ni remitentes), Aprende (trampas, reglas de oro) y Familia (resumen; cambiar abre `FamilyActivity` con el bloqueo).
-  - `QuizActivity`: "¿Timo o no?", 16 mensajes por idioma, 4 trampas y 2 de fiar por partida; escudo `LEARNED` una vez al día.
-  - Peri: 10 poses nuevas (Muse Image, 0,10 $), cosquillas, arrastrar, frotar la hoja y agitar; 18 bancos de frases propuestos por Muse Wonder (0,36 $) y revisados.
-  - Fallos encontrados y arreglados en la prueba: alfa arrastrado que dejaba el cielo transparente, `ObjectAnimator.ofPropertyValuesHolder(null, …)` que caía en la sobrecarga de `ValueAnimator`, y `right` del juego tapado por `View.right` dentro de un `apply`.
-- imp-ronda (IMP-2): `AccessActivity` + `UseLog`, `Shields`, `ReportActivity` y `LastScam`, `TrapActivity` (6 × 3 viñetas), avisos de webs y DNS privado guiado, `Haptics`; diálogos con `friendly()`.
-- Antes: servicios Android, permisos uno a uno, filtro de llamadas, pausa de seguridad, familia, Mini Peri, Peri en plastilina con ~125 fotogramas, bienvenida, guía de desbloqueo, idioma y voz (historial en git).
+- Ideas de la persona (28 oct, tarde):
+  - Armario de Peri: 11 accesorios de Muse Image (0,13 $), `wear.py` los recorta, `anchors.py` encuentra sus ojos en las 29 ilustraciones y genera `PeriAnchors.kt`; `Outfit` + `OutfitLayer` dentro del rig (gira y bota con ella); `WardrobeActivity` y la percha junto a sus pies.
+  - Peras de la familia: `backend/src/pears/` (`PUT /v1/pears/self`, `GET /v1/pears`, solo con la clave propia del móvil, 5 tests), `PearClient`, tarjetas en Familia y aviso en la pantalla de Peri cada 30 s mientras está abierta. Probado con dos emuladores: SMS de timo a "Mamá" → su pera en atención → el Peri de "Ana" lo dice y muestra la tarjeta coral.
+  - Bienvenida sobre el mundo de Peri con la página "¡Vísteme a tu gusto!"; lugar sorpresa en Ajustes; Peri se para cuando no se ve.
+- Ronda 2, Peri viva (28 oct, mañana): `PeriWorld` (cielos por hora y estado, 5 lugares), fuentes Fredoka y Atkinson, botones y tarjetas de goma, apartados Diario, Aprende y Familia, "¿Timo o no?", 10 poses y gestos (cosquillas, arrastrar, hoja, agitar), 18 bancos de frases de Muse Wonder revisados.
+- imp-ronda y antes: `AccessActivity`, escudos, denuncia, viñetas, avisos de webs, servicios Android, permisos, familia, Mini Peri, bienvenida, idioma y voz (historial en git).
 
-## Cómo probar sin micrófono (solo builds de depuración)
-- `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`; también `--es installed <paquete>` y `--es opened <paquete>`.
-- Gestos: `input swipe x y x y 1500` (cosquillas), `input swipe` largo (arrastrar), `input motionevent DOWN/MOVE/UP` sobre la hoja, `adb emu sensor set acceleration 28:0:9.8` alternando el signo (agitar).
-- `uiautomator dump` falla mientras Peri se mueve: con `settings put global animator_duration_scale 0` funciona (y prueba el modo sin animaciones); volver a 1 después.
-- Permisos de prueba con `pm grant`; rol de filtro: `cmd role add-role-holder android.app.role.CALL_SCREENING app.friendlypear`.
-- Backend: `~/.gradle/gradle.properties` con `friendlypear.backendUrl` y `friendlypear.deviceToken`; `cd backend; bun src/main.ts`.
+## Cómo probar (solo builds de depuración)
+- Voz: `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`.
+- Gestos: `input swipe x y x y 1500` (cosquillas), swipe largo (arrastrar), `input motionevent` sobre la hoja, `adb emu sensor set acceleration 28:0:9.8` alternando el signo (agitar).
+- `uiautomator dump` necesita `settings put global animator_duration_scale 0` mientras Peri se mueve (volver a 1).
+- Dos móviles: segundo AVD `Peri_Family` (puerto 5556). Emparejar: `POST /v1/pairing` con el token de admin → `am start -a android.intent.action.VIEW -d <link>` → "Connect". Ajustes de prueba con `run-as` y `MSYS_NO_PATHCONV=1` en Git Bash.
+- Si un emulador deja de llegar a `10.0.2.2` (SocketTimeout), `svc wifi disable` y `enable` lo arregla.
+- Backend: `cd backend; PUBLIC_BASE_URL=http://10.0.2.2:8711 bun src/main.ts`.
 
 ## En curso
 - Nada.
@@ -27,7 +25,9 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
 - Nada.
 
 ## Peticiones
-- SEG: revisar los registros nuevos en el móvil (`Diary`) y que el juego nunca abra ni lea enlaces; queda `SYSTEM_ALERT_WINDOW` y el servicio de micrófono de Mini Peri.
+- SEG: revisar `/v1/pears` (solo nombre, atuendo, papel y calma o atención; atención solo si se comparten las novedades), los registros nuevos (`Diary`) y que el juego nunca abra ni lea enlaces.
+- Backend: una petición sin cabecera `Host` da 500 en `new URL(req.url)`; mejor 400.
 
 ## Propuestas para el roadmap
-- `r2-barra-volver` y `r2-hitos` (añadidas). Regrabar los GIF del README con el diseño nuevo en `r2-grabaciones`.
+- Aviso de la pera de un familiar también con la app cerrada (trabajo periódico o el SMS de siempre).
+- `r2-barra-volver`, `r2-hitos`; regrabar los GIF del README con el diseño nuevo.

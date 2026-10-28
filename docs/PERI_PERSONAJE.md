@@ -80,6 +80,8 @@ Cada lista se baraja y da la vuelta entera antes de repetir.
 - **Interacciones nuevas** (`PeriActivity`, `PeriFace`): mantener pulsado 0,55 s → cosquillas (risa, baile y destellos); arrastrarla → la sigue con un muelle, se inclina con la velocidad, su sombra se queda en el suelo y al soltar vuelve de un salto; frotar la hoja (tres idas y vueltas arriba) → corazón y corazoncitos; agitar el móvil (tres sacudidas de más de 2,3 g en un segundo) → vuelta y ojos en espiral. Solo cuando está tranquila, contenta o dormida: nunca durante un aviso ni esperando una respuesta.
 - **Frases nuevas:** 18 bancos de 8 frases en las dos lenguas, propuestas por **Muse Wonder** y revisadas una a una: cosquillas, arrastrar, agitar, hoja, cucú, despedida, heroína, medalla, invierno, volver tras días, el saludo de cada apartado y las del juego (acierto, fallo y tres finales). También se quitó el género hacia la persona de cinco frases antiguas.
 - **Saludo según el momento:** tras días sin abrir, un gran hola; tras horas, cucú; en invierno, la bufanda; tras un timo parado y ya en calma, la capa. Peri duerme de 22:00 a 7:00.
+- **Su armario** (28 oct): 11 accesorios de Muse Image (cabeza, ojos, bajo la sonrisa) que se colocan en cada pose a partir de sus ojos (`PeriAnchors`, generado), giran con su cabeza y se quitan donde la pose ya lleva algo (gorro de dormir, lupa, bufanda). Reacciona a cada prenda con su frase (`peri_outfit`, `peri_outfit_off`).
+- **Las peras de la familia:** su pera la ven los móviles de su familia, con su ropa; si su Peri avisa de un timo, su pera se preocupa en el móvil de los demás.
 - **Falta:** rachas de días tranquilos e hitos de escudos (el primero, cinco), y que Peri hable en los apartados con su propia voz.
 - **El mundo de Peri:** sección 7 y `docs/DISENO.md` §2.
 
@@ -100,5 +102,6 @@ Cada lista se baraja y da la vuelta entera antes de repetir.
 | Una frase del agente | `core/.../agent/Phrases.kt` | `Spanish` y `English`, con test |
 | Una interacción | `ui/peri/PeriActivity.kt` (toques, `touch` y `shake`) y `PeriFace.kt` (animación, `drag`) | Solo si `playful()`; respetar "quitar animaciones" y la accesibilidad (TalkBack) |
 | Un lugar del mundo | `ui/peri/PeriWorld.kt` (`Place`, `HILLS`, `drawPlaceLife`) | Colores de colinas, lo que vive allí y en qué estación sale; añadirlo en Ajustes |
+| Un accesorio | `WEAR` en `generate.ts`, luego `Outfit.Item` | `generate.ts wear <nombre>` (0,01 $), `python assets/peri/wear.py`; en `Outfit.Item`, ancho y punto de apoyo en distancias entre ojos; añadirlo a `ITEMS` de `backend/src/pears/store.ts`; si se añaden poses, `python assets/peri/anchors.py` |
 
 **Antes de dar algo por bueno:** verlo en el emulador, leerlo en voz alta en los dos idiomas y comprobar que no rompe ninguna regla de la sección 2.
