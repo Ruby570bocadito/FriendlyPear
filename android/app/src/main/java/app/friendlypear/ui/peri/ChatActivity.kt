@@ -39,18 +39,15 @@ class ChatActivity : Activity() {
     private lateinit var scroll: ScrollView
     private lateinit var input: EditText
     private lateinit var chips: LinearLayout
-    private lateinit var peri: ImageView
+    /** Peri by layers in the header: her mouth moves as she answers, and a risky topic gets her brave face. */
+    private lateinit var peri: LayeredPeri
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        peri = ImageView(this).apply {
-            setImageResource(R.drawable.peri_calm)
-            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            alive()
-        }
+        peri = LayeredPeri(this).apply { importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }
         val header = LinearLayout(this).apply {
             gravity = Gravity.CENTER_VERTICAL
-            addView(peri, LinearLayout.LayoutParams(dp(64), dp(64)))
+            addView(peri, LinearLayout.LayoutParams(dp(76), dp(76)))
             addView(LinearLayout(this@ChatActivity).apply {
                 orientation = LinearLayout.VERTICAL
                 setPadding(dp(10), 0, dp(6), 0)
@@ -141,7 +138,7 @@ class ChatActivity : Activity() {
         hub.ask(text) { lines, topic ->
             if (isFinishing) return@ask
             answer(lines) {
-                peri.setImageResource(if (topic != null && topic !in CALM) R.drawable.peri_protective else R.drawable.peri_calm)
+                if (topic != null && topic !in CALM) peri.express(LayeredPeri.Look.BRAVE)
                 suggest(FOLLOW_UPS[topic] ?: START)
             }
         }
@@ -149,35 +146,28 @@ class ChatActivity : Activity() {
 
     /** Her answer after a moment of "writing" (her three dots bounce), one line after another, her mouth moving. */
     private fun answer(lines: List<String>, then: () -> Unit) {
-        if (lines.isEmpty()) {
-            talking(false)
-            return then()
-        }
+        if (lines.isEmpty()) return then()
         val dots = typing()
         add(dots, mine = false)
-        talking(true)
         val wait = if (animationsOn()) (450L + lines.first().length * 10L).coerceAtMost(1_300L) else 0L
         list.postDelayed({
             if (isFinishing) return@postDelayed
             list.removeView(dots)
             addPeri(lines.first())
+            talkFor(lines.first())
             answer(lines.drop(1), then)
         }, wait)
     }
 
-    /** Her picture in the header says the answer: three mouth shapes in turn, then her smile again. */
-    private val mouth = object : Runnable {
-        var step = 0
-        override fun run() {
-            peri.setImageResource(MOUTHS[step++ % MOUTHS.size])
-            peri.postDelayed(this, MOUTH_MS)
-        }
+    /** She says the line in the header: her mouth moves for about as long as it takes to read it. */
+    private fun talkFor(line: String) {
+        peri.removeCallbacks(quiet)
+        peri.talk(true)
+        peri.postDelayed(quiet, (line.split(' ').size * WORD_MS).coerceIn(TALK_MIN_MS, TALK_MAX_MS))
     }
 
-    private fun talking(on: Boolean) {
-        peri.removeCallbacks(mouth)
-        if (on && animationsOn()) peri.post(mouth) else peri.setImageResource(R.drawable.peri_calm)
-    }
+    private val quiet = Runnable { peri.talk(false) }
+
 
     /** Peri "writing": a white bubble with her three dots bouncing one after another. */
     private fun typing(): View = LinearLayout(this).apply {
@@ -235,6 +225,9 @@ class ChatActivity : Activity() {
 
     companion object {
         private const val EXTRA_NO_MIC = "no_mic"
+        private const val WORD_MS = 230L
+        private const val TALK_MIN_MS = 700L
+        private const val TALK_MAX_MS = 3_500L
 
         fun intent(context: Context, noMic: Boolean = false): Intent = Intent(context, ChatActivity::class.java).putExtra(EXTRA_NO_MIC, noMic)
 
@@ -244,8 +237,6 @@ class ChatActivity : Activity() {
             R.string.chat_s_bank, R.string.chat_s_joke, R.string.chat_s_code, R.string.chat_s_link, R.string.chat_s_who, R.string.chat_s_family,
             R.string.chat_s_app, R.string.chat_s_prize, R.string.chat_s_whatsapp, R.string.chat_s_stolen, R.string.chat_s_scam, R.string.chat_s_gave,
         )
-        private val MOUTHS = listOf(R.drawable.peri_calm_talk, R.drawable.peri_calm_talkwide, R.drawable.peri_calm_talko, R.drawable.peri_calm_talk)
-        private const val MOUTH_MS = 130L
 
         /** After an answer, what usually comes next. */
         private val FOLLOW_UPS: Map<Topic, List<Int>> = mapOf(
