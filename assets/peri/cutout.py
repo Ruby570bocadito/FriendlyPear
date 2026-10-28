@@ -54,7 +54,7 @@ def large_regions(mask: Image.Image) -> np.ndarray:
         label += 1
 
 
-def cut(path: str) -> Image.Image:
+def cut(path: str, remove_floor: bool = True) -> Image.Image:
     image = Image.open(path).convert("RGB").resize((SIZE, SIZE), Image.LANCZOS)
     rgb = np.asarray(image).astype(np.int32)
     bg = background_colour(rgb)
@@ -87,7 +87,9 @@ def cut(path: str) -> Image.Image:
     top, low = rgb.max(axis=2), rgb.min(axis=2)
     floor = (r >= g) & (g > b) & (top > 80) & ((top - low) < 0.55 * top)
     floor[: int(h * 0.8)] = False
-    transparent |= floor
+    # Accessories have no floor, and a straw hat or a pearl is the very colour of one.
+    if remove_floor:
+        transparent |= floor
 
     alpha = Image.fromarray(np.where(transparent, 0, 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(0.8))
     a = np.asarray(alpha).astype(np.float32) / 255.0

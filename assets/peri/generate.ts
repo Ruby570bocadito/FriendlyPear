@@ -13,6 +13,7 @@
  *   cd backend; bun ../assets/peri/generate.ts frames --frame=blinkhalf,talkwide   only those frames
  *   cd backend; bun ../assets/peri/generate.ts extras           the app icon and the illustrations for screens
  *   cd backend; bun ../assets/peri/generate.ts traps            "how the trap worked": 3 panels for 6 kinds of scam (18 images)
+ *   cd backend; bun ../assets/peri/generate.ts wear             accessories to dress Peri in (11 images, then assets/peri/wear.py)
  * Then `python assets/peri/cutout.py` cuts the cream background out for the app.
  */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -117,6 +118,21 @@ export const TRAPS: Record<string, string> = {
   trap_prize_3: "Peri kindly shakes her head with a calm smile, holding a small coin purse safely closed in both hands.",
 };
 
+/** Accessories to dress Peri in, each on its own: worn on her head, her eyes or below her smile (ui/peri/Outfit.kt). */
+export const WEAR: Record<string, string> = {
+  wear_straw: "A small round straw sun hat with a wide brim and a coral ribbon around it.",
+  wear_beanie: "A small knitted wool beanie hat in sky blue, with a fluffy white pompom on top.",
+  wear_crown: "A small shiny golden crown with five rounded points, each tipped with a tiny coloured gem.",
+  wear_flowers: "A flower headband as worn, seen from the front: a gentle arch of little pink, yellow and white flowers with green leaves, much wider than tall, open at the bottom.",
+  wear_bow: "A small coral ribbon bow with a little knot in the middle and two short tails.",
+  wear_sunglasses: "A pair of round black sunglasses with a thin gold frame, seen exactly from the front, arms folded out of sight.",
+  wear_hearts: "A pair of heart-shaped pink sunglasses with a thin white frame, seen exactly from the front.",
+  wear_glasses: "A pair of round tortoiseshell glasses with clear empty lenses, seen exactly from the front.",
+  wear_bowtie: "A small red bow tie with white polka dots, seen exactly from the front.",
+  wear_tie: "A short necktie with coral and navy blue diagonal stripes and a neat knot at the top, seen exactly from the front.",
+  wear_bandana: "A small sky blue neckerchief with white dots, tied at the top, its triangle pointing down, seen from the front.",
+};
+
 async function call(path: string, body: unknown): Promise<Buffer> {
   const res = await fetch(`${base}${path}`, {
     method: "POST",
@@ -143,7 +159,8 @@ const args = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const framesMode = args[0] === "frames";
 const extrasMode = args[0] === "extras";
 const trapsMode = args[0] === "traps";
-const only = framesMode || extrasMode || trapsMode ? args.slice(1) : args;
+const wearMode = args[0] === "wear";
+const only = framesMode || extrasMode || trapsMode || wearMode ? args.slice(1) : args;
 const pickedFrames = process.argv.find((a) => a.startsWith("--frame="))?.slice(8).split(",");
 const prompts: { name: string; prompt: string }[] = [];
 const baseFile = join(here, "peri_base.webp");
@@ -180,14 +197,21 @@ if (framesMode) {
     const image = await call("/images/edits", { model: "muse-image-1.0", prompt, images: [{ image_url: reference }], n: 1, size: "1024x1024", output_format: "webp" });
     prompts.push(save(name, image, prompt));
   }
+} else if (wearMode) {
+  for (const [name, item] of Object.entries(WEAR)) {
+    if (only.length && !only.includes(name)) continue;
+    // Made on its own (not on Peri), so it can be laid over any of her poses.
+    const prompt = `${item} Soft 3D clay render of one single small accessory, isolated and centered, straight front view, symmetrical, no character, no person, no face, no text, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.`;
+    prompts.push(save(name, await call("/images/generations", { model: "muse-image-1.0", prompt, n: 1, size: "1024x1024", output_format: "webp" }), prompt));
+  }
 } else if (only.length === 0 || !existsSync(baseFile)) {
   const prompt = `${STYLE} ${CHARACTER} Peri standing and smiling, full body, front view.`;
   prompts.push(save("base", await call("/images/generations", { model: "muse-image-1.0", prompt, n: 1, size: "1024x1024", output_format: "webp" }), prompt));
 }
 
-const reference = framesMode || extrasMode || trapsMode ? "" : `data:image/webp;base64,${readFileSync(baseFile).toString("base64")}`;
+const reference = framesMode || extrasMode || trapsMode || wearMode ? "" : `data:image/webp;base64,${readFileSync(baseFile).toString("base64")}`;
 for (const [name, pose] of Object.entries(STATES)) {
-  if (framesMode || extrasMode || trapsMode || (only.length && !only.includes(name))) continue;
+  if (framesMode || extrasMode || trapsMode || wearMode || (only.length && !only.includes(name))) continue;
   const prompt = `Same character as in the image, same style, same colours and proportions. ${pose} ${STYLE}`;
   const image = await call("/images/edits", {
     model: "muse-image-1.0",
