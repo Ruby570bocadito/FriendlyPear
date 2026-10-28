@@ -50,6 +50,7 @@ const T = {
     unknown: "Este enlace no es válido.",
     busy: "Demasiados intentos seguidos. Espera un minuto y vuelve a abrir el enlace.",
     oncall: "Estás hablando con un número que no conoces. Cuelga primero y luego decide: así nadie te puede guiar.",
+    danger: "Tu propio móvil está en apuros ahora mismo: le acaba de llegar un timo, o hay señales de que le cambiaron la SIM. Arregla eso primero y luego decide. El «no» sigue funcionando.",
     thanks: "Gracias por cuidar de tu familia.",
   },
   en: {
@@ -95,11 +96,12 @@ const T = {
     unknown: "This link isn't valid.",
     busy: "Too many tries in a row. Wait a minute and open the link again.",
     oncall: "You're on a call with a number you don't know. Hang up first, then decide: that way nobody can talk you into it.",
+    danger: "Your own phone is in trouble right now: a scam just reached it, or there are signs its SIM was changed. Sort that out first, then decide. A no still works.",
     thanks: "Thank you for looking after your family.",
   },
 };
 
-export type Outcome = "approved" | "rejected" | "callback" | "used" | "expired" | "unknown" | "busy" | "oncall" | "half";
+export type Outcome = "approved" | "rejected" | "callback" | "used" | "expired" | "unknown" | "busy" | "oncall" | "danger" | "half";
 
 /** Which picture of Peri goes with each moment (served by this server from backend/public/). */
 const ART: Record<Outcome | "ask" | "alert" | "confirm", string> = {
@@ -114,6 +116,7 @@ const ART: Record<Outcome | "ask" | "alert" | "confirm", string> = {
   unknown: "sorry",
   busy: "waiting",
   oncall: "protective",
+  danger: "protective",
   half: "waiting",
 };
 

@@ -83,3 +83,32 @@ test("a guardian's yes waits while their own phone is on a call with a stranger;
   expect(approvals.recent()[0].status).toBe("approved");
   expect(approvals.recent()[0].decidedBy).toBe("Ana");
 });
+
+test("a guardian's yes waits while their own phone is in danger: a SIM swap's signs, a fresh trap; not an old one", async () => {
+  const { handle, approvals, advance } = setup();
+  const form = (url: string, decision: string, key: string) =>
+    new Request(url, {
+      method: "POST",
+      headers: { "content-type": "application/x-www-form-urlencoded", authorization: `Bearer ${key}` },
+      body: `decision=${decision}&confirm=yes`,
+    });
+  const ask = async (key: string) =>
+    ((await (await handle(call("POST", "/v1/approvals", key, { kind: "send_code", toName: "Pablo", lang: "en" }))).json()) as { url: string }).url;
+  const mama = await phone(handle, "Mamá");
+  const ana = await phone(handle, "Ana", "attention", "sim");
+  const first = await ask(mama.key);
+  const held = await handle(form(first, "approve", ana.key));
+  expect(held.status).toBe(423);
+  expect(await held.text()).toContain("Sort that out first");
+  expect(approvals.recent()[0].status).toBe("pending");
+  // A parcel trap stopped a moment ago holds the yes too...
+  await handle(call("PUT", "/v1/pears/self", ana.key, { name: "Ana", outfit: ",,", role: "guardian", state: "attention", kind: "parcel" }));
+  expect((await handle(form(first, "approve", ana.key))).status).toBe(423);
+  // ...and a no always counts.
+  expect((await handle(form(first, "reject", ana.key))).status).toBe(200);
+  // A quarter of an hour later the stopped trap is old news: a new request gets her yes.
+  advance(16 * 60 * 1000);
+  const second = await ask(mama.key);
+  expect((await handle(form(second, "approve", ana.key))).status).toBe(200);
+  expect(approvals.recent()[0].status).toBe("approved");
+});

@@ -469,6 +469,7 @@
     <string name="guardian_pear_note">La misma pera que ves en Familia, con la misma ropa. Si no es la suya, di que no.</string>
     <string name="guardian_privacy">Tu Peri ha comprobado esta petición con el servidor de Peri; no se ha fiado del texto del SMS.</string>
     <string name="guardian_on_call">Estás hablando con un número que no conoces. Cuelga primero y luego decide: así nadie te puede guiar.</string>
+    <string name="guardian_in_danger">Tu propio móvil está en apuros ahora mismo: le acaba de llegar un timo, o hay señales de que le cambiaron la SIM. Arregla eso primero y luego decide. El «no» sigue funcionando.</string>
     <string name="guardian_check_1">Has hablado con %1$s, por teléfono o en persona.</string>
     <string name="guardian_check_2">Sabes quién es %1$s y es de confianza.</string>
     <string name="guardian_check_3">Nadie os está metiendo prisa.</string>

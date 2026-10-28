@@ -289,10 +289,10 @@ class GuardianActivity : Activity() {
                 showDone(text, R.drawable.peri_calm_thumbsup)
             }
             Outcome.GONE -> showDone(getString(R.string.guardian_gone), R.drawable.peri_calm_sorry)
-            Outcome.ON_CALL -> {
+            Outcome.ON_CALL, Outcome.IN_DANGER -> {
                 answers.alpha = 1f
                 for (i in 0 until answers.childCount) answers.getChildAt(i).isEnabled = true
-                onCall()
+                if (outcome == Outcome.ON_CALL) onCall() else held(getString(R.string.guardian_in_danger))
             }
             Outcome.FAILED -> {
                 answers.alpha = 1f
@@ -305,8 +305,10 @@ class GuardianActivity : Activity() {
     }
 
     /** On a stranger's call: Peri says so, and the yes waits; "no" and "call them now" still work. */
-    private fun onCall() {
-        val text = getString(R.string.guardian_on_call)
+    private fun onCall() = held(getString(R.string.guardian_on_call))
+
+    /** The yes waits for [text]'s reason; "no" and "call them now" still work. */
+    private fun held(text: String) {
         PeriApp.hub(this).say(text)
         result.text = text
         result.visibility = View.VISIBLE

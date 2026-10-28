@@ -83,6 +83,11 @@ export class PearStore {
     return campaign(this.list().filter((p) => devices.has(p.device)), this.now());
   }
 
+  /** Whether this phone is in danger itself right now ([inDanger]), on this store's clock. */
+  danger(device: string): "oncall" | "danger" | null {
+    return inDanger(this.list().find((p) => p.device === device), this.now());
+  }
+
   private load(file: string) {
     // A damaged file starts empty: each phone sends its pear again the next time it changes or opens.
     const data = readStore(file, this.vault) as { pears?: Pear[] } | null;
@@ -112,6 +117,20 @@ export function readPear(body: any): PearInput | string {
   const kind = body?.kind ?? "";
   if (!TRAP_KINDS.includes(kind)) return "kind";
   return { name, outfit, role: body.role, state: body.state, kind: body.state === "attention" ? kind : "" };
+}
+
+/** A trap stopped this recently still puts its phone in danger: that guardian's yes waits. */
+export const DANGER_MS = 15 * 60 * 1000;
+
+/**
+ * Whether a phone is in danger itself right now, so a yes from it waits: on a call with a number it doesn't know
+ * ("oncall"), or a SIM swap's signs, something given away after a scam, or a trap stopped minutes ago ("danger").
+ */
+export function inDanger(pear: Pear | undefined, now: number): "oncall" | "danger" | null {
+  if (!pear || pear.state !== "attention") return null;
+  if (pear.kind === "call") return "oncall";
+  if (pear.kind === "sim" || pear.kind === "breach" || now - pear.updatedAt < DANGER_MS) return "danger";
+  return null;
 }
 
 /** The kind of trap that's reaching two or more of the family's phones right now, if any. */

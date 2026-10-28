@@ -470,6 +470,7 @@
     <string name="guardian_pear_note">The same pear you see in Family, dressed the same. If it isn\'t theirs, say No.</string>
     <string name="guardian_privacy">Your Peri checked this request with Peri\'s own server; it didn\'t trust the text message.</string>
     <string name="guardian_on_call">You\'re on a call with a number you don\'t know. Hang up first, then decide: that way nobody can talk you into it.</string>
+    <string name="guardian_in_danger">Your own phone is in trouble right now: a scam just reached it, or there are signs its SIM was changed. Sort that out first, then decide. A no still works.</string>
     <string name="guardian_check_1">You\'ve spoken to %1$s, on the phone or in person.</string>
     <string name="guardian_check_2">You know who %1$s is and trust them.</string>
     <string name="guardian_check_3">Nobody is rushing either of you.</string>

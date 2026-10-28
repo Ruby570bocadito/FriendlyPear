@@ -521,13 +521,14 @@ function routes(config: Config, services: Services) {
         if (decision === "approve" && form.get("confirm") !== "yes" && pending?.status === "pending") {
           return html(confirmPage(pending, token));
         }
-        // A guardian's own Peri sends its key: if that phone is on a call with a number it doesn't know right now,
-        // a yes waits. Someone on the line may be talking them into it.
+        // A guardian's own Peri sends its key: if that phone is in danger itself right now, a yes waits. On a call with
+        // a number it doesn't know, someone may be talking them into it; a SIM swap's signs, something given away after a
+        // scam or a trap stopped minutes ago mean that phone may not be theirs alone just now. A no always counts.
         const guardian = ownDevice(req, devices);
         const guardianPear = guardian ? services.pears?.list().find((p) => p.device === guardian.id) : undefined;
-        if (decision === "approve" && guardianPear?.state === "attention" && guardianPear.kind === "call") {
-          return html(resultPage(lang, "oncall"), 409);
-        }
+        const danger = decision === "approve" && guardian ? services.pears?.danger(guardian.id) : null;
+        if (danger === "oncall") return html(resultPage(lang, "oncall"), 409);
+        if (danger === "danger") return html(resultPage(lang, "danger"), 423);
         const result = approvals.decide(token, decision as Decision, guardianPear?.name);
         if (typeof result === "string") return html(resultPage(lang, result), result === "unknown" ? 404 : 410);
         // A first yes of two: counted, and the other guardian still has to answer.

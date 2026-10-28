@@ -21,8 +21,11 @@ object FamilyRequestClient {
 
     enum class Answer(val form: String) { REJECT("decision=reject"), CALLBACK("decision=callback"), APPROVE("decision=approve&confirm=yes") }
 
-    /** [ON_CALL]: the server held a yes back, this phone being on a call with a stranger; [HALF]: a first yes of two. */
-    enum class Outcome { DONE, HALF, GONE, ON_CALL, FAILED }
+    /**
+     * [ON_CALL]: the server held a yes back, this phone being on a call with a stranger; [IN_DANGER]: held back, this phone
+     * being in danger itself (a SIM swap's signs, a trap minutes ago); [HALF]: a first yes of two.
+     */
+    enum class Outcome { DONE, HALF, GONE, ON_CALL, IN_DANGER, FAILED }
 
     fun fetch(url: String): Request? = runCatching {
         val c = open(url, "GET").apply { setRequestProperty("Accept", "application/json") }
@@ -59,6 +62,7 @@ object FamilyRequestClient {
                 202 -> Outcome.HALF
                 404, 410 -> Outcome.GONE
                 409 -> Outcome.ON_CALL
+                423 -> Outcome.IN_DANGER
                 else -> Outcome.FAILED
             }
         } finally {
