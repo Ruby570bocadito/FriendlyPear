@@ -80,13 +80,13 @@ Por orden: primero lo que corta un timo en curso o impide que el propio Peri se 
 - [ ] (SEG) r2s-integridad — [L] (después) comprobar que la app que habla con el servidor es la nuestra (Play Integrity) y Safe Browsing para los enlaces — necesita Google Play
 ### G · Lo que pide la persona (28 oct, tarde)
 
-- [ ] (IMP-1) r3-paraguas-manos — [S] la pose del paraguas tenía tres manos en un gesto (y el paraguas flotando en otro): gestos propios para las poses con las dos manos ocupadas — assets/peri/, android/.../res/drawable-nodpi/
-- [ ] (IMP-1) r3-permisos-negados — [S] si se niegan todos los permisos el chat se queda colgado: sin micrófono «Hablar con Peri» no hace nada y el aviso promete una pantalla que no se abre — android/.../ui/peri/PeriActivity.kt
-- [ ] (IMP-1) r3-chat-seguro — [M] «Pregúntale a Peri»: chat escrito con consejos revisados sobre situaciones de seguridad (banco, códigos, enlaces, familia, apps, SIM...), sin mezclar nunca el chat con mensajes ni notificaciones — core/agent/, android/.../ui/peri/
-- [ ] (IMP-1) r3-bienvenida-pro — [M] la bienvenida más profesional y menos vacía — android/.../ui/peri/WelcomeActivity.kt
-- [ ] (IMP-1) r3-peri-viva — [M] más vida en reposo: poses nuevas con Muse Image y más movimientos — assets/peri/, android/.../ui/peri/PeriFace.kt
-- [ ] (IMP-1) r3-revision-seguridad — [M] más actuaciones de seguridad: revisión del móvil (bloqueo de pantalla, actualizaciones, depuración USB, apps con accesibilidad...) con el arreglo de cada una — android/
-- [ ] (IMP-1) r3-apk-prueba — [S] un APK para probar en el móvil de la persona — android/
+- [x] (IMP-1) r3-paraguas-manos — [S] la pose del paraguas tenía tres manos en un gesto (y el paraguas flotando en otro): gestos propios para las poses con las dos manos ocupadas — assets/peri/, android/.../res/drawable-nodpi/ · hecho 2026-10-28: `BUSY_HANDS` en `generate.ts`, dos fotogramas nuevos con sus cabezas sin hoja
+- [x] (IMP-1) r3-permisos-negados — [S] si se niegan todos los permisos el chat se queda colgado: sin micrófono «Hablar con Peri» no hace nada y el aviso promete una pantalla que no se abre — android/.../ui/peri/PeriActivity.kt · hecho 2026-10-28: sin micrófono «Hablar con Peri» abre el chat escrito; `why_notifications_later` dice dónde está lo que falta
+- [x] (IMP-1) r3-chat-seguro — [M] «Pregúntale a Peri»: chat escrito con consejos revisados sobre situaciones de seguridad (banco, códigos, enlaces, familia, apps, SIM...), sin mezclar nunca el chat con mensajes ni notificaciones — core/agent/, android/.../ui/peri/ · hecho 2026-10-28: `Advice` (19 temas) + `ChatActivity` + `PeriHub.ask` (solo lo que Peri dice en ese momento vuelve al chat); probado en el emulador sin permisos
+- [x] (IMP-1) r3-bienvenida-pro — [M] la bienvenida más profesional y menos vacía — android/.../ui/peri/WelcomeActivity.kt · hecho 2026-10-28: qué es cada página, tres puntos con icono, barra de progreso, botón redondo para escuchar
+- [x] (IMP-1) r3-peri-viva — [M] más vida en reposo: poses nuevas con Muse Image y más movimientos — assets/peri/, android/.../ui/peri/PeriFace.kt · hecho 2026-10-28: cinco momentos de calma de Muse Image (`CALM_MOMENTS`) entre sus gestos
+- [x] (IMP-1) r3-revision-seguridad — [M] más actuaciones de seguridad: revisión del móvil (bloqueo de pantalla, actualizaciones, depuración USB, apps con accesibilidad...) con el arreglo de cada una — android/ · hecho 2026-10-28: `CheckupActivity` (siete comprobaciones con su arreglo), desde Aprende y Ajustes
+- [x] (IMP-1) r3-apk-prueba — [S] un APK para probar en el móvil de la persona — android/ · hecho 2026-10-28: APK de depuración apuntando al servidor del PC en la red local (192.168.1.131:8711), enviado a la persona, nunca subido
 
 ### Se llevan de antes
 - Con la persona: pruebas-mayores, voice-transcribe (voces reales), bases-y-dudas, peri-referencia-video y la entrega.

@@ -36,7 +36,7 @@ in the code and covered by tests or by the two-phone tests of Oct 27 and 28.
 | 3 | Someone removes the guardians | Opening the family setup needs the phone's lock once a guardian exists; any change to the guardians needs the current guardians' yes (two of them, each with their own link, when there are two or more) and waits 48 hours, and the person can cancel. Peri says who approved it | ✅ |
 | 4 | A leaked or previewed link | One-time, 15 minutes, only its SHA-256 hash is stored. Opening it (GET) never decides anything, so link previews are harmless. Silence never approves | ✅ |
 | 4 | The page itself | No scripts; `Content-Security-Policy: default-src 'none'; img-src 'self'; form-action 'self'; frame-ancestors 'none'`, `no-referrer`, `no-store`, `nosniff`, `X-Frame-Options: DENY`, HSTS over HTTPS. Peri's pictures come from the same server | ✅ |
-| 5 | Prompt injection | "Ignore previous instructions"-style text is its own signal. Models only vote, within ±2, on doubtful messages; hard rules can't be overridden; Peri never reads a model's words aloud | ✅ |
+| 5 | Prompt injection | "Ignore previous instructions"-style text is its own signal. Models only vote, within ±2, on doubtful messages; hard rules can't be overridden; Peri never reads a model's words aloud. The written chat ("Ask Peri") can't be fed by a message: it only holds what the person writes and what Peri answers right then | ✅ |
 | 6 | A stolen or extracted device token | Each phone gets **its own key**, paired in person: `bun pair` on the server shows a one-time code and its QR (10 minutes, single use, only its hash kept); the phone's camera opens FriendlyPear, which asks before connecting. The server keeps only a hash of each key; the key sits on the phone encrypted by the Android Keystore, never backed up. Any phone can be disconnected alone. `ALLOW_SHARED_TOKEN=0` turns the shared test token off | ✅ |
 | 6 | A QR that points Peri elsewhere | The phone only pairs with **its own server** (same scheme, host and port as its build); any other QR is refused with a warning | ✅ |
 | 6 | A stolen key, or a family on one wifi | Limits per paired phone (120 requests a minute) as well as per IP, so a key used from many places still counts as one phone and one phone can't hold up the rest of the family; "hang up their call" at most 5 times in 10 minutes per phone | ✅ |
@@ -79,6 +79,13 @@ are gone after 15 minutes or when that phone is disconnected.
 - **What Peri can do** lists every permission and special access, what it's for and how to switch it off, and a log of
   what Peri did with them (calls, texts, location, pictures, voice, reports): only who and when, kept on the phone.
 - What the person tells Peri about a call ("they wanted the code") is judged by rules on the phone and never sent.
+- **"Ask Peri"**, the written chat, holds only two voices: what the person writes or taps, and what Peri answers to it
+  right then. A message or a notification that arrives meanwhile never shows up in it, and messages aren't read out from
+  it, so a scammer's words can't pass for Peri's. Her answers are written and reviewed in advance (19 situations, in both
+  languages), never a model's words; the questions are understood on the phone and never leave it.
+- The **security checkup** reads, on the phone, whether there's a screen lock, how old the last security update is,
+  whether USB debugging is on, which apps can control the screen, whether a Private DNS is set, and Peri's own access to
+  alerts and calls. It sends nothing; each fix opens Android's own setting.
 - The last scam (for "report it") and the last junk website notice (to silence that site) are kept on the phone for
   three days, sealed with the keystore key, never backed up. `VIBRATE` and `ACCESS_NETWORK_STATE` are normal permissions Android grants at install:
   touches with warnings, and seeing whether Private DNS is on.

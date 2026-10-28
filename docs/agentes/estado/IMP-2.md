@@ -3,6 +3,7 @@
 Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (API 37).
 
 ## Hecho (24 h)
+- 28 oct, tarde 2 (la persona: bienvenida, chat, paraguas, permisos negados, vida, más seguridad, APK): sección G del roadmap. Paraguas sin tercera mano (`BUSY_HANDS`); «Pregúntale a Peri» (`Advice`, `ChatActivity`, `PeriHub.ask`); sin micrófono se abre el chat; bienvenida con puntos y progreso; cinco momentos de calma (`CALM_MOMENTS`); revisión de seguridad (`CheckupActivity`); APK de prueba con `-Pfriendlypear.backendUrl=http://192.168.1.131:8711` (nunca se sube).
 - 28 oct, noche (la persona: ropa, acciones de la familia, notificaciones, estrellas, dos fondos, roadmap de seguridad, qué hacer tras dar datos):
   - Ropa: gafas nuevas de Muse Image sin patillas; cada ojo medido entero (el derecho, más iluminado, se medía por la mitad y todo iba a la izquierda); cada prenda centrada en su eje (`wear.py`); sin hoja bajo los sombreros: 48 cabezas redibujadas por Muse Image (`generate.ts tops`, `tops.py`, `PeriTops.kt`, `BareHead`), también en la página de aprobación (`/p/bare.webp`).
   - Llamadas: con la línea ocupada la llamada espera; botón de colgar en la pausa (`ANSWER_PHONE_CALLS`); «colgar su llamada» para la familia (`/v1/pears/:id/hangup`, `/v1/hangup`, pera con kind `call`); bloquear el número de un timo (`BlockList`, `CallScreener`, Ajustes). Probado con dos emuladores.
@@ -10,8 +11,7 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
   - Estrellas de plastilina (Muse Image) en `Sparkles.Effect.STARS`; el pueblo con sprites de Muse se probó y se retiró: la persona prefiere el mundo dibujado a mano.
   - Roadmap de seguridad: sección F de `docs/agentes/ROADMAP.md`. Hecho de ella: colgar con aviso, cuidador en llamada (sí en espera), límites por móvil, release sin token (`eval/release_check.py`), apps que controlan la pantalla (`ScreenAccess`; prueba: `--es intruder "paquete|nombre"`), burbuja de Mini Peri en ventana propia; primeros auxilios tras un timo (`Breach`, `AftercareActivity`, `AftercareReminder`; prueba: `--es text 'le he dado los datos de la tarjeta'`); lo guardado en el móvil, sellado con la clave del Keystore (`Sealed`); bloqueo familiar por huellas (`FamilyBlocks`, `/v1/blocks`; forzar la sincronización: `cmd jobscheduler run -f app.friendlypear 4202`); dos guardianes para lo más arriesgado (enlace por guardián, `needed`, `yes`); señales de robo de SIM (`LineWatch`; prueba: `emu gsm voice unregistered` y `gsm data unregistered`, un minuto en debug, o `--es sim new|lost|back`).
   - Pulido: dos anclajes por imagen (cara para gafas y cuello, cabeza para sombreros: al mirar a un lado gira la cara); una tarjeta cada vez, fondo más tranquilo, tarjetas con muelle; pruebas de estrés (`eval/stress.py` + monkey) sin fallos; Peri suelta sus fotogramas cuando no se ve (121 → 76 MB).
-- 28 oct, tarde: fondo con profundidad y luz de plastilina, «¿has sido tú?», campaña, la pera de quien pide, `docs/SECURITY.md`.
-- 28 oct, antes: armario, peras de la familia, bienvenida, `PeriWorld`, fuentes, apartados, juego, poses y gestos, frases de Muse Wonder.
+- 28 oct, tarde y antes: fondo con profundidad, «¿has sido tú?», campaña, `docs/SECURITY.md`; armario, peras de la familia, bienvenida, `PeriWorld`, juego, poses.
 
 ## Cómo probar (solo builds de depuración)
 - Voz: `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`.
