@@ -87,12 +87,29 @@ class PictureActivity : Activity() {
         val shared = if (intent?.action == Intent.ACTION_SEND) sharedUri(intent) else null
         when {
             savedInstanceState != null -> said.text = getString(R.string.picture_intro)
+            shared != null && !allowed(shared) -> {
+                said.text = getString(R.string.picture_refused)
+                pick()
+            }
             shared != null -> look(shared)
             else -> {
                 said.text = getString(R.string.picture_intro)
                 pick()
             }
         }
+    }
+
+    /**
+     * Only a picture another app hands over is looked at: a content:// address that isn't the phone's address book,
+     * call log or messages (Peri may read those; whoever shares must not borrow that). A file:// path could point at
+     * Peri's own files, so it's refused; debug builds take one inside Peri's own folder, for the tests.
+     */
+    private fun allowed(uri: Uri): Boolean = when (uri.scheme?.lowercase()) {
+        "content" -> uri.authority?.lowercase()?.let { a -> REFUSED.none { a == it || a.startsWith("$it.") } } == true
+        "file" -> app.friendlypear.BuildConfig.DEBUG && runCatching {
+            java.io.File(uri.path.orEmpty()).canonicalPath.startsWith(filesDir.canonicalPath + java.io.File.separator)
+        }.getOrDefault(false)
+        else -> false
     }
 
     private fun sharedUri(intent: Intent): Uri? =
@@ -276,6 +293,8 @@ class PictureActivity : Activity() {
     private companion object {
         const val REQUEST_PICK = 1
         const val MAX_SIDE = 1280
+        /** What Peri can read and the sharing app maybe can't: never taken as "a picture to look at". */
+        val REFUSED = listOf("com.android.contacts", "contacts", "call_log", "sms", "mms", "mms-sms", "icc", "com.android.calendar", "app.friendlypear")
 
         val DONTS = mapOf(
             "qr" to R.string.picture_dont_qr,

@@ -196,6 +196,7 @@
     <string name="picture_doubt">Something about this picture doesn\'t feel right to me.</string>
     <string name="picture_ok">This looks normal to me. Even so, if it ever asks you for money or a code, ask me first.</string>
     <string name="picture_failed">I couldn\'t look at the picture right now. If it asks you to pay or scan something, wait and ask your family.</string>
+    <string name="picture_refused">I can only look at a photo or a screenshot from your gallery. Pick one, please.</string>
     <string name="picture_only_qr">I couldn\'t look at the rest of the picture just now. If it asks you to pay or give a code, wait and ask your family.</string>
     <string name="picture_dont_qr">Don\'t scan its QR code.</string>
     <string name="picture_dont_link">Don\'t open its web address.</string>
