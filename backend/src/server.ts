@@ -7,6 +7,7 @@ import type { Config } from "./config";
 import { guardianPage } from "./guardians/page";
 import { type GuardianStore, readEvent } from "./guardians/store";
 import { investigate, readInvestigation } from "./investigator/investigate";
+import { type PearStore, readPear } from "./pears/store";
 import { readInput, secondOpinion } from "./investigator/opinion";
 import { lookAtPicture, MAX_IMAGE_BASE64, readPicture } from "./investigator/picture";
 import { readReport, writeReport } from "./investigator/report";
@@ -67,12 +68,20 @@ export interface Services {
   guardians?: GuardianStore | null;
   /** Phones paired one by one, each with its own key. */
   devices?: DeviceStore | null;
+  /** Each family phone's pear (name, outfit, role, calm or attention), for the family section. */
+  pears?: PearStore | null;
 }
 
 function sameSecret(req: Request, secret: string): boolean {
   const given = Buffer.from(req.headers.get("authorization") ?? "");
   const expected = Buffer.from(`Bearer ${secret}`);
   return given.length === expected.length && timingSafeEqual(given, expected);
+}
+
+/** The paired phone behind the request's own key; never the shared test token, which is no one phone. */
+function ownDevice(req: Request, devices?: DeviceStore | null) {
+  const bearer = (req.headers.get("authorization") ?? "").match(/^Bearer ([A-Za-z0-9_-]{32,64})$/)?.[1];
+  return bearer ? (devices?.check(bearer) ?? null) : null;
 }
 
 /** A paired phone's own key, or the shared test token while it is still allowed. */
@@ -163,10 +172,10 @@ function routes(config: Config, services: Services) {
 
     // A phone disconnects itself (Settings): its own key stops working.
     if (req.method === "DELETE" && pathname === "/v1/devices/self") {
-      const bearer = (req.headers.get("authorization") ?? "").match(/^Bearer ([A-Za-z0-9_-]{32,64})$/)?.[1];
-      const me = bearer ? devices?.check(bearer) : null;
+      const me = ownDevice(req, devices);
       if (!me) return json({ error: "unauthorized" }, 401);
       devices!.revoke(me.id);
+      services.pears?.forget(me.id);
       return json({ ok: true });
     }
 
@@ -178,7 +187,33 @@ function routes(config: Config, services: Services) {
     const one = pathname.match(/^\/v1\/devices\/([A-Za-z0-9_-]{8,20})$/);
     if (one && req.method === "DELETE") {
       if (!fromAdmin(req, config)) return json({ error: "unauthorized" }, 401);
+      services.pears?.forget(one[1]);
       return devices?.revoke(one[1]) ? json({ ok: true }) : json({ error: "not_found" }, 404);
+    }
+
+    // The family's pears: each paired phone sends its own and sees everyone's. A pear belongs to one phone, so only
+    // a phone's own key works here, never the shared test token.
+    if (pathname === "/v1/pears/self" && req.method === "PUT") {
+      const me = ownDevice(req, devices);
+      if (!me) return json({ error: "unauthorized" }, 401);
+      if (!services.pears) return json({ error: "no_pears" }, 503);
+      const body = await readJson(req);
+      if (body instanceof Response) return body;
+      const input = readPear(body);
+      if (typeof input === "string") return json({ error: "bad_request", detail: input }, 400);
+      if (!services.pears.put(me.id, input)) return json({ error: "too_many" }, 409);
+      return json({ ok: true });
+    }
+    if (pathname === "/v1/pears" && req.method === "GET") {
+      const me = ownDevice(req, devices);
+      if (!me) return json({ error: "unauthorized" }, 401);
+      if (!services.pears) return json({ error: "no_pears" }, 503);
+      const paired = new Set(devices!.list().map((d) => d.id));
+      const pears = services.pears
+        .list()
+        .filter((p) => paired.has(p.device))
+        .map(({ device, name, outfit, role, state, updatedAt }) => ({ id: device, name, outfit, role, state, updatedAt, self: device === me.id }));
+      return json({ pears });
     }
 
     if (req.method === "POST" && pathname === "/v1/opinion") {
