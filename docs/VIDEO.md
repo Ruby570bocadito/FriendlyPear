@@ -4,6 +4,8 @@
 
 > **28 oct, noche: anuncio de ejemplo con Remotion.** 20 s en vertical, hecho como código en [`video/`](../video/) con la skill oficial de Remotion como referencia: clips reales del emulador (`video/scripts/record.sh`), tres lugares del mundo de Peri con Muse Image (`video/scripts/backdrops.ts`, 0,03 $), Peri con sus propios fotogramas y las fuentes de la app. Se renderiza en el PC (`cd video && npm run render` → `video/out/ad.mp4`, ignorado por git). La API de Meta no tiene modelo de vídeo ni de voz: la música y la voz van en el montaje final. Remotion es gratis para equipos de hasta 3 personas.
 
+> **La historia:** propuesta de guion con Carmen y Peri en ese mismo mundo de plastilina, y un teaser del primer minuto a 60 fps, en [`HISTORIA.md`](HISTORIA.md). Pendiente de decidir con la persona.
+
 Dos piezas distintas:
 
 | Pieza | Para qué | Duración | Formato |
