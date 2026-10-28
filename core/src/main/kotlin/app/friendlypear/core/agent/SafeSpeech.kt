@@ -20,6 +20,10 @@ internal class SafeSpeech(private val p: Phrases) {
     fun names(contacts: List<String>): String =
         if (contacts.size == 1) contacts.single() else contacts.dropLast(1).joinToString(", ") + " ${p.or} " + contacts.last()
 
+    /** "Ana y Papá": everyone, rather than any one of them. */
+    fun all(contacts: List<String>): String =
+        if (contacts.size == 1) contacts.single() else contacts.dropLast(1).joinToString(", ") + " ${p.and} " + contacts.last()
+
     companion object {
         private val url = Regex("""(?i)\b(?:https?://|www\.)\S+""")
         private val email = Regex("""\S+@\S+\.\S+""")

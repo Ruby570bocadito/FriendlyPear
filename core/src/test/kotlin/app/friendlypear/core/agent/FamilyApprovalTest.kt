@@ -36,9 +36,58 @@ private class FakeApprovals : ApprovalPort {
 class FamilyApprovalTest {
     private val laura = Contact("1", "Laura", listOf("5556"), Relation.CHILD, trust = TrustLevel.GUARDIAN)
     private val pablo = Contact("2", "Pablo", listOf("600333444"), Relation.GRANDCHILD)
+    private val marta = Contact("3", "Marta López", listOf("5558"), Relation.CHILD, trust = TrustLevel.GUARDIAN)
 
     private fun agent(d: SmsDevice, approvals: FakeApprovals?, lang: Lang = Lang.ES) =
         PeriAgent(d, listOf(laura, pablo), lang, approvals = approvals)
+
+    private fun twoOnCall(d: SmsDevice, mfa: FakeApprovals): PeriAgent {
+        val a = PeriAgent(d, listOf(laura, pablo, marta), Lang.ES, approvals = mfa)
+        a.onIncomingCall("+34 911 000 111")
+        a.onCallStateChanged(active = true, answered = true)
+        a.onHeard("dile a Pablo que el código es 4821")
+        return a
+    }
+
+    @Test
+    fun `during a stranger's call two guardians must say yes, and Peri says who did`() {
+        val d = SmsDevice()
+        val mfa = FakeApprovals()
+        val a = twoOnCall(d, mfa)
+        val asked = mfa.asked.single()
+        assertEquals(listOf(laura, marta), asked.guardians)
+        assertTrue(d.said.last().contains("hace falta el sí de dos personas de tu familia: se lo pregunto a Laura y Marta López"), d.said.last())
+        a.onApprovalProgress(asked.ticket, listOf("Laura"))
+        assertTrue(d.said.last().startsWith("Laura ha dicho que sí. Para esto hace falta otro sí más"), d.said.last())
+        assertTrue(d.sms.isEmpty())
+        a.onApprovalResult(asked.ticket, ApprovalResult.APPROVED, listOf("Laura", "Marta"), "Marta")
+        assertTrue(d.said.any { it == "¡Buenas noticias! Laura y Marta lo han aprobado." }, d.said.toString())
+        assertEquals("600333444", d.sms.single().first)
+    }
+
+    @Test
+    fun `a no says who said it, and "call me first" calls the one who asked`() {
+        val d = SmsDevice()
+        val mfa = FakeApprovals()
+        val a = twoOnCall(d, mfa)
+        a.onApprovalResult(mfa.asked.single().ticket, ApprovalResult.REJECTED, listOf("Laura"), "Marta")
+        assertTrue(d.said.last().startsWith("Marta prefiere que no lo mandemos"), d.said.last())
+        assertTrue(d.sms.isEmpty())
+        a.onHeard("dile a Pablo que el código es 4821")
+        a.onApprovalResult(mfa.asked.last().ticket, ApprovalResult.CALL_BACK, emptyList(), "Marta")
+        assertTrue(d.said.last().startsWith("Marta López prefiere hablarlo contigo antes"), d.said.last())
+    }
+
+    @Test
+    fun `with no stranger on the line one guardian is still enough`() {
+        val d = SmsDevice()
+        val mfa = FakeApprovals()
+        PeriAgent(d, listOf(laura, pablo, marta), Lang.EN, approvals = mfa).onHeard("tell Pablo that the code is 4821")
+        assertTrue(d.said.last().startsWith("Sending a code is delicate, so I'm asking Laura or Marta López."), d.said.last())
+        assertFalse(ApprovalKind.SEND_CODE.needsTwo(onCall = false, guardians = 2))
+        assertTrue(ApprovalKind.CIRCLE_CHANGE.needsTwo(onCall = false, guardians = 2))
+        assertFalse(ApprovalKind.CIRCLE_CHANGE.needsTwo(onCall = true, guardians = 1))
+    }
 
     @Test
     fun `dictating a code asks the guardian instead of sending it`() {

@@ -550,9 +550,12 @@ class PeriAgent(
             val ticket = "approval-${++tickets}"
             val asked = guardians.take(3)
             awaitingGuardian = AwaitingGuardian(ticket, action, asked)
-            say(p.askingGuardian(speech.names(asked.map { it.name })), Mood.WAITING)
-            // On the line with a stranger, or just hung up on one: the guardian should know it may be a scam in progress.
+            // On the line with a stranger, or just hung up on one: the guardian should know it may be a scam in progress,
+            // and with two guardians or more, two of them have to say yes.
             val onCall = strangerOnLine || recent?.let { it.kind == RecentKind.CALL && clock() < it.until } == true
+            val names = asked.map { it.name }
+            val two = ApprovalKind.SEND_CODE.needsTwo(onCall, asked.size)
+            say(if (two) p.askingTwoGuardians(speech.all(names)) else p.askingGuardian(speech.names(names)), Mood.WAITING)
             approvals.request(ticket, ApprovalKind.SEND_CODE, action.contact.name, asked, onCall) { url ->
                 p.guardianSms(action.contact.name, url, onCall)
             }
@@ -560,18 +563,29 @@ class PeriAgent(
     }
 
     /** A guardian decided, the link expired or the request failed. Only an explicit yes lets the action go ahead. */
-    fun onApprovalResult(ticket: String, result: ApprovalResult) {
+    /** A first yes of two: Peri says who, and that one more is needed. Nothing is sent yet. */
+    fun onApprovalProgress(ticket: String, yes: List<String>) {
+        if (awaitingGuardian?.ticket != ticket) return
+        val names = yes.filter { it.isNotBlank() }
+        say(p.guardianOneMore(names.takeIf { it.isNotEmpty() }?.let { speech.all(it) }), Mood.WAITING)
+    }
+
+    /** [yes]: who said yes, by first name; [by]: who settled it (a no, "call me first", or the last yes). */
+    fun onApprovalResult(ticket: String, result: ApprovalResult, yes: List<String> = emptyList(), by: String? = null) {
         val waiting = awaitingGuardian?.takeIf { it.ticket == ticket } ?: return
         awaitingGuardian = null
+        val decider = by?.takeIf { it.isNotBlank() }
         when (result) {
             ApprovalResult.APPROVED -> {
-                say(p.guardianApproved, Mood.HAPPY)
+                val names = yes.filter { it.isNotBlank() }
+                say(if (names.isEmpty()) p.guardianApproved else p.guardiansApproved(speech.all(names), names.size), Mood.HAPPY)
                 perform(waiting.action)
             }
-            ApprovalResult.REJECTED -> say(p.guardianRejected)
-            // They'd rather talk first: Peri offers to call them, and a "yes" does it.
+            ApprovalResult.REJECTED -> say(decider?.let { p.guardianRejectedBy(it) } ?: p.guardianRejected)
+            // They'd rather talk first: Peri offers to call the one who asked (or the first guardian), and a "yes" does it.
             ApprovalResult.CALL_BACK -> {
-                val who = waiting.guardians.firstOrNull { it.phones.isNotEmpty() } ?: return say(p.guardianRejected)
+                val asker = decider?.let { name -> waiting.guardians.firstOrNull { it.phones.isNotEmpty() && it.name.split(" ").first().equals(name.split(" ").first(), ignoreCase = true) } }
+                val who = asker ?: waiting.guardians.firstOrNull { it.phones.isNotEmpty() } ?: return say(p.guardianRejected)
                 val question = p.guardianWantsCall(who.name)
                 pending = Pending.Confirm(Action.Call(who), question)
                 say(question, Mood.CALLING)

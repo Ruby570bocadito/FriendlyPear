@@ -66,6 +66,10 @@ internal interface Phrases {
     /** A relative's Peri sent its emergency alert. */
     fun relativeFell(name: String): String
     fun askingGuardian(names: String): String
+    fun askingTwoGuardians(names: String): String
+    fun guardianOneMore(names: String?): String
+    fun guardiansApproved(names: String, count: Int): String
+    fun guardianRejectedBy(name: String): String
     val guardianApproved: String
     val guardianRejected: String
     val guardianSilent: String
@@ -86,6 +90,7 @@ internal interface Phrases {
     fun callWithoutPermission(name: String, phone: String): String
     fun smsWithoutPermission(name: String): String
     val or: String
+    val and: String
     fun quote(text: String): String
     val link: String
     val email: String
@@ -190,6 +195,15 @@ internal object Spanish : Phrases {
     override fun relativeFell(name: String) = "Aviso del Peri de $name: dice que se ha caído y no lo ha cancelado. ¿Llamo a $name ahora?"
     override fun askingGuardian(names: String) =
         "Mandar un código es delicado, así que se lo pregunto a $names. En cuanto me conteste, te digo. Mientras, aquí sigo."
+    override fun askingTwoGuardians(names: String) =
+        "Mandar un código justo después de hablar con un número desconocido es muy delicado, así que hace falta el sí de dos personas de tu familia: se lo pregunto a $names. En cuanto contesten, te digo."
+    override fun guardianOneMore(names: String?) =
+        if (names != null) "$names ha dicho que sí. Para esto hace falta otro sí más, así que espero la otra respuesta."
+        else "Ya tengo un sí. Para esto hace falta otro más, así que espero la otra respuesta."
+    override fun guardiansApproved(names: String, count: Int) =
+        if (count == 1) "¡Buenas noticias! $names lo ha aprobado." else "¡Buenas noticias! $names lo han aprobado."
+    override fun guardianRejectedBy(name: String) =
+        "$name prefiere que no lo mandemos, así que no lo envío. Seguro que tiene sus motivos; si quieres, le llamamos."
     override val guardianApproved = "¡Buenas noticias! Tu familia lo ha aprobado."
     override val guardianRejected =
         "Tu familia prefiere que no lo mandemos, así que no lo envío. Seguro que tienen sus motivos; si quieres, les llamamos."
@@ -234,6 +248,7 @@ internal object Spanish : Phrases {
     override fun smsWithoutPermission(name: String) =
         "Vale, sin ese permiso no mando mensajes. Puedes escribir a $name desde tu app de mensajes. Puedes darme el permiso cuando quieras."
     override val or = "o"
+    override val and = "y"
     override fun quote(text: String) = "«$text»"
     override val link = "un enlace"
     override val email = "una dirección de correo"
@@ -328,6 +343,14 @@ internal object English : Phrases {
     override fun relativeFell(name: String) = "An alert from $name's Peri: they said they've fallen and didn't cancel it. Shall I call $name now?"
     override fun askingGuardian(names: String) =
         "Sending a code is delicate, so I'm asking $names. As soon as they answer, I'll tell you. I'm still here meanwhile."
+    override fun askingTwoGuardians(names: String) =
+        "Sending a code right after a call with an unknown number is very delicate, so it takes a yes from two people in your family: I'm asking $names. As soon as they answer, I'll tell you."
+    override fun guardianOneMore(names: String?) =
+        if (names != null) "$names said yes. This needs one more yes, so I'm waiting for the other answer."
+        else "I've got one yes. This needs one more, so I'm waiting for the other answer."
+    override fun guardiansApproved(names: String, count: Int) = "Good news! $names approved it."
+    override fun guardianRejectedBy(name: String) =
+        "$name would rather we didn't send it, so I won't. I'm sure they have their reasons; we can call them if you like."
     override val guardianApproved = "Good news! Your family has approved it."
     override val guardianRejected =
         "Your family would rather we didn't send it, so I won't. I'm sure they have their reasons; we can call them if you like."
@@ -372,6 +395,7 @@ internal object English : Phrases {
     override fun smsWithoutPermission(name: String) =
         "OK, without that permission I won't send messages. You can write to $name from your messages app. You can give me the permission any time."
     override val or = "or"
+    override val and = "and"
     override fun quote(text: String) = "\"$text\""
     override val link = "a link"
     override val email = "an email address"

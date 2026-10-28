@@ -9,8 +9,15 @@ enum class ApprovalKind { SEND_CODE, CIRCLE_CHANGE }
 enum class ApprovalResult { APPROVED, REJECTED, CALL_BACK, EXPIRED, FAILED }
 
 /**
- * Family MFA. The phone creates a one-time link (15 minutes), texts it to the guardians with [smsFor] and,
- * when they decide or the link expires, calls [PeriAgent.onApprovalResult] with the same [ticket].
+ * The riskiest requests need two guardians' yes, when two or more are asked: changing the guardians, or a code while a
+ * stranger is (or just was) on the line. The family's server applies the same rule (backend/src/approvals/store.ts).
+ */
+fun ApprovalKind.needsTwo(onCall: Boolean, guardians: Int): Boolean = guardians >= 2 && (this == ApprovalKind.CIRCLE_CHANGE || onCall)
+
+/**
+ * Family MFA. The phone creates a one-time link per guardian (15 minutes), texts each its own with [smsFor] and,
+ * as they answer, calls [PeriAgent.onApprovalProgress] (a first yes of two) and [PeriAgent.onApprovalResult] when
+ * they decide or the links expire, with the same [ticket].
  * Silence is [ApprovalResult.EXPIRED]: nothing is ever approved by itself.
  * [onCall] tells the guardian the person is on the phone with a stranger right now (a scam in progress), as a
  * yes or no: never the number, the call or the message.
