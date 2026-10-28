@@ -68,6 +68,12 @@ class PeriActivity : Activity() {
     private var bars = android.graphics.Insets.NONE
     private lateinit var familyAlert: View
     private lateinit var familyAlertTitle: TextView
+    private lateinit var familyAlertText: TextView
+    private lateinit var question: View
+    private lateinit var questionTitle: TextView
+    private lateinit var questionText: TextView
+    /** The "was it you?" on show (its id and who asks), or null. */
+    private var asking: Pair<String, String>? = null
     /** The family alert on show (whose pear, and since when), or null. */
     private var familyAlertKey: String? = null
     private var pulse: ObjectAnimator? = null
@@ -234,6 +240,7 @@ class PeriActivity : Activity() {
 
         // A family member's Peri is on alert: their pear needs attention. It comes before every other card.
         familyAlertTitle = heading("", TextSize.BODY).apply { setTextColor(Palette.CORAL_INK) }
+        familyAlertText = body(getString(R.string.family_alert_text), TextSize.SMALL).apply { setTextColor(Palette.INK) }
         familyAlert = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = tintedCard(Palette.CORAL_TINT, 0xFFEFB4A8.toInt())
@@ -247,7 +254,7 @@ class PeriActivity : Activity() {
                     orientation = LinearLayout.VERTICAL
                     setPadding(dp(10), 0, dp(4), 0)
                     addView(familyAlertTitle)
-                    addView(body(getString(R.string.family_alert_text), TextSize.SMALL).apply { setTextColor(Palette.INK) })
+                    addView(familyAlertText)
                 }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
                 addView(ImageView(this@PeriActivity).apply {
                     setImageResource(R.drawable.ic_close)
@@ -268,6 +275,35 @@ class PeriActivity : Activity() {
                 topMargin = dp(10)
                 marginEnd = dp(8)
             })
+        }
+
+        // "Was it you?": another family phone got a message from a new number that says it's family.
+        questionTitle = heading("", TextSize.BODY).apply { setTextColor(Palette.LILAC_INK) }
+        questionText = body("", TextSize.SMALL).apply { setTextColor(Palette.INK) }
+        question = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = tintedCard(Palette.LILAC_TINT, 0xFFCDBEF5.toInt())
+            setPadding(dp(16), dp(12), dp(16), dp(14))
+            visibility = View.GONE
+            accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+            addView(LinearLayout(this@PeriActivity).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                addView(badge(R.drawable.ic_family, Palette.WHITE, Palette.LILAC_INK, 44), LinearLayout.LayoutParams(dp(44), dp(44)))
+                addView(LinearLayout(this@PeriActivity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(dp(10), 0, 0, 0)
+                    addView(questionTitle)
+                    addView(questionText)
+                }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            })
+            addView(LinearLayout(this@PeriActivity).apply {
+                addView(Pill(this@PeriActivity, getString(R.string.check_me), R.drawable.ic_check, primary = false, size = 17f).apply {
+                    setOnClickListener { answerQuestion(me = true) }
+                }, LinearLayout.LayoutParams(0, dp(56), 1f).apply { marginEnd = dp(5) })
+                addView(Pill(this@PeriActivity, getString(R.string.check_not_me), R.drawable.ic_close, primary = false, size = 17f).apply {
+                    setOnClickListener { answerQuestion(me = false) }
+                }, LinearLayout.LayoutParams(0, dp(56), 1f).apply { marginStart = dp(5) })
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) })
         }
 
         // A website's junk notice: it isn't the phone talking, and its notices can be switched off in one tap.
@@ -377,6 +413,7 @@ class PeriActivity : Activity() {
                 }, android.widget.FrameLayout.LayoutParams(dp(52), dp(52), Gravity.BOTTOM or Gravity.END).apply { bottomMargin = dp(8) })
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(4) })
             addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            addView(question, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
             addView(familyAlert, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
             addView(web, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
             addView(report, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
@@ -1035,22 +1072,61 @@ class PeriActivity : Activity() {
      */
     private fun checkFamily() {
         if (!hub.seesFamilyPears) return
-        hub.familyPears { pears ->
-            if (pears == null || !resumed) return@familyPears
-            val alert = pears.firstOrNull { !it.self && it.state == "attention" }
-            val key = alert?.let { "${it.id}:${it.updatedAt}" }
-            if (alert == null || key == asked.getString(FAMILY_DISMISSED, null)) {
+        hub.openChecks { checks ->
+            if (checks == null || !resumed) return@openChecks
+            val next = checks.firstOrNull { it.kind == "new_number" }
+            asking = next?.let { it.id to it.from.ifEmpty { getString(R.string.check_someone) } }
+            val (id, from) = asking ?: return@openChecks showSetup()
+            questionTitle.text = getString(R.string.check_question_title, from)
+            questionText.text = getString(R.string.check_question_text, from)
+            showSetup()
+            if (id != asked.getString(CHECK_SAID, null)) {
+                asked.edit().putString(CHECK_SAID, id).apply()
+                hub.haptics.mood(Mood.WORRIED)
+                hub.say(getString(R.string.check_question_says, from))
+            }
+        }
+        hub.familyPears { family ->
+            if (family == null || !resumed) return@familyPears
+            // The same trap reaching several of the family comes first: everyone should know.
+            val campaign = family.campaign
+            val alert = family.pears.firstOrNull { !it.self && it.state == "attention" }
+            // One alert per family member in trouble (or per campaign), said once: their phone sending its pear again
+            // doesn't repeat it. Once all is calm, the next one is new.
+            val key = when {
+                campaign != null -> "campaign:$campaign"
+                alert != null -> "pear:${alert.id}"
+                else -> null
+            }
+            if (key == null) asked.edit().remove(FAMILY_SAID).remove(FAMILY_DISMISSED).apply()
+            if (key == null || key == asked.getString(FAMILY_DISMISSED, null)) {
                 familyAlertKey = null
                 return@familyPears showSetup()
             }
             familyAlertKey = key
-            familyAlertTitle.text = getString(R.string.family_alert_title, alert.name)
+            if (campaign != null) {
+                familyAlertTitle.text = getString(R.string.campaign_title)
+                familyAlertText.text = getString(R.string.campaign_text, getString(TRAP_NAMES[campaign] ?: R.string.trap_name_link).lowercase())
+            } else if (alert != null) {
+                familyAlertTitle.text = getString(R.string.family_alert_title, alert.name)
+                familyAlertText.text = getString(R.string.family_alert_text)
+            }
             showSetup()
             if (key != asked.getString(FAMILY_SAID, null)) {
                 asked.edit().putString(FAMILY_SAID, key).apply()
                 hub.haptics.mood(Mood.WORRIED)
-                hub.say(getString(R.string.family_alert_says, alert.name))
+                hub.say(if (campaign != null) getString(R.string.campaign_says) else getString(R.string.family_alert_says, alert!!.name))
             }
+        }
+    }
+
+    /** The answer to "was it you?" goes back to the one who asked; Peri says thanks. */
+    private fun answerQuestion(me: Boolean) {
+        val (id, from) = asking ?: return
+        asking = null
+        showSetup()
+        hub.answerCheck(id, me) { sent ->
+            if (sent) hub.say(getString(R.string.check_thanks, from))
         }
     }
 
@@ -1065,16 +1141,18 @@ class PeriActivity : Activity() {
         val steps = listOf(noBasics to basics, noAccess to access, noSms to sms, noUsage to usage, noLocation to location)
         val first = steps.firstOrNull { it.first }?.second
         steps.forEach { (_, row) -> row.visibility = if (row == first) View.VISIBLE else View.GONE }
-        // Family in trouble first, then a website to silence, then a scam to report: one card at a time, so Peri
-        // keeps her room.
-        val family = familyAlertKey != null
+        // A family question first, then family in trouble, then a website to silence, then a scam to report: one card
+        // at a time, so Peri keeps her room.
+        val asked = asking != null
+        question.visibility = if (asked) View.VISIBLE else View.GONE
+        val family = !asked && familyAlertKey != null
         familyAlert.visibility = if (family) View.VISIBLE else View.GONE
-        val site = hub.webNotices.offer()?.takeIf { !family }
+        val site = hub.webNotices.offer()?.takeIf { !family && !asked }
         web.visibility = if (site != null) View.VISIBLE else View.GONE
         if (site != null) webText.text = getString(R.string.web_card_text, site.site ?: getString(R.string.web_unknown_site))
-        val reporting = !family && site == null && hub.lastScam.offer() != null
+        val reporting = !family && !asked && site == null && hub.lastScam.offer() != null
         report.visibility = if (reporting) View.VISIBLE else View.GONE
-        setup.visibility = if (first != null && !reporting && site == null && !family) View.VISIBLE else View.GONE
+        setup.visibility = if (first != null && !reporting && site == null && !family && !asked) View.VISIBLE else View.GONE
         // Contacts and calls, plus a way to see messages (texts or alerts): that's enough to protect.
         val seesMessages = hub.permissions.granted(Need.READ_SMS) || !noAccess
         val protecting = !noBasics && seesMessages
@@ -1264,6 +1342,15 @@ class PeriActivity : Activity() {
         const val JOLT_GAP_MS = 120L
         val PLAYFUL = setOf(Mood.CALM, Mood.HAPPY, Mood.SLEEPING)
         const val FAMILY_POLL_MS = 30_000L
+        const val CHECK_SAID = "check_said"
+        val TRAP_NAMES = mapOf(
+            "parcel" to R.string.trap_name_parcel,
+            "link" to R.string.trap_name_link,
+            "code" to R.string.trap_name_code,
+            "family" to R.string.trap_name_family,
+            "remote" to R.string.trap_name_remote,
+            "prize" to R.string.trap_name_prize,
+        )
         const val FAMILY_SAID = "family_said"
         const val FAMILY_DISMISSED = "family_dismissed"
         const val TAB_PERI = 0

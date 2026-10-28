@@ -245,6 +245,7 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
                 Diary.Kind.FAMILY_ASKED -> Line(e.at, R.drawable.ic_family, Palette.LILAC_TINT, Palette.LILAC_INK, c.getString(R.string.diary_family_asked))
                 Diary.Kind.WEB_SILENCED -> Line(e.at, R.drawable.ic_notifications, Palette.SKY_TINT, Palette.SKY_INK, c.getString(R.string.diary_web))
                 Diary.Kind.QUIZ -> Line(e.at, R.drawable.ic_learn, Palette.SKY_TINT, Palette.SKY_INK, c.getString(R.string.diary_quiz, e.detail))
+                Diary.Kind.FAMILY_CHECKED -> Line(e.at, R.drawable.ic_family, Palette.LILAC_TINT, Palette.LILAC_INK, c.getString(R.string.diary_family_checked))
             }
         }
         val uses = hub.uses.all().map { e ->
@@ -473,7 +474,8 @@ internal class FamilyPage(context: Context, private val hub: PeriHub, private va
         }
         val note = c.body("", 16f).apply { visibility = View.GONE }
         box.addView(note, c.below(8))
-        hub.familyPears { pears ->
+        hub.familyPears { family ->
+            val pears = family?.pears
             if (pears == null) {
                 note.text = c.getString(R.string.family_pears_error)
                 note.visibility = View.VISIBLE

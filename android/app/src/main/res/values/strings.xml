@@ -891,4 +891,20 @@
     <string name="welcome_dress_text">Hats, glasses, a bow tie… Choose my look whenever you like with the hanger by my feet. Your family will see me like that too.</string>
     <string name="welcome_dress_now">Choose now</string>
     <string name="place_random">A surprise every time</string>
+    <!-- Trust between the family's Peris: "was it you?" and campaigns. -->
+    <string name="check_question_title">Did you write to %1$s?</string>
+    <string name="check_question_text">%1$s got a message from a new number that says it\'s family. Was it you?</string>
+    <string name="check_question_says">A quick question: %1$s got a message from a new number that says it\'s family. Was it you?</string>
+    <string name="check_me">Yes, it was me</string>
+    <string name="check_not_me">No, it wasn\'t me</string>
+    <string name="check_thanks">Thank you! I\'ll let %1$s know.</string>
+    <string name="check_result_me">%1$s says they wrote to you from a new number. Even so, call them on their usual number before you do anything.</string>
+    <string name="check_result_none">I asked your family: nobody wrote to you from a new number. It\'s a trap, so don\'t answer it.</string>
+    <string name="check_someone">Someone in your family</string>
+    <string name="campaign_title">Scams are reaching your family</string>
+    <string name="campaign_text">The same trap reached more than one of you today: %1$s. If it reaches you, don\'t touch anything.</string>
+    <string name="campaign_says">Heads up: the same trap is reaching several people in your family. If it reaches you, don\'t touch anything.</string>
+    <string name="diary_family_checked">I asked your family whether a new number was really one of them</string>
+    <string name="check_result_named">%1$s says it wasn\'t them. It\'s a trap, so don\'t answer it.</string>
+    <string name="check_result_silence">Your family hasn\'t answered yet. Better call them on their usual number before you do anything.</string>
 </resources>

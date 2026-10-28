@@ -361,19 +361,87 @@ class PeriHub(context: Context) {
         sharedState = state
         val outfit = app.friendlypear.ui.peri.Outfit.load(context).code()
         val role = if (family.load().guardians.isNotEmpty()) "protected" else "guardian"
+        // The kind of trap, if a scam is why her pear needs attention: the family's server spots one reaching many.
+        val kind = lastScam.load()?.takeIf { state == "attention" && System.currentTimeMillis() - it.at < SCAM_KIND_MS }?.kind.orEmpty()
         waiting.execute {
-            val sent = pearClient.publish(name, outfit, role, state)
+            val sent = pearClient.publish(name, outfit, role, state, kind)
             Log.i(TAG, "pear published=$sent state=$state")
         }
     }
 
-    /** Everyone's pears, this phone's included; null if the server can't be reached. */
-    fun familyPears(done: (List<app.friendlypear.net.PearClient.Pear>?) -> Unit) {
+    /** Everyone's pears, this phone's included, and any campaign; null if the server can't be reached. */
+    fun familyPears(done: (app.friendlypear.net.PearClient.Family?) -> Unit) {
         waiting.execute {
-            val pears = pearClient.family()
-            main.post { done(pears) }
+            val family = pearClient.family()
+            main.post { done(family) }
         }
     }
+
+    /** The "was it you?" questions other family phones are asking this one. */
+    fun openChecks(done: (List<app.friendlypear.net.PearClient.Check>?) -> Unit) {
+        waiting.execute {
+            val checks = pearClient.openChecks()
+            main.post { done(checks) }
+        }
+    }
+
+    fun answerCheck(id: String, me: Boolean, done: (Boolean) -> Unit) {
+        waiting.execute {
+            val sent = pearClient.answer(id, me)
+            main.post { done(sent) }
+        }
+    }
+
+    /**
+     * "Was it you?": someone wrote from a new number saying they're family. Peri asks the family's other Peris in
+     * silence and says what they answered: if one says it was them, still call their usual number first; if all say
+     * no, it's a trap. Only the question travels, never the message or the number.
+     */
+    private fun askFamily() {
+        // Like the pear's attention, only while the person shares Peri's news with the family.
+        if (!pearClient.enabled || !news.sharing) return
+        waiting.execute {
+            val id = pearClient.ask("new_number") ?: return@execute
+            main.post {
+                diary.add(app.friendlypear.config.Diary.Kind.FAMILY_CHECKED)
+                val question = FamilyQuestion(id, android.os.SystemClock.uptimeMillis())
+                main.postDelayed(object : Runnable {
+                    override fun run() = hearFamily(question, this)
+                }, CHECK_POLL_MS)
+            }
+        }
+    }
+
+    /** A "was it you?" being waited on: when it was asked, and when the first "it wasn't me" came. */
+    private class FamilyQuestion(val id: String, val started: Long, var firstNo: Long = 0L)
+
+    /**
+     * Someone said it was them: still call their usual number. Everyone said no, or someone said no a minute ago
+     * and nobody said yes since: it's a trap. Nobody answered in ten minutes: call their usual number.
+     */
+    private fun hearFamily(question: FamilyQuestion, again: Runnable) {
+        waiting.execute {
+            val result = pearClient.answers(question.id)
+            main.post {
+                val now = android.os.SystemClock.uptimeMillis()
+                val me = result?.answers?.firstOrNull { it.me }
+                val noes = result?.answers?.filter { !it.me }.orEmpty()
+                if (noes.isNotEmpty() && question.firstNo == 0L) question.firstNo = now
+                val someone = context.getString(R.string.check_someone)
+                when {
+                    me != null -> tell(context.getString(R.string.check_result_me, me.name.ifEmpty { someone }))
+                    result != null && result.asked > 0 && noes.size >= result.asked -> tell(context.getString(R.string.check_result_none))
+                    question.firstNo > 0 && now - question.firstNo > CHECK_GRACE_MS ->
+                        tell(context.getString(R.string.check_result_named, noes.joinToString(", ") { it.name.ifEmpty { someone } }))
+                    now - question.started > CHECK_MAX_MS -> tell(context.getString(R.string.check_result_silence))
+                    else -> main.postDelayed(again, CHECK_POLL_MS)
+                }
+            }
+        }
+    }
+
+    /** Said aloud, unless Peri is talking or waiting for an answer: then only written in her bubble. */
+    private fun tell(text: String) = if (speaking || agent.isWaitingForAnswer) show(text) else say(text)
 
     val isWaitingForAnswer: Boolean get() = agent.isWaitingForAnswer
 
@@ -587,6 +655,8 @@ class PeriHub(context: Context) {
             views.forEach { it.scamToReport() }
         }
         if (level == Level.DOUBT) diary.add(app.friendlypear.config.Diary.Kind.DOUBT_CHECKED)
+        // A stranger's number claiming to be family: the family's Peris are asked "was it you?".
+        if (level != Level.OK && app.friendlypear.core.shield.Signal.NEW_NUMBER_CLAIM in verdict.signals && familyContact(message.sender) == null) askFamily()
         val name = when (level) {
             Level.SCAM -> "scam"
             Level.DOUBT -> "doubt"
@@ -785,6 +855,13 @@ class PeriHub(context: Context) {
         const val DEBUG_HEAR = "app.friendlypear.debug.HEAR"
         const val MUSE_VOICE = "muse_voice"
         const val PEAR_NAME = "name"
+        /** A scam this recent is why the pear needs attention, and its kind travels with it. */
+        const val SCAM_KIND_MS = 30 * 60_000L
+        const val CHECK_POLL_MS = 10_000L
+        /** After this, a "was it you?" stops waiting for answers. */
+        const val CHECK_MAX_MS = 10 * 60_000L
+        /** After the first "it wasn't me", this long for anyone else to say it was them. */
+        const val CHECK_GRACE_MS = 60_000L
         /** Peri warning, protecting, or waiting for the family's answer: the family's pear needs attention. */
         val ATTENTION_MOODS = setOf(Mood.WORRIED, Mood.PROTECTIVE, Mood.WAITING)
     }

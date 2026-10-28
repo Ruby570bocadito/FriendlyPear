@@ -860,4 +860,20 @@
     <string name="welcome_dress_text">Sombreros, gafas, pajarita… Elige mi ropa cuando quieras con la percha que hay junto a mis pies. Tu familia también me verá así.</string>
     <string name="welcome_dress_now">Elegir ahora</string>
     <string name="place_random">Una sorpresa cada vez</string>
+    <!-- Trust between the family's Peris: "was it you?" and campaigns. -->
+    <string name="check_question_title">¿Le has escrito tú a %1$s?</string>
+    <string name="check_question_text">%1$s ha recibido un mensaje de un número nuevo que dice ser de la familia. ¿Has sido tú?</string>
+    <string name="check_question_says">Una pregunta rápida: %1$s ha recibido un mensaje de un número nuevo que dice ser de la familia. ¿Has sido tú?</string>
+    <string name="check_me">Sí, he sido yo</string>
+    <string name="check_not_me">No he sido yo</string>
+    <string name="check_thanks">¡Gracias! Se lo digo a %1$s.</string>
+    <string name="check_result_me">%1$s dice que te ha escrito desde un número nuevo. Aun así, llámale a su número de siempre antes de hacer nada.</string>
+    <string name="check_result_none">He preguntado a tu familia: nadie te ha escrito desde un número nuevo. Es una trampa: no contestes.</string>
+    <string name="check_someone">Alguien de tu familia</string>
+    <string name="campaign_title">Están llegando timos a tu familia</string>
+    <string name="campaign_text">La misma trampa ha llegado hoy a varias personas de tu familia: %1$s. Si te llega, no toques nada.</string>
+    <string name="campaign_says">Ojo: la misma trampa está llegando a varias personas de tu familia. Si te llega, no toques nada.</string>
+    <string name="diary_family_checked">Pregunté a tu familia si un número nuevo era de verdad suyo</string>
+    <string name="check_result_named">%1$s dice que no te ha escrito desde un número nuevo. Es una trampa: no contestes.</string>
+    <string name="check_result_silence">Tu familia aún no ha contestado. Mejor llama a su número de siempre antes de hacer nada.</string>
 </resources>

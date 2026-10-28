@@ -10,7 +10,7 @@ import org.json.JSONObject
  * not?". Never what a message said or who sent it. It stays on this phone (no backups) and keeps the last [MAX].
  */
 class Diary(context: Context) {
-    enum class Kind { SCAM_STOPPED, DOUBT_CHECKED, PAUSE_LEFT, FAMILY_CALLED, FAMILY_ASKED, WEB_SILENCED, QUIZ }
+    enum class Kind { SCAM_STOPPED, DOUBT_CHECKED, PAUSE_LEFT, FAMILY_CALLED, FAMILY_ASKED, WEB_SILENCED, QUIZ, FAMILY_CHECKED }
 
     /** [detail] is a word or two at most: the kind of trap ("parcel"), or a score ("5/6"). */
     data class Entry(val at: Long, val kind: Kind, val detail: String = "")
