@@ -418,7 +418,6 @@ class PeriFace(context: Context) : FrameLayout(context) {
         }
     }
 
-    /** Swaps the frame at once: blinks and the mouth are quick, and a swap never blends two pictures. */
     /**
      * [res] on her now. With [blend], the new frame comes in over the old one in a breath (a step, a gesture, a
      * wave), so her body flows from pose to pose; blinks and her mouth stay instant, as they are in life.
@@ -442,6 +441,10 @@ class PeriFace(context: Context) : FrameLayout(context) {
             front = back
             back = leaving
         } else {
+            // A blend still running would keep fading this frame in from nothing, with the old one already
+            // hidden: her body flashed see-through when the mouth moved right after a gesture.
+            front.animate().cancel()
+            back.animate().cancel()
             front.setImageDrawable(next)
             front.alpha = 1f
             back.alpha = 0f
