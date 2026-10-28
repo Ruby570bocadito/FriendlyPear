@@ -664,6 +664,15 @@
     <string name="trap_payment_1">Someone says they paid you, by mistake or for something you sell, and asks you to accept it or send it back.</string>
     <string name="trap_payment_2">That payment doesn\'t exist: their page is after your card, and the money you send back is yours.</string>
     <string name="trap_payment_3">Look in your own bank\'s app. If nothing came in, there\'s nothing to accept or give back.</string>
+    <string name="trap_official_1">A message pretends to be the tax office, traffic or the health service, with a refund or a fine for today.</string>
+    <string name="trap_official_2">Behind the official stamp there\'s a scammer: they want your card or your bank details.</string>
+    <string name="trap_official_3">Public offices don\'t charge or refund by text. Look at their official website or app yourself, calmly.</string>
+    <string name="trap_bill_1">A message says your power or water will be cut off today unless you pay at once.</string>
+    <string name="trap_bill_2">The cut-off is made up: the rush is there so you pay before you think.</string>
+    <string name="trap_bill_3">Call the number on your own bill, or look in the company\'s app. Nobody cuts you off by text.</string>
+    <string name="trap_romance_1">Someone you\'ve never met in person writes you lovely words, day after day.</string>
+    <string name="trap_romance_2">Then come the troubles: a fee, a ticket, a hospital. The love was a mask to ask for money.</string>
+    <string name="trap_romance_3">Never send money to someone you haven\'t met. Tell your family: talking about it helps.</string>
     <string name="web_card_title">A website sent that</string>
     <string name="web_card_text">It isn\'t your phone talking: %1$s sends those notices. Switch them off so it can\'t scare you again.</string>
     <string name="web_card_button">Silence this website</string>
@@ -698,6 +707,9 @@
     <string name="diary_scam_prize">I stopped a prize that was too good to be true</string>
     <string name="diary_scam_callback">I stopped a message with a fake number to call</string>
     <string name="diary_scam_payment">I stopped a fake payment</string>
+    <string name="diary_scam_official">I stopped a message pretending to be a public office</string>
+    <string name="diary_scam_bill">I stopped a fake bill</string>
+    <string name="diary_scam_romance">I stopped someone faking love to ask you for money</string>
     <string name="diary_doubt">I checked a doubtful message for you</string>
     <string name="diary_pause_left">You left a money app in time</string>
     <string name="diary_family_called">You chose to call your family first</string>
@@ -733,6 +745,9 @@
     <string name="trap_name_call">A stranger on the phone</string>
     <string name="trap_name_callback">The number to call</string>
     <string name="trap_name_payment">The fake payment</string>
+    <string name="trap_name_official">The fake official</string>
+    <string name="trap_name_bill">The fake bill</string>
+    <string name="trap_name_romance">The fake love</string>
     <string name="family_page_title">Your family</string>
     <string name="family_guardians_title">Your guardians</string>
     <string name="family_no_guardians">Nobody yet. Choose the people you trust in “Change my family”.</string>
@@ -985,6 +1000,10 @@
         <item>Your bank</item>
         <item>Marisa (neighbour)</item>
         <item>Royal Mail</item>
+        <item>Your bank</item>
+        <item>Unknown number</item>
+        <item>Mark</item>
+        <item>Your bank</item>
     </string-array>
     <string-array name="quiz_text">
         <item>Your parcel is on hold due to an unpaid £1.99 fee. Pay today here: {royalmail-redeliver.top/pay}</item>
@@ -1003,6 +1022,10 @@
         <item>Card purchase of £23.50 at Sun Supermarket with your card ending 4821.</item>
         <item>I\'ve left your umbrella in the letterbox. Thanks for lending it to me!</item>
         <item>Your parcel will arrive tomorrow between 9am and 2pm. You don\'t need to do anything.</item>
+        <item>We\'ve seen an unusual payment on your card. Call our security team now on 01632 960 815.</item>
+        <item>Hi, I\'m interested in your sofa. I\'ve paid through the safe payment service: check your email and accept it so the money reaches you.</item>
+        <item>My love, I\'m stuck at the airport and they won\'t let me fly to you without a £300 fee. Can you send it today?</item>
+        <item>A new phone has signed in to your banking app. If it was you, you don\'t need to do anything.</item>
     </string-array>
     <string-array name="quiz_clue">
         <item>Royal Mail doesn\'t ask for fees by text with a link. If you\'re expecting a parcel, check the official website yourself.</item>
@@ -1021,6 +1044,10 @@
         <item>It just tells you about a purchase. If it wasn\'t you, call the number on your card.</item>
         <item>A neighbour you know, no rush and no payments. All fine.</item>
         <item>It informs you without asking for payment or taps. That\'s how real companies write.</item>
+        <item>A number to call written in the message goes to the scammers. Call only the one on the back of your card.</item>
+        <item>A buyer never pays through a page they send you. If nothing came into your bank, there\'s nothing to accept.</item>
+        <item>Someone you\'ve never met in person who asks for money is always a trap, however sweet the words.</item>
+        <item>It asks for nothing and has no link. If it wasn\'t you, call the number on the back of your card.</item>
     </string-array>
     <integer-array name="quiz_scam">
         <item>1</item>
@@ -1039,6 +1066,10 @@
         <item>0</item>
         <item>0</item>
         <item>0</item>
+        <item>1</item>
+        <item>1</item>
+        <item>1</item>
+        <item>0</item>
     </integer-array>
     <string-array name="quiz_channel" translatable="false">
         <item>sms</item>
@@ -1055,6 +1086,10 @@
         <item>sms</item>
         <item>whatsapp</item>
         <item>sms</item>
+        <item>whatsapp</item>
+        <item>sms</item>
+        <item>sms</item>
+        <item>whatsapp</item>
         <item>whatsapp</item>
         <item>sms</item>
     </string-array>

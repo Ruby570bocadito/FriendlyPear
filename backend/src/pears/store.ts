@@ -19,8 +19,11 @@ export const STATES = ["calm", "attention"] as const;
 // "call": on a call with a number that isn't in the contacts, right now (the family can ask their Peri to hang up).
 // "breach": they gave something away and asked the family for a hand. "sim": a different SIM, or the line lost while
 // the internet works (a SIM swap's signs). "callback": a number to call written in a message. "payment": a payment that
-// never came ("sent by mistake", a buyer's "safe payment").
-export const TRAP_KINDS = ["", "parcel", "link", "code", "family", "remote", "prize", "callback", "payment", "call", "breach", "sim"] as const;
+// never came ("sent by mistake", a buyer's "safe payment"). "official", "bill", "romance": a fake public office, a fake
+// bill with a cut-off, a fake love.
+export const TRAP_KINDS = [
+  "", "parcel", "link", "code", "family", "remote", "prize", "callback", "payment", "official", "bill", "romance", "call", "breach", "sim",
+] as const;
 /** The same kind of trap reaching two or more family phones within this time is a campaign against the family. */
 export const CAMPAIGN_WINDOW_MS = 30 * 60 * 1000;
 /** An attention nobody refreshed is old news after this long. */

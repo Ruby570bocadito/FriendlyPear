@@ -665,6 +665,15 @@
     <string name="trap_payment_1">Alguien dice que te ha pagado, por error o por algo que vendes, y te pide que lo aceptes o se lo devuelvas.</string>
     <string name="trap_payment_2">Ese pago no existe: su página busca tu tarjeta, y el dinero que devuelves es tuyo.</string>
     <string name="trap_payment_3">Míralo en la app de tu banco. Si no ha entrado nada, no hay nada que aceptar ni devolver.</string>
+    <string name="trap_official_1">Un mensaje se hace pasar por Hacienda, Tráfico o la Seguridad Social, con una devolución o una multa para hoy.</string>
+    <string name="trap_official_2">Detrás del sello oficial hay un estafador: quiere tu tarjeta o los datos de tu banco.</string>
+    <string name="trap_official_3">Los organismos no cobran ni devuelven por SMS. Míralo con calma en su web o su app oficial.</string>
+    <string name="trap_bill_1">Un mensaje dice que hoy te cortan la luz o el agua si no pagas ya.</string>
+    <string name="trap_bill_2">El corte es inventado: la prisa está para que pagues antes de pensarlo.</string>
+    <string name="trap_bill_3">Llama al número de tu propia factura o mira la app de la compañía. Nadie corta la luz por SMS.</string>
+    <string name="trap_romance_1">Alguien a quien nunca has visto en persona te escribe cosas bonitas, día tras día.</string>
+    <string name="trap_romance_2">Luego llegan los problemas: una tasa, un billete, un hospital. El cariño era una máscara para pedir dinero.</string>
+    <string name="trap_romance_3">Nunca mandes dinero a quien no conoces en persona. Cuéntaselo a tu familia: hablarlo ayuda.</string>
     <string name="web_card_title">Eso lo mandó una web</string>
     <string name="web_card_text">No es tu móvil quien avisa: esos avisos los manda %1$s. Apágalos para que no te vuelva a asustar.</string>
     <string name="web_card_button">Silenciar esta web</string>
@@ -699,6 +708,9 @@
     <string name="diary_scam_prize">Paré un premio demasiado bueno para ser verdad</string>
     <string name="diary_scam_callback">Paré un mensaje con un número falso para llamar</string>
     <string name="diary_scam_payment">Paré un pago falso</string>
+    <string name="diary_scam_official">Paré un mensaje que se hacía pasar por un organismo público</string>
+    <string name="diary_scam_bill">Paré una factura falsa</string>
+    <string name="diary_scam_romance">Paré a alguien que fingía cariño para pedirte dinero</string>
     <string name="diary_doubt">Revisé contigo un mensaje dudoso</string>
     <string name="diary_pause_left">Saliste a tiempo de una app de dinero</string>
     <string name="diary_family_called">Elegiste llamar antes a tu familia</string>
@@ -734,6 +746,9 @@
     <string name="trap_name_call">Un desconocido al teléfono</string>
     <string name="trap_name_callback">El número para llamar</string>
     <string name="trap_name_payment">El pago falso</string>
+    <string name="trap_name_official">El falso organismo</string>
+    <string name="trap_name_bill">La falsa factura</string>
+    <string name="trap_name_romance">El falso amor</string>
     <string name="family_page_title">Tu familia</string>
     <string name="family_guardians_title">Tus guardianes</string>
     <string name="family_no_guardians">Todavía nadie. Elige a las personas de confianza en «Cambiar mi familia».</string>
@@ -990,6 +1005,10 @@
         <item>Tu banco</item>
         <item>Marisa (vecina)</item>
         <item>Correos</item>
+        <item>Tu banco</item>
+        <item>Número desconocido</item>
+        <item>Marcos</item>
+        <item>Tu banco</item>
     </string-array>
     <string-array name="quiz_text">
         <item>Su paquete está retenido por una tasa pendiente de 1,99 €. Páguela hoy aquí: {correos-entregas.top/pago}</item>
@@ -1008,6 +1027,10 @@
         <item>Compra de 23,50 € en Supermercado Sol con su tarjeta acabada en 4821.</item>
         <item>Te he dejado el paraguas en el buzón. ¡Gracias por prestármelo!</item>
         <item>Su envío llegará mañana entre las 9:00 y las 14:00. No necesita hacer nada.</item>
+        <item>Hemos visto un pago raro con su tarjeta. Llame ya a nuestro equipo de seguridad al 910 000 000.</item>
+        <item>Hola, me interesa tu sofá. Ya te he pagado con el pago seguro: mira tu correo y acéptalo para que te llegue el dinero.</item>
+        <item>Mi amor, estoy retenido en el aeropuerto y no me dejan volar a verte sin pagar 300 €. ¿Me lo mandas hoy?</item>
+        <item>Se ha conectado un móvil nuevo a tu app del banco. Si has sido tú, no tienes que hacer nada.</item>
     </string-array>
     <string-array name="quiz_clue">
         <item>Correos no cobra tasas por SMS con un enlace. Si esperas un paquete, mira tú la web oficial.</item>
@@ -1026,6 +1049,10 @@
         <item>Solo informa de una compra. Si no la reconoces, llama tú al número de tu tarjeta.</item>
         <item>Una vecina que ya conoces, sin prisas ni pagos. Todo en orden.</item>
         <item>Te informa sin pedir pagos ni que pulses enlaces. Así escriben las empresas de verdad.</item>
+        <item>Un número para llamar que viene en el mensaje es de los estafadores. Llama solo al del dorso de tu tarjeta.</item>
+        <item>Quien compra no te paga con una página que te manda. Si en tu banco no ha entrado nada, no hay nada que aceptar.</item>
+        <item>Alguien a quien nunca has visto en persona y te pide dinero es siempre una trampa, por bonitas que sean sus palabras.</item>
+        <item>No pide nada ni trae enlaces. Si no has sido tú, llama al número del dorso de tu tarjeta.</item>
     </string-array>
     <!-- Peri's wardrobe: accessories made with Muse Image, worn in every pose. -->
     <string name="wardrobe_title">El armario de Peri</string>

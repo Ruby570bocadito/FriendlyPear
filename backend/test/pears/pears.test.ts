@@ -72,6 +72,7 @@ test("only known names, outfits, roles and states get in", () => {
   // The red team's two kinds: a number to call, and a payment that never came.
   expect((readPear({ ...mum, state: "attention", kind: "callback" }) as any).kind).toBe("callback");
   expect((readPear({ ...mum, state: "attention", kind: "payment" }) as any).kind).toBe("payment");
+  for (const kind of ["official", "bill", "romance"]) expect((readPear({ ...mum, state: "attention", kind }) as any).kind).toBe(kind);
 });
 
 test("an attention nobody refreshed fades back to calm", async () => {

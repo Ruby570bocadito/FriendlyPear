@@ -144,6 +144,16 @@ export const TRAPS: Record<string, string> = {
   trap_payment_1: "Peri holds a smartphone; golden coins seem to slide into its screen along a green arrow, and a small question mark floats beside her. She looks pleasantly surprised.",
   trap_payment_2: "A shadowy grey hand comes out of a smartphone screen holding up a cardboard receipt with a painted green tick, while another grey hand reaches for Peri's small coin purse. Peri leans back, surprised.",
   trap_payment_3: "Peri holds her own smartphone up in one hand and examines its screen through a big magnifying glass held in the other hand, calm and smiling, with a green check mark beside her. A small closed coin purse rests on the floor at her feet.",
+  // A fake tax office, traffic or health service; a fake bill with a cut-off; a fake love (r2-trampas-mas).
+  trap_official_1: "Peri holds a smartphone; on its screen a small classical building with columns and a big red stamp with an exclamation mark. She looks worried.",
+  trap_official_2: "A shadowy grey figure wearing a cardboard official cap holds out an open hand asking for coins, a cardboard rubber stamp in its other hand. Peri watches, surprised.",
+  trap_official_3: "Peri sits calmly at a small table looking at a tablet whose screen shows a small classical building with columns and a green check mark, smiling, a cup of tea beside her.",
+  trap_bill_1: "Peri holds a smartphone; on its screen a light bulb with a red exclamation mark next to it. She looks worried.",
+  trap_bill_2: "A shadowy grey hand holds a big pair of clay scissors next to the cord of a glowing light bulb, while another grey hand reaches for golden coins. Peri watches with wide, surprised eyes.",
+  trap_bill_3: "Peri smiles under a warmly glowing light bulb, holding her own smartphone with a green check mark on its screen, calm and relieved.",
+  trap_romance_1: "Peri holds a smartphone showing a big coral heart with small sparkles; she blushes and smiles, a little dreamy.",
+  trap_romance_2: "The coral heart turns out to be a cardboard mask held up by a shadowy grey hand, while another grey hand holds out an empty open palm asking for coins. Peri looks surprised.",
+  trap_romance_3: "Peri kindly shakes her head with a calm smile, holding her small coin purse safely closed in both hands, while a cracked cardboard heart lies on the floor beside her.",
 };
 
 /** Accessories to dress Peri in, each on its own: worn on her head, her eyes or below her smile (ui/peri/Outfit.kt). */

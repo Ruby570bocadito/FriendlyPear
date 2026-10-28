@@ -388,6 +388,9 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
             "prize" to R.string.diary_scam_prize,
             "callback" to R.string.diary_scam_callback,
             "payment" to R.string.diary_scam_payment,
+            "official" to R.string.diary_scam_official,
+            "bill" to R.string.diary_scam_bill,
+            "romance" to R.string.diary_scam_romance,
         )
     }
 }
@@ -533,6 +536,9 @@ internal class LearnPage(context: Context, private val hub: PeriHub, private val
             Triple("prize", R.string.trap_name_prize, R.drawable.peri_trap_prize_2),
             Triple("callback", R.string.trap_name_callback, R.drawable.peri_trap_callback_2),
             Triple("payment", R.string.trap_name_payment, R.drawable.peri_trap_payment_2),
+            Triple("official", R.string.trap_name_official, R.drawable.peri_trap_official_2),
+            Triple("bill", R.string.trap_name_bill, R.drawable.peri_trap_bill_2),
+            Triple("romance", R.string.trap_name_romance, R.drawable.peri_trap_romance_2),
         )
     }
 }

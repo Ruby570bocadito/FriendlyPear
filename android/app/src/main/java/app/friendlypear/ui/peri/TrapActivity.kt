@@ -115,19 +115,25 @@ class TrapActivity : Activity() {
         const val EXTRA_KIND = "kind"
         const val LINK = "link"
         private val COURIERS = setOf("Correos", "SEUR", "DHL", "Royal Mail", "Evri", "UPS", "FedEx", "USPS")
+        private val OFFICIALS = setOf("la DGT", "la Agencia Tributaria", "la Seguridad Social", "HMRC", "the DVLA", "the IRS", "the NHS")
+        private val UTILITIES = setOf("Iberdrola", "Endesa", "Naturgy")
 
         /**
-         * The kind of trap, from what the shield found: a code, a fake payment, a fake relative, remote control, a prize,
-         * a number to call, a parcel or a fake link.
+         * The kind of trap, from what the shield found: a code, a fake payment, a fake relative or a fake love, remote
+         * control, a prize, a fake public office or bill, a number to call, a parcel or a fake link.
          */
         fun kindOf(signals: Collection<String>, brand: String?): String = when {
             "CODE_DURING_CALL" in signals -> "code"
             // A buyer's "safe payment" asks for the card too: its own panels tell that trick better than the code's.
             signals.any { it in setOf("MISTAKEN_PAYMENT", "SAFE_PAYMENT_BAIT") } -> "payment"
             signals.any { it in setOf("CODE_FORWARD_REQUEST", "ONE_TIME_CODE", "CREDENTIAL_REQUEST") } -> "code"
-            signals.any { it in setOf("NEW_NUMBER_CLAIM", "SECRECY", "ROMANCE_BAIT") } -> "family"
+            "NEW_NUMBER_CLAIM" in signals -> "family"
+            "ROMANCE_BAIT" in signals -> "romance"
+            "SECRECY" in signals -> "family"
             signals.any { it in setOf("REMOTE_ACCESS_APP", "DEVICE_SCARE") } -> "remote"
             "PRIZE_OR_PROFIT" in signals -> "prize"
+            brand in OFFICIALS -> "official"
+            brand in UTILITIES -> "bill"
             "LINK" !in signals && signals.any { it in setOf("CALLBACK_REQUEST", "COMPANY_FROM_MOBILE") } -> "callback"
             brand in COURIERS -> "parcel"
             else -> LINK
@@ -142,6 +148,9 @@ class TrapActivity : Activity() {
             "prize" to R.string.trap_name_prize,
             "callback" to R.string.trap_name_callback,
             "payment" to R.string.trap_name_payment,
+            "official" to R.string.trap_name_official,
+            "bill" to R.string.trap_name_bill,
+            "romance" to R.string.trap_name_romance,
         )
 
         private val PANELS: Map<String, List<Pair<Int, Int>>> = mapOf(
@@ -184,6 +193,21 @@ class TrapActivity : Activity() {
                 R.drawable.peri_trap_payment_1 to R.string.trap_payment_1,
                 R.drawable.peri_trap_payment_2 to R.string.trap_payment_2,
                 R.drawable.peri_trap_payment_3 to R.string.trap_payment_3,
+            ),
+            "official" to listOf(
+                R.drawable.peri_trap_official_1 to R.string.trap_official_1,
+                R.drawable.peri_trap_official_2 to R.string.trap_official_2,
+                R.drawable.peri_trap_official_3 to R.string.trap_official_3,
+            ),
+            "bill" to listOf(
+                R.drawable.peri_trap_bill_1 to R.string.trap_bill_1,
+                R.drawable.peri_trap_bill_2 to R.string.trap_bill_2,
+                R.drawable.peri_trap_bill_3 to R.string.trap_bill_3,
+            ),
+            "romance" to listOf(
+                R.drawable.peri_trap_romance_1 to R.string.trap_romance_1,
+                R.drawable.peri_trap_romance_2 to R.string.trap_romance_2,
+                R.drawable.peri_trap_romance_3 to R.string.trap_romance_3,
             ),
         )
     }

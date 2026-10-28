@@ -1511,6 +1511,9 @@ class PeriActivity : Activity() {
             "call" to R.string.trap_name_call,
             "callback" to R.string.trap_name_callback,
             "payment" to R.string.trap_name_payment,
+            "official" to R.string.trap_name_official,
+            "bill" to R.string.trap_name_bill,
+            "romance" to R.string.trap_name_romance,
         )
         const val FAMILY_SAID = "family_said"
         const val FAMILY_DISMISSED = "family_dismissed"
