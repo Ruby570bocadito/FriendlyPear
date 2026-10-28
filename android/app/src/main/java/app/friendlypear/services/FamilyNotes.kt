@@ -26,7 +26,7 @@ import app.friendlypear.ui.peri.PeriActivity
  * minutes by the system otherwise ([FamilyJob]). Never while Peri's screen is open: there she says it herself. Each
  * question or alert once; nothing about a message or a call, only what the family's server already shows.
  */
-class FamilyNotes(context: Context, private val pears: () -> PearClient) {
+class FamilyNotes(context: Context, private val pears: () -> PearClient, private val phoneOf: (String) -> String? = { null }) {
     private val context = context.applicationContext
     private val seen = this.context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
@@ -82,6 +82,7 @@ class FamilyNotes(context: Context, private val pears: () -> PearClient) {
                 context.getString(R.string.family_alert_title, pear.name),
                 context.getString(R.string.family_alert_text),
                 Palette.CORAL_INK,
+                listOfNotNull(callAction(pear.name)),
             )
         }
     }
@@ -92,6 +93,14 @@ class FamilyNotes(context: Context, private val pears: () -> PearClient) {
         if (key in keys) return false
         seen.edit().putStringSet(QUESTIONS, (keys.toList().takeLast(MAX_KEYS - 1) + key).toSet()).apply()
         return true
+    }
+
+    /** "Call" on a family member's alert, if their number is in the contacts: the phone's own dialer, ready to call. */
+    private fun callAction(name: String): Notification.Action? {
+        val phone = phoneOf(name) ?: return null
+        val dial = Intent(Intent.ACTION_DIAL, android.net.Uri.fromParts("tel", phone, null)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val pending = PendingIntent.getActivity(context, ("dial" + name).hashCode(), dial, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        return Notification.Action.Builder(null as Icon?, context.getString(R.string.family_notify_call), pending).build()
     }
 
     private fun action(label: Int, what: String, id: String, name: String): Notification.Action {
@@ -116,6 +125,13 @@ class FamilyNotes(context: Context, private val pears: () -> PearClient) {
             .setCategory(Notification.CATEGORY_MESSAGE)
             .setContentIntent(open)
             .setAutoCancel(true)
+            .setGroup(GROUP)
+            // On the lock screen, only that there's family news: names and answers once the phone is unlocked.
+            .setVisibility(Notification.VISIBILITY_PRIVATE)
+            .setPublicVersion(
+                Notification.Builder(context, CHANNEL).setSmallIcon(R.drawable.ic_pear).setColor(colour)
+                    .setContentTitle(context.getString(R.string.family_notify_public)).build(),
+            )
         actions.forEach { builder.addAction(it) }
         runCatching { manager.notify(id, builder.build()) }
     }
@@ -128,6 +144,8 @@ class FamilyNotes(context: Context, private val pears: () -> PearClient) {
         const val EXTRA_ID = "id"
         const val EXTRA_NAME = "name"
         const val ALERT_ID = 4_201
+        const val HUNG_UP_ID = 4_203
+        private const val GROUP = "family"
         private const val PREFS = "family_notes"
         private const val QUESTIONS = "questions"
         private const val LAST_ALERT = "last_alert"

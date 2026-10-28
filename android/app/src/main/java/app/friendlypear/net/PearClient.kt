@@ -25,7 +25,7 @@ class PearClient(private val baseUrl: String, private val ownKey: () -> String?)
     data class Answer(val name: String, val me: Boolean)
 
     /** What the family answered so far, and how many phones were asked. */
-    data class Answers(val answers: List<Answer>, val asked: Int)
+    data class Answers(val answers: List<Answer>, val asked: Int, val gone: Boolean = false)
 
     val enabled: Boolean get() = baseUrl.isNotBlank() && ownKey() != null
 
@@ -71,7 +71,8 @@ class PearClient(private val baseUrl: String, private val ownKey: () -> String?)
 
     /** The answers to this phone's question so far. */
     fun answers(id: String): Answers? {
-        val json = call("GET", "/v1/checks/$id", null) ?: return null
+        // Gone (expired, or the server started again): nobody can answer it any more, so it isn't asked again.
+        val json = call("GET", "/v1/checks/$id", null) ?: return if (status.get() == 404) Answers(emptyList(), 0, gone = true) else null
         val list = json.optJSONArray("answers") ?: return null
         val answers = (0 until list.length()).mapNotNull { i ->
             val o = list.optJSONObject(i) ?: return@mapNotNull null
@@ -96,12 +97,16 @@ class PearClient(private val baseUrl: String, private val ownKey: () -> String?)
             }
             if (body != null) connection.outputStream.use { it.write(body.toString().toByteArray()) }
             val status = connection.responseCode
+            this.status.set(status)
             if (status != expect) null.also { Log.w(TAG, "pears $method ${path.replace(CHECK_ID, "/v1/checks/…")} answered $status") }
             else JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
         } catch (e: Exception) {
             null.also { Log.w(TAG, "pears $method ${path.replace(CHECK_ID, "/v1/checks/…")} failed: ${e.javaClass.simpleName}") }
         }
     }
+
+    /** The last answer's HTTP status on this thread. */
+    private val status = ThreadLocal<Int>()
 
     private companion object {
         const val TAG = "FriendlyPear"
