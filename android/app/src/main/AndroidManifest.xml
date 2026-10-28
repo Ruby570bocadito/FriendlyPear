@@ -144,6 +144,10 @@
             android:name=".ui.peri.AftercareActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.peri.CheckupActivity"
+            android:exported="false" />
+
         <!-- "Ask Peri": the written chat; the keyboard pushes the screen up rather than covering the answers. -->
         <activity
             android:name=".ui.peri.ChatActivity"

@@ -308,6 +308,11 @@ internal class LearnPage(context: Context, private val hub: PeriHub, private val
         // Already fell for one: what to do now, without a word of reproach.
         list.addView(c.chipButton(c.getString(R.string.after_learn)) { open(AftercareActivity.intent(c, null)) },
             LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, c.dp(56)).apply { topMargin = c.dp(20) })
+        // Ask Peri anything, written; and a checkup of the phone with its fixes.
+        list.addView(c.chipButton(c.getString(R.string.chat_title)) { open(ChatActivity.intent(c)) },
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, c.dp(56)).apply { topMargin = c.dp(10) })
+        list.addView(c.chipButton(c.getString(R.string.checkup_open)) { open(Intent(c, CheckupActivity::class.java)) },
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, c.dp(56)).apply { topMargin = c.dp(10) })
         list.addView(c.label(c.getString(R.string.learn_tips_title)), LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(20) })
         list.addView(tips(), c.below(10))
     }
