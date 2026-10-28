@@ -27,6 +27,7 @@ in the code and covered by tests or by the two-phone tests of Oct 27 and 28.
 | 1 | A scammer on the line, right now | A big *Hang up* button whenever a number that isn't in the contacts is on the line. The family sees "on a call with a number they don't know" (only that, only while the person shares Peri's news) and can ask that phone's Peri to hang up: one request at a time, two minutes at most, with each phone's own key; it never ends a call with a contact, and never behind the person's back: Peri says who asks and waits three seconds with *Keep talking* on screen | ✅ |
 | 1 | The same scammer calling again | The person can block a scam's number from its card: its calls are turned away before they ring, its texts never read aloud. Kept on the phone, never backed up, undone in Settings | ✅ |
 | 1 | The same scammer trying the next one in the family | A number blocked from a scam's card on one phone is turned away on every family phone: calls before they ring, texts never read aloud, a line in the diary. Never a saved contact on that phone, so nobody (not even with a stolen key) can cut a phone off from its own people. Only a fingerprint travels: HMAC-SHA256 of the number keyed with the family's salt, computed on the phone; the server never sees a number and never says whose block it is. Unblocking frees it for everyone; a disconnected phone's blocks go with it | ✅ |
+| 1 | A SIM swap (someone takes the number to get the bank's codes) | Peri notices the signs on the phone: a different SIM, or the mobile line dead for 15 minutes while the internet works (no coverage at all, or airplane mode, doesn't count). It says what to do first, in a voice and a notification: call the bank and the phone company from another phone. Their pear shows it to the family, who are asked "was it you?" (did one of them change it); the family's alert never offers to call that number, which may be in the scammer's SIM now. Only a fingerprint of the SIMs in use is kept, sealed | ✅ |
 | 2 | A fake approval page | The guardian sees **the asking family member's pear, dressed as the family knows it** (taken from that phone when it asked), on the web page and in the app: a fake page can't copy it. Only the app's own accessories are drawn and names are escaped | ✅ |
 | 3 | Someone approves on the guardian's phone | In the app, a yes needs three checks **and the phone's own lock** (fingerprint, face or PIN). On the web page, a yes needs a second "are you sure?" step | ✅ |
 | 3 | A scammer on the guardian's own line | A guardian's yes waits while their phone is on a call with a number they don't know: their Peri says "hang up first, then decide", and the server holds the yes back too (the guardian's Peri sends its own key; who decided is kept with the request). "No" and "call them now" always work | ✅ |
@@ -56,8 +57,9 @@ only with a phone's own key, never the shared test token. Each pear is a name th
 their Peri wears, their role (looked after, or looks after the family) and one word: calm or attention. Attention
 is shared only while the person shares Peri's news, and an attention nobody refreshes fades back to calm after two
 hours. Never a number, a message, a call, a place or an app; a disconnected phone's pear goes with it. With an
-attention, and only then, goes the kind of trap in one word (parcel, link, code, family, remote, prize), so the family
-can see the same trap going around.
+attention, and only then, goes the kind of trap in one word (parcel, link, code, family, remote, prize; or call, breach
+or sim: a stranger on the line, a hand wanted after a scam, a SIM swap's signs), so the family can see the same trap
+going around.
 
 **"Hang up their call"** carries who asked, and nothing about the call: the family only ever sees "on a call with a number
 they don't know", never the number. The family's news reaches a phone with the app closed as notifications that say
@@ -65,8 +67,8 @@ no more than the Family section does; on the lock screen they only say there is 
 
 **Blocked numbers** travel only as fingerprints (HMAC-SHA256 under the family's salt, computed on the phone), between the phones paired with the family's server and with each phone's own key. No phone learns who in the family blocked a number, and a family block never applies to a saved contact.
 
-**"Was it you?"** carries the asking pear's name and one word, `new_number`: never the message, the number or who it
-claims to be. Only the phone that asked reads the answers, each phone answers once, and the question and its answers
+**"Was it you?"** carries the asking pear's name and one word, `new_number` or `sim`: never the message, the number,
+who it claims to be, or anything about the SIM. Only the phone that asked reads the answers, each phone answers once, and the question and its answers
 are gone after 15 minutes or when that phone is disconnected.
 
 ## On the phone
