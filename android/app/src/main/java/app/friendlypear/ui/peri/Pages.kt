@@ -38,7 +38,7 @@ import java.util.concurrent.Executors
  * A section's first card: its title, a line of Peri's from [bank] and one of her poses, in the section's colour.
  * Peri breathes there; a tap makes her hop and say another line.
  */
-internal fun Context.heroCard(title: String, bank: Int, pose: Int, face: Int, lip: Int, ink: Int): View = FrameLayout(this).apply {
+internal fun Context.heroCard(title: String, bank: Int, pose: Int, face: Int, lip: Int, ink: Int, decor: Floaties.Decor? = null): View = FrameLayout(this).apply {
     clipChildren = false
     clipToPadding = false
     val line = body(Lines.next(this@heroCard, bank), 17f).apply {
@@ -55,6 +55,8 @@ internal fun Context.heroCard(title: String, bank: Int, pose: Int, face: Int, li
         addView(line)
     }
     addView(text, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
+    // Hearts, stars or sparkles drift up around her, over the card but never over its words.
+    decor?.let { addView(Floaties(this@heroCard, it), FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)) }
     // Peri peeks over the top edge of her card.
     addView(ImageView(this@heroCard).apply {
         setImageDrawable(sized(pose, dp(124)))
@@ -277,7 +279,7 @@ internal abstract class Page(context: Context) : ScrollView(context) {
 internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(context) {
     override fun build() {
         val c = context
-        list.addView(c.heroCard(c.getString(R.string.diary_title), R.array.diary_hello, R.drawable.peri_calm_glasses, Palette.SUN_TINT, Palette.SUN_LIP, Palette.AMBER_INK))
+        list.addView(c.heroCard(c.getString(R.string.diary_title), R.array.diary_hello, R.drawable.peri_calm_glasses, Palette.SUN_TINT, Palette.SUN_LIP, Palette.AMBER_INK, Floaties.Decor.DIARY))
         list.addView(stats(), c.below())
         val lines = lines()
         if (lines.isEmpty()) {
@@ -403,7 +405,7 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
 internal class LearnPage(context: Context, private val hub: PeriHub, private val open: (Intent) -> Unit) : Page(context) {
     override fun build() {
         val c = context
-        list.addView(c.heroCard(c.getString(R.string.learn_title), R.array.learn_hello, R.drawable.peri_calm_detective, Palette.SKY_TINT, 0xFFA9D5F2.toInt(), Palette.SKY_INK))
+        list.addView(c.heroCard(c.getString(R.string.learn_title), R.array.learn_hello, R.drawable.peri_calm_detective, Palette.SKY_TINT, 0xFFA9D5F2.toInt(), Palette.SKY_INK, Floaties.Decor.LEARN))
         list.addView(quiz(), c.below())
         list.addView(c.label(c.getString(R.string.learn_traps_title)), LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(20) })
         list.addView(traps(), c.below(10))
@@ -556,7 +558,7 @@ internal class FamilyPage(context: Context, private val hub: PeriHub, private va
         val c = context
         val store = FamilyStore(c)
         val config = store.load()
-        list.addView(c.heroCard(c.getString(R.string.family_page_title), R.array.family_hello, R.drawable.peri_family, Palette.LILAC_TINT, 0xFFCDBEF5.toInt(), Palette.LILAC_INK))
+        list.addView(c.heroCard(c.getString(R.string.family_page_title), R.array.family_hello, R.drawable.peri_family, Palette.LILAC_TINT, 0xFFCDBEF5.toInt(), Palette.LILAC_INK, Floaties.Decor.FAMILY))
         list.addView(pears(), c.below())
         val guardians = c.whiteCard().apply {
             addView(c.heading(c.getString(R.string.family_guardians_title), TextSize.BODY))

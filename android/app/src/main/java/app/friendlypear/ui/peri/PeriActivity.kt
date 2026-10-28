@@ -135,10 +135,11 @@ class PeriActivity : Activity() {
             stateListAnimator = pressScale()
             setOnClickListener { startActivity(ChatActivity.intent(this@PeriActivity)) }
         }
-        val mini = Pill(this, getString(R.string.mini_mode), R.drawable.ic_mini, primary = false).apply {
+        // Her two other buttons wear the colours of the sections they're about: a picture, sky; Mini Peri, lilac.
+        val mini = Pill(this, getString(R.string.mini_mode), R.drawable.ic_mini, primary = false, rubber = Rubber.LILAC).apply {
             setOnClickListener { goMini() }
         }
-        val look = Pill(this, getString(R.string.picture_button), R.drawable.ic_image_search, primary = false).apply {
+        val look = Pill(this, getString(R.string.picture_button), R.drawable.ic_image_search, primary = false, rubber = Rubber.SKY).apply {
             setOnClickListener { startActivity(Intent(this@PeriActivity, PictureActivity::class.java)) }
         }
         status = TextView(this).apply {

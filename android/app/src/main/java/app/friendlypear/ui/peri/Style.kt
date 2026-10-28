@@ -270,6 +270,8 @@ internal enum class Rubber(val face: Int, val lip: Int, val ink: Int) {
     GREEN(Palette.GREEN_TINT, 0xFFB7D798.toInt(), Palette.GREEN_DARK),
     CORAL(Palette.CORAL_TINT, 0xFFEFB4A8.toInt(), Palette.CORAL_INK),
     SUN(Palette.SUN, Palette.SUN_LIP, Palette.INK),
+    SKY(Palette.SKY_TINT, 0xFFA9D5F2.toInt(), Palette.SKY_INK),
+    LILAC(Palette.LILAC_TINT, 0xFFCDBEF5.toInt(), Palette.LILAC_INK),
 }
 
 /**
