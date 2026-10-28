@@ -18,7 +18,7 @@ in the code and covered by tests or by the two-phone tests of Oct 27 and 28.
 | # | Threat | Mitigation | |
 |---|---|---|---|
 | 1 | Code dictated during a scam call | Hard rule: a code arriving during a call is a scam, whatever any model says; Peri says "hang up" | ✅ |
-| 1 | "Tell me the code" after the call | Sending a code is high risk: it waits for a guardian's yes. The guardian's SMS says **URGENT** if a stranger called in the last 30 minutes | ✅ |
+| 1 | "Tell me the code" after the call | Sending a code is high risk: it waits for a guardian's yes. If a stranger called in the last 30 minutes, the guardian's SMS says **URGENT** and, with two guardians or more, **two of them must say yes**: each gets their own one-time link, so nobody can give both, and a single no stops it. The person hears who said yes as it happens | ✅ |
 | 1 | "Open your bank app now" | Safety pause before money and remote-control apps during or after a stranger's call | ✅ |
 | 2 | Fake Peri request | The guardian's own Peri only accepts links to **Peri's own server** (same scheme, host and port), from a **saved contact**, and reads the request from the server, never from the SMS. Anything that talks like Peri but links elsewhere is a firm scam: *"this message pretends to be from me"* | ✅ |
 | 2 | Fake family member | "New number", secrecy ("don't tell dad"), romance and scareware signals; Peri offers to call the real relative at the saved number | ✅ |
@@ -32,7 +32,7 @@ in the code and covered by tests or by the two-phone tests of Oct 27 and 28.
 | 3 | A scammer on the guardian's own line | A guardian's yes waits while their phone is on a call with a number they don't know: their Peri says "hang up first, then decide", and the server holds the yes back too (the guardian's Peri sends its own key; who decided is kept with the request). "No" and "call them now" always work | ✅ |
 | 1 | An app that controls the screen | Peri checks which apps have accessibility (what fake technicians and banking trojans ask for): one that isn't part of the phone or a known screen reader gets a spoken warning, a notification that opens the setting to switch it off, a diary line, and their pear in attention so the family sees it | ✅ |
 | 1 | Something already given away | First aid, never a reproach. The person tells Peri in their own words ("I gave them the code", "I sent a Bizum", "my data was leaked"), or picks what happened from a scam's card or from Learn. Peri says the most urgent step calmly and shows the rest in order, each with a button that does it where the phone can: the dialer left empty (the bank's number is the one on the card, never one from a message), the internet switch, the apps list, the report, a call to a guardian. Telling the family turns their pear to "needs a hand" for a day: only that, never what was given. After a card, a bank, money or a remote app, a reminder the next day to check the bank's movements. Understood by rules on the phone; the words never leave it | ✅ |
-| 3 | Someone removes the guardians | Opening the family setup needs the phone's lock once a guardian exists; any change to the guardians needs a current guardian's yes and waits 48 hours, and the person can cancel | ✅ |
+| 3 | Someone removes the guardians | Opening the family setup needs the phone's lock once a guardian exists; any change to the guardians needs the current guardians' yes (two of them, each with their own link, when there are two or more) and waits 48 hours, and the person can cancel. Peri says who approved it | ✅ |
 | 4 | A leaked or previewed link | One-time, 15 minutes, only its SHA-256 hash is stored. Opening it (GET) never decides anything, so link previews are harmless. Silence never approves | ✅ |
 | 4 | The page itself | No scripts; `Content-Security-Policy: default-src 'none'; img-src 'self'; form-action 'self'; frame-ancestors 'none'`, `no-referrer`, `no-store`, `nosniff`, `X-Frame-Options: DENY`, HSTS over HTTPS. Peri's pictures come from the same server | ✅ |
 | 5 | Prompt injection | "Ignore previous instructions"-style text is its own signal. Models only vote, within ±2, on doubtful messages; hard rules can't be overridden; Peri never reads a model's words aloud | ✅ |
@@ -46,8 +46,8 @@ in the code and covered by tests or by the two-phone tests of Oct 27 and 28.
 
 ## What the family can and can't see
 
-The guardian sees **what kind** of thing is asked (send a code, change the guardians), to whom (a first name), and
-whether a stranger was on the line (yes or no). **Never** the code, the message, the phone number that called, the
+The guardian sees **what kind** of thing is asked (send a code, change the guardians), to whom (a first name),
+whether a stranger was on the line (yes or no), and which other guardians already said yes (first names). **Never** the code, the message, the phone number that called, the
 location or the apps. Peri's news (optional) carries only the kind of event and its level. The person sees exactly
 what the guardians see, and can stop sharing at any moment; every link dies at once.
 
