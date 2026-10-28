@@ -581,6 +581,9 @@
     <string name="use_voice">Sent a voice order to Muse Voice Transcribe</string>
     <string name="use_someone">someone</string>
     <string name="settings_access">What Peri can do</string>
+    <string name="settings_access_line">Every permission, and what she did with it</string>
+    <string name="settings_welcome_line">For whoever sets the phone up with you</string>
+    <string name="settings_more">More from Peri</string>
     <string name="shields_title">Your shields</string>
     <string name="shields_intro">Every time a scam is stopped, or you ask before doing something risky, Peri gives you a shield.</string>
     <string name="shields_stopped">Scams stopped</string>
@@ -603,7 +606,13 @@
     <string name="block_says_family">Blocked, here and for your family: their Peris won\'t let it reach them either. I\'ll never read you its messages.</string>
     <string name="report_hide">Hide</string>
     <string name="report_title">Report it</string>
-    <string name="report_intro">I\'ll write down what arrived, who sent it and why it\'s a scam, ready for the police or a fraud helpline. To write it, the message and its sender go to Peri\'s server and to Meta\'s Muse Spark. Nothing is kept.</string>
+    <string name="report_intro">I\'ll write it up for you, ready for the police or a fraud helpline.</string>
+    <string name="report_includes">In the report</string>
+    <string name="report_inc_message">The message that arrived, its links made harmless</string>
+    <string name="report_inc_sender">Who sent it, and when</string>
+    <string name="report_inc_why">Why it\'s a scam, in plain words</string>
+    <string name="report_inc_where">Where to take it</string>
+    <string name="report_privacy">To write it, the message and its sender go to Peri\'s server and to Meta\'s Muse Spark. Nothing is kept.</string>
     <string name="report_write">Write it</string>
     <string name="report_writing">Writing it for you…</string>
     <string name="report_failed">I couldn\'t write it right now. Nothing was lost: try again in a moment.</string>

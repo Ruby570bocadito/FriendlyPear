@@ -240,6 +240,15 @@ class AccessActivity : Activity() {
                 setPadding(0, dp(6), 0, 0)
             })
         }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        // The whole row opens Android's own setting: the arrow says so.
+        addView(ImageView(this@AccessActivity).apply {
+            setImageResource(R.drawable.ic_chevron)
+            setColorFilter(Palette.INK_SOFT)
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, LinearLayout.LayoutParams(dp(24), dp(24)).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            marginStart = dp(6)
+        })
     }
 
     private fun showLog() {

@@ -2,6 +2,7 @@ package app.friendlypear.ui.peri
 
 import android.app.Activity
 import android.content.Intent
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
@@ -10,6 +11,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import android.widget.TextView
 import app.friendlypear.PeriApp
 import app.friendlypear.R
 
@@ -28,19 +30,51 @@ class TrapActivity : Activity() {
         val kind = chosen ?: hub.lastScam.load()?.kind ?: LINK
         val panels = PANELS[kind] ?: PANELS.getValue(LINK)
         val list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        list.addView(heading(if (chosen != null) getString(NAMES[kind] ?: R.string.trap_title) else getString(R.string.trap_title)))
-        panels.forEach { (image, caption) ->
+        list.addView(LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            addView(ImageView(this@TrapActivity).apply {
+                setImageResource(R.drawable.ic_back)
+                setColorFilter(Palette.GREEN_DARK)
+                contentDescription = getString(R.string.back)
+                background = pressable(rounded(Palette.WHITE, dp(24).toFloat()), Palette.RIPPLE_DARK)
+                setPadding(dp(12), dp(12), dp(12), dp(12))
+                setOnClickListener { finish() }
+            }, LinearLayout.LayoutParams(dp(48), dp(48)))
+            addView(heading(if (chosen != null) getString(NAMES[kind] ?: R.string.trap_title) else getString(R.string.trap_title)).apply {
+                setPadding(dp(12), 0, 0, 0)
+            }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        })
+        panels.forEachIndexed { i, (image, caption) ->
             list.addView(LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 background = cardBackground()
                 setPadding(dp(14), dp(14), dp(14), dp(18))
-                addView(ImageView(this@TrapActivity).apply {
-                    setImageResource(image)
-                    scaleType = ImageView.ScaleType.FIT_CENTER
-                    adjustViewBounds = true
-                    importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                    background = rounded(Palette.CREAM, dp(16).toFloat())
-                    clipToOutline = true
+                addView(FrameLayout(this@TrapActivity).apply {
+                    addView(ImageView(this@TrapActivity).apply {
+                        setImageResource(image)
+                        scaleType = ImageView.ScaleType.FIT_CENTER
+                        adjustViewBounds = true
+                        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                        background = rounded(Palette.CREAM, dp(16).toFloat())
+                        clipToOutline = true
+                    }, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT))
+                    // Its number, in the sun's colour, over the panel's corner.
+                    addView(TextView(this@TrapActivity).apply {
+                        text = java.text.NumberFormat.getIntegerInstance().format(i + 1)
+                        sizeSp(20f)
+                        typeface = Fonts.display(700)
+                        setTextColor(Palette.INK)
+                        gravity = Gravity.CENTER
+                        background = GradientDrawable().apply {
+                            shape = GradientDrawable.OVAL
+                            setColor(Palette.SUN)
+                            setStroke(dp(3), Palette.WHITE)
+                        }
+                        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                    }, FrameLayout.LayoutParams(dp(42), dp(42), Gravity.TOP or Gravity.START).apply {
+                        topMargin = dp(10)
+                        marginStart = dp(10)
+                    })
                 }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
                 addView(body(getString(caption)).apply {
                     setTextColor(Palette.INK)

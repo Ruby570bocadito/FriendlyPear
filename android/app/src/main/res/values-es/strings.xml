@@ -580,6 +580,9 @@
     <string name="use_voice">Mandó una orden de voz a Muse Voice Transcribe</string>
     <string name="use_someone">alguien</string>
     <string name="settings_access">Lo que Peri puede hacer</string>
+    <string name="settings_access_line">Cada permiso y lo que hizo con él</string>
+    <string name="settings_welcome_line">Para quien te ayude a preparar el móvil</string>
+    <string name="settings_more">Más de Peri</string>
     <string name="shields_title">Tus escudos</string>
     <string name="shields_intro">Cada vez que se frena un timo, o preguntas antes de hacer algo arriesgado, Peri te da un escudo.</string>
     <string name="shields_stopped">Timos frenados</string>
@@ -604,7 +607,13 @@
     <string name="block_says_family">Bloqueado, aquí y para tu familia: sus Peris tampoco dejarán que les llegue. Nunca te leeré sus mensajes.</string>
     <string name="report_hide">Ocultar</string>
     <string name="report_title">Denúncialo</string>
-    <string name="report_intro">Escribo lo que llegó, quién lo mandó y por qué es un timo, listo para la policía o el 017. Para escribirlo, el mensaje y su remitente van al servidor de Peri y a Muse Spark de Meta. No se guarda nada.</string>
+    <string name="report_intro">Te lo dejo escrito, listo para la policía o el 017.</string>
+    <string name="report_includes">En la denuncia</string>
+    <string name="report_inc_message">El mensaje que llegó, con sus enlaces desactivados</string>
+    <string name="report_inc_sender">Quién lo envió y cuándo</string>
+    <string name="report_inc_why">Por qué es un timo, con palabras sencillas</string>
+    <string name="report_inc_where">Dónde llevarla</string>
+    <string name="report_privacy">Para escribirlo, el mensaje y su remitente van al servidor de Peri y a Muse Spark de Meta. No se guarda nada.</string>
     <string name="report_write">Escríbelo</string>
     <string name="report_writing">Te lo estoy escribiendo…</string>
     <string name="report_failed">Ahora no he podido escribirlo. No se ha perdido nada: prueba otra vez en un momento.</string>

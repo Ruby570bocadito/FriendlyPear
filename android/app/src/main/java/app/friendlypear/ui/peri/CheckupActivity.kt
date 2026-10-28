@@ -113,8 +113,10 @@ class CheckupActivity : Activity() {
             setTextColor(Palette.INK)
             setPadding(0, dp(8), 0, 0)
         })
-        addView(chipButton(getString(check.fix)) { runCatching { check.act() }.onFailure { hub.show(getString(R.string.after_no_app)) } },
-            LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(48)).apply { topMargin = dp(10) })
+        // The fix as a real button, big enough to find and tap, with the arrow of something that opens.
+        addView(Pill(this@CheckupActivity, getString(check.fix), R.drawable.ic_chevron, primary = false, size = 18f, trailing = true, rubber = Rubber.GREEN).apply {
+            setOnClickListener { runCatching { check.act() }.onFailure { hub.show(getString(R.string.after_no_app)) } }
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(54)).apply { topMargin = dp(12) })
     }
 
     private fun open(action: String, fallback: String = Settings.ACTION_SETTINGS) {

@@ -55,14 +55,13 @@ class AftercareActivity : Activity() {
     /** "What happened?": one big button per kind, in the person's words. */
     private fun choose(list: LinearLayout) {
         list.addView(header(R.string.after_choose_title, R.string.after_choose_text))
-        CHOICES.forEach { (breach, label) ->
-            list.addView(Pill(this, getString(label), R.drawable.ic_shield, primary = false).apply {
-                setOnClickListener {
-                    startActivity(intent(this@AftercareActivity, breach))
-                    finish()
-                }
-            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(62)).apply { topMargin = dp(10) })
-        }
+        // A picture for each kind, so the eye finds it before reading it.
+        list.addView(actionCard(CHOICES.map { (breach, label) ->
+            actionRow(ICONS.getValue(breach), getString(label), face = Palette.CORAL_TINT, ink = Palette.CORAL_INK) {
+                startActivity(intent(this@AftercareActivity, breach))
+                finish()
+            }
+        }), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
     }
 
     private fun steps(list: LinearLayout, kind: Breach) {
@@ -177,6 +176,16 @@ class AftercareActivity : Activity() {
             Breach.REMOTE to R.string.after_pick_remote,
             Breach.ID to R.string.after_pick_id,
             Breach.PASSWORD to R.string.after_pick_password,
+        )
+
+        private val ICONS = mapOf(
+            Breach.CODE to R.drawable.ic_message,
+            Breach.CARD to R.drawable.ic_card,
+            Breach.MONEY to R.drawable.ic_euro,
+            Breach.BANK to R.drawable.ic_key,
+            Breach.REMOTE to R.drawable.ic_download,
+            Breach.ID to R.drawable.ic_id,
+            Breach.PASSWORD to R.drawable.ic_lock_open,
         )
 
         private val LABELS = mapOf(

@@ -36,6 +36,7 @@ class ReportActivity : Activity() {
             addView(ImageView(this@ReportActivity).apply {
                 setImageResource(R.drawable.peri_report)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                alive()
             }, LinearLayout.LayoutParams(dp(96), dp(96)))
             addView(heading(getString(R.string.report_title)).apply { setPadding(dp(12), 0, 0, 0) },
                 LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
@@ -73,7 +74,37 @@ class ReportActivity : Activity() {
     /** What will be written and where it goes, before anything is sent. */
     private fun showAsk() {
         state.removeAllViews()
-        state.addView(body(getString(R.string.report_intro)))
+        state.addView(body(getString(R.string.report_intro)).apply { setTextColor(Palette.INK) })
+        // What goes in it, each with its picture, then where it goes to be written: all before anything is sent.
+        state.addView(whiteCard().apply {
+            addView(heading(getString(R.string.report_includes), TextSize.BODY))
+            listOf(
+                R.drawable.ic_message to R.string.report_inc_message,
+                R.drawable.ic_call to R.string.report_inc_sender,
+                R.drawable.ic_warning to R.string.report_inc_why,
+                R.drawable.ic_shield to R.string.report_inc_where,
+            ).forEach { (icon, text) ->
+                addView(LinearLayout(this@ReportActivity).apply {
+                    gravity = Gravity.CENTER_VERTICAL
+                    setPadding(0, dp(10), 0, 0)
+                    addView(badge(icon, Palette.SKY_TINT, Palette.SKY_INK, 36), LinearLayout.LayoutParams(dp(36), dp(36)))
+                    addView(body(getString(text)).apply {
+                        setTextColor(Palette.INK)
+                        setPadding(dp(12), 0, 0, 0)
+                    }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+                })
+            }
+        }, full(top = 14))
+        state.addView(LinearLayout(this).apply {
+            setPadding(dp(4), 0, dp(4), 0)
+            addView(ImageView(this@ReportActivity).apply {
+                setImageResource(R.drawable.ic_lock_open)
+                setColorFilter(Palette.INK_SOFT)
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }, LinearLayout.LayoutParams(dp(20), dp(20)).apply { topMargin = dp(2) })
+            addView(body(getString(R.string.report_privacy), TextSize.SMALL).apply { setPadding(dp(10), 0, 0, 0) },
+                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        }, full(top = 12))
         state.addView(Pill(this, getString(R.string.report_write), R.drawable.ic_message, primary = true).apply {
             setOnClickListener { write() }
         }, button(height = 68, top = 18))

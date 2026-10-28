@@ -183,6 +183,49 @@ private fun Context.moment(m: Moment, at: String, first: Boolean, last: Boolean)
     }
 }
 
+/**
+ * A row you can tap in a list of tools: a round tinted badge with its icon, a title and perhaps a line under it, and
+ * a chevron. The whole row is one button, read by TalkBack as one.
+ */
+internal fun Context.actionRow(icon: Int, title: String, line: String? = null, face: Int = Palette.GREEN_TINT, ink: Int = Palette.GREEN_DARK, onClick: () -> Unit): View =
+    LinearLayout(this).apply {
+        gravity = Gravity.CENTER_VERTICAL
+        minimumHeight = dp(64)
+        setPadding(dp(4), dp(8), dp(4), dp(8))
+        background = pressable(rounded(Palette.WHITE, dp(16).toFloat()), Palette.RIPPLE_DARK)
+        isClickable = true
+        isFocusable = true
+        contentDescription = if (line != null) "$title. $line" else title
+        setOnClickListener { onClick() }
+        addView(ImageView(this@actionRow).apply {
+            setImageResource(icon)
+            setColorFilter(ink)
+            background = rounded(face, dp(20).toFloat())
+            setPadding(dp(9), dp(9), dp(9), dp(9))
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, LinearLayout.LayoutParams(dp(40), dp(40)))
+        addView(LinearLayout(this@actionRow).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp(12), 0, dp(8), 0)
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+            addView(heading(title, TextSize.BODY))
+            if (line != null) addView(body(line, TextSize.SMALL).apply { setTextColor(Palette.INK_SOFT) })
+        }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        addView(ImageView(this@actionRow).apply {
+            setImageResource(R.drawable.ic_chevron)
+            setColorFilter(Palette.INK_SOFT)
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, LinearLayout.LayoutParams(dp(24), dp(24)))
+    }
+
+/** [rows] one under another on a white card, under a [title] if there is one. */
+internal fun Context.actionCard(rows: List<View>, title: String? = null): LinearLayout = whiteCard().apply {
+    if (title != null) addView(heading(title, TextSize.BODY).apply { setPadding(dp(4), 0, 0, dp(6)) })
+    rows.forEachIndexed { i, row ->
+        addView(row, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { if (i > 0) topMargin = dp(4) })
+    }
+}
+
 private fun Context.below(top: Int = 14) = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(top) }
 
 /** A section's scroll, padded by Peri's screen to clear the bars. */
@@ -427,43 +470,11 @@ internal class LearnPage(context: Context, private val hub: PeriHub, private val
     /** One card, a row per tool: its icon in a soft circle, what it is, a line on what it does, and a chevron. */
     private fun tools(): View {
         val c = context
-        val rows = listOf(
-            Triple(R.drawable.ic_shield, R.string.checkup_open to R.string.tool_checkup_line, Intent(c, CheckupActivity::class.java)),
-            Triple(R.drawable.ic_message, R.string.chat_title to R.string.tool_chat_line, ChatActivity.intent(c)),
-            Triple(R.drawable.ic_warning, R.string.tool_after_title to R.string.tool_after_line, AftercareActivity.intent(c, null)),
-        )
-        return c.whiteCard().apply {
-            rows.forEachIndexed { i, (icon, words, intent) ->
-                addView(LinearLayout(c).apply {
-                    gravity = Gravity.CENTER_VERTICAL
-                    minimumHeight = c.dp(64)
-                    setPadding(c.dp(4), c.dp(8), c.dp(4), c.dp(8))
-                    background = pressable(rounded(Palette.WHITE, c.dp(16).toFloat()), Palette.RIPPLE_DARK)
-                    isClickable = true
-                    setOnClickListener { open(intent) }
-                    addView(ImageView(c).apply {
-                        setImageResource(icon)
-                        setColorFilter(Palette.GREEN_DARK)
-                        background = rounded(Palette.GREEN_TINT, c.dp(20).toFloat())
-                        setPadding(c.dp(9), c.dp(9), c.dp(9), c.dp(9))
-                        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                    }, LinearLayout.LayoutParams(c.dp(40), c.dp(40)))
-                    addView(LinearLayout(c).apply {
-                        orientation = LinearLayout.VERTICAL
-                        setPadding(c.dp(12), 0, c.dp(8), 0)
-                        addView(c.heading(c.getString(words.first), TextSize.BODY))
-                        addView(c.body(c.getString(words.second), TextSize.SMALL).apply { setTextColor(Palette.INK_SOFT) })
-                    }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-                    addView(ImageView(c).apply {
-                        setImageResource(R.drawable.ic_chevron)
-                        setColorFilter(Palette.INK_SOFT)
-                        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                    }, LinearLayout.LayoutParams(c.dp(24), c.dp(24)))
-                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                    if (i > 0) topMargin = c.dp(4)
-                })
-            }
-        }
+        return c.actionCard(listOf(
+            c.actionRow(R.drawable.ic_shield, c.getString(R.string.checkup_open), c.getString(R.string.tool_checkup_line)) { open(Intent(c, CheckupActivity::class.java)) },
+            c.actionRow(R.drawable.ic_message, c.getString(R.string.chat_title), c.getString(R.string.tool_chat_line)) { open(ChatActivity.intent(c)) },
+            c.actionRow(R.drawable.ic_warning, c.getString(R.string.tool_after_title), c.getString(R.string.tool_after_line)) { open(AftercareActivity.intent(c, null)) },
+        ))
     }
 
     private fun tips(): View {

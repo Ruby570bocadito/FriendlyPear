@@ -186,10 +186,13 @@ class SettingsActivity : Activity() {
             setPadding(dp(18), dp(16), dp(18), dp(18))
             addView(heading(getString(R.string.settings_web), TextSize.BODY))
             addView(body(getString(R.string.settings_web_note), TextSize.SMALL).apply { setPadding(0, dp(4), 0, dp(6)) })
+            // Its state as a chip, like the permissions': green when on, amber when off.
             addView(body(if (dns != null) getString(R.string.settings_web_on, dns) else getString(R.string.settings_web_off), TextSize.SMALL).apply {
-                typeface = weight(700)
+                typeface = weight(600)
                 setTextColor(if (dns != null) Palette.GREEN_DARK else Palette.AMBER_INK)
-            })
+                background = rounded(if (dns != null) Palette.GREEN_TINT else Palette.AMBER_TINT, dp(14).toFloat())
+                setPadding(dp(12), dp(4), dp(12), dp(5))
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(2) })
             if (dns == null) addView(Pill(this@SettingsActivity, getString(R.string.settings_web_setup), R.drawable.ic_shield, primary = false).apply {
                 setOnClickListener { saferWeb() }
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply { topMargin = dp(10) })
@@ -214,19 +217,19 @@ class SettingsActivity : Activity() {
             }
         }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
 
-        // Every permission, what for and how to switch it off, and what Peri did with them.
-        // A security checkup of the phone: what a scammer could use, each with its fix.
-        list.addView(Pill(this, getString(R.string.checkup_open), R.drawable.ic_shield, primary = false).apply {
-            setOnClickListener { startActivity(android.content.Intent(this@SettingsActivity, CheckupActivity::class.java)) }
-        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(60)).apply { topMargin = dp(16) })
-        list.addView(Pill(this, getString(R.string.settings_access), R.drawable.ic_shield, primary = false).apply {
-            setOnClickListener { startActivity(android.content.Intent(this@SettingsActivity, AccessActivity::class.java)) }
-        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(60)).apply { topMargin = dp(16) })
-
-        // Peri's welcome again, for whoever sets the phone up with the person.
-        list.addView(Pill(this, getString(R.string.settings_welcome_again), R.drawable.ic_pear, primary = false).apply {
-            setOnClickListener { startActivity(android.content.Intent(this@SettingsActivity, WelcomeActivity::class.java)) }
-        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(60)).apply { topMargin = dp(10) })
+        // More from Peri, as in Learn's tools: the phone's security checkup, every permission with what she did with it,
+        // and her welcome again for whoever sets the phone up with the person.
+        list.addView(actionCard(listOf(
+            actionRow(R.drawable.ic_shield, getString(R.string.checkup_open), getString(R.string.tool_checkup_line)) {
+                startActivity(android.content.Intent(this, CheckupActivity::class.java))
+            },
+            actionRow(R.drawable.ic_settings, getString(R.string.settings_access), getString(R.string.settings_access_line)) {
+                startActivity(android.content.Intent(this, AccessActivity::class.java))
+            },
+            actionRow(R.drawable.ic_pear, getString(R.string.settings_welcome_again), getString(R.string.settings_welcome_line)) {
+                startActivity(android.content.Intent(this, WelcomeActivity::class.java))
+            },
+        ), getString(R.string.settings_more)), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
 
         val pad = dp(20)
         val scroll = ScrollView(this).apply {
