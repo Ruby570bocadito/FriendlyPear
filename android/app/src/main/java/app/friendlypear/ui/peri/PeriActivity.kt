@@ -1038,6 +1038,8 @@ class PeriActivity : Activity() {
             val x = event.values[0]
             val y = event.values[1]
             val z = event.values[2]
+            // Leaning the phone moves Peri's far world a little.
+            world.tilt(-x / android.hardware.SensorManager.GRAVITY_EARTH)
             val g = kotlin.math.sqrt(x * x + y * y + z * z) / android.hardware.SensorManager.GRAVITY_EARTH
             if (g < SHAKE_G) return
             val now = android.os.SystemClock.uptimeMillis()
