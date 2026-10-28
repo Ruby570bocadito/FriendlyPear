@@ -26,6 +26,7 @@ in the code and covered by tests or by the two-phone tests of Oct 27 and 28.
 | 2 | The same trap reaching the family | When two or more family pears turn to attention with the same kind of trap within 30 minutes, every Peri warns that it is going around | ✅ |
 | 1 | A scammer on the line, right now | A big *Hang up* button whenever a number that isn't in the contacts is on the line. The family sees "on a call with a number they don't know" (only that, only while the person shares Peri's news) and can ask that phone's Peri to hang up: one request at a time, two minutes at most, with each phone's own key; it never ends a call with a contact, and never behind the person's back: Peri says who asks and waits three seconds with *Keep talking* on screen | ✅ |
 | 1 | The same scammer calling again | The person can block a scam's number from its card: its calls are turned away before they ring, its texts never read aloud. Kept on the phone, never backed up, undone in Settings | ✅ |
+| 1 | The same scammer trying the next one in the family | A number blocked from a scam's card on one phone is turned away on every family phone: calls before they ring, texts never read aloud, a line in the diary. Never a saved contact on that phone, so nobody (not even with a stolen key) can cut a phone off from its own people. Only a fingerprint travels: HMAC-SHA256 of the number keyed with the family's salt, computed on the phone; the server never sees a number and never says whose block it is. Unblocking frees it for everyone; a disconnected phone's blocks go with it | ✅ |
 | 2 | A fake approval page | The guardian sees **the asking family member's pear, dressed as the family knows it** (taken from that phone when it asked), on the web page and in the app: a fake page can't copy it. Only the app's own accessories are drawn and names are escaped | ✅ |
 | 3 | Someone approves on the guardian's phone | In the app, a yes needs three checks **and the phone's own lock** (fingerprint, face or PIN). On the web page, a yes needs a second "are you sure?" step | ✅ |
 | 3 | A scammer on the guardian's own line | A guardian's yes waits while their phone is on a call with a number they don't know: their Peri says "hang up first, then decide", and the server holds the yes back too (the guardian's Peri sends its own key; who decided is kept with the request). "No" and "call them now" always work | ✅ |
@@ -62,6 +63,8 @@ can see the same trap going around.
 they don't know", never the number. The family's news reaches a phone with the app closed as notifications that say
 no more than the Family section does; on the lock screen they only say there is family news.
 
+**Blocked numbers** travel only as fingerprints (HMAC-SHA256 under the family's salt, computed on the phone), between the phones paired with the family's server and with each phone's own key. No phone learns who in the family blocked a number, and a family block never applies to a saved contact.
+
 **"Was it you?"** carries the asking pear's name and one word, `new_number`: never the message, the number or who it
 claims to be. Only the phone that asked reads the answers, each phone answers once, and the question and its answers
 are gone after 15 minutes or when that phone is disconnected.
@@ -96,3 +99,4 @@ are gone after 15 minutes or when that phone is disconnected.
 - **Pending requests and "was it you?" questions live in memory** and are lost if the server restarts (a request then
   simply expires: nothing is ever approved by itself, and Peri's warning stands).
 - A public HTTPS address (a tunnel or a host) is needed for phones outside the developer's network.
+- **A blocked number's fingerprint can be reversed by trying every phone number**, by someone who has the server's files (the family's salt is kept there too). The server never receives a number and its files hold none, but a fingerprint isn't secret from whoever runs the server.
