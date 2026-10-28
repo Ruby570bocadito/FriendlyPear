@@ -96,3 +96,18 @@ test("a request whose address can't be read gets a 400, not a crash", async () =
   const odd = { url: "/health", method: "GET", headers: new Headers() } as unknown as Request;
   expect((await handle(odd)).status).toBe(400);
 });
+
+test("a new SIM on Mamá's phone asks the family too: who changed it, and nothing else", async () => {
+  const { handle } = setup();
+  const [mama, ana] = await family(handle, ["Mamá", "Ana"]);
+  await handle(call("PUT", "/v1/pears/self", mama, { name: "Mamá", outfit: ",,", role: "protected", state: "attention", kind: "sim" }));
+  const asked = await handle(call("POST", "/v1/checks", mama, { kind: "sim" }));
+  expect(asked.status).toBe(201);
+  const { id } = (await asked.json()) as { id: string };
+  const seen = ((await (await handle(call("GET", "/v1/checks", ana))).json()) as any).checks;
+  expect(seen.map((c: any) => [c.id, c.from, c.kind])).toEqual([[id, "Mamá", "sim"]]);
+  expect((await handle(call("POST", `/v1/checks/${id}/answer`, ana, { answer: "not_me" }))).status).toBe(200);
+  const pears = ((await (await handle(call("GET", "/v1/pears", ana))).json()) as any).pears;
+  expect(pears.find((p: any) => p.name === "Mamá").kind).toBe("sim");
+  expect((await handle(call("POST", "/v1/checks", mama, { kind: "sim_swap" }))).status).toBe(400);
+});

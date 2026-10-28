@@ -1,13 +1,14 @@
 /**
- * "Was it you?": when someone writes to a family member from a new number saying they're family, that member's Peri
- * asks the rest of the family's Peris, in silence. Each paired phone answers once, "it was me" or "it wasn't me", and
+ * "Was it you?": when someone writes to a family member from a new number saying they're family ("new_number"), or
+ * their phone gets a different SIM or loses its line while the internet works ("sim", a SIM swap's signs), that
+ * member's Peri asks the rest of the family's Peris, in silence. Each paired phone answers once, "it was me" or "it wasn't me", and
  * the asking phone hears back who said what. Nothing about the message travels: not its words, not the number, not
  * who it claimed to be. A question lasts 15 minutes and lives only in memory.
  */
 import { randomBytes } from "node:crypto";
 
 export const CHECK_TTL_MS = 15 * 60 * 1000;
-export const KINDS = ["new_number"] as const;
+export const KINDS = ["new_number", "sim"] as const;
 export const ANSWERS = ["me", "not_me"] as const;
 /** A phone can't flood its family with questions: a few open at a time. */
 const MAX_OPEN_PER_PHONE = 3;
