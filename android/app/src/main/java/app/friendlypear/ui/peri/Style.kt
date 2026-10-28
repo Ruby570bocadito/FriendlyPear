@@ -421,6 +421,28 @@ internal fun View.floatIn(delay: Long = 0L) {
         .setInterpolator(DecelerateInterpolator(1.5f)).start()
 }
 
+/**
+ * Shows or hides a card. Coming in, it rises a little and settles with a soft spring, so the eye follows it; going,
+ * it simply leaves. Nothing moves with "remove animations".
+ */
+internal fun View.reveal(show: Boolean) {
+    val was = visibility == View.VISIBLE
+    if (show == was) return
+    animate().cancel()
+    if (!show) {
+        visibility = View.GONE
+        return
+    }
+    visibility = View.VISIBLE
+    if (!context.animationsOn()) return
+    alpha = 0f
+    translationY = context.dp(22).toFloat()
+    scaleX = 0.97f
+    scaleY = 0.97f
+    animate().alpha(1f).translationY(0f).scaleX(1f).scaleY(1f).setDuration(380)
+        .setInterpolator(android.view.animation.OvershootInterpolator(1.1f)).start()
+}
+
 /** A playful entrance for small things (a sticker, a chip, a medal): it pops up from small with a bounce. */
 internal fun View.popIn(delay: Long = 0L) {
     if (!context.animationsOn()) return

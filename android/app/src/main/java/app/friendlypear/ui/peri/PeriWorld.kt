@@ -84,7 +84,6 @@ class PeriWorld(context: Context) : View(context) {
     private val clouds = listOf(
         Cloud(0.05f, 0.18f, 1.25f, 7f),
         Cloud(0.62f, 0.32f, 0.9f, 10f),
-        Cloud(0.36f, 0.55f, 0.7f, 13f),
         Cloud(0.88f, 0.70f, 1.05f, 8f),
     )
     private val stars = List(38) { floatArrayOf(Random.nextFloat(), 0.03f + Random.nextFloat() * 0.85f, 0.8f + Random.nextFloat() * 1.6f, Random.nextFloat() * 6.3f, 0.6f + Random.nextFloat() * 1.6f) }
@@ -280,10 +279,10 @@ class PeriWorld(context: Context) : View(context) {
     private fun seedBits() {
         bits.clear()
         val count = when (place) {
-            Place.SNOW -> 34
-            Place.AUTUMN -> 9
-            Place.MEADOW -> 7
-            Place.ORCHARD -> 5
+            Place.SNOW -> 20
+            Place.AUTUMN -> 5
+            Place.MEADOW -> 4
+            Place.ORCHARD -> 3
             Place.SEASIDE -> 0
         }
         repeat(count) { bits += newBit(Random.nextFloat()) }
@@ -397,10 +396,8 @@ class PeriWorld(context: Context) : View(context) {
     private var rayLight: RadialGradient? = null
     private var lampGlow: RadialGradient? = null
     private var beamLight: LinearGradient? = null
-    /** Fingerprints in the front hill's clay: where (share of the width), how far under the crest (dp), how big, light or dark. */
     private var shadowTone = 0
     private var shadowShader: RadialGradient? = null
-    private val speckles = Random(7).let { r -> List(26) { floatArrayOf(r.nextFloat(), 8f + r.nextFloat() * 100f, 1.1f + r.nextFloat() * 1.5f, if (r.nextFloat() < 0.4f) 1f else 0f) } }
 
     override fun onDraw(canvas: Canvas) {
         val w = width.toFloat()
@@ -602,7 +599,7 @@ class PeriWorld(context: Context) : View(context) {
             canvas.drawCircle(0f, 0f, w * 0.75f, fill)
             // Soft rays, turning slowly.
             if (rays.isEmpty) makeRays(r)
-            fill.shader = rayLight ?: RadialGradient(0f, 0f, r * 3.4f, 0x80FFF3BF.toInt(), 0x00FFF3BF, Shader.TileMode.CLAMP).also { rayLight = it }
+            fill.shader = rayLight ?: RadialGradient(0f, 0f, r * 3.4f, 0x4DFFF3BF, 0x00FFF3BF, Shader.TileMode.CLAMP).also { rayLight = it }
             fill.alpha = (255 * sun).toInt()
             canvas.save()
             if (moves) canvas.rotate(time * 4f)
@@ -863,17 +860,6 @@ class PeriWorld(context: Context) : View(context) {
         stroke.strokeWidth = 4 * d
         canvas.drawPath(crest, stroke)
         canvas.restore()
-        // Fingerprints in the clay, lighter and darker, under the crest.
-        val dark = lit(blend(colors[1], shade, 0.55f))
-        val light = lit(blend(colors[1], Palette.WHITE, 0.5f))
-        for (i in speckles.indices) {
-            val s = speckles[i]
-            val bright = s[3] > 0.5f
-            fill.color = if (bright) light else dark
-            fill.alpha = if (bright) 115 else 70
-            canvas.drawCircle(s[0] * w, frontAt(s[0], g) + s[1] * d, s[2] * d, fill)
-        }
-        fill.alpha = 255
     }
 
     private fun drawPlaceLife(canvas: Canvas, w: Float, h: Float, g: Float) {
@@ -1255,11 +1241,11 @@ class PeriWorld(context: Context) : View(context) {
         )
 
         private val AUTUMN_COLORS = intArrayOf(0xFFE8833A.toInt(), 0xFFD9532F.toInt(), 0xFFF2B33D.toInt(), 0xFFC0662B.toInt())
-        private val FLOWER_X = floatArrayOf(0.06f, 0.15f, 0.24f, 0.77f, 0.86f, 0.94f)
-        private val FLOWER_COLORS = intArrayOf(Palette.WHITE, Palette.CORAL, Palette.SUN, Palette.LILAC, Palette.WHITE, Palette.CORAL)
+        private val FLOWER_X = floatArrayOf(0.07f, 0.2f, 0.8f, 0.93f)
+        private val FLOWER_COLORS = intArrayOf(Palette.WHITE, Palette.CORAL, Palette.SUN, Palette.LILAC)
         private val BUSHES = floatArrayOf(0.07f, 0.2f, 0.83f, 0.95f)
         private val AUTUMN_BUSHES = floatArrayOf(0.08f, 0.86f)
-        private val TUFTS = floatArrayOf(0.03f, 0.12f, 0.28f, 0.72f, 0.88f, 0.97f)
+        private val TUFTS = floatArrayOf(0.03f, 0.24f, 0.76f, 0.97f)
         /** Fallen leaves: share of the width, dp under the crest, turn. */
         private val LEAVES = floatArrayOf(0.16f, 10f, 20f, 0.23f, 24f, -35f, 0.31f, 14f, 60f, 0.7f, 20f, -15f, 0.77f, 9f, 40f)
         /** The pears on an orchard tree, from the foot of its trunk (dp). */

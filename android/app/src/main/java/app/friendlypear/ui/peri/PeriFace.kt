@@ -717,6 +717,14 @@ class PeriFace(context: Context) : FrameLayout(context) {
     /** Out of sight (another section on screen, a card scrolled away), she rests until she's back. */
     override fun onVisibilityAggregated(isVisible: Boolean) {
         super.onVisibilityAggregated(isVisible)
+        // Out of sight (another section, a family card scrolled away), she keeps only the picture on show; back in
+        // sight, the rest of her mood decodes again in the background.
+        if (!isVisible) {
+            loaded.keys.retainAll(setOf(onShow))
+            tops.clear()
+        } else if (shown != null && isAttachedToWindow) {
+            preload()
+        }
         if (!moves || !isAttachedToWindow) return
         if (isVisible && !running) {
             running = true

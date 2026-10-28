@@ -68,6 +68,8 @@ class PeriActivity : Activity() {
     private var bars = android.graphics.Insets.NONE
     private lateinit var familyAlert: View
     private lateinit var blockScam: View
+    /** "Look at a picture" and Mini Peri: they step aside while a card needs attention, so Peri keeps her room. */
+    private lateinit var secondary: View
     private lateinit var familyHangUp: View
     /** The family member on a stranger's call, if that's the alert on show: their pear's id and name. */
     private var callAlert: Pair<String, String>? = null
@@ -241,7 +243,15 @@ class PeriActivity : Activity() {
                 marginEnd = dp(8)
             })
             // Or never hear from that number again.
-            blockScam = Pill(this@PeriActivity, getString(R.string.block_button), R.drawable.ic_shield, primary = false, rubber = Rubber.CORAL).apply {
+            blockScam = TextView(this@PeriActivity).apply {
+                text = getString(R.string.block_button)
+                sizeSp(TextSize.SMALL)
+                typeface = Fonts.display(600)
+                setTextColor(Palette.CORAL_INK)
+                gravity = Gravity.CENTER
+                minHeight = dp(48)
+                setPadding(dp(14), 0, dp(14), 0)
+                background = pressable(rounded(0, dp(24).toFloat()), Palette.RIPPLE_DARK)
                 setOnClickListener {
                     val scam = hub.lastScam.offer() ?: return@setOnClickListener
                     hub.blocked.add(scam.sender)
@@ -249,9 +259,9 @@ class PeriActivity : Activity() {
                     showSetup()
                 }
             }
-            addView(blockScam, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply {
-                topMargin = dp(10)
-                marginEnd = dp(8)
+            addView(blockScam, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                topMargin = dp(4)
+                gravity = Gravity.CENTER_HORIZONTAL
             })
         }
 
@@ -325,13 +335,15 @@ class PeriActivity : Activity() {
                     addView(questionText)
                 }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             })
+            // One answer above the other, each the full width: they read whole even with big letters.
             addView(LinearLayout(this@PeriActivity).apply {
-                addView(Pill(this@PeriActivity, getString(R.string.check_me), R.drawable.ic_check, primary = false, size = 17f).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(Pill(this@PeriActivity, getString(R.string.check_me), R.drawable.ic_check, primary = false).apply {
                     setOnClickListener { answerQuestion(me = true) }
-                }, LinearLayout.LayoutParams(0, dp(56), 1f).apply { marginEnd = dp(5) })
-                addView(Pill(this@PeriActivity, getString(R.string.check_not_me), R.drawable.ic_close, primary = false, size = 17f).apply {
+                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)))
+                addView(Pill(this@PeriActivity, getString(R.string.check_not_me), R.drawable.ic_close, primary = false).apply {
                     setOnClickListener { answerQuestion(me = false) }
-                }, LinearLayout.LayoutParams(0, dp(56), 1f).apply { marginStart = dp(5) })
+                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply { topMargin = dp(8) })
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) })
         }
 
@@ -413,7 +425,7 @@ class PeriActivity : Activity() {
             addView(spacer, LinearLayout.LayoutParams(0, 0, 0f))
             addView(settings, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginStart = dp(10) })
         }
-        val secondary = LinearLayout(this).apply {
+        secondary = LinearLayout(this).apply {
             addView(look, LinearLayout.LayoutParams(0, dp(60), 1f).apply { marginEnd = dp(6) })
             addView(mini, LinearLayout.LayoutParams(0, dp(60), 1f).apply { marginStart = dp(6) })
         }
@@ -545,7 +557,11 @@ class PeriActivity : Activity() {
             to.alpha = 1f
         }
         placeGround()
-        if (next == TAB_PERI) showSetup()
+        if (next == TAB_PERI) {
+            showSetup()
+            // Back to her: a little hop hello.
+            if (animationsOn()) face.postDelayed({ face.play(PeriFace.Trick.HOP) }, 160)
+        }
     }
 
     private fun page(index: Int): View = when (index) {
@@ -1187,18 +1203,20 @@ class PeriActivity : Activity() {
         // A family question first, then family in trouble, then a website to silence, then a scam to report: one card
         // at a time, so Peri keeps her room.
         val asked = asking != null
-        question.visibility = if (asked) View.VISIBLE else View.GONE
+        question.reveal(asked)
         val family = !asked && familyAlertKey != null
-        familyAlert.visibility = if (family) View.VISIBLE else View.GONE
+        familyAlert.reveal(family)
         val site = hub.webNotices.offer()?.takeIf { !family && !asked }
-        web.visibility = if (site != null) View.VISIBLE else View.GONE
+        web.reveal(site != null)
         if (site != null) webText.text = getString(R.string.web_card_text, site.site ?: getString(R.string.web_unknown_site))
         val scam = hub.lastScam.offer()
         val reporting = !family && !asked && site == null && scam != null
-        report.visibility = if (reporting) View.VISIBLE else View.GONE
+        report.reveal(reporting)
         val blockable = scam != null && app.friendlypear.config.BlockList.key(scam.sender) != null && !hub.blocked.has(scam.sender)
         blockScam.visibility = if (blockable) View.VISIBLE else View.GONE
-        setup.visibility = if (first != null && !reporting && site == null && !family && !asked) View.VISIBLE else View.GONE
+        setup.reveal(first != null && !reporting && site == null && !family && !asked)
+        // One thing at a time: while the family, a website or a scam needs attention, the extra buttons step aside.
+        secondary.reveal(!asked && !family && site == null && !reporting)
         // Contacts and calls, plus a way to see messages (texts or alerts): that's enough to protect.
         val seesMessages = hub.permissions.granted(Need.READ_SMS) || !noAccess
         val protecting = !noBasics && seesMessages
