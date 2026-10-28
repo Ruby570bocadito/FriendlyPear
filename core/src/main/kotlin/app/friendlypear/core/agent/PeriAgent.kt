@@ -482,6 +482,12 @@ class PeriAgent(
                 // location is used if it was granted before, never asked with someone possibly on the floor.
                 device.prepare(Capability.CALL) { device.prepare(Capability.SEND_SMS) {} }
             }
+            is Command.Gave -> {
+                // No blame and no lecture: the first step, said calmly, and the rest on screen.
+                pending = null
+                say(p.aftercare(command.what), Mood.PROTECTIVE)
+                device.showAftercare(command.what)
+            }
             Command.Yes -> say(p.whatToDo)
             Command.No, Command.Cancel ->
                 if (awaitingGuardian != null) {

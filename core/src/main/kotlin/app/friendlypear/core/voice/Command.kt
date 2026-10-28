@@ -14,6 +14,9 @@ sealed interface Command {
     /** "me he caído", "socorro": starts the countdown, never dials an emergency number by itself. */
     data object Emergency : Command
 
+    /** "Le he dado el código", "he hecho un bizum": something already given away to a scammer. */
+    data class Gave(val what: app.friendlypear.core.agent.Breach) : Command
+
     data object Yes : Command
     data object No : Command
     data object Cancel : Command

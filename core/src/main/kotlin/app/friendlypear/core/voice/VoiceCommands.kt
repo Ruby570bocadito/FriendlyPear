@@ -77,6 +77,8 @@ object VoiceCommands {
         if (clean in yes) return Command.Yes
         if (clean in no) return Command.No
         if (cancel.containsMatchIn(clean) && clean.split(" ").size <= 3) return Command.Cancel
+        // Already given away: before calls ("he dado el código a Pablo" isn't a call to Pablo).
+        app.friendlypear.core.agent.Breaches.of(clean)?.let { return Command.Gave(it) }
 
         sendMessage(utterance, folded)?.let { return it }
         askForHelp.find(clean)?.let { m ->

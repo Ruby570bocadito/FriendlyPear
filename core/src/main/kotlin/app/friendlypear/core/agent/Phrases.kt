@@ -28,6 +28,7 @@ internal interface Phrases {
     fun familyHungUp(name: String): String
     fun familyAsksHangUp(name: String): String
     fun familyWillHangUp(name: String): String
+    fun aftercare(what: Breach): String
     fun keptCall(name: String): String
     fun smsSent(name: String): String
     fun smsFailedOfferCall(name: String): String
@@ -126,6 +127,16 @@ internal object Spanish : Phrases {
     override val hangUpYourself = "Pulsa el botón rojo para colgar. Aquí te espero."
     override fun familyHungUp(name: String) = "$name me ha pedido que cuelgue esta llamada, y ya está: era un número que no conoces. Si quieres, llama a $name."
     override fun familyAsksHangUp(name: String) = "$name te pide que cuelgues ya: es un número que no conoces. Pulsa el botón rojo."
+    override fun aftercare(what: Breach) = when (what) {
+        Breach.CARD -> "Tranquilidad, lo arreglamos tú y yo. Lo primero: llama a tu banco al número que viene en la tarjeta y pide que la bloqueen. Te enseño los pasos."
+        Breach.BANK -> "Tranquilidad, lo arreglamos. Llama a tu banco al número de siempre y pide que bloqueen el acceso; después cambia la clave. Te enseño los pasos."
+        Breach.MONEY -> "Lo primero, ya: llama a tu banco al número de la tarjeta. Si es enseguida, a veces pueden parar el dinero. Te enseño los pasos."
+        Breach.REMOTE -> "Vamos a cortarle el paso: apaga ahora el wifi y los datos, y luego quitamos esa app. Te enseño los pasos."
+        Breach.CODE -> "Actuamos ya: con ese código pueden entrar en tu cuenta. Te enseño cómo recuperarla y dejarla protegida."
+        Breach.ID -> "Lo arreglamos: con tu documento pueden hacerse pasar por ti. Hay que denunciarlo y estar atentos. Te enseño los pasos."
+        Breach.PASSWORD -> "Lo arreglamos: cambia esa contraseña, y también donde uses la misma. Te enseño los pasos."
+        Breach.SOMETHING -> "Tranquilidad, aquí estoy contigo: lo arreglamos paso a paso. Te enseño qué hacer."
+    }
     override fun familyWillHangUp(name: String) = "$name me pide que cuelgue: es un número que no conoces. Cuelgo en tres segundos. Si quieres seguir, pulsa «Seguir hablando»."
     override fun keptCall(name: String) = "Vale, sigues hablando. Si te piden dinero o códigos, cuelga y llama a $name."
     override fun smsSent(name: String) = "¡Listo! Mensaje enviado a $name."
@@ -254,6 +265,16 @@ internal object English : Phrases {
     override val hangUpYourself = "Press the red button to hang up. I'll wait right here."
     override fun familyHungUp(name: String) = "$name asked me to hang up this call, and it's done: it was a number you don't know. You can call $name if you like."
     override fun familyAsksHangUp(name: String) = "$name asks you to hang up now: it's a number you don't know. Press the red button."
+    override fun aftercare(what: Breach) = when (what) {
+        Breach.CARD -> "Don't worry, we'll sort it out together. First: call your bank on the number on your card and ask them to block it. I'll show you the steps."
+        Breach.BANK -> "Don't worry, we'll sort it out. Call your bank on its usual number and ask them to block access, then change your password. I'll show you the steps."
+        Breach.MONEY -> "First thing, right now: call your bank on the number on your card. If it's quick, they can sometimes stop the money. I'll show you the steps."
+        Breach.REMOTE -> "Let's shut them out: turn off wifi and mobile data now, then we'll remove that app. I'll show you the steps."
+        Breach.CODE -> "Let's act now: with that code they can get into your account. I'll show you how to get it back and keep it safe."
+        Breach.ID -> "We'll sort it out: with your ID they can pretend to be you. It needs reporting, and keeping an eye out. I'll show you the steps."
+        Breach.PASSWORD -> "We'll sort it out: change that password, and anywhere else you use the same one. I'll show you the steps."
+        Breach.SOMETHING -> "Don't worry, you're not alone in this: we'll sort it out together. I'll show you what to do, step by step."
+    }
     override fun familyWillHangUp(name: String) = "$name asks me to hang up: it's a number you don't know. I'll hang up in three seconds. To keep talking, press Keep talking."
     override fun keptCall(name: String) = "All right, keep talking. If they ask for money or codes, hang up and call $name."
     override fun smsSent(name: String) = "Done! Message sent to $name."

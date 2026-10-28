@@ -34,6 +34,9 @@ interface DevicePort {
      * it on, Peri only speaks.
      */
     fun showPause(text: String, callName: String?, hangUp: Boolean = false, keep: Boolean = false) = Unit
+
+    /** The steps to take after giving [what] away (block the card, call the bank, tell the family...), on screen. */
+    fun showAftercare(what: Breach) = Unit
 }
 
 /** What the person chose on the safety pause. */
