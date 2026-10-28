@@ -174,6 +174,7 @@ class PeriHub(context: Context) {
         this.context,
         lang,
         onSpeech = { text ->
+            chatReplies?.add(text)
             lastSaid = text
             speaking = true
             haptics.mood(mood)
@@ -1024,7 +1025,33 @@ class PeriHub(context: Context) {
         views.forEach { it.said(text) }
     }
 
-    fun heard(utterance: String) = main.post {
+    fun heard(utterance: String) = main.post { hear(utterance) }
+
+    /** What Peri says while answering something written in the chat, and only that ([ask]). */
+    private var chatReplies: MutableList<String>? = null
+
+    /**
+     * A line the person wrote in the chat ([app.friendlypear.ui.peri.ChatActivity]), handled like a spoken one. Only
+     * what Peri says right then, in answer, goes back to the chat: a warning about a message arriving meanwhile never
+     * does, so a message's words can't pass for Peri's. For the same reason messages aren't read out from the chat,
+     * and what isn't understood gets the chat's own answer. [reply] gets her words and the topic, if it was a question.
+     */
+    fun ask(text: String, reply: (List<String>, app.friendlypear.core.agent.Topic?) -> Unit) = main.post {
+        val command = VoiceCommands.parse(text)
+        val waiting = agent.isWaitingForAnswer
+        if (!waiting && command is Command.ReadMessages) return@post reply(listOf(context.getString(R.string.chat_read_elsewhere)), null)
+        if (!waiting && command is Command.Unknown) return@post reply(listOf(context.getString(R.string.chat_unknown)), null)
+        val lines = mutableListOf<String>()
+        chatReplies = lines
+        try {
+            hear(text)
+        } finally {
+            chatReplies = null
+        }
+        reply(lines.ifEmpty { listOf(context.getString(R.string.chat_on_it)) }, (command as? Command.Advise)?.topic)
+    }
+
+    private fun hear(utterance: String) {
         // "Read my messages": she holds up a letter while she reads.
         val reading = !agent.isWaitingForAnswer && VoiceCommands.parse(utterance) is Command.ReadMessages
         agent.onHeard(utterance)

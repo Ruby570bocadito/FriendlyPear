@@ -45,6 +45,7 @@ class PeriActivity : Activity() {
     private lateinit var face: PeriFace
     private var listening = false
     private lateinit var talk: Pill
+    private lateinit var write: ImageView
     private lateinit var status: TextView
     private lateinit var shieldsChip: TextView
     private lateinit var report: View
@@ -122,6 +123,15 @@ class PeriActivity : Activity() {
         }
         talk = Pill(this, getString(R.string.talk), R.drawable.ic_mic, primary = true, size = TextSize.TITLE).apply {
             setOnClickListener { listen() }
+        }
+        write = ImageView(this).apply {
+            setImageResource(R.drawable.ic_message)
+            setColorFilter(Palette.GREEN_DARK)
+            contentDescription = getString(R.string.chat_open)
+            background = pressable(cardBackground(), Palette.RIPPLE_DARK)
+            setPadding(dp(22), dp(20), dp(22), dp(24))
+            stateListAnimator = pressScale()
+            setOnClickListener { startActivity(ChatActivity.intent(this@PeriActivity)) }
         }
         val mini = Pill(this, getString(R.string.mini_mode), R.drawable.ic_mini, primary = false).apply {
             setOnClickListener { goMini() }
@@ -472,7 +482,11 @@ class PeriActivity : Activity() {
             addView(web, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
             addView(report, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
             addView(setup, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
-            addView(talk, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(76)).apply { topMargin = dp(14) })
+            addView(LinearLayout(this@PeriActivity).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                addView(talk, LinearLayout.LayoutParams(0, dp(76), 1f))
+                addView(write, LinearLayout.LayoutParams(dp(76), dp(76)).apply { marginStart = dp(10) })
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
             addView(secondary, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) })
         }
         world = PeriWorld(this).apply { onTone = { applyTone(it) } }
@@ -510,7 +524,7 @@ class PeriActivity : Activity() {
         setContentView(root)
         applyTone(world.dark)
         // The screen says hello: Peri first, then her bubble and the buttons, one by one.
-        listOf(said, setup, talk, secondary).forEachIndexed { i, v -> v.floatIn(80L + 70L * i) }
+        listOf(said, setup, talk, write, secondary).forEachIndexed { i, v -> v.floatIn(80L + 70L * i) }
         tabs.floatIn(360)
         if (savedInstanceState == null) face.post { face.enter() }
 
@@ -730,7 +744,7 @@ class PeriActivity : Activity() {
         if (askToScreenCalls()) return
         if (!hasNotificationAccess() && !asked.getBoolean(NOTIFICATIONS, false)) {
             asked.edit().putBoolean(NOTIFICATIONS, true).apply()
-            hub.show(getString(if (locked) R.string.why_notifications_locked else R.string.why_notifications))
+            hub.show(getString(if (locked) R.string.why_notifications_locked else R.string.why_notifications_later))
         }
     }
 
@@ -1388,11 +1402,12 @@ class PeriActivity : Activity() {
 
     /** The microphone is asked the first time the person presses the button. */
     private fun listen() {
-        if (!voice.available) {
-            showSaid(getString(R.string.no_recognizer))
-            return
+        if (!voice.available) return startActivity(ChatActivity.intent(this, noMic = true))
+        hub.permissions.ask(Need.MIC) { allowed ->
+            // Without the microphone, the chat: Peri can always be asked, written.
+            if (!allowed) return@ask startActivity(ChatActivity.intent(this, noMic = true))
+            if (!voice.listen()) hub.say(getString(R.string.no_mic_in_call))
         }
-        hub.permissions.ask(Need.MIC) { allowed -> if (allowed && !voice.listen()) hub.say(getString(R.string.no_mic_in_call)) }
     }
 
     private fun hasNotificationAccess(): Boolean = UnlockActivity.hasNotificationAccess(this)
