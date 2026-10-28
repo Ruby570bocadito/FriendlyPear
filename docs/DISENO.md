@@ -24,6 +24,7 @@ Elegida con la persona: **fondos que van cambiando**, en vez de escenas de víde
 - **Rendimiento:** las formas se hacen una vez por tamaño y lugar, alrededor de la línea del suelo, y los degradados se guardan hasta que la hora cambia sus colores; sin objetos nuevos por fotograma. En el emulador: 0,2 ms por fotograma en el hilo de la interfaz, 2 ms en el de dibujo, ningún fotograma tarde.
 - **Hecho a mano, desde cero** (28 oct, noche): probamos un pueblo con sprites de plastilina de Muse Image (casita, perales, arbustos, nubes) junto a los lugares dibujados con código; la persona prefirió los dibujados a mano, así que el mundo de Peri es todo código (el pueblo queda en el historial de git, commit 478e636).
 - **Una cosa cada vez** (28 oct, noche): mientras una tarjeta pide atención (la familia, una web, un timo), los botones secundarios se apartan y Peri gana sitio; «bloquear» es un enlace discreto bajo los dos botones del timo; las respuestas a «¿has sido tú?» van una sobre otra, a todo el ancho, y se leen enteras con letra grande. Las tarjetas entran subiendo con un muelle suave (`reveal` en `Style.kt`) y Peri da un saltito al volver a su apartado.
+- **La nieve con vida** (ronda 4): pinos y muñeco plantados sobre la cresta de verdad de las colinas (antes flotaban), cada uno en su montoncito de nieve; borde frío en la colina nevada para que no se funda con el cielo de la tarde; una cabaña con la ventana encendida al anochecer y humo en la chimenea; pájaros.
 - **Un fondo más tranquilo:** menos pétalos y copos, sin huellas en la arcilla, menos matas de hierba y flores, una nube menos y rayos de sol más suaves.
 - **Sombras del suelo** suaves, del verde oscuro de la propia colina (arena, nieve) y difuminadas, nunca un disco gris.
 - **Estrellas de plastilina** (Muse Image) que saltan de Peri con un rebote y se apagan: al ganar un escudo, al tocarle los pies o cuando se rinde de risa.
@@ -35,7 +36,8 @@ Elegida con la persona: **fondos que van cambiando**, en vez de escenas de víde
 | Uso | Fuente | Por qué |
 |---|---|---|
 | Títulos, botones, chips, barra de apartados, el nombre | **Fredoka** (variable, 600–700) | Redonda y simpática, como Peri |
-| Todo lo que se lee (bocadillo, textos, listas) | **Atkinson Hyperlegible** (400 y 700) | Hecha por el Braille Institute para personas con poca visión |
+| Lo que dice Peri en su bocadillo (ronda 4) | **Fredoka** 500, de 13 a 23 sp | Su propia voz: a la persona la letra de antes le parecía básica; frases cortas y grandes, el mismo contraste |
+| Todo lo demás que se lee (textos, listas) | **Atkinson Hyperlegible** (400 y 700) | Hecha por el Braille Institute para personas con poca visión |
 
 Licencia OFL 1.1, dentro de la app (`android/app/src/main/res/font/`; licencias en `assets/licenses/`), sin internet. Atkinson es la letra por defecto del tema; Fredoka se construye en código a 500, 600 y 700 (`Fonts` en `Style.kt`). Tamaños: títulos 26, lo que se lee o se pulsa 20, letra pequeña 16; crecen con la letra del móvil hasta ×1,15.
 
@@ -61,7 +63,10 @@ El texto sobre coral fuerte es siempre tinta oscura (con blanco solo llega a 4,4
 
 - **Botones de goma:** píldoras con un labio de 5 dp debajo (verde bosque sobre `#173A10`; blancos sobre arena `#E3D7BD`). Al pulsar, el botón baja al labio; al soltar, rebota. Un único botón verde por pantalla.
 - **Tarjetas:** blancas, esquinas de 26 dp y una sombra suave verdosa; al pulsarlas se hunden un poco (0,96).
-- **Cabecera de apartado:** título grande en Fredoka, una línea de Peri y su pegatina (una pose suya) al lado.
+- **Cabecera de apartado:** título grande en Fredoka, una línea de Peri y su pegatina (una pose suya) al lado; alrededor de Peri flotan corazones (Diario), estrellas de plastilina (Aprende) o corazones lila (Familia) que suben y se apagan (`Floaties`), nunca sobre el texto.
+- **El nombre como logotipo** (ronda 4): letras redondas en dos verdes de pera con borde de plastilina, brillo y sombra, y una hoja por punto de la «i»; caen rebotando al abrir, de vez en cuando pasa una ola y saltan al tocarlas; de noche, un brillo claro en vez de sombra; sin olas mientras Peri avisa (`Wordmark`).
+- **El bocadillo** (ronda 4): las palabras aparecen una a una con un fundido, un poco por delante de su voz, y le mueven la boca aunque la voz esté apagada; el bocadillo se infla un poco con cada frase nueva.
+- **Botones de Peri:** «Hablar con Peri» verde bosque; «Mira una imagen» y «Mini Peri» en el color de su apartado (cielo y lila).
 - **Chips:** píldoras con tinte del color de su apartado.
 - **Entradas:** cada pieza sube y aparece una tras otra (340 ms, 70 ms entre piezas). Cambio de apartado: 220 ms.
 - Nada parpadea más de 3 veces por segundo (seguro para fotosensibilidad).
@@ -111,6 +116,7 @@ Barra inferior flotante con cuatro apartados, cada uno con su color; Ajustes en 
 |---|---|
 | Interfaz | Vistas de Android creadas en código (`ui/peri/`), sin librerías externas |
 | Estilo | `Style.kt`: paleta, fuentes (`Fonts`), `Pill`, tarjetas, cabeceras, movimiento |
+| Ritmo tranquilo | `Rest.kt`: sin tocar la pantalla, Peri respira a 30 fps y a 20 tras 20 s, y el mundo y los adornos van en los mismos fotogramas; un dedo, una frase o una acción devuelven todos (ronda 4) |
 | Mundo | `PeriWorld.kt`: cielo, astros, nubes, colinas, lugares y partículas en `Canvas`, a 30 fps y parado si no se ve; formas y degradados en caché (`shape`, `Shade`), paralaje con `tilt` |
 | Peri | `PeriFace.kt` + `Sparkles.kt`; ilustraciones de Muse Image en `res/drawable-nodpi/` |
 | Fuentes | `res/font/`: Atkinson por el tema; Fredoka variable con `android.graphics.fonts.Font` a 500, 600 y 700 |
