@@ -286,6 +286,8 @@
     <string name="guardian_why_circle">Los cambios en los guardianes necesitan el sí de un guardián y esperan 48 horas, para que nadie se quede con su protección.</string>
     <string name="guardian_meanwhile_title">Mientras decides</string>
     <string name="guardian_meanwhile">Su Peri no manda nada. Si no contestas, tampoco se manda.</string>
+    <string name="guardian_pear_title">Lo pide la pera de %1$s</string>
+    <string name="guardian_pear_note">La misma pera que ves en Familia, con la misma ropa. Si no es la suya, di que no.</string>
     <string name="guardian_privacy">Tu Peri ha comprobado esta petición con el servidor de Peri; no se ha fiado del texto del SMS.</string>
     <string name="guardian_check_1">Has hablado con %1$s, por teléfono o en persona.</string>
     <string name="guardian_check_2">Sabes quién es %1$s y es de confianza.</string>

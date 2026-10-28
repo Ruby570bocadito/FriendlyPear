@@ -21,6 +21,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import app.friendlypear.PeriApp
 import app.friendlypear.R
+import app.friendlypear.core.agent.Mood
 import app.friendlypear.net.FamilyRequestClient
 import app.friendlypear.net.FamilyRequestClient.Answer
 import app.friendlypear.net.FamilyRequestClient.Outcome
@@ -38,6 +39,8 @@ class GuardianActivity : Activity() {
     private lateinit var toName: String
     private var onCall = false
     private var kind = KIND_SEND_CODE
+    private var pearName: String? = null
+    private var pearOutfit = ""
     private lateinit var peri: ImageView
     private lateinit var answers: LinearLayout
     private lateinit var result: TextView
@@ -55,6 +58,8 @@ class GuardianActivity : Activity() {
         toName = intent.getStringExtra(EXTRA_TO) ?: return finish()
         onCall = intent.getBooleanExtra(EXTRA_ON_CALL, false)
         kind = intent.getStringExtra(EXTRA_KIND) ?: KIND_SEND_CODE
+        pearName = intent.getStringExtra(EXTRA_PEAR_NAME)
+        pearOutfit = intent.getStringExtra(EXTRA_PEAR_OUTFIT).orEmpty()
         build(intent.getLongExtra(EXTRA_EXPIRES, 0L))
         // Opened later from the notification, it may have been answered elsewhere: check with the server.
         io.execute {
@@ -83,6 +88,24 @@ class GuardianActivity : Activity() {
         val ask = card().apply {
             val what = if (kind == KIND_CIRCLE) getString(R.string.guardian_circle, toName) else getString(R.string.guardian_send_code, toName)
             addView(heading(what, TextSize.BODY))
+        }
+        // Who's asking: their pear as the family knows it, from the server with the request, as on the web page.
+        val who = pearName?.let { name ->
+            card().apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                addView(PeriFace(this@GuardianActivity).apply {
+                    outfit = Outfit.of(pearOutfit)
+                    show(Mood.CALM)
+                    importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+                }, LinearLayout.LayoutParams(dp(84), dp(84)))
+                addView(LinearLayout(this@GuardianActivity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(dp(12), 0, 0, 0)
+                    addView(heading(getString(R.string.guardian_pear_title, name), TextSize.BODY))
+                    addView(body(getString(R.string.guardian_pear_note), TextSize.SMALL))
+                }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            }
         }
         val alert = LinearLayout(this).apply {
             background = rounded(ALERT_FILL, dp(24).toFloat(), ALERT_LINE, dp(1.5f))
@@ -162,6 +185,7 @@ class GuardianActivity : Activity() {
             fun add(v: View, top: Int) = addView(v, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(top) })
             add(header, 0)
             add(ask, 12)
+            who?.let { add(it, 12) }
             add(alert, 12)
             add(answers, 18)
             add(result, 18)
@@ -170,7 +194,7 @@ class GuardianActivity : Activity() {
             add(why, 14)
             add(privacy, 12)
         }
-        listOf(ask, alert, answers, why).forEachIndexed { i, v -> v.floatIn(60L + 70L * i) }
+        listOfNotNull(ask, who, alert, answers, why).forEachIndexed { i, v -> v.floatIn(60L + 70L * i) }
         val scroll = ScrollView(this).apply {
             clipToPadding = false
             addView(list)
@@ -274,6 +298,8 @@ class GuardianActivity : Activity() {
         private const val EXTRA_ON_CALL = "on_call"
         private const val EXTRA_KIND = "kind"
         private const val EXTRA_EXPIRES = "expires"
+        private const val EXTRA_PEAR_NAME = "pear_name"
+        private const val EXTRA_PEAR_OUTFIT = "pear_outfit"
         const val KIND_SEND_CODE = "send_code"
         const val KIND_CIRCLE = "circle_change"
         private const val ALERT_FILL = 0xFFFFF1D6.toInt()
@@ -290,6 +316,8 @@ class GuardianActivity : Activity() {
                 .putExtra(EXTRA_ON_CALL, request.onCall)
                 .putExtra(EXTRA_KIND, request.kind)
                 .putExtra(EXTRA_EXPIRES, request.expiresAt)
+                .putExtra(EXTRA_PEAR_NAME, request.pear?.name)
+                .putExtra(EXTRA_PEAR_OUTFIT, request.pear?.outfit)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
     }
 }

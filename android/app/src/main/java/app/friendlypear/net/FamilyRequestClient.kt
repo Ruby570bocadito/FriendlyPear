@@ -10,7 +10,10 @@ import java.net.URL
  * the SMS that carried the link.
  */
 object FamilyRequestClient {
-    data class Request(val kind: String, val toName: String, val onCall: Boolean, val pending: Boolean, val expiresAt: Long)
+    /** The asking phone's pear when it asked: its name and what it wears ("STRAW,,BOWTIE"). */
+    data class Pear(val name: String, val outfit: String)
+
+    data class Request(val kind: String, val toName: String, val onCall: Boolean, val pending: Boolean, val expiresAt: Long, val pear: Pear? = null)
 
     enum class Answer(val form: String) { REJECT("decision=reject"), CALLBACK("decision=callback"), APPROVE("decision=approve&confirm=yes") }
 
@@ -23,7 +26,8 @@ object FamilyRequestClient {
             val j = JSONObject(c.inputStream.bufferedReader().use { it.readText() })
             val kind = j.getString("kind")
             if (kind != "send_code" && kind != "circle_change") return null
-            Request(kind, j.getString("toName"), j.optBoolean("onCall"), j.getString("status") == "pending", j.optLong("expiresAt"))
+            val pear = j.optJSONObject("pear")?.let { Pear(it.optString("name").take(40), it.optString("outfit").take(40)) }
+            Request(kind, j.getString("toName"), j.optBoolean("onCall"), j.getString("status") == "pending", j.optLong("expiresAt"), pear?.takeIf { it.name.isNotBlank() })
         } finally {
             c.disconnect()
         }

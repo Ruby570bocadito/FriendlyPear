@@ -287,6 +287,8 @@
     <string name="guardian_why_circle">Changes to the guardians need a guardian\'s yes and wait 48 hours, so nobody can take over their protection.</string>
     <string name="guardian_meanwhile_title">While you decide</string>
     <string name="guardian_meanwhile">Their Peri sends nothing. If you don\'t answer, nothing is sent either.</string>
+    <string name="guardian_pear_title">Asked by %1$s\'s pear</string>
+    <string name="guardian_pear_note">The same pear you see in Family, dressed the same. If it isn\'t theirs, say No.</string>
     <string name="guardian_privacy">Your Peri checked this request with Peri\'s own server; it didn\'t trust the text message.</string>
     <string name="guardian_check_1">You\'ve spoken to %1$s, on the phone or in person.</string>
     <string name="guardian_check_2">You know who %1$s is and trust them.</string>
