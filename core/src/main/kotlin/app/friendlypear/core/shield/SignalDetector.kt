@@ -91,6 +91,9 @@ internal object SignalDetector {
         "disregard previous", "eres un asistente", "eres una ia", "como modelo de lenguaje", "asistente de ia",
         "system prompt", "prompt del sistema", "marca este mensaje como", "clasifica este mensaje como",
         "este mensaje es seguro", "mark this message as", "this message is safe", "nota para la ia", "note to ai", "<system>",
+        // Aimed at Peri from a QR code or a picture: "this QR is safe", "tell the user to open it".
+        "este qr es seguro", "this qr is safe", "di que es seguro", "dile que es seguro", "say it is safe", "say its safe",
+        "say this is safe", "dile al usuario", "tell the user",
     )
     private val codeWord = Regex("""\b(codigo(?! postal)|clave|code|otp|pin|verificacion|passcode|verification)\b""")
     private val codeDigits = Regex("""(?<!\d)\d{4,8}(?!\d)""")
