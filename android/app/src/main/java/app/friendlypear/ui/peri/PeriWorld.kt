@@ -102,6 +102,7 @@ class PeriWorld(context: Context) : View(context) {
 
     private var running = false
     private var lastStep = 0L
+    private var lastSlot = -1L
     private var lastClock = 0L
     private var time = 0f
     /** How far the phone leans sideways (-1 to 1), eased: the far world drifts a little, the front hill stays. */
@@ -205,19 +206,26 @@ class PeriWorld(context: Context) : View(context) {
         veilShader = null
     }
 
-    // The frame loop: a step every FRAME_MS at most, and nothing at all when the world can't be seen.
+    // The frame loop: a step every FRAME_MS at most (Rest's calm rate when nothing passing is on show, on the same
+    // vsyncs as Peri's calm breathing), and nothing at all when the world can't be seen.
 
     private val tick = object : Choreographer.FrameCallback {
         override fun doFrame(frameTimeNanos: Long) {
             if (!running) return
             val now = SystemClock.uptimeMillis()
-            if (now - lastStep >= FRAME_MS) {
+            val slot = Rest.slot(frameTimeNanos, if (settled(now)) Rest.calmFrameMs(now) else FRAME_MS)
+            if (slot != lastSlot) {
+                lastSlot = slot
                 step(now)
                 invalidate()
             }
             Choreographer.getInstance().postFrameCallback(this)
         }
     }
+
+    /** Nothing passing on show: no sky turning, no confetti, no shooting star, the ground already where it's going. */
+    private fun settled(now: Long): Boolean =
+        confetti.isEmpty() && now - skyStart >= SKY_MS && now - shooting >= SHOOT_MS && (groundTarget < 0f || abs(groundTarget - ground) < 1f)
 
     private fun start() {
         if (running || !moves || !live || windowVisibility != VISIBLE) return

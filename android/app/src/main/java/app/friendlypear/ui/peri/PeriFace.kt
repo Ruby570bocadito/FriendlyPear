@@ -124,6 +124,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private var pressX = 0f
     private var pressV = 0f
     private var lastFrame = 0L
+    private var lastSlot = -1L
     /** Dragged by a finger: where it wants her (px from her place), where she is, and how fast she's going. */
     private var holding = false
     private var holdX = 0f
@@ -712,6 +713,16 @@ class PeriFace(context: Context) : FrameLayout(context) {
             if (!running) return
             val t = SystemClock.uptimeMillis()
             val m = MOTIONS.getValue(shown ?: Mood.CALM)
+            // Only her calm breathing and sway on show: Rest's calm rate is plenty, on the same vsyncs as her world, and
+            // spares an old phone's battery. A finger, a word, a pose or an action brings every frame back.
+            if (!lively(t, m)) {
+                val slot = Rest.slot(frameTimeNanos, Rest.calmFrameMs(t))
+                if (slot == lastSlot) {
+                    Choreographer.getInstance().postFrameCallback(this)
+                    return
+                }
+                lastSlot = slot
+            }
             fun wave(period: Long) = sin(2 * PI * (t % period) / period).toFloat()
             val density = resources.displayMetrics.density
             rise = if (m.bounce) abs(sin(PI * (t % m.bobMs) / m.bobMs).toFloat()) else (1 - wave(m.bobMs)) / 2
@@ -763,6 +774,11 @@ class PeriFace(context: Context) : FrameLayout(context) {
             Choreographer.getInstance().postFrameCallback(this)
         }
     }
+
+    /** Something more than her calm breathing is moving: a finger on her, a spring settling, a word, a pose, an action. */
+    private fun lively(t: Long, m: Motion): Boolean =
+        holding || talking || posing || action != null || m.bounce || m.runs || t < busyUntil || t - popStart < POP_MS ||
+            abs(pressV) > 0.01f || abs(pressTarget - pressX) > 0.01f || abs(velX) + abs(velY) > 1f || abs(offX) + abs(offY) > 0.5f
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()

@@ -804,6 +804,11 @@ class PeriActivity : Activity() {
         }
     }
 
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+        Rest.touched()
+    }
+
     override fun onResume() {
         super.onResume()
         resumed = true
