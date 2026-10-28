@@ -458,6 +458,7 @@ class PeriHub(context: Context) {
     private val familyLoop = object : Runnable {
         override fun run() {
             checkScreenAccess()
+            if (SystemClock.elapsedRealtime() - lastBlocksSync > BLOCKS_SYNC_MS) syncBlocks()
             if (!appVisible && seesFamilyPears) network.execute { runCatching { familyNotes.look() } }
             main.postDelayed(this, FAMILY_NOTES_MS)
         }
@@ -498,9 +499,59 @@ class PeriHub(context: Context) {
     /** Numbers the person blocked from a scam's card. */
     val blocked = app.friendlypear.config.BlockList(this.context)
 
+    /** Numbers the rest of the family blocked, as fingerprints. */
+    private val familyBlocks = app.friendlypear.config.FamilyBlocks(this.context)
+
+    /** Who blocked a sender whose calls are turned away and texts silenced here. */
+    enum class Blocker { ME, FAMILY }
+
+    /**
+     * Blocked here, or by someone else in the family; a family block never applies to a saved contact, so nobody can
+     * cut this phone off from its own people, not even with a stolen family key. On the main thread.
+     */
+    fun blockedHere(sender: String): Blocker? {
+        if (blocked.has(sender)) return Blocker.ME
+        if (!familyBlocks.has(sender)) return null
+        if (contacts == null) refreshNow()
+        return if (familyContact(sender) == null) Blocker.FAMILY else null
+    }
+
+    /** From the scam's card: blocked on this phone, and for the rest of the family. */
+    fun block(sender: String) {
+        blocked.add(sender)
+        syncBlocks()
+    }
+
+    fun unblock(sender: String) {
+        blocked.remove(sender)
+        syncBlocks()
+    }
+
+    /** Whether a number blocked here protects the rest of the family too (this phone is paired with its server). */
+    val blocksReachFamily: Boolean get() = pearClient.enabled
+
+    /**
+     * The family's blocked numbers, both ways: this phone's as fingerprints under the family's salt (never a number),
+     * and the other phones' kept here, sealed. After a block or unblock, at start and every few minutes.
+     */
+    fun syncBlocks() {
+        if (!pearClient.enabled) return
+        lastBlocksSync = SystemClock.elapsedRealtime()
+        network.execute {
+            val family = pearClient.blocks() ?: return@execute
+            val mine = blocked.all().mapNotNull { app.friendlypear.config.FamilyBlocks.print(family.salt, it) }.distinct()
+            val shared = pearClient.shareBlocks(mine)
+            familyBlocks.save(family.salt, family.prints)
+            Log.i(TAG, "blocks shared=$shared mine=${mine.size} family=${family.prints.size}")
+        }
+    }
+
+    /** The first look goes at once, however long the phone has been on. */
+    private var lastBlocksSync = -BLOCKS_SYNC_MS
+
     /** From [CallScreener]: a blocked number's call was turned away before it rang. */
-    fun onBlockedCall() = main.post {
-        diary.add(app.friendlypear.config.Diary.Kind.BLOCKED_CALL)
+    fun onBlockedCall(by: Blocker) = main.post {
+        diary.add(app.friendlypear.config.Diary.Kind.BLOCKED_CALL, if (by == Blocker.FAMILY) app.friendlypear.config.Diary.BY_FAMILY else "")
         Log.i(TAG, "blocked call turned away")
     }
 
@@ -649,9 +700,9 @@ class PeriHub(context: Context) {
 
     fun onMessage(message: IncomingMessage) = main.post {
         if (contacts == null) refreshNow()
-        // A number the person blocked: never read aloud, only a line in the diary.
-        if (blocked.has(message.sender)) {
-            diary.add(app.friendlypear.config.Diary.Kind.BLOCKED_TEXT)
+        // A number the person (or the family) blocked: never read aloud, only a line in the diary.
+        blockedHere(message.sender)?.let { by ->
+            diary.add(app.friendlypear.config.Diary.Kind.BLOCKED_TEXT, if (by == Blocker.FAMILY) app.friendlypear.config.Diary.BY_FAMILY else "")
             Log.i(TAG, "message from a blocked sender silenced")
             return@post
         }
@@ -1040,6 +1091,8 @@ class PeriHub(context: Context) {
         /** Three seconds for "keep talking", and a moment for Peri to say it. */
         const val HANGUP_WAIT_MS = 6_000L
         const val FAMILY_NOTES_MS = 60_000L
+        /** The family's blocked numbers are fetched again after this long (and at once after a change here). */
+        const val BLOCKS_SYNC_MS = 10 * 60_000L
         const val HELP_UNTIL = "until"
         const val HELP_MS = 24 * 60 * 60_000L
         const val ALERTS_CHANNEL = "peri_alerts"

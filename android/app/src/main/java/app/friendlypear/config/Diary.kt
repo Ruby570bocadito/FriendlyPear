@@ -38,10 +38,12 @@ class Diary(context: Context) {
     /** How many times something of [kind] happened, among the entries kept. */
     fun count(kind: Kind): Int = all().count { it.kind == kind }
 
-    private companion object {
-        const val PREFS = "diary"
-        const val KEY = "entries"
-        const val MAX = 60
-        const val MAX_DETAIL = 16
+    companion object {
+        /** The detail of a blocked call or text when someone else in the family blocked that number. */
+        const val BY_FAMILY = "family"
+        private const val PREFS = "diary"
+        private const val KEY = "entries"
+        private const val MAX = 60
+        private const val MAX_DETAIL = 16
     }
 }

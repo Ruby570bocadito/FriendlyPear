@@ -209,7 +209,7 @@ class SettingsActivity : Activity() {
         }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
 
         // Numbers blocked from a scam's card, each with its way back.
-        val blocked = app.friendlypear.config.BlockList(this)
+        val blocked = hub.blocked
         if (blocked.all().isNotEmpty()) list.addView(LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
@@ -220,7 +220,7 @@ class SettingsActivity : Activity() {
                 val row = LinearLayout(this@SettingsActivity).apply { gravity = Gravity.CENTER_VERTICAL }
                 row.addView(body(sender, TextSize.BODY), LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
                 row.addView(chipButton(getString(R.string.settings_unblock)) {
-                    blocked.remove(sender)
+                    hub.unblock(sender)
                     row.visibility = View.GONE
                 }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(48)))
                 addView(row, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })

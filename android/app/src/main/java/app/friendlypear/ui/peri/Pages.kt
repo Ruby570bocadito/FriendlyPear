@@ -246,8 +246,8 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
                 Diary.Kind.WEB_SILENCED -> Line(e.at, R.drawable.ic_notifications, Palette.SKY_TINT, Palette.SKY_INK, c.getString(R.string.diary_web))
                 Diary.Kind.QUIZ -> Line(e.at, R.drawable.ic_learn, Palette.SKY_TINT, Palette.SKY_INK, c.getString(R.string.diary_quiz, e.detail))
                 Diary.Kind.FAMILY_CHECKED -> Line(e.at, R.drawable.ic_family, Palette.LILAC_TINT, Palette.LILAC_INK, c.getString(R.string.diary_family_checked))
-                Diary.Kind.BLOCKED_CALL -> Line(e.at, R.drawable.ic_shield, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(R.string.diary_blocked_call))
-                Diary.Kind.BLOCKED_TEXT -> Line(e.at, R.drawable.ic_shield, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(R.string.diary_blocked_text))
+                Diary.Kind.BLOCKED_CALL -> Line(e.at, R.drawable.ic_shield, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(if (e.detail == Diary.BY_FAMILY) R.string.diary_family_blocked_call else R.string.diary_blocked_call))
+                Diary.Kind.BLOCKED_TEXT -> Line(e.at, R.drawable.ic_shield, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(if (e.detail == Diary.BY_FAMILY) R.string.diary_family_blocked_text else R.string.diary_blocked_text))
                 Diary.Kind.SCREEN_INTRUDER -> Line(e.at, R.drawable.ic_shield, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(R.string.diary_intruder))
             }
         }

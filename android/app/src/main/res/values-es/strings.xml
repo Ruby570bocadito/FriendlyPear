@@ -478,6 +478,7 @@
     <string name="report_card_button">Denunciarlo</string>
     <string name="block_button">Bloquear este número</string>
     <string name="block_says">Bloqueado. No te leeré sus mensajes y, si filtro tus llamadas, también rechazaré las suyas.</string>
+    <string name="block_says_family">Bloqueado, aquí y para tu familia: sus Peris tampoco dejarán que les llegue. Nunca te leeré sus mensajes.</string>
     <string name="report_hide">Ocultar</string>
     <string name="report_title">Denúncialo</string>
     <string name="report_intro">Escribo lo que llegó, quién lo mandó y por qué es un timo, listo para la policía o el 017. Para escribirlo, el mensaje y su remitente van al servidor de Peri y a Muse Spark de Meta. No se guarda nada.</string>
@@ -562,6 +563,8 @@
     <string name="diary_hang_up">Colgué una llamada de un número que no conoces</string>
     <string name="diary_blocked_call">Rechacé una llamada de un número que bloqueaste</string>
     <string name="diary_blocked_text">Silencié un mensaje de un remitente que bloqueaste</string>
+    <string name="diary_family_blocked_call">Rechacé una llamada de un número que bloqueó tu familia</string>
+    <string name="diary_family_blocked_text">Silencié un mensaje de un remitente que bloqueó tu familia</string>
     <string name="learn_title">Aprende con Peri</string>
     <string name="learn_traps_title">Trampas que conozco</string>
     <string name="learn_tips_title">Mis reglas de oro</string>

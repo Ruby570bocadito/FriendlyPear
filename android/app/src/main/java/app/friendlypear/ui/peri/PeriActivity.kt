@@ -254,8 +254,8 @@ class PeriActivity : Activity() {
                 background = pressable(rounded(0, dp(24).toFloat()), Palette.RIPPLE_DARK)
                 setOnClickListener {
                     val scam = hub.lastScam.offer() ?: return@setOnClickListener
-                    hub.blocked.add(scam.sender)
-                    hub.say(getString(R.string.block_says))
+                    hub.block(scam.sender)
+                    hub.say(getString(if (hub.blocksReachFamily) R.string.block_says_family else R.string.block_says))
                     showSetup()
                 }
             }

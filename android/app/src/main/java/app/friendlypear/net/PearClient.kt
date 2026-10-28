@@ -1,6 +1,7 @@
 package app.friendlypear.net
 
 import android.util.Log
+import org.json.JSONArray
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
@@ -9,7 +10,7 @@ import java.net.URL
  * The family's pears on the family's own Peri server: this phone's (the name the person chose, what their Peri
  * wears, their role, calm or attention and the kind of trap) and everyone else's, with any campaign (the same trap
  * reaching several of them); and "was it you?", the questions the family's Peris ask each other about a message from
- * a new number. Only a paired phone's own key works, never the shared test token. Blocking: call it off the main thread. Any failure returns null or false (and says why in the log,
+ * a new number; and the numbers the family blocked, as fingerprints. Only a paired phone's own key works, never the shared test token. Blocking: call it off the main thread. Any failure returns null or false (and says why in the log,
  * never the key); a pear is sent once more if the first try fails, and that's all.
  */
 class PearClient(private val baseUrl: String, private val ownKey: () -> String?) {
@@ -80,6 +81,19 @@ class PearClient(private val baseUrl: String, private val ownKey: () -> String?)
         }
         return Answers(answers, json.optInt("asked"))
     }
+
+    /** The family's salt, and the fingerprints of the numbers the family's other phones blocked. */
+    data class Blocks(val salt: String, val prints: List<String>)
+
+    fun blocks(): Blocks? {
+        val json = call("GET", "/v1/blocks", null) ?: return null
+        val salt = json.optString("salt").ifEmpty { return null }
+        val list = json.optJSONArray("prints") ?: return null
+        return Blocks(salt, (0 until list.length()).map { list.optString(it) })
+    }
+
+    /** This phone's blocked numbers, as fingerprints only, replacing the ones it sent before. */
+    fun shareBlocks(prints: List<String>): Boolean = call("PUT", "/v1/blocks/self", JSONObject().put("prints", JSONArray(prints))) != null
 
     private fun call(method: String, path: String, body: JSONObject?, expect: Int = 200): JSONObject? {
         val key = ownKey() ?: return null

@@ -188,6 +188,8 @@ class FamilyActionReceiver : BroadcastReceiver() {
 class FamilyJob : JobService() {
     override fun onStartJob(params: JobParameters): Boolean {
         val hub = PeriApp.hub(this)
+        // The numbers the family blocked, kept fresh even when the app stays closed.
+        hub.syncBlocks()
         if (hub.appVisible) return false
         Thread {
             runCatching { hub.familyNotes.look() }

@@ -477,6 +477,7 @@
     <string name="report_card_button">Report it</string>
     <string name="block_button">Block this number</string>
     <string name="block_says">Blocked. I won\'t read you its messages, and if I screen your calls, I\'ll turn its calls away too.</string>
+    <string name="block_says_family">Blocked, here and for your family: their Peris won\'t let it reach them either. I\'ll never read you its messages.</string>
     <string name="report_hide">Hide</string>
     <string name="report_title">Report it</string>
     <string name="report_intro">I\'ll write down what arrived, who sent it and why it\'s a scam, ready for the police or a fraud helpline. To write it, the message and its sender go to Peri\'s server and to Meta\'s Muse Spark. Nothing is kept.</string>
@@ -561,6 +562,8 @@
     <string name="diary_hang_up">I hung up a call from a number you don\'t know</string>
     <string name="diary_blocked_call">I turned away a call from a number you blocked</string>
     <string name="diary_blocked_text">I silenced a message from a sender you blocked</string>
+    <string name="diary_family_blocked_call">I turned away a call from a number your family blocked</string>
+    <string name="diary_family_blocked_text">I silenced a message from a sender your family blocked</string>
     <string name="learn_title">Learn with Peri</string>
     <string name="learn_traps_title">Traps I know</string>
     <string name="learn_tips_title">My golden rules</string>
