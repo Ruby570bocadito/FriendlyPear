@@ -99,6 +99,13 @@ Por orden: primero lo que corta un timo en curso o impide que el propio Peri se 
 - [ ] (IMP-1) r3-historia — [M] la historia de Peri con el arte de plastilina para presentar el proyecto (demo y anuncio), sin lag — video/, docs/HISTORIA.md · a medias 2026-10-28: propuesta de guion, Carmen con Muse Image, teaser del primer minuto a 60 fps y grabación fluida (un solo emulador, 864×1920); falta decidir con la persona formato, voz e idioma
 - [x] (IMP-1) r3-ui-pulida — [S] cuidar la UI entera — android/.../ui/peri/ · hecho 2026-10-28: «Las herramientas de Peri» en Aprende como tarjeta con iconos, revisión de las pantallas principales
 
+**Ronda 4 (28 oct, noche; pedida por la persona): que no parezca una app básica de Android, sino una mascota viva que se recuerde.**
+
+- [ ] (IMG) r4-sprites — [L] Peri por partes: 183 imágenes de Muse Image en siete lotes según `docs/PERI_SPRITES.md`; el lote 1 (prueba, 15) y parar hasta que la persona vea la Peri por capas — assets/peri/sprites/ (agente de imágenes; no toca la app)
+- [ ] (IMP-1) r4-peri-capas — [L] montar a Peri por capas: cuerpo sin cara y encima ojos, cejas y boca recortados, la ropa pegada a la cara (adiós al salto de las gafas al saludar), boca al ritmo de la voz y mirada que sigue al dedo; primero con el lote 1 — android/.../ui/peri/PeriFace.kt
+- [ ] (IMP-1) r4-ui-wow — [L] la UI viva y moderna sin esperar imágenes: Peri contesta a hola y charla, árboles en su sitio y más vida en el fondo, logotipo animado, bocadillo con letra amable y palabras al ritmo de la voz, risa con boca al tocarla, inicio más ligero, apartados con Peri y corazones — android/.../ui/peri/, core/agent/
+- [ ] (IMP-1) r4-mini-viva — [M] Mini Peri viva con la cabeza por capas (parpadea, habla, se asoma, saluda, duerme) — android/.../ui/peri/MiniPeriService.kt
+
 ### Se llevan de antes
 - Con la persona: pruebas-mayores, voice-transcribe (voces reales), bases-y-dudas, peri-referencia-video y la entrega.
 - TEST y PUL: metricas, readme-resultados.
