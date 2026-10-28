@@ -21,6 +21,12 @@ internal interface Phrases {
     val needsGuardian: String
     fun calling(name: String): String
     fun callFailed(name: String, phone: String): String
+    fun callAfterThis(name: String): String
+    fun hangUpThenCall(name: String): String
+    val hungUp: String
+    val hangUpYourself: String
+    fun familyHungUp(name: String): String
+    fun familyAsksHangUp(name: String): String
     fun smsSent(name: String): String
     fun smsFailedOfferCall(name: String): String
     val noMessages: String
@@ -112,6 +118,12 @@ internal object Spanish : Phrases {
     override val needsGuardian = "Mandar un código es delicado, así que prefiero que lo apruebe alguien de tu familia. De momento no lo mando."
     override fun calling(name: String) = "¡Allá voy! Llamo a $name."
     override fun callFailed(name: String, phone: String) = "Vaya, no he podido llamar a $name. Su número es $phone; si quieres, márcalo tú."
+    override fun callAfterThis(name: String) = "Ahora estás en otra llamada. En cuanto cuelgues, llamo a $name."
+    override fun hangUpThenCall(name: String) = "Estás hablando con un número que no conozco. Cuelga primero y llamo a $name enseguida."
+    override val hungUp = "Hecho, he colgado. ¡Muy bien!"
+    override val hangUpYourself = "Pulsa el botón rojo para colgar. Aquí te espero."
+    override fun familyHungUp(name: String) = "$name me ha pedido que cuelgue esta llamada, y ya está: era un número que no conoces. Si quieres, llama a $name."
+    override fun familyAsksHangUp(name: String) = "$name te pide que cuelgues ya: es un número que no conoces. Pulsa el botón rojo."
     override fun smsSent(name: String) = "¡Listo! Mensaje enviado a $name."
     override fun smsFailedOfferCall(name: String) = "Vaya, no he podido mandar el mensaje a $name. ¿Prefieres que llame?"
     override val noMessages = "No tienes mensajes nuevos. ¡Todo tranquilo!"
@@ -232,6 +244,12 @@ internal object English : Phrases {
     override val needsGuardian = "Sending a code is delicate, so I'd rather someone in your family approved it. I won't send it for now."
     override fun calling(name: String) = "On it! Calling $name."
     override fun callFailed(name: String, phone: String) = "Oh dear, I couldn't call $name. Their number is $phone, if you'd like to dial it yourself."
+    override fun callAfterThis(name: String) = "You're on another call right now. As soon as you hang up, I'll call $name."
+    override fun hangUpThenCall(name: String) = "You're talking to a number I don't know. Hang up first, and I'll call $name straight away."
+    override val hungUp = "Done, I've hung up. Well done!"
+    override val hangUpYourself = "Press the red button to hang up. I'll wait right here."
+    override fun familyHungUp(name: String) = "$name asked me to hang up this call, and it's done: it was a number you don't know. You can call $name if you like."
+    override fun familyAsksHangUp(name: String) = "$name asks you to hang up now: it's a number you don't know. Press the red button."
     override fun smsSent(name: String) = "Done! Message sent to $name."
     override fun smsFailedOfferCall(name: String) = "Oh dear, I couldn't send the message to $name. Would you rather I called?"
     override val noMessages = "You have no new messages. All quiet!"

@@ -89,6 +89,8 @@ class PeriAgent(
     private var pending: Pending? = null
     private var callActive = false
     private var strangeCall: StrangeCall? = null
+    /** A call Peri was asked for while the line was busy: it goes out when that call ends. */
+    private var afterCall: Action.Call? = null
     private var lastSaid = ""
 
     /** How Peri looks right now; the screen shows the matching illustration. */
@@ -115,6 +117,11 @@ class PeriAgent(
             // The call is over: Peri puts the phone down.
             if (mood == Mood.CALLING) mood = Mood.CALM
             if (call?.answered == true) recent = RecentRisk(RecentKind.CALL, clock() + RISK_WINDOW_MILLIS, null)
+            // The line is free: the call that was waiting goes out now (and comes before any question).
+            afterCall?.let { next ->
+                afterCall = null
+                return carryOut(next)
+            }
             if (call?.answered == true && pending == null) {
                 pending = Pending.WhoClaimed(call.number)
                 say(p.whoClaimed, Mood.WORRIED)
@@ -152,9 +159,9 @@ class PeriAgent(
         if (call != null && callActive) {
             if (!call.answered || call.bankWarned) return
             call.bankWarned = true
-            // Still on the phone: first hang up. No call to the family offered until then.
+            // Still on the phone: first hang up (a button does it). No call to the family offered until then.
             say(if (remote != null) p.remoteDuringCall(remote) else p.bankDuringCall, Mood.PROTECTIVE)
-            return device.showPause(lastSaid, null)
+            return device.showPause(lastSaid, null, hangUp = true)
         }
         val risk = recent?.takeIf { clock() < it.until && !it.paused } ?: return
         risk.paused = true
@@ -187,6 +194,10 @@ class PeriAgent(
                 pending = null
                 perform(it.action)
             }
+            PauseAnswer.HANG_UP -> {
+                if (offered != null) pending = null
+                if (device.hangUp()) say(p.hungUp, Mood.HAPPY) else say(p.hangUpYourself, Mood.PROTECTIVE)
+            }
             PauseAnswer.LEAVE -> {
                 if (offered != null) pending = null
                 say(p.pauseLeft, Mood.HAPPY)
@@ -198,7 +209,18 @@ class PeriAgent(
         }
     }
 
-    /** Before picking up: warns when the number isn't in the contacts. Never blocks or answers the call. */
+    /**
+     * A guardian asked this Peri to hang up: they saw her pear on a call with a number that isn't in the contacts.
+     * Only such a call, never one with family or friends; if the phone won't let Peri, she asks the person to.
+     */
+    fun onFamilyHangUp(guardian: String) {
+        if (!callActive || strangeCall == null) return
+        if (device.hangUp()) return say(p.familyHungUp(guardian), Mood.PROTECTIVE)
+        say(p.familyAsksHangUp(guardian), Mood.PROTECTIVE)
+        device.showPause(lastSaid, null, hangUp = true)
+    }
+
+    /** Before picking up: warns when the number isn't in the contacts. Never answers the call. */
     fun onIncomingCall(number: String) {
         if (directory.byPhone(number) != null) {
             strangeCall = null
@@ -550,6 +572,14 @@ class PeriAgent(
         val phones = action.contact.phones
         when (action) {
             is Action.Call -> {
+                // A second call can't start while one is on: it waits for this one to end. With a stranger on the
+                // line, the button to hang up is right there.
+                if (callActive) {
+                    afterCall = action
+                    if (strangeCall == null) return say(p.callAfterThis(name))
+                    say(p.hangUpThenCall(name), Mood.PROTECTIVE)
+                    return device.showPause(lastSaid, null, hangUp = true)
+                }
                 say(p.calling(name), Mood.CALLING)
                 if (phones.none { attempt { device.call(it) } }) {
                     say(p.callFailed(name, SafeSpeech.phone(phones.first())))

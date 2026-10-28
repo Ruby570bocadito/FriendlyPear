@@ -24,7 +24,7 @@ private class PauseDevice : DevicePort {
     }
     override fun sendSms(phone: String, text: String) = Unit
     override fun lastKnownLocation(): String? = null
-    override fun showPause(text: String, callName: String?) {
+    override fun showPause(text: String, callName: String?, hangUp: Boolean) {
         pauses += text to callName
     }
 }

@@ -10,6 +10,12 @@ enum class Capability { CALL, SEND_SMS, LOCATION }
 interface DevicePort {
     fun speak(text: String)
     fun call(phone: String)
+
+    /**
+     * Ends the call on the line, if the phone lets Peri (Android's permission to end calls). True if it did. Only on
+     * the person's own tap, or a guardian's request about a call from a number that isn't in the contacts.
+     */
+    fun hangUp(): Boolean = false
     fun sendSms(phone: String, text: String)
     /** "lat,lon", or null when there is no recent fix. */
     fun lastKnownLocation(): String?
@@ -22,14 +28,15 @@ interface DevicePort {
 
     /**
      * Stops the person for a moment over the app they just opened: Peri's [text], a button to call [callName]
-     * if there is someone to check with, "leave this app" and, after a few seconds, "continue anyway". The
-     * answer comes back through [PeriAgent.onPauseAnswer]. Without a screen to show it on, Peri only speaks.
+     * if there is someone to check with, a big "hang up" while a stranger is on the line ([hangUp]), "leave this
+     * app" and, after a few seconds, "continue anyway". The answer comes back through [PeriAgent.onPauseAnswer].
+     * Without a screen to show it on, Peri only speaks.
      */
-    fun showPause(text: String, callName: String?) = Unit
+    fun showPause(text: String, callName: String?, hangUp: Boolean = false) = Unit
 }
 
 /** What the person chose on the safety pause. */
-enum class PauseAnswer { CALL_FAMILY, LEAVE, CONTINUE }
+enum class PauseAnswer { CALL_FAMILY, HANG_UP, LEAVE, CONTINUE }
 
 /** What happened a moment ago that makes Peri pause the person: a scam, a doubtful message, a stranger's call, a picture. */
 enum class RecentKind { SCAM, DOUBT, CALL, PICTURE }
