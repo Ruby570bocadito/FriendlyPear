@@ -11,9 +11,10 @@ ColorOS) · 🧪 unit tests in `core/` or `backend/`.
 
 | Feature | What it does | How it decides | Status |
 |---|---|---|---|
-| **Message shield** | Every SMS, WhatsApp and email notification is checked the moment it arrives | On-phone rules find signals (unknown sender, lookalike domain, urgency, money, "tell us the code", new-number claim, prize, secrecy, scareware, romance bait, remote-control app, hidden AI instructions) and add log-odds weights. ≥ 0 is doubt, ≥ 2 is scam. Measured: 88 % of 200 unseen scams flagged, 4 % false alarms (`eval/REPORT.md`) | ✅ 📱 🧪 |
+| **Message shield** | Every SMS, WhatsApp and email notification is checked the moment it arrives | On-phone rules find signals (unknown sender, lookalike domain, urgency, money, "tell us the code", new-number claim, prize, secrecy, scareware, romance bait, remote-control app, hidden AI instructions, a number to call written in the message, a company writing from a personal mobile or Gmail, money "sent by mistake", a buyer's fake "safe payment", moving the chat to Telegram) and add log-odds weights. ≥ 0 is doubt, ≥ 2 is scam. Measured: 91 % of 200 unseen scams flagged, 4 % false alarms (`eval/REPORT.md`) | ✅ 📱 🧪 |
 | **Hard rules** | Two cases are a scam whatever any model says | A one-time code arriving during a call; a known brand on a lookalike domain (`correos-envio.top`) | ✅ 🧪 |
 | **Insecure links** | A link without a padlock (`http://`, or a port other than 443) is always mentioned, even from family | Its own signal, weighted so it reaches "doubt" alone | ✅ 🧪 |
+| **Red team** | Muse Spark plays the scammer: new scams of 15 kinds, in Spanish and English, made to slip past the rules; a person reads every one that gets through | `eval/redteam/redteam.ts` writes a batch (a few cents), the rules judge it, `report.py` lists what got past. On a batch judged before anyone read it: 40 % → 80 % warned (`eval/REPORT.md`) | ✅ 🧪 |
 | **Second opinion** | Doubtful messages only, never the clear ones | **Muse Spark Open** (Baseten) votes scam / doubt / ok; the vote moves the score by at most ±2, so models tip the balance and rules decide | ✅ 🧪 |
 | **Investigator** | If still doubtful, an agent looks things up before Peri speaks | **Muse Spark 1.3** with three read-only tools: domain age (RDAP), scam patterns (15 cards, es/en: family, parcel, bank, tax, tech support, prizes, utilities, subscriptions, romance, job tasks, second-hand buyers, fake police, loan fees) and "does the family include a…" (relations only, never names). At most 3 rounds and 6 lookups | ✅ 🧪 |
 | **Peri's own sentence** | Peri never reads a model's words aloud | She speaks a sentence built from the signals, with no links or codes in it, so a message can't talk the model into saying something unsafe | 🧪 |
@@ -136,7 +137,7 @@ open it from the Files app.
 | SAM 3.1 | Marks QR codes in pictures | With "look at this picture" |
 | Muse Voice Transcribe | Peri's ears | Only if turned on in Settings |
 | Muse Image | Every illustration of Peri (122 in the app; about 240 generated in all, ~$2.40) and the 8 designs she was chosen from | Offline, when making the app |
-| Muse Spark 1.3 contributor | 1,306 synthetic training messages for the learned weights | Offline, never for evaluation |
+| Muse Spark 1.3 contributor | 1,306 synthetic training messages for the learned weights, and the red team's scams | Offline, never in the held-out numbers |
 
 Security and privacy in detail, with what is still open: [`SECURITY.md`](SECURITY.md).
 

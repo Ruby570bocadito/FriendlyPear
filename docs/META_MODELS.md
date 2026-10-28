@@ -77,6 +77,10 @@ Peri's wardrobe: eleven accessories made on their own (`generate.ts wear`, $0.13
 
 **Muse Spark 1.3 contributor** wrote 1,306 short synthetic messages (scams of 15 kinds and ordinary ones of 11 kinds, in Spanish and English) for the shield's learned weights ([`training/generate.ts`](../training/generate.ts), about 180 k tokens, a few cents). Contributor prompts may be used by Meta for training, which is fine here because nothing private is sent. These messages are **never used to evaluate**: the 200 held-out messages are written by hand ([`eval/REPORT.md`](../eval/REPORT.md)).
 
+## For the red team
+
+**Muse Spark 1.3 contributor** also plays the scammer ([`eval/redteam/redteam.ts`](../eval/redteam/redteam.ts)): for each of 15 kinds of scam, in Spanish and English, it writes five new messages made to slip past keyword filters (no link, a number to call instead, a casual tone, small spelling mistakes, a name instead of a brand, a move to another app). The shield's rules judge them and a person reads every one that gets through. Three batches on Oct 28 (374 messages, about 72 k tokens, a few cents): the last one, judged before anyone read it, was 80 % warned, against 40 % with the previous day's rules. These messages never train the weights and never count in the held-out numbers ([`eval/REPORT.md`](../eval/REPORT.md)); they stay on the developer's machine, since a made-up number or address may belong to someone real.
+
 ## Planned
 
 - **Muse Glimmer** on the family's own hardware as a private middle layer (client written, not deployed).

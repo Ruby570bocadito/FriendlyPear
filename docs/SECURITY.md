@@ -12,6 +12,8 @@ in the code and covered by tests or by the two-phone tests of Oct 27 and 28.
 4. **Someone who gets a family link**: a forwarded SMS, a messaging app's link preview.
 5. **Text written to fool the AI** hidden inside a message.
 6. **Abuse of the server**: floods, stolen device token, oversized uploads.
+7. **Scams worded to slip past the rules**: no link, no "urgent", a number to call, a casual family tone, spelling tricks.
+8. **Another app on the phone** handing Peri something that isn't a picture.
 
 ## What stops each one
 
@@ -48,6 +50,8 @@ in the code and covered by tests or by the two-phone tests of Oct 27 and 28.
 | 6 | What the server writes down | Its log carries no names, numbers, messages, link tokens or browser details: a test drives a family request end to end and checks every line | ✅ |
 | 6 | Someone copies the app's files | What Peri keeps about scams and people (the last scam's message and sender, the numbers blocked, who Peri called or texted, the diary, the investigator's notes, the family setup, a junk website's address) is sealed with AES-256-GCM under a key that never leaves Android's keystore: a copy of the files can't be read, and a changed byte makes a file fail to open instead of feeding Peri something false. What was given away after a scam is never stored, not even on the phone | ✅ |
 | 6 | Floods and guessing | Per-IP limits on links, the API, pictures, voice and pairing (10 codes tried per 15 minutes); behind the tunnel the client IP is the one the proxy adds, so a forged header can't dodge them; an IP sending wrong device tokens is locked out for 15 minutes; body size limits; timing-safe token check | ✅ |
+| 7 | Scams worded to slip past the rules | A **red team**: Muse Spark writes new scams of 15 kinds, in Spanish and English, made to dodge keyword filters; the rules judge them and a person reads every one that gets through. On a batch judged before anyone read it, the rules alone warned about 80 % (40 % with the previous day's rules). The misses became general rules, never copies of a message: a number to call written in the message, a company writing from a personal mobile or a Gmail address, money "sent by mistake", a buyer's fake "safe payment", moving the chat to Telegram, and `.co.uk` links, which weren't seen as links. False alarms on the hand-written held-out set didn't move ([`eval/REPORT.md`](../eval/REPORT.md)) | ✅ |
+| 8 | Another app sharing an address that isn't a picture with "Look at this picture" | A shared picture is opened only from another app's own storage: never the contacts, the call log, texts, the calendar or FriendlyPear's own files, which Peri would otherwise read and send to be looked at. Test builds also take a file inside the app's own folder, release builds never. Anything else: Peri asks to pick a photo from the gallery | ✅ |
 
 ## What the family can and can't see
 
@@ -121,4 +125,8 @@ are gone after 15 minutes or when that phone is disconnected.
 - A public HTTPS address (a tunnel or a host) is needed for phones outside the developer's network.
 - **A QR code the phone can't read** (tiny, blurred or cut off in the picture) is left to the model, which can ring it
   but can't say where it leads; Peri then says not to scan it if the model saw it as a risk.
+- **Rules can always be outworded.** Each red team batch finds wording the rules don't know yet (80 % warned on the
+  last one before its misses were read), and a courier's "small customs charge" from a personal number still gets past.
+  Doubtful messages go to the models and risky actions to the family; the red team is meant to run every week, and for
+  now runs by hand.
 - **A blocked number's fingerprint can be reversed by trying every phone number**, by someone who has the server's files (the family's salt is kept there too). The server never receives a number and its files hold none, but a fingerprint isn't secret from whoever runs the server.
