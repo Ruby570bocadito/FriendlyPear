@@ -92,6 +92,7 @@ class SettingsActivity : Activity() {
                     PeriWorld.Place.SEASIDE.name to R.string.place_seaside,
                     PeriWorld.Place.AUTUMN.name to R.string.place_autumn,
                     PeriWorld.Place.SNOW.name to R.string.place_snow,
+                    PeriWorld.Place.VILLAGE.name to R.string.place_village,
                 ).forEach { (key, label) ->
                     addView(RadioButton(this@SettingsActivity).apply {
                         id = View.generateViewId()

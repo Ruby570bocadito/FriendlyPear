@@ -31,3 +31,6 @@ training/data/
 
 # Demo video clips: large, they go to the video host, not the repo
 dist/demo/
+
+# Python caches from the asset scripts
+__pycache__/

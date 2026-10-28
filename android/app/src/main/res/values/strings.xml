@@ -542,6 +542,7 @@
     <string name="place_seaside">Seaside</string>
     <string name="place_autumn">Autumn hills</string>
     <string name="place_snow">Snow</string>
+    <string name="place_village">Peri\'s village (made with Muse Image)</string>
     <string name="back">Back</string>
     <plurals name="quiz_intro">
         <item quantity="one">I\'ll show you %1$d message. Is it a trap, or fine?</item>

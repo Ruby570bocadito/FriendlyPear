@@ -1,5 +1,9 @@
 package app.friendlypear.ui.peri
 
+import app.friendlypear.R
+import android.graphics.LightingColorFilter
+import android.graphics.ImageDecoder
+import android.graphics.Bitmap
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.LinearGradient
@@ -36,7 +40,8 @@ import kotlin.random.Random
 class PeriWorld(context: Context) : View(context) {
     enum class Phase { DAWN, DAY, DUSK, NIGHT }
 
-    enum class Place { MEADOW, ORCHARD, SEASIDE, AUTUMN, SNOW }
+    /** [VILLAGE]: Peri's village, its cottage, trees, bushes and clouds made with Muse Image (the others are drawn in code). */
+    enum class Place { MEADOW, ORCHARD, SEASIDE, AUTUMN, SNOW, VILLAGE }
 
     private class Cloud(var x: Float, val y: Float, val scale: Float, val speed: Float)
 
@@ -282,7 +287,7 @@ class PeriWorld(context: Context) : View(context) {
         val count = when (place) {
             Place.SNOW -> 34
             Place.AUTUMN -> 9
-            Place.MEADOW -> 7
+            Place.MEADOW, Place.VILLAGE -> 7
             Place.ORCHARD -> 5
             Place.SEASIDE -> 0
         }
@@ -293,7 +298,7 @@ class PeriWorld(context: Context) : View(context) {
         val colors = when (place) {
             Place.SNOW -> listOf(0xFFFFFFFF.toInt())
             Place.AUTUMN -> AUTUMN_COLORS.toList()
-            Place.MEADOW -> listOf(0xFFFFFFFF.toInt(), 0xFFFFC2CF.toInt(), 0xFFFFE9A8.toInt())
+            Place.MEADOW, Place.VILLAGE -> listOf(0xFFFFFFFF.toInt(), 0xFFFFC2CF.toInt(), 0xFFFFE9A8.toInt())
             else -> listOf(0xFF9CCB72.toInt(), 0xFFC3E39E.toInt())
         }
         val snow = place == Place.SNOW
@@ -398,6 +403,11 @@ class PeriWorld(context: Context) : View(context) {
     private var lampGlow: RadialGradient? = null
     private var beamLight: LinearGradient? = null
     /** Fingerprints in the front hill's clay: where (share of the width), how far under the crest (dp), how big, light or dark. */
+    private val spritePaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
+    private val spriteBox = RectF()
+    private val sceneryCache = HashMap<Int, Bitmap>()
+    private var lightTone = 0
+    private var light = LightingColorFilter(0xFFFFFF, 0)
     private val speckles = Random(7).let { r -> List(26) { floatArrayOf(r.nextFloat(), 8f + r.nextFloat() * 100f, 1.1f + r.nextFloat() * 1.5f, if (r.nextFloat() < 0.4f) 1f else 0f) } }
 
     override fun onDraw(canvas: Canvas) {
@@ -656,6 +666,12 @@ class PeriWorld(context: Context) : View(context) {
     }
 
     private fun drawCloud(canvas: Canvas, c: Cloud, w: Float, g: Float) {
+        if (place == Place.VILLAGE) {
+            // A clay cloud from Muse Image, faint at night like the others.
+            val x = c.x * w + lean * LEAN_DP * d * 0.8f
+            val y = g * c.y * 0.82f + 40 * d
+            return sprite(canvas, R.drawable.peri_scene_cloud, x, y + 26 * d * c.scale, 96 * d * c.scale, shadow = false, alpha = (240 - 170 * night).toInt())
+        }
         if (cloud.isEmpty) {
             // A puffy cloud on a flat base, drawn once at 1 dp and scaled.
             cloud.addCircle(-22f, 0f, 15f, Path.Direction.CW)
@@ -780,6 +796,11 @@ class PeriWorld(context: Context) : View(context) {
                 pine(canvas, w * 0.84f, -66 * d, 1.1f)
                 snowman(canvas, w * 0.95f, -50 * d, 0.85f)
             }
+            Place.VILLAGE -> {
+                sprite(canvas, R.drawable.peri_scene_tree, w * 0.1f, -44 * d, 74 * d)
+                sprite(canvas, R.drawable.peri_scene_tree, w * 0.25f, -66 * d, 52 * d)
+                cottage(canvas, w * 0.87f, -56 * d, 76 * d)
+            }
             else -> Unit
         }
         canvas.restore()
@@ -894,6 +915,12 @@ class PeriWorld(context: Context) : View(context) {
                 parasol(canvas, w * 0.87f, frontAt(0.87f, g) + 10 * d)
                 gulls(canvas, w, g, hidden)
             }
+            Place.VILLAGE -> {
+                tufts(canvas, w, g, grass)
+                sprite(canvas, R.drawable.peri_scene_bush, w * 0.06f, frontAt(0.06f, g) + 22 * d, 44 * d)
+                sprite(canvas, R.drawable.peri_scene_bush, w * 0.95f, frontAt(0.95f, g) + 24 * d, 40 * d)
+                butterfly(canvas, w, g, hidden)
+            }
             Place.AUTUMN -> {
                 tufts(canvas, w, g, grass)
                 fallenLeaves(canvas, w, g)
@@ -921,6 +948,56 @@ class PeriWorld(context: Context) : View(context) {
             }
         }
         if (night > 0.4f && !snow) fireflies(canvas, w, g, hidden * (night - 0.4f) / 0.6f)
+    }
+
+    /**
+     * One of the village's Muse Image pictures, standing on ([x], [base]) at [wide] px across, lit by the hour like
+     * everything drawn in code, on its soft shadow. Each picture is decoded once, at the size it's drawn.
+     */
+    private fun sprite(canvas: Canvas, res: Int, x: Float, base: Float, wide: Float, shadow: Boolean = true, alpha: Int = 255) {
+        val bmp = scenery(res, wide) ?: return
+        val high = wide * bmp.height / bmp.width
+        if (shadow) groundShadow(canvas, x + 2 * d, base, wide * 0.42f)
+        spritePaint.colorFilter = lightFor(lit(Palette.WHITE))
+        spritePaint.alpha = alpha.coerceIn(0, 255)
+        spriteBox.set(x - wide / 2, base - high, x + wide / 2, base)
+        canvas.drawBitmap(bmp, null, spriteBox, spritePaint)
+    }
+
+    /** Peri's cottage, with smoke from its chimney that rises and fades. */
+    private fun cottage(canvas: Canvas, x: Float, base: Float, wide: Float) {
+        sprite(canvas, R.drawable.peri_scene_cottage, x, base, wide)
+        val bmp = scenery(R.drawable.peri_scene_cottage, wide) ?: return
+        val top = base - wide * bmp.height / bmp.width
+        val chimneyX = x - wide * 0.07f
+        fill.color = lit(0xFFF4F1EC.toInt())
+        for (i in 0 until 3) {
+            val t = ((time * 0.35f + i / 3f) % 1f)
+            fill.alpha = (150 * (1 - t) * (1f - veil)).toInt()
+            canvas.drawCircle(chimneyX + sin(time * 0.9f + i) * 4 * d + t * 10 * d, top - t * 36 * d, (4 + t * 7) * d, fill)
+        }
+        fill.alpha = 255
+    }
+
+    private fun scenery(res: Int, wide: Float): Bitmap? {
+        val target = wide.toInt().coerceAtLeast(8)
+        sceneryCache[res]?.takeIf { it.width >= target }?.let { return it }
+        val bmp = runCatching {
+            ImageDecoder.decodeBitmap(ImageDecoder.createSource(resources, res)) { decoder, info, _ ->
+                if (info.size.width > target) decoder.setTargetSize(target, maxOf(1, target * info.size.height / info.size.width))
+            }
+        }.getOrNull() ?: return null
+        sceneryCache[res] = bmp
+        return bmp
+    }
+
+    /** The hour's light on a picture: white for day, warmer at dusk, blue and dim at night. */
+    private fun lightFor(tone: Int): LightingColorFilter {
+        if (tone != lightTone) {
+            lightTone = tone
+            light = LightingColorFilter(tone and 0x00FFFFFF, 0)
+        }
+        return light
     }
 
     /** A soft shadow on the ground, under something standing on it. */
@@ -1212,6 +1289,7 @@ class PeriWorld(context: Context) : View(context) {
             Place.SEASIDE to 0xFF8DC48C.toInt(),
             Place.AUTUMN to 0xFFD8B48E.toInt(),
             Place.SNOW to 0xFFB4C4DE.toInt(),
+            Place.VILLAGE to 0xFFA6D3B6.toInt(),
         )
 
         /** Each place's shade, for the hills' lower slopes, the grass and the darker fingerprints in the clay. */
@@ -1221,6 +1299,7 @@ class PeriWorld(context: Context) : View(context) {
             Place.SEASIDE to 0xFFC08F55.toInt(),
             Place.AUTUMN to 0xFF8C5A2B.toInt(),
             Place.SNOW to 0xFF9DB2D4.toInt(),
+            Place.VILLAGE to 0xFF3E7A35.toInt(),
         )
 
         /** Clouds by the hour: their lit top, their body and their underside in shadow. */
@@ -1272,6 +1351,7 @@ class PeriWorld(context: Context) : View(context) {
             Place.SEASIDE to intArrayOf(0xFF63C4EA.toInt(), 0xFFF6DFA8.toInt(), 0xFFFFF0C8.toInt()),
             Place.AUTUMN to intArrayOf(0xFFF2CF9A.toInt(), 0xFFD9A75A.toInt(), 0xFFEBC37F.toInt()),
             Place.SNOW to intArrayOf(0xFFE2EAF6.toInt(), 0xFFF7FAFF.toInt(), 0xFFFFFFFF.toInt()),
+            Place.VILLAGE to intArrayOf(0xFFCFEAB4.toInt(), 0xFFAEDA7E.toInt(), 0xFFD2EFAD.toInt()),
         )
 
         fun phaseAt(hour: Int): Phase = when (hour) {
