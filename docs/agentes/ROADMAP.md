@@ -40,6 +40,19 @@ La app funciona, pero se ve estática y de plantilla, y Peri tiene poca vida. Or
 - [ ] (DIR) r2-grabaciones — [M] regrabar los clips con la UI nueva y con la voz de Peri — docs/demo/
 - Se llevan: video-3-min, anuncio y post-x (Día 8). **No hay modelo de vídeo de Meta en la API** (`muse-wonder-1.0` es texto) y **Higgsfield queda descartado** (D11): el vídeo sale de los clips reales, de los fondos del mundo de Peri y de animar fotogramas de Muse Image.
 
+### E · Ideas de la persona (28 oct, escritas antes de ver la ronda 2)
+Ya hechas: el fondo que cambia (mundo de Peri), fuentes y animaciones, más personalidad (poses, frases, gestos). El vídeo de anuncio con la herramienta en uso y un ejemplo real con un modelo de Meta va en `r2-guion`; las pruebas reales y la familia con varios móviles, en `r2-familia-e2e` y `pruebas-mayores`.
+- [ ] (IMP-2) r2-atuendos — [M] vestir a tu Peri: accesorios de cabeza, ojos y cuello hechos con Muse Image y colocados en cada pose (también en Mini Peri), con un armario para elegirlos — assets/peri/, ui/peri/
+- [ ] (IMP-2) r2-peras-familia — [L] las peras de tu familia como amigos en el apartado Familia, con su atuendo y su papel (te cuida, la cuidas, familia), por el servidor de la familia; avisos dentro de la app además del SMS, y la pera afectada se ve en peligro o en atención — backend/src/, ui/peri/
+- [ ] (IMP-2) r2-fondo-sorpresa — [S] un lugar al azar cada vez que se abre, además de "cada día" y uno fijo — ui/peri/PeriWorld.kt
+- [ ] (IMP-2) r2-bienvenida — [M] la bienvenida nueva: el mundo de Peri, los apartados y vestir a tu Peri desde el principio — ui/peri/WelcomeActivity.kt
+- [ ] (IMP-1) r2-confianza-familia — [M] correlación de confianza entre familiares: Peri pregunta en silencio al Peri del familiar ("¿has cambiado de número?") antes de avisar; el mismo timo a dos familiares a la vez avisa a toda la familia; un sí solo cuenta si el móvil del guardián no está él mismo en peligro — core/, backend/src/
+- [ ] (IMP-1) r2-doble-familia — [M] mejorar la doble autenticación familiar (la petición con la pera de quien la pide, quién aprobó, dos guardianes para lo más arriesgado) — backend/src/approvals/, android/
+- [ ] (IMP-2) r2-trampas-mas — [S] más viñetas de ataques con Muse Image (Hacienda, luz, inversión, policía falsa, amor, trabajo, segunda mano, QR, voz clonada) y sus preguntas del juego — assets/peri/, res/values*/
+- [ ] (SEG) r2-android-restricciones — [M] pelear con las restricciones de Android (ajustes restringidos, códigos ocultos en Android 15, batería, rol de llamadas, superposición): una revisión con la guía de cada una — android/
+- [ ] (IMP-1) r2-meta-seguridad — [M] más jugo a los modelos de Meta en seguridad: viñetas al vuelo con Muse Image para trampas nuevas, Muse Spark comparando con lo que dice el Peri del familiar, resumen semanal escrito por Spark — backend/src/
+- [ ] (IMP-2) r2-taste — [S] una pasada con la skill design-taste-frontend sobre las pantallas, con D8 por delante — ui/peri/
+
 ### Se llevan de antes
 - Con la persona: pruebas-mayores, voice-transcribe (voces reales), bases-y-dudas, peri-referencia-video y la entrega.
 - TEST y PUL: metricas, readme-resultados.
