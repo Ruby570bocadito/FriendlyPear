@@ -19,11 +19,11 @@ object Breaches {
             "he hecho|hice|he pagado|pague|he transferido|transferi|me han robado|me han hackeado|me han quitado|me han pillado|se han filtrado|" +
             "han filtrado|filtraron|me han entrado|" +
             "i gave|i ve given|i told|i ve told|i sent|i ve sent|i typed|i entered|i put|i installed|i ve installed|i downloaded|i paid|i ve paid|" +
-            "i transferred|i made a|i ve made a|they stole|they hacked|they took|they got into|was leaked|were leaked|got leaked|data breach)\\b",
+            "i transferred|i made a|i ve made a|i already gave|i ve already given|i already told|i already sent|i already paid|i already installed|i already typed|they stole|they hacked|they took|they got into|was leaked|were leaked|got leaked|data breach)\\b",
     )
     private val kinds: List<Pair<Breach, Regex>> = listOf(
         Breach.MONEY to Text.anyOf(listOf("transferencia", "bizum", "dinero", "pagado", "pague", "pago", "euros", "transfer", "money", "paid", "payment")),
-        Breach.REMOTE to Text.anyOf(listOf("anydesk", "teamviewer", "quicksupport", "rustdesk", "app que me dijeron", "aplicacion que me dijeron", "controlar el movil", "control remoto", "app they told me", "remote", "control my phone")),
+        Breach.REMOTE to Text.anyOf(listOf("anydesk", "teamviewer", "quicksupport", "rustdesk", "app que me dijeron", "aplicacion que me dijeron", "app que me pidieron", "app they asked", "controlar el movil", "control remoto", "app they told me", "remote", "control my phone")),
         Breach.CARD to Text.anyOf(listOf("tarjeta", "pin", "cvv", "codigo de seguridad", "card", "cvc")),
         Breach.CODE to Text.anyOf(listOf("codigo", "whatsapp", "sms que me llego", "code", "verification")),
         Breach.ID to Text.anyOf(listOf("dni", "pasaporte", "nie", "foto de mi carnet", "carnet", "id card", "passport", "my id", "driving licence", "driver s license")),
@@ -31,9 +31,16 @@ object Breaches {
         Breach.PASSWORD to Text.anyOf(listOf("contrasena", "cuenta", "datos", "correo", "password", "account", "email", "data", "leaked", "breach", "filtr")),
     )
 
+    /** Past forms that, without accents, are also what someone asks for: "(que) pague", "(que) instale". */
+    private val AMBIGUOUS = setOf("pase", "le pase", "mande", "envie", "instale", "descargue", "pague")
+
     /** What was given away, if the person says they gave something; null when it isn't that. */
     fun of(clean: String): Breach? {
-        if (!gave.containsMatchIn(clean)) return null
+        // Without accents "instalé" and "(que) instale" read the same: after "que" it's what they ask, not what was done.
+        val said = gave.findAll(clean).any { m ->
+            m.value !in AMBIGUOUS || clean.substring(0, m.range.first).trimEnd().let { it != "que" && !it.endsWith(" que") }
+        }
+        if (!said) return null
         return kinds.firstOrNull { (_, words) -> words.containsMatchIn(clean) }?.first ?: Breach.SOMETHING
     }
 }

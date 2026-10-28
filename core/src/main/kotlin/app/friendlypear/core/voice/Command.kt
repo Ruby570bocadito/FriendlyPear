@@ -17,6 +17,9 @@ sealed interface Command {
     /** "Le he dado el código", "he hecho un bizum": something already given away to a scammer. */
     data class Gave(val what: app.friendlypear.core.agent.Breach) : Command
 
+    /** "Me ha llamado el banco, ¿qué hago?": a question about staying safe, answered with reviewed advice. */
+    data class Advise(val topic: app.friendlypear.core.agent.Topic) : Command
+
     data object Yes : Command
     data object No : Command
     data object Cancel : Command

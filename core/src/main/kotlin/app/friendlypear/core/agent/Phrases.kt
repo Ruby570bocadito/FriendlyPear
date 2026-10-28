@@ -29,6 +29,7 @@ internal interface Phrases {
     fun familyAsksHangUp(name: String): String
     fun familyWillHangUp(name: String): String
     fun aftercare(what: Breach): String
+    fun advice(topic: Topic): String
     fun keptCall(name: String): String
     fun smsSent(name: String): String
     fun smsFailedOfferCall(name: String): String
@@ -132,6 +133,27 @@ internal object Spanish : Phrases {
     override val hangUpYourself = "Pulsa el botón rojo para colgar. Aquí te espero."
     override fun familyHungUp(name: String) = "$name me ha pedido que cuelgue esta llamada, y ya está: era un número que no conoces. Si quieres, llama a $name."
     override fun familyAsksHangUp(name: String) = "$name te pide que cuelgues ya: es un número que no conoces. Pulsa el botón rojo."
+    override fun advice(topic: Topic) = when (topic) {
+        Topic.QR -> "Un QR es un enlace escondido. Escanéalo solo en sitios de confianza y mira qué web abre antes de meter datos o pagar. En la calle, fíjate en que no haya una pegatina encima del original."
+        Topic.WHATSAPP -> "Activa la verificación en dos pasos: en WhatsApp, Ajustes, Cuenta, Verificación en dos pasos, y elige un PIN. Así, aunque alguien consiga tu código, no podrá entrar. Y el código de seis cifras, nunca a nadie."
+        Topic.SIM_SWAP -> "Si tu móvil se queda sin línea de repente, llama desde otro teléfono a tu compañía y a tu banco: alguien podría haberse quedado con tu número para recibir tus códigos. Yo te aviso si lo noto."
+        Topic.STOLEN_PHONE -> "Lo primero: llama a tu compañía desde otro teléfono para bloquear la SIM, y a tu banco. Desde otro dispositivo, con tu cuenta de Google, puedes localizar el móvil o borrarlo. Y cuéntaselo a tu familia."
+        Topic.REMOTE_APP -> "No instales ninguna app que te pida alguien por teléfono: con ella pueden controlar tu móvil y entrar en tu banco. Ni el banco ni Microsoft llaman para eso. Cuelga, y si ya la instalaste, dímelo."
+        Topic.BANK_CALL -> "Tu banco nunca te pedirá claves, códigos ni que muevas dinero a una «cuenta segura». Cuelga y llama tú al número que viene en tu tarjeta. Si ya les diste algo, dímelo y lo arreglamos."
+        Topic.CODE -> "Un código que te llega por SMS es como la llave de tu cuenta: no se lo des a nadie, aunque diga ser del banco, de WhatsApp o de tu familia. Si alguien te lo pide, es un timo."
+        Topic.FAMILY_MONEY -> "Antes de mandar nada, llama a esa persona a su número de siempre, no al nuevo. Si te dice que no puede hablar o que es muy urgente, desconfía: así actúan los estafadores. Si quieres, te ayudo a llamar."
+        Topic.BIZUM -> "Bizum es para pagar a gente que conoces, como dar dinero en mano. Si alguien te pide que hagas un Bizum para recibir dinero, es un timo: para recibir no tienes que hacer nada."
+        Topic.PARCEL -> "Las empresas de mensajería no te piden pagar por SMS. Si esperas un paquete, mira el seguimiento en su web oficial, escribiéndola tú. No pagues nunca desde el enlace del mensaje."
+        Topic.PRIZE -> "Si no has participado en ningún sorteo, no has ganado nada. Un premio de verdad no te pide pagar gastos ni los datos del banco. Bórralo sin contestar."
+        Topic.ROMANCE -> "Si alguien que solo conoces por internet te pide dinero, aunque sea con una historia triste, casi siempre es un timo. No mandes nada y háblalo antes con alguien de tu familia."
+        Topic.INVESTMENT -> "Nadie regala dinero: si te prometen ganar mucho y rápido, con criptomonedas o inversiones, es un timo. No des tus datos ni hagas pagos. Pregunta antes a tu banco o a tu familia."
+        Topic.FAKE_AUTHORITY -> "La policía y Hacienda no te piden pagos por teléfono ni por SMS, ni te amenazan con detenerte. Cuelga y, si te quedan dudas, llama tú a su número oficial."
+        Topic.SHOPPING -> "Compra en tiendas que conozcas y desconfía de las gangas increíbles. Paga con tarjeta, nunca por transferencia a un desconocido. Si una web te mete prisa, para y piénsalo."
+        Topic.LINK -> "Ante la duda, no abras el enlace. Entra tú en la web o la app de siempre, escribiéndola a mano. Si quieres, hazle una foto al mensaje y la miro contigo."
+        Topic.PASSWORDS -> "Usa una contraseña distinta para cada cuenta importante, sobre todo el correo y el banco. Una frase larga que recuerdes es mejor que una palabra rara. Y no se la digas a nadie, ni a mí."
+        Topic.UNKNOWN_CALL -> "Si no conoces el número, no tienes por qué contestar. Si contestas y te piden datos, dinero o prisa, cuelga. Y si dicen ser alguien que conoces, cuelga y llámales tú a su número de siempre."
+        Topic.WHAT_IS_A_SCAM -> "Un timo es un engaño para que des tus datos o tu dinero: un mensaje o una llamada que se hace pasar por alguien de confianza y te mete prisa. La regla de oro: ante la prisa, para y pregunta."
+    }
     override fun aftercare(what: Breach) = when (what) {
         Breach.CARD -> "Tranquilidad, lo arreglamos tú y yo. Lo primero: llama a tu banco al número que viene en la tarjeta y pide que la bloqueen. Te enseño los pasos."
         Breach.BANK -> "Tranquilidad, lo arreglamos. Llama a tu banco al número de siempre y pide que bloqueen el acceso; después cambia la clave. Te enseño los pasos."
@@ -280,6 +302,27 @@ internal object English : Phrases {
     override val hangUpYourself = "Press the red button to hang up. I'll wait right here."
     override fun familyHungUp(name: String) = "$name asked me to hang up this call, and it's done: it was a number you don't know. You can call $name if you like."
     override fun familyAsksHangUp(name: String) = "$name asks you to hang up now: it's a number you don't know. Press the red button."
+    override fun advice(topic: Topic) = when (topic) {
+        Topic.QR -> "A QR code is a hidden link. Only scan it in places you trust, and check which website it opens before typing details or paying. In the street, check there's no sticker on top of the original."
+        Topic.WHATSAPP -> "Turn on two-step verification: in WhatsApp, Settings, Account, Two-step verification, and choose a PIN. That way, even if someone gets your code, they can't get in. And the six-digit code goes to nobody, ever."
+        Topic.SIM_SWAP -> "If your phone suddenly loses its line, call your phone company and your bank from another phone: someone may have taken your number to get your codes. I'll warn you if I notice it."
+        Topic.STOLEN_PHONE -> "First: call your phone company from another phone to block the SIM, and then your bank. From another device, with your Google account, you can find the phone or erase it. And tell your family."
+        Topic.REMOTE_APP -> "Don't install any app someone asks you to on the phone: with it they can control your phone and get into your bank. Neither your bank nor Microsoft calls for that. Hang up, and if you already installed it, tell me."
+        Topic.BANK_CALL -> "Your bank will never ask for passwords, codes, or for you to move money to a 'safe account'. Hang up and call the number on your card yourself. If you already gave them something, tell me and we'll sort it out."
+        Topic.CODE -> "A code that arrives by text is like the key to your account: never give it to anyone, even if they say they're from the bank, WhatsApp or your family. If someone asks for it, it's a scam."
+        Topic.FAMILY_MONEY -> "Before sending anything, call that person on their usual number, not the new one. If they say they can't talk or it's very urgent, be careful: that's how scammers work. If you like, I'll help you call."
+        Topic.BIZUM -> "Bizum is for paying people you know, like handing over cash. If someone asks you to send a Bizum to receive money, it's a scam: you don't have to do anything to receive money."
+        Topic.PARCEL -> "Delivery companies don't ask you to pay by text. If you're expecting a parcel, check the tracking on their official website, typing it yourself. Never pay through the link in the message."
+        Topic.PRIZE -> "If you didn't enter a draw, you haven't won anything. A real prize doesn't ask you to pay fees or for your bank details. Delete it without answering."
+        Topic.ROMANCE -> "If someone you only know online asks you for money, even with a sad story, it's almost always a scam. Don't send anything, and talk it over with someone in your family first."
+        Topic.INVESTMENT -> "Nobody gives money away: if they promise you a lot, fast, with crypto or investments, it's a scam. Don't give your details or make payments. Ask your bank or your family first."
+        Topic.FAKE_AUTHORITY -> "The police and the tax office don't ask for payments by phone or text, or threaten to arrest you. Hang up, and if you're still unsure, call their official number yourself."
+        Topic.SHOPPING -> "Buy from shops you know and be wary of unbelievable bargains. Pay by card, never by bank transfer to a stranger. If a website rushes you, stop and think."
+        Topic.LINK -> "When in doubt, don't open the link. Go to the usual website or app yourself, typing it in. If you like, take a picture of the message and we'll look at it together."
+        Topic.PASSWORDS -> "Use a different password for each important account, especially your email and your bank. A long phrase you remember is better than a strange word. And don't tell it to anyone, not even me."
+        Topic.UNKNOWN_CALL -> "If you don't know the number, you don't have to answer. If you answer and they ask for details, money or hurry you, hang up. And if they say they're someone you know, hang up and call them on their usual number."
+        Topic.WHAT_IS_A_SCAM -> "A scam is a trick to get your details or your money: a message or a call pretending to be someone you trust, and rushing you. The golden rule: when you're rushed, stop and ask."
+    }
     override fun aftercare(what: Breach) = when (what) {
         Breach.CARD -> "Don't worry, we'll sort it out together. First: call your bank on the number on your card and ask them to block it. I'll show you the steps."
         Breach.BANK -> "Don't worry, we'll sort it out. Call your bank on its usual number and ask them to block access, then change your password. I'll show you the steps."

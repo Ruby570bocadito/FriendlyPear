@@ -482,6 +482,12 @@ class PeriAgent(
                 // location is used if it was granted before, never asked with someone possibly on the floor.
                 device.prepare(Capability.CALL) { device.prepare(Capability.SEND_SMS) {} }
             }
+            // Reviewed advice for a question about staying safe: never a model's words.
+            is Command.Advise -> {
+                pending = null
+                val calm = command.topic in setOf(Topic.WHATSAPP, Topic.PASSWORDS, Topic.WHAT_IS_A_SCAM, Topic.SHOPPING)
+                say(p.advice(command.topic), if (calm) Mood.CALM else Mood.PROTECTIVE)
+            }
             is Command.Gave -> {
                 // No blame and no lecture: the first step, said calmly, and the rest on screen.
                 pending = null

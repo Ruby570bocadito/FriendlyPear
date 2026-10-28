@@ -77,8 +77,14 @@ object VoiceCommands {
         if (clean in yes) return Command.Yes
         if (clean in no) return Command.No
         if (cancel.containsMatchIn(clean) && clean.split(" ").size <= 3) return Command.Cancel
-        // Already given away: before calls ("he dado el código a Pablo" isn't a call to Pablo).
-        app.friendlypear.core.agent.Breaches.of(clean)?.let { return Command.Gave(it) }
+        // Already given away: before calls ("he dado el código a Pablo" isn't a call to Pablo). Unless it says nothing
+        // given and asks about something else: "me han robado el móvil, ¿qué hago?" is advice, not first aid.
+        val advice = app.friendlypear.core.agent.Advice.of(clean)
+        app.friendlypear.core.agent.Breaches.of(clean)?.let { gave ->
+            if (gave != app.friendlypear.core.agent.Breach.SOMETHING || advice == null) return Command.Gave(gave)
+        }
+        // A question or a situation ("me llama el banco", "is this link safe?"), before orders: "me llama" isn't "llama".
+        advice?.let { return Command.Advise(it) }
 
         sendMessage(utterance, folded)?.let { return it }
         askForHelp.find(clean)?.let { m ->
@@ -93,6 +99,8 @@ object VoiceCommands {
             return Command.ReadMessages(onlyLast = lastWords.containsMatchIn(clean))
         }
         if (repeat.containsMatchIn(clean) && clean.split(" ").size <= 4) return Command.Repeat
+        // A few words that are nothing else: "phishing", "bizum seguro".
+        if (clean.split(" ").size <= 4) app.friendlypear.core.agent.Advice.topicOnly(clean)?.let { return Command.Advise(it) }
         return Command.Unknown(utterance)
     }
 
