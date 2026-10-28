@@ -6,6 +6,7 @@
  *
  *   cd backend; bun ../assets/peri/sprites.ts 1               lote 1 (skips images already made)
  *   cd backend; bun ../assets/peri/sprites.ts 3 body_happy_noface face_eyes_up   only those names (made again)
+ *   cd backend; bun ../assets/peri/sprites.ts 3 --soft         the missing ones, with the softer "no face" wording
  * Then `python assets/peri/sprites_sheet.py <lote>` draws the contact sheet in assets/peri/sprites/hojas/.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -24,6 +25,8 @@ const SAME = "Exactly the same image: same character, same pose, same framing, s
 const KEEP_EYES = "The mouth, the cheeks and everything else stay exactly the same.";
 const KEEP_MOUTH = "The eyes, the cheeks and everything else stay exactly the same.";
 const NOFACE = "Peri's face is empty: no eyes, no eyebrows and no mouth; that part of the pear is smooth green clay with the same soft shading as the rest of her body. Keep the two rosy cheeks exactly where they are.";
+// Muse's filter sometimes turns down "no eyes, no mouth"; this wording asks for the same thing.
+const SOFT_NOFACE = "the front of the pear is plain and smooth, like a blank clay toy before its features are painted on: the eyes, eyebrows and smile are left out, and that area is the same green clay with the same soft shading as the rest of her. Keep the two rosy cheeks exactly where they are.";
 const MOVE = "Same character, same style, same size in the frame. Change: ";
 const SCENE = "Same character, same style. Change: Peri ";
 
@@ -119,7 +122,7 @@ LOTES["5"] = [
   edit("mini_noface", "peri_icon", NOFACE),
   edit("mini_leaf_left", "sprites/mini_noface", "the leaf on top bends towards the left side of the image, as in a breeze."),
   edit("mini_leaf_right", "sprites/mini_noface", "the leaf on top bends towards the right side of the image, as in a breeze."),
-  mini("mini_peek", "Peri peeks in from the right edge of the image: only her head and one small hand holding the edge show."),
+  mini("mini_peek", "only one single Peri, no second pear: her head is moved to the right so that its right half is cut off by the right edge of the image, as if she peeks in from outside, and one small green hand grips that edge beside her."),
   mini("mini_wave", "her head with one small hand waving beside it."),
   mini("mini_umbrella", "her head under a tiny coral umbrella held by one small hand."),
   mini("mini_sleep", "her head wearing a tiny night cap."),
@@ -155,7 +158,7 @@ const SCENES: Record<string, string> = {
   settings: "holds a small wrench, a little gear floating beside her, cheerful.",
   chat: "waves beside two small speech bubbles with tiny hearts in them.",
   picture: "holds a small camera, with a little flash sparkle.",
-  checkup: "wears a stethoscope around her neck and holds a small green shield.",
+  checkup: "wears a stethoscope around her neck and holds up a small green knight's shield with a white leaf on it.",
   trophy: "holds up a golden trophy, confetti around.",
   cheer: "gives a thumbs up with an encouraging smile, a small star beside her.",
   hello: "waves hello with both arms, a big warm smile.",
@@ -194,7 +197,8 @@ async function make(job: Job) {
   console.log(`${job.name}: ${Math.round(image.length / 1024)} KB`);
 }
 
-const [lote, ...names] = process.argv.slice(2);
+const soft = process.argv.includes("--soft");
+const [lote, ...names] = process.argv.slice(2).filter((a) => a !== "--soft");
 const jobs = LOTES[lote];
 if (!jobs) throw new Error(`lote must be one of ${Object.keys(LOTES).join(", ")}`);
 if (names[0] === "--names") {
@@ -202,7 +206,8 @@ if (names[0] === "--names") {
   process.exit(0);
 }
 mkdirSync(out, { recursive: true });
-const todo = names.length ? jobs.filter((j) => names.includes(j.name)) : jobs.filter((j) => !existsSync(join(out, `${j.name}.webp`)));
+const picked = names.length ? jobs.filter((j) => names.includes(j.name)) : jobs.filter((j) => !existsSync(join(out, `${j.name}.webp`)));
+const todo = soft ? picked.map((j) => ({ ...j, prompt: j.prompt.replace(NOFACE, SOFT_NOFACE) })) : picked;
 
 // A few at a time; a "_noface" made from another sprite of the same lote waits for it.
 const done = new Set<string>();
