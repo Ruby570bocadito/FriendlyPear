@@ -40,6 +40,7 @@ in the code and covered by tests or by the two-phone tests of Oct 27 and 28.
 | 6 | A stolen key, or a family on one wifi | Limits per paired phone (120 requests a minute) as well as per IP, so a key used from many places still counts as one phone and one phone can't hold up the rest of the family; "hang up their call" at most 5 times in 10 minutes per phone | ✅ |
 | 6 | Odd requests | A request whose address can't be read gets a 400, not a crash; ids are checked against their exact format before any lookup | ✅ |
 | 6 | Backups leaking keys or family setup | `allowBackup="false"` and data-extraction rules exclude everything from cloud backups and device transfers | ✅ |
+| 6 | Someone copies the app's files | What Peri keeps about scams and people (the last scam's message and sender, the numbers blocked, who Peri called or texted, the diary, the investigator's notes, the family setup, a junk website's address) is sealed with AES-256-GCM under a key that never leaves Android's keystore: a copy of the files can't be read, and a changed byte makes a file fail to open instead of feeding Peri something false. What was given away after a scam is never stored, not even on the phone | ✅ |
 | 6 | Floods and guessing | Per-IP limits on links, the API, pictures, voice and pairing (10 codes tried per 15 minutes); behind the tunnel the client IP is the one the proxy adds, so a forged header can't dodge them; an IP sending wrong device tokens is locked out for 15 minutes; body size limits; timing-safe token check | ✅ |
 
 ## What the family can and can't see
@@ -74,7 +75,7 @@ are gone after 15 minutes or when that phone is disconnected.
   what Peri did with them (calls, texts, location, pictures, voice, reports): only who and when, kept on the phone.
 - What the person tells Peri about a call ("they wanted the code") is judged by rules on the phone and never sent.
 - The last scam (for "report it") and the last junk website notice (to silence that site) are kept on the phone for
-  three days, never backed up. `VIBRATE` and `ACCESS_NETWORK_STATE` are normal permissions Android grants at install:
+  three days, sealed with the keystore key, never backed up. `VIBRATE` and `ACCESS_NETWORK_STATE` are normal permissions Android grants at install:
   touches with warnings, and seeing whether Private DNS is on.
 - Ending a call needs Android's `ANSWER_PHONE_CALLS`, asked together with seeing calls (same group, one dialog). Peri
   never answers a call, and ends one only on the person's tap or a guardian's request about a stranger's call.
