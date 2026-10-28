@@ -1,5 +1,5 @@
 """
-Cuts out the accessories Peri can wear (assets/peri/peri_wear_*.webp, from `generate.ts wear`), trims each to what's
+Cuts out the accessories Peri can wear, and the sprites of her effects (peri_fx_*: stars), (assets/peri/peri_wear_*.webp, from `generate.ts wear`), trims each to what's
 drawn, centres it on its own mirror axis (a bow tie's knot, the bridge of a pair of glasses) and writes the copies the
 app uses, at most 512 px on their longer side. For glasses it also says how wide to wear them so each lens sits on an
 eye (`width` in Outfit.kt and backend/src/pears/look.ts).
@@ -18,6 +18,8 @@ sys.path.insert(0, HERE)
 from cutout import OUT, cut  # noqa: E402
 
 MAX_SIDE = 512
+# Her effects' sprites (stars that burst out of her) are small on screen.
+FX_SIDE = 192
 # Shaped for a pear's head: only the top of the flower headband, its arch, like a crown.
 KEEP_TOP = {"peri_wear_flowers.webp": 0.40}
 # A white frame nearly the colour of the cream: cut closer, or the cream takes it.
@@ -69,13 +71,14 @@ def lens_span(image: Image.Image) -> float:
 
 
 def main() -> None:
-    for path in sorted(glob.glob(os.path.join(HERE, "peri_wear_*.webp"))):
+    for path in sorted(glob.glob(os.path.join(HERE, "peri_wear_*.webp")) + glob.glob(os.path.join(HERE, "peri_fx_*.webp"))):
         name = os.path.basename(path)
         image = trimmed(cut(path, remove_floor=False, threshold=THRESHOLDS.get(name, 80)))
         if name in KEEP_TOP:
             image = trimmed(image.crop((0, 0, image.width, int(image.height * KEEP_TOP[name]))))
         image = centred(image)
-        image.thumbnail((MAX_SIDE, MAX_SIDE), Image.LANCZOS)
+        side = FX_SIDE if name.startswith("peri_fx_") else MAX_SIDE
+        image.thumbnail((side, side), Image.LANCZOS)
         image.save(os.path.join(OUT, name), "WEBP", quality=92, alpha_quality=100, method=6)
         note = f", lenses on the eyes at width {1 / lens_span(image):.2f}" if name in EYEWEAR else ""
         print(f"{name}: {image.width}x{image.height}{note}")

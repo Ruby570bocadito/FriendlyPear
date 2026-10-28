@@ -355,6 +355,11 @@ class PeriFace(context: Context) : FrameLayout(context) {
         put(frames.still)
     }
 
+    /** Something went well (a shield): clay stars spring out of her. */
+    fun stars(count: Int = 12) {
+        if (moves && shown != Mood.WORRIED && shown != Mood.PROTECTIVE) sparkles.play(Sparkles.Effect.STARS, count)
+    }
+
     /** A happy jump for a moment (she was tapped), then back to her mood. */
     fun cheer() {
         val mood = shown ?: return

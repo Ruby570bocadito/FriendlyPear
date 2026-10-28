@@ -15,6 +15,7 @@
  *   cd backend; bun ../assets/peri/generate.ts traps            "how the trap worked": 3 panels for 6 kinds of scam (18 images)
  *   cd backend; bun ../assets/peri/generate.ts wear             accessories to dress Peri in (11 images, then assets/peri/wear.py)
  *   cd backend; bun ../assets/peri/generate.ts tops calm happy  her head without leaf and stem, for hats (then assets/peri/tops.py)
+ *   cd backend; bun ../assets/peri/generate.ts fx               sprites for her effects: stars (2 images, then assets/peri/wear.py)
  * Then `python assets/peri/cutout.py` cuts the cream background out for the app.
  */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -135,6 +136,12 @@ export const WEAR: Record<string, string> = {
   wear_bandana: "A small sky blue neckerchief with white dots, tied at the top, its triangle pointing down, seen from the front.",
 };
 
+/** Little sprites for Peri's effects (ui/peri/Sparkles.kt): stars that burst out of her when something goes well. */
+export const FX: Record<string, string> = {
+  fx_star: "A small chubby five-pointed star with rounded tips, shiny golden yellow, seen exactly from the front.",
+  fx_star_green: "A small chubby five-pointed star with rounded tips, fresh lime green like a pear, seen exactly from the front.",
+};
+
 /** Her head without its leaf and stem, for when she wears a hat; only the top of each picture is used (tops.py). */
 export const BARE =
   "Exactly the same image: same character, same pose, same face, same arms, same framing, same size and position, same background. Only one change: the pear has no leaf and no stem on top; the top of her head is smooth, rounded green clay.";
@@ -167,7 +174,8 @@ const extrasMode = args[0] === "extras";
 const trapsMode = args[0] === "traps";
 const wearMode = args[0] === "wear";
 const topsMode = args[0] === "tops";
-const special = framesMode || extrasMode || trapsMode || wearMode || topsMode;
+const fxMode = args[0] === "fx";
+const special = framesMode || extrasMode || trapsMode || wearMode || topsMode || fxMode;
 const only = special ? args.slice(1) : args;
 const pickedFrames = process.argv.find((a) => a.startsWith("--frame="))?.slice(8).split(",");
 const prompts: { name: string; prompt: string }[] = [];
@@ -210,6 +218,12 @@ if (framesMode) {
     if (only.length && !only.includes(name)) continue;
     // Made on its own (not on Peri), so it can be laid over any of her poses.
     const prompt = `${item} Soft 3D clay render of one single small accessory, isolated and centered, straight front view, symmetrical, no character, no person, no face, no text, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.`;
+    prompts.push(save(name, await call("/images/generations", { model: "muse-image-1.0", prompt, n: 1, size: "1024x1024", output_format: "webp" }), prompt));
+  }
+} else if (fxMode) {
+  for (const [name, item] of Object.entries(FX)) {
+    if (only.length && !only.includes(name)) continue;
+    const prompt = `${item} Soft 3D clay render of one single small object, isolated and centered, straight front view, symmetrical, no character, no face, no text, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.`;
     prompts.push(save(name, await call("/images/generations", { model: "muse-image-1.0", prompt, n: 1, size: "1024x1024", output_format: "webp" }), prompt));
   }
 } else if (topsMode) {

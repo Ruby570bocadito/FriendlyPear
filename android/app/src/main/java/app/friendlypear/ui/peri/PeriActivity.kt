@@ -919,7 +919,7 @@ class PeriActivity : Activity() {
             taps.size >= 5 -> {
                 taps.clear()
                 face.play(PeriFace.Trick.DANCE)
-                face.sparkle()
+                face.stars(14)
                 hub.say(next(R.array.peri_giveup))
             }
             taps.size == 3 -> {
@@ -943,6 +943,7 @@ class PeriActivity : Activity() {
             }
             at > 0.8f -> {
                 face.play(PeriFace.Trick.DANCE)
+                face.stars(8)
                 hub.say(next(R.array.peri_tap_feet))
             }
             else -> when (round++ % 4) {
@@ -1274,7 +1275,11 @@ class PeriActivity : Activity() {
 
         override fun callStarted() = voice.stop()
 
-        override fun shieldEarned(total: Int) = showShieldCount(total, pop = true)
+        override fun shieldEarned(total: Int) {
+            showShieldCount(total, pop = true)
+            // A shield earned is worth a burst of stars.
+            face.stars()
+        }
 
         override fun scamToReport() = showSetup()
 
