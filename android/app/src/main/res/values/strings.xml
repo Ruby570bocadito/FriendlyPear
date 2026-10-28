@@ -62,6 +62,11 @@
     <string name="checkup_calls_bad">Peri can\'t see who\'s calling</string>
     <string name="checkup_calls_text">Then she can\'t warn you before you pick up a number you don\'t know.</string>
     <string name="checkup_allow">Allow</string>
+    <string name="learn_tools_title">Peri\'s tools</string>
+    <string name="tool_checkup_line">Seven checks, each with its fix</string>
+    <string name="tool_chat_line">Bank, codes, links… in writing</string>
+    <string name="tool_after_title">Already fell for a trap?</string>
+    <string name="tool_after_line">What to do now, step by step</string>
     <string name="listening">I\'m all ears…</string>
     <string name="notification_access">Let Peri read your message alerts</string>
     <string name="no_recognizer">Oh dear, this phone can\'t understand speech. You can still read what I say here.</string>
@@ -342,7 +347,6 @@
     <string name="alerts_channel">Peri\'s warnings</string>
     <string name="diary_intruder">I warned you about an app that could control your screen</string>
     <string name="after_link">I\'d already answered it</string>
-    <string name="after_learn">Already fell for a trap? What to do now</string>
     <string name="after_choose_title">What happened?</string>
     <string name="after_choose_text">It happens to anyone, and there\'s a lot we can do. Tap what you gave them.</string>
     <string name="after_pick_code">I gave them a code</string>

@@ -61,6 +61,11 @@
     <string name="checkup_calls_bad">Peri no ve quién te llama</string>
     <string name="checkup_calls_text">Así no puede avisarte antes de que cojas un número que no conoces.</string>
     <string name="checkup_allow">Permitir</string>
+    <string name="learn_tools_title">Las herramientas de Peri</string>
+    <string name="tool_checkup_line">Siete comprobaciones, cada una con su arreglo</string>
+    <string name="tool_chat_line">Banco, códigos, enlaces… por escrito</string>
+    <string name="tool_after_title">¿Ya caíste en un timo?</string>
+    <string name="tool_after_line">Qué hacer ahora, paso a paso</string>
     <string name="listening">Soy toda oídos…</string>
     <string name="notification_access">Dejar que Peri lea tus avisos de mensajes</string>
     <string name="no_recognizer">Vaya, este móvil no entiende la voz. Aun así, aquí puedes leer lo que te digo.</string>
@@ -341,7 +346,6 @@
     <string name="alerts_channel">Avisos de Peri</string>
     <string name="diary_intruder">Te avisé de una app que podía controlar tu pantalla</string>
     <string name="after_link">Yo ya había contestado</string>
-    <string name="after_learn">¿Ya caíste en una trampa? Qué hacer ahora</string>
     <string name="after_choose_title">¿Qué ha pasado?</string>
     <string name="after_choose_text">Le pasa a cualquiera, y se puede hacer mucho. Toca lo que les diste.</string>
     <string name="after_pick_code">Les di un código</string>

@@ -305,14 +305,9 @@ internal class LearnPage(context: Context, private val hub: PeriHub, private val
         list.addView(quiz(), c.below())
         list.addView(c.label(c.getString(R.string.learn_traps_title)), LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(20) })
         list.addView(traps(), c.below(10))
-        // Already fell for one: what to do now, without a word of reproach.
-        list.addView(c.chipButton(c.getString(R.string.after_learn)) { open(AftercareActivity.intent(c, null)) },
-            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, c.dp(56)).apply { topMargin = c.dp(20) })
-        // Ask Peri anything, written; and a checkup of the phone with its fixes.
-        list.addView(c.chipButton(c.getString(R.string.chat_title)) { open(ChatActivity.intent(c)) },
-            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, c.dp(56)).apply { topMargin = c.dp(10) })
-        list.addView(c.chipButton(c.getString(R.string.checkup_open)) { open(Intent(c, CheckupActivity::class.java)) },
-            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, c.dp(56)).apply { topMargin = c.dp(10) })
+        // Her tools: a checkup of the phone, asking her in writing, and what to do if one already got through.
+        list.addView(c.label(c.getString(R.string.learn_tools_title)), LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(20) })
+        list.addView(tools(), c.below(10))
         list.addView(c.label(c.getString(R.string.learn_tips_title)), LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(20) })
         list.addView(tips(), c.below(10))
     }
@@ -384,6 +379,48 @@ internal class LearnPage(context: Context, private val hub: PeriHub, private val
                 }, GridLayout.LayoutParams(GridLayout.spec(i / 2), GridLayout.spec(i % 2, 1f)).apply {
                     width = 0
                     setMargins(if (i % 2 == 0) 0 else c.dp(6), if (i < 2) 0 else c.dp(12), if (i % 2 == 0) c.dp(6) else 0, 0)
+                })
+            }
+        }
+    }
+
+    /** One card, a row per tool: its icon in a soft circle, what it is, a line on what it does, and a chevron. */
+    private fun tools(): View {
+        val c = context
+        val rows = listOf(
+            Triple(R.drawable.ic_shield, R.string.checkup_open to R.string.tool_checkup_line, Intent(c, CheckupActivity::class.java)),
+            Triple(R.drawable.ic_message, R.string.chat_title to R.string.tool_chat_line, ChatActivity.intent(c)),
+            Triple(R.drawable.ic_warning, R.string.tool_after_title to R.string.tool_after_line, AftercareActivity.intent(c, null)),
+        )
+        return c.whiteCard().apply {
+            rows.forEachIndexed { i, (icon, words, intent) ->
+                addView(LinearLayout(c).apply {
+                    gravity = Gravity.CENTER_VERTICAL
+                    minimumHeight = c.dp(64)
+                    setPadding(c.dp(4), c.dp(8), c.dp(4), c.dp(8))
+                    background = pressable(rounded(Palette.WHITE, c.dp(16).toFloat()), Palette.RIPPLE_DARK)
+                    isClickable = true
+                    setOnClickListener { open(intent) }
+                    addView(ImageView(c).apply {
+                        setImageResource(icon)
+                        setColorFilter(Palette.GREEN_DARK)
+                        background = rounded(Palette.GREEN_TINT, c.dp(20).toFloat())
+                        setPadding(c.dp(9), c.dp(9), c.dp(9), c.dp(9))
+                        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                    }, LinearLayout.LayoutParams(c.dp(40), c.dp(40)))
+                    addView(LinearLayout(c).apply {
+                        orientation = LinearLayout.VERTICAL
+                        setPadding(c.dp(12), 0, c.dp(8), 0)
+                        addView(c.heading(c.getString(words.first), TextSize.BODY))
+                        addView(c.body(c.getString(words.second), TextSize.SMALL).apply { setTextColor(Palette.INK_SOFT) })
+                    }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+                    addView(ImageView(c).apply {
+                        setImageResource(R.drawable.ic_chevron)
+                        setColorFilter(Palette.INK_SOFT)
+                        importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                    }, LinearLayout.LayoutParams(c.dp(24), c.dp(24)))
+                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    if (i > 0) topMargin = c.dp(4)
                 })
             }
         }
