@@ -656,11 +656,17 @@ class PeriActivity : Activity() {
             said.fitInto(tall, SAID_MAX_SP, SAID_MIN_SP)
             said.minHeight = tall
             said.maxHeight = tall
-            // New words appear bit by bit, as if she were saying them; the same sentence again just shows.
-            if (text.toString() != typed && animationsOn()) type(text)
+            // New words appear bit by bit, as if she were saying them; the same sentence again just shows. So do
+            // words that come right after others, or while permissions are asked: nothing races across the bubble.
+            val now = android.os.SystemClock.uptimeMillis()
+            val rushed = settingUp || now - lastSaidAt < QUICK_MS
+            lastSaidAt = now
+            if (text.toString() != typed && animationsOn() && !rushed) type(text)
             typed = text.toString()
         }
     }
+
+    private var lastSaidAt = 0L
 
     private var typed = ""
     private var typing = Runnable { }
@@ -740,25 +746,41 @@ class PeriActivity : Activity() {
         }, LinearLayout.LayoutParams(dp(44), dp(44)).apply { marginStart = dp(4) })
     }
 
-    /** The shield's basics, one at a time and only once each: a "no" is never asked again on every start. */
+    /**
+     * The shield's basics, one at a time and only once each: a "no" is never asked again on every start. While they
+     * come one after another the screen holds still (see [settingUp]); it shows where things stand once, at the end.
+     */
     private fun firstStart() {
         // Installed from a file, Android answers a request for texts with a frightening "denied" notice: skip it
         // here, and let the unlock guide (from the setup card) open texts and alerts together.
         val locked = UnlockActivity.restricted(this)
         val next = Need.FIRST_START.firstOrNull { !hub.permissions.granted(it) && !asked.getBoolean(it.name, false) && !(locked && it == Need.READ_SMS) }
         if (next != null) {
+            settingUp = true
             asked.edit().putBoolean(next.name, true).apply()
             return hub.permissions.ask(next) {
                 hub.refresh()
                 firstStart()
             }
         }
-        if (askToScreenCalls()) return
+        if (askToScreenCalls()) {
+            settingUp = true
+            return
+        }
+        settingUp = false
         if (!hasNotificationAccess() && !asked.getBoolean(NOTIFICATIONS, false)) {
             asked.edit().putBoolean(NOTIFICATIONS, true).apply()
             hub.show(getString(if (locked) R.string.why_notifications_locked else R.string.why_notifications_later))
         }
+        showSetup()
     }
+
+    /**
+     * True while the first start's permissions are being asked, one dialog after another. Each time a dialog closes
+     * the screen shows for an instant: the setup card and the status would change under the next dialog, and Peri
+     * would start typing a sentence the next dialog cuts off. Meanwhile they wait, and her words show at once.
+     */
+    private var settingUp = false
 
     /** The call-screening role shows Peri the number before pickup. Asked once, with a sentence that says what for. */
     private fun askToScreenCalls(): Boolean {
@@ -1241,6 +1263,7 @@ class PeriActivity : Activity() {
 
     /** The chip and the setup card: what's still missing for Peri to protect the person fully. */
     private fun showSetup() {
+        if (settingUp) return
         val noAccess = !hasNotificationAccess()
         val noUsage = !hub.bank.allowed() && !asked.getBoolean(DISMISS_USAGE, false)
         val noBasics = BASICS.any { !hub.permissions.granted(it) }
@@ -1441,6 +1464,8 @@ class PeriActivity : Activity() {
         /** A short sentence fills her bubble in big letters; a long one gets smaller, down to this. */
         const val SAID_MAX_SP = 23f
         const val SAID_MIN_SP = 13f
+        /** A sentence this soon after the last one shows whole, rather than typed. */
+        const val QUICK_MS = 1_200L
         const val REQUEST_SCREENING = 2
         const val REQUEST_WELCOME = 3
         const val SCREENING = "screening"
