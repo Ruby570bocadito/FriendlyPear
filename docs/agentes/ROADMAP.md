@@ -12,7 +12,7 @@ Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 La app funciona, pero se ve estática y de plantilla, y Peri tiene poca vida. Orden de la persona: primero la UI completa (profesional y viva), luego Peri (frases, poses, interacciones), luego detecciones y seguridad, probando muchas más situaciones (sobre todo la familia), y al final el guion del vídeo, juntos. **Lo más importante:** simpleza, cómo se vende y seguridad, porque mucha gente puede llegar a depender de esto. **Público:** todos; las personas mayores siguen siendo el ejemplo principal. Personalidad de Peri: [`docs/PERI_PERSONAJE.md`](../PERI_PERSONAJE.md).
 
 ### A · Sistema visual vivo
-- [ ] (IMP-2) r2-direccion-visual — [S] elegir con la persona la dirección visual (bocetos) y fijarla en `docs/DISENO.md`; sustituye a las reglas planas del 27 oct — docs/DISENO.md
+- [x] (IMP-2) r2-direccion-visual — [S] elegir con la persona la dirección visual (bocetos) y fijarla en `docs/DISENO.md`; sustituye a las reglas planas del 27 oct — docs/DISENO.md · hecho 2026-10-28 (el mundo de Peri: fondos que van cambiando)
 - [ ] (IMP-2) r2-tipografia — [S] fuentes propias: títulos redondeados y simpáticos y lectura muy legible, con licencia libre y dentro de la app — android/app/src/main/res/font/, ui/peri/Style.kt
 - [ ] (IMP-2) r2-mundo-peri — [M] fondo vivo que cambia con el estado de Peri y la hora (cielo, nubes, sol, estrellas, el rojo suave de un aviso), quieto si se quitan las animaciones — ui/peri/
 - [ ] (IMP-2) r2-componentes — [M] paleta viva y componentes con movimiento (botones con rebote, tarjetas, chips, transiciones entre pantallas) — ui/peri/Style.kt
@@ -36,7 +36,7 @@ La app funciona, pero se ve estática y de plantilla, y Peri tiene poca vida. Or
 ### D · Vídeo y anuncio (con la persona)
 - [ ] (DIR) r2-guion — [S] el guion juntos: arranque de anuncio que vende, luego ejemplos de uso, para quién es (todos), la personalidad de Peri, los modelos de Meta y resultados — docs/VIDEO.md
 - [ ] (DIR) r2-grabaciones — [M] regrabar los clips con la UI nueva y con la voz de Peri — docs/demo/
-- Se llevan: escenas-higgsfield, video-3-min, anuncio y post-x (Día 8). **No hay modelo de vídeo de Meta en la API** (`muse-wonder-1.0` es texto): el vídeo sale de Higgsfield y de animar fotogramas de Muse Image.
+- Se llevan: video-3-min, anuncio y post-x (Día 8). **No hay modelo de vídeo de Meta en la API** (`muse-wonder-1.0` es texto) y **Higgsfield queda descartado** (D11): el vídeo sale de los clips reales, de los fondos del mundo de Peri y de animar fotogramas de Muse Image.
 
 ### Se llevan de antes
 - Con la persona: pruebas-mayores, voice-transcribe (voces reales), bases-y-dudas, peri-referencia-video y la entrega.
@@ -116,7 +116,7 @@ La app funciona, pero se ve estática y de plantilla, y Peri tiene poca vida. Or
 - [ ] (IMP-1) finetune-glimmer-2 — [M] evaluar el modelo afinado frente al baseline en el reservado — training/, eval/
 - [x] (IMP-1) denuncia-un-toque — [S] P2: informe para policía o 017 generado con Muse Spark — backend/src/investigator/ · hecho 2026-10-27: `POST /v1/report` + `ReportActivity`: declaración en primera persona y sin género, enlaces desactivados, «dónde llevarlo» fijo (017, comisaría; Report Fraud, FTC); probado con la API real
 - [x] (IMP-2) vineta-trampa — [S] P2: viñeta de 3 escenas con Muse Image tras una estafa — android/, assets/peri/ · hecho 2026-10-27: `TrapActivity`: 6 tipos × 3 viñetas de Muse Image (0,18 $), elegidas por las señales y la marca
-- [ ] (DIR) peri-referencia-video — [S] imagen de referencia de Peri y prueba de Higgsfield MCP — docs/demo/
+- [ ] (DIR) peri-referencia-video — [S] imagen de referencia de Peri para el vídeo (sin Higgsfield, D11) — docs/demo/
 - [x] (IMP-1) mira-esta-imagen — [M] Muse Spark multimodal + SAM 3.1 marcando QR o enlace — backend/src/models/, investigator/ · hecho 2026-10-27 (`POST /v1/picture`: Spark con imagen + SAM 3.1 para el QR; botón "Mira esta imagen" y compartir con Peri desde cualquier app; prueba real: timo 97 %, QR marcado)
 - [x] (IMP-1) glimmer-primera-opinion — [M] Glimmer como primera opinión privada en dudosos — backend/src/models/ · hecho 2026-10-27 (resuelta con Muse Spark Open en Baseten en lugar de Glimmer)
 - [x] (IMP-2) peri-estados-extra — [M] llamando, esperando a la familia, contenta (confeti) y dormida; vibraciones y sonidos suaves — android/.../ui/peri/ · hecho 2026-10-27: los estados ya estaban; `device/Haptics.kt` añade vibraciones por estado (sin sonidos, que asustan); comprobado en el registro de vibración de Android
@@ -132,7 +132,7 @@ La app funciona, pero se ve estática y de plantilla, y Peri tiene poca vida. Or
 ## Día 8 · 3 nov — demo
 - [x] (DIR) grabaciones-reales — [M] los 5 momentos grabados en emulador o móvil real — docs/demo/ · hecho 2026-10-27 a petición de la persona: 7 clips reales en dos emuladores, montados a 1080p con rótulos en inglés (`docs/demo/README.md`; los vídeos en `dist/demo/`, fuera del repo). Faltan la voz y la música, que van en el montaje final
 - [ ] (IMP-1) tunel-https — [S] **opcional** (27 oct, decisión de la persona): servidor con dirección HTTPS pública para probar en móviles reales fuera de casa. Preparado y probado hasta el último paso: backend con `PUBLIC_BASE_URL=https://rby.tailb6f848.ts.net TRUST_PROXY=1`, APK con `-Pfriendlypear.backendUrl=…` y la IP del cliente tomada de lo que añade el proxy. Falta solo aprobar Funnel en la cuenta de Tailscale (`tailscale funnel --bg 8711`). Los móviles no necesitan Tailscale. Sin túnel, la demo se graba con los dos emuladores — backend/src/main.ts, android/app/build.gradle.kts
-- [ ] (DIR) escenas-higgsfield — [M] escenas de historia con Higgsfield, rotuladas como generadas con IA — docs/demo/
+- [x] (DIR) escenas-higgsfield — [M] escenas de historia con Higgsfield, rotuladas como generadas con IA — docs/demo/ · descartada 2026-10-28 (D11): fondos del mundo de Peri en su lugar
 - [ ] (DIR) video-3-min — [M] montaje del vídeo de demo según `docs/VIDEO.md` — docs/demo/
 - [ ] (DIR) anuncio — [M] anuncio de 30–45 s vertical y cuadrado, ES/EN — docs/demo/
 - [ ] (DIR) post-x — [S] post con el anuncio para Most Viral — docs/demo/
@@ -170,3 +170,4 @@ La app funciona, pero se ve estática y de plantilla, y Peri tiene poca vida. Or
 - D8 (27 oct, decisión de la persona): la app tiene que verse **viva y llamativa** (colores vivos, fondo animado, fuentes propias, efectos, más apartados) y Peri, graciosa y con mucha más vida. Donde las reglas planas de diseño choquen con esto, manda D8, sin perder la letra grande, el contraste y la simpleza.
 - D9 (27 oct): prioridades de la ronda 2: simpleza, cómo se vende y seguridad. Público: todos.
 - D10 (27 oct): la API de Meta no tiene modelo de vídeo; `muse-wonder-1.0` (texto, más caro) solo para trabajo puntual, como proponer frases de Peri que luego se revisan.
+- D11 (28 oct, decisión de la persona): sin Higgsfield. "Podemos ir variando fondo": el mundo de Peri cambia de cielo con la hora y el estado, y de lugar cada día según la estación; esos mismos fondos sirven en el vídeo.

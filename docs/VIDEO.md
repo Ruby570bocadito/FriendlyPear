@@ -1,5 +1,7 @@
 # Vídeo de demo y anuncio
 
+> **28 oct (D11):** Higgsfield queda descartado. Las escenas de historia se sustituyen por los fondos del mundo de Peri (cielos y lugares que van cambiando, `docs/DISENO.md` §2) detrás de los clips reales. El guion se rehace con la persona en la tarea `r2-guion`; lo que sigue de Higgsfield es histórico.
+
 Dos piezas distintas:
 
 | Pieza | Para qué | Duración | Formato |
