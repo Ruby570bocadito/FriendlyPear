@@ -61,7 +61,7 @@ class PeriActivity : Activity() {
     private lateinit var tabs: TabBar
     private lateinit var home: LinearLayout
     private lateinit var pages: android.widget.FrameLayout
-    private lateinit var wordmark: TextView
+    private lateinit var wordmark: Wordmark
     private var diary: DiaryPage? = null
     private var learn: LearnPage? = null
     private var family: FamilyPage? = null
@@ -111,7 +111,8 @@ class PeriActivity : Activity() {
         said = TextView(this).apply {
             text = hub.lastSaid.ifEmpty { getString(R.string.peri_greeting) }
             sizeSp(SAID_SP)
-            typeface = weight(500)
+            // Her own voice: round Fredoka, like her name and her buttons.
+            typeface = Fonts.display(500)
             setTextColor(Palette.INK)
             setLineSpacing(0f, 1.15f)
             maxLines = 9
@@ -410,13 +411,7 @@ class PeriActivity : Activity() {
             })
         }
 
-        wordmark = TextView(this).apply {
-            text = getString(R.string.app_name)
-            sizeSp(TextSize.TITLE)
-            maxLines = 1
-            typeface = Fonts.display(700)
-            setTextColor(Palette.GREEN_DARK)
-        }
+        wordmark = Wordmark(this, getString(R.string.app_name))
         val spacer = View(this)
         val logo = ImageView(this).apply {
             setImageResource(R.mipmap.ic_launcher)
@@ -438,8 +433,7 @@ class PeriActivity : Activity() {
             addView(wordmark, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             // The name shrinks to fit beside the chip; if it still can't, Peri's round face stands in for it.
             wordmark.post {
-                wordmark.fitWidth(TextSize.TITLE, 17f)
-                if (wordmark.paint.measureText(wordmark.text.toString()) > wordmark.width) {
+                if (!wordmark.fits) {
                     wordmark.visibility = View.GONE
                     logo.visibility = View.VISIBLE
                     spacer.layoutParams = LinearLayout.LayoutParams(0, 0, 1f)
@@ -630,7 +624,7 @@ class PeriActivity : Activity() {
 
     /** By night the sky is dark: the name turns light, and so do the system bars' icons. */
     private fun applyTone(dark: Boolean) {
-        wordmark.setTextColor(if (dark) Palette.CREAM else Palette.GREEN_DARK)
+        wordmark.dark = dark
         val light = android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
         window.insetsController?.setSystemBarsAppearance(if (dark) 0 else light, light)
     }
@@ -664,7 +658,15 @@ class PeriActivity : Activity() {
             val now = android.os.SystemClock.uptimeMillis()
             val rushed = settingUp || now - lastSaidAt < QUICK_MS
             lastSaidAt = now
-            if (text.toString() != typed && animationsOn() && !rushed) type(text)
+            if (text.toString() != typed && animationsOn() && !rushed) {
+                type(text)
+                // The bubble puffs up a little from its tail, as if she took a breath to say it.
+                said.pivotX = said.width / 2f
+                said.pivotY = 0f
+                said.scaleX = 0.95f
+                said.scaleY = 0.95f
+                said.animate().scaleX(1f).scaleY(1f).setDuration(340).setInterpolator(android.view.animation.OvershootInterpolator(2.4f)).start()
+            }
             typed = text.toString()
         }
     }
@@ -675,30 +677,47 @@ class PeriActivity : Activity() {
     private var typing = Runnable { }
 
     /**
-     * Reveals [text] from the start, hiding the rest with a transparent colour so the bubble keeps its size and
-     * nothing jumps. TalkBack hears the whole sentence once, at the end.
+     * Reveals [text] word by word, each one fading in as if she were saying it. The words are all laid out from the
+     * start (only their transparency changes), so the bubble keeps its size and nothing jumps. TalkBack hears the whole
+     * sentence once, at the end.
      */
     private fun type(text: CharSequence) {
-        val total = text.length
-        if (total < 2) return
-        val step = maxOf(1, total / TYPE_STEPS)
-        var shown = 0
+        val words = Regex("\\S+").findAll(text).map { it.range }.toList()
+        if (words.size < 2) return
+        val spannable = android.text.SpannableString(text)
+        val spans = words.map { r -> FadeSpan(Palette.INK).also { spannable.setSpan(it, r.first, r.last + 1, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE) } }
         said.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_NONE
+        said.text = spannable
+        val start = android.os.SystemClock.uptimeMillis()
+        // About a word every 150 ms, a little ahead of her voice; a long sentence is all there in under four seconds.
+        val per = (WORDS_MS / words.size).coerceIn(80L, 160L)
         typing = object : Runnable {
             override fun run() {
-                shown = minOf(total, shown + step)
-                if (shown >= total) {
+                val t = android.os.SystemClock.uptimeMillis() - start
+                var done = true
+                spans.forEachIndexed { i, span ->
+                    span.alpha = ((t - i * per) * 255 / FADE_MS).coerceIn(0L, 255L).toInt()
+                    if (span.alpha < 255) done = false
+                }
+                said.invalidate()
+                if (done) {
                     said.accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
                     said.text = text
-                    return
+                } else {
+                    said.postOnAnimation(this)
                 }
-                said.text = android.text.SpannableString(text).apply {
-                    setSpan(android.text.style.ForegroundColorSpan(android.graphics.Color.TRANSPARENT), shown, total, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                }
-                said.postDelayed(this, TYPE_MS)
             }
         }
-        said.post(typing)
+        said.postOnAnimation(typing)
+    }
+
+    /** A word that fades in: only its colour's transparency changes, so the text is never measured again. */
+    private class FadeSpan(private val color: Int) : android.text.style.CharacterStyle(), android.text.style.UpdateAppearance {
+        var alpha = 0
+
+        override fun updateDrawState(paint: android.text.TextPaint) {
+            paint.color = (color and 0x00FFFFFF) or (alpha shl 24)
+        }
     }
 
     /** She glances towards a touch on the screen beside her. */
@@ -1444,6 +1463,7 @@ class PeriActivity : Activity() {
         }
         face.show(shown)
         if (::world.isInitialized) world.mood(shown)
+        if (::wordmark.isInitialized) wordmark.playful = shown != Mood.WORRIED && shown != Mood.PROTECTIVE
     }
 
     /** The microphone is asked the first time the person presses the button. */
@@ -1468,9 +1488,10 @@ class PeriActivity : Activity() {
         const val SPIN_SETTLE_MS = 950L
         const val YAWN_DELAY_MS = 700L
         const val CONGRATULATE_DELAY_MS = 1_800L
-        const val TYPE_MS = 22L
-        /** However long the sentence, it's all there in about this many steps (~2 s). */
-        const val TYPE_STEPS = 90
+        /** A sentence's words appear over about this long, a word every 80 to 160 ms. */
+        const val WORDS_MS = 3_600L
+        /** Each word fades in over this long. */
+        const val FADE_MS = 180L
         const val BUBBLE_SHARE = 0.19f
         /** A short sentence fills her bubble in big letters; a long one gets smaller, down to this. */
         const val SAID_MAX_SP = 23f
