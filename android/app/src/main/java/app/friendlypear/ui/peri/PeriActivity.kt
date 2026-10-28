@@ -1367,9 +1367,12 @@ class PeriActivity : Activity() {
         override fun callStarted() = voice.stop()
 
         override fun shieldEarned(total: Int) {
-            showShieldCount(total, pop = true)
+            // A scam just stopped earns one while she's warning about it: then the count only goes up, since her
+            // medal and stars would sound like a joke over "careful" (and held her umbrella back for two seconds).
+            val warning = hub.mood == Mood.PROTECTIVE || hub.mood == Mood.WORRIED
+            showShieldCount(total, pop = !warning)
             // A shield earned is worth a burst of stars.
-            face.stars()
+            if (!warning) face.stars()
         }
 
         override fun scamToReport() = showSetup()
