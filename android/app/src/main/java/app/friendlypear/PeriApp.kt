@@ -14,6 +14,8 @@ class PeriApp : Application() {
         app.friendlypear.ui.peri.Fonts.init(this)
         // The process starts with the phone (the message listener), so the daily check is set up again after a reboot.
         app.friendlypear.services.SummaryReceiver.schedule(this)
+        // The family's news reaches the phone with the app closed, from the system every 15 minutes.
+        app.friendlypear.services.FamilyJob.schedule(this)
     }
 
     /** A new language (from Settings, or the phone's) reaches Peri's voice without restarting the app. */

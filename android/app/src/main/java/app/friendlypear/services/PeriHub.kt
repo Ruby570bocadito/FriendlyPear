@@ -1,5 +1,6 @@
 package app.friendlypear.services
 
+import android.os.SystemClock
 import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
@@ -365,6 +366,8 @@ class PeriHub(context: Context) {
     }
 
     private var sharedKind = ""
+    private var lastPayload = ""
+    private var lastPublished = 0L
 
     /** While a stranger is on the line, a guardian may ask this Peri to hang up: she looks every few seconds. */
     private val hangUpWatch = object : Runnable {
@@ -388,6 +391,15 @@ class PeriHub(context: Context) {
         network.execute {
             val sent = pearClient.hangUp(pearId)
             main.post { done(sent) }
+        }
+    }
+
+    /** The family's news as notifications while the app is closed ([FamilyNotes]): a look every minute. */
+    val familyNotes = FamilyNotes(this.context) { pearClient }
+    private val familyLoop = object : Runnable {
+        override fun run() {
+            if (!appVisible && seesFamilyPears) network.execute { runCatching { familyNotes.look() } }
+            main.postDelayed(this, FAMILY_NOTES_MS)
         }
     }
 
@@ -415,6 +427,12 @@ class PeriHub(context: Context) {
         // or "call" while a stranger is on the line.
         val kind = pearKind()
         sharedKind = kind
+        // The same pear again within a few seconds (Peri says several sentences in a row) goes once.
+        val payload = listOf(name, outfit, role, state, kind).joinToString("|")
+        val now = SystemClock.elapsedRealtime()
+        if (payload == lastPayload && now - lastPublished < REPUBLISH_MS) return@post
+        lastPayload = payload
+        lastPublished = now
         waiting.execute {
             val sent = pearClient.publish(name, outfit, role, state, kind)
             Log.i(TAG, "pear published=$sent state=$state")
@@ -504,6 +522,7 @@ class PeriHub(context: Context) {
     val mood: Mood get() = agent.mood
 
     init {
+        main.postDelayed(familyLoop, FAMILY_NOTES_MS)
         apps.start()
         if (BuildConfig.DEBUG) registerDebugVoice()
     }
@@ -917,6 +936,8 @@ class PeriHub(context: Context) {
         const val SCAM_KIND_MS = 30 * 60_000L
         const val CHECK_POLL_MS = 10_000L
         const val HANGUP_POLL_MS = 6_000L
+        const val FAMILY_NOTES_MS = 60_000L
+        const val REPUBLISH_MS = 10_000L
         /** After this, a "was it you?" stops waiting for answers. */
         const val CHECK_MAX_MS = 10 * 60_000L
         /** After the first "it wasn't me", this long for anyone else to say it was them. */

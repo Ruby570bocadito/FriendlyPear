@@ -273,6 +273,7 @@
         <item>I can\'t keep up! You\'re a champion at this.</item>
         <item>Phew! Let me catch my breath. That was fun!</item>
     </string-array>
+    <string name="family_news_channel">Your family</string>
     <string name="guardian_channel">Family requests</string>
     <string name="guardian_title">%1$s is asking for your OK</string>
     <string name="guardian_send_code">They want to send %1$s a message with a code.</string>

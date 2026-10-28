@@ -140,6 +140,17 @@
             android:name=".services.SummaryReceiver"
             android:exported="false" />
 
+        <!-- The buttons on the family's notifications ("was it you?", "hang up their call"): only this app sends them. -->
+        <receiver
+            android:name=".services.FamilyActionReceiver"
+            android:exported="false" />
+
+        <!-- The family's news with the app closed; only the system may start it. -->
+        <service
+            android:name=".services.FamilyJob"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <activity
             android:name=".ui.peri.WelcomeActivity"
             android:exported="false" />

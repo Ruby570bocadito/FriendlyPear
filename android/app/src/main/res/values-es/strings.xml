@@ -272,6 +272,7 @@
         <item>¡No puedo seguirte el ritmo! Eres de campeonato.</item>
         <item>¡Uf! Déjame recuperar el aliento. ¡Qué divertido!</item>
     </string-array>
+    <string name="family_news_channel">Tu familia</string>
     <string name="guardian_channel">Peticiones de la familia</string>
     <string name="guardian_title">%1$s te pide permiso</string>
     <string name="guardian_send_code">Quiere mandar a %1$s un mensaje con un código.</string>
