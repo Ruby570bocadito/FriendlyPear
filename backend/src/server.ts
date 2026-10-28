@@ -9,6 +9,7 @@ import { type GuardianStore, readEvent } from "./guardians/store";
 import { investigate, readInvestigation } from "./investigator/investigate";
 import { type PearStore, readPear } from "./pears/store";
 import { ANSWERS, type CheckStore, KINDS as CHECK_KINDS } from "./checks/store";
+import type { HangUpStore } from "./pears/hangups";
 import { readInput, secondOpinion } from "./investigator/opinion";
 import { lookAtPicture, MAX_IMAGE_BASE64, readPicture } from "./investigator/picture";
 import { readReport, writeReport } from "./investigator/report";
@@ -73,6 +74,8 @@ export interface Services {
   pears?: PearStore | null;
   /** "Was it you?": questions between the family's phones about messages from new numbers. */
   checks?: CheckStore | null;
+  /** "Hang up their call": a guardian asks a family phone's Peri to end a stranger's call. */
+  hangups?: HangUpStore | null;
 }
 
 function sameSecret(req: Request, secret: string): boolean {
@@ -186,6 +189,7 @@ function routes(config: Config, services: Services) {
       devices!.revoke(me.id);
       services.pears?.forget(me.id);
       services.checks?.forget(me.id);
+      services.hangups?.forget(me.id);
       return json({ ok: true });
     }
 
@@ -199,6 +203,7 @@ function routes(config: Config, services: Services) {
       if (!fromAdmin(req, config)) return json({ error: "unauthorized" }, 401);
       services.pears?.forget(one[1]);
       services.checks?.forget(one[1]);
+      services.hangups?.forget(one[1]);
       return devices?.revoke(one[1]) ? json({ ok: true }) : json({ error: "not_found" }, 404);
     }
 
@@ -223,6 +228,28 @@ function routes(config: Config, services: Services) {
       const listed = services.pears.list().filter((p) => paired.has(p.device));
       const pears = listed.map(({ device, name, outfit, role, state, kind, updatedAt }) => ({ id: device, name, outfit, role, state, kind, updatedAt, self: device === me.id }));
       return json({ pears, campaign: services.pears.campaignAmong(paired) });
+    }
+
+    // "Hang up their call": only for another family phone whose pear shows a stranger's call right now (its person
+    // shares Peri's news). That phone's Peri takes the request once; nothing about the call travels.
+    const hangup = pathname.match(/^\/v1\/pears\/([A-Za-z0-9_-]{8,20})\/hangup$/);
+    if (hangup && req.method === "POST") {
+      const me = ownDevice(req, devices);
+      if (!me) return json({ error: "unauthorized" }, 401);
+      if (!services.pears || !services.hangups) return json({ error: "no_hangups" }, 503);
+      const target = hangup[1];
+      const paired = new Set(devices!.list().map((d) => d.id));
+      const pear = services.pears.list().find((p) => p.device === target);
+      if (target === me.id || !paired.has(target) || pear?.state !== "attention" || pear.kind !== "call") return json({ error: "no_call" }, 409);
+      if (!services.hangups.ask(target, me.id)) return json({ error: "already" }, 409);
+      return json({ ok: true }, 202);
+    }
+    if (pathname === "/v1/hangup" && req.method === "GET") {
+      const me = ownDevice(req, devices);
+      if (!me) return json({ error: "unauthorized" }, 401);
+      const found = services.hangups?.take(me.id);
+      const from = found ? (services.pears?.list().find((p) => p.device === found.from)?.name ?? "") : null;
+      return json({ from });
     }
 
     // "Was it you?": a phone asks the rest of the family about a message from a new number; each answers once.

@@ -10,7 +10,7 @@ import { dirname } from "node:path";
 import type { Lang } from "../approvals/store";
 
 export const CHANNELS = ["SMS", "WHATSAPP", "EMAIL", "BROWSER_NOTIFICATION"] as const;
-export const PAUSE_ANSWERS = ["call_family", "leave", "continue"] as const;
+export const PAUSE_ANSWERS = ["call_family", "hang_up", "leave", "continue"] as const;
 export const KEEP_MS = 30 * 24 * 60 * 60 * 1000;
 const MAX_EVENTS = 300;
 

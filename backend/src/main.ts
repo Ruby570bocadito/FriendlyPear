@@ -1,3 +1,4 @@
+import { HangUpStore } from "./pears/hangups";
 import { ApprovalStore } from "./approvals/store";
 import { loadConfig } from "./config";
 import { join } from "node:path";
@@ -26,7 +27,9 @@ const devices = new DeviceStore(Date.now, join(process.env.DATA_DIR ?? "data", "
 const pears = new PearStore(Date.now, join(process.env.DATA_DIR ?? "data", "pears.json"));
 // "Was it you?" questions between the family's phones: 15 minutes each, in memory only.
 const checks = new CheckStore();
-const handle = createHandler(config, { opinion, investigator, sam, voice, approvals, guardians, devices, pears, checks });
+// "Hang up their call" requests: two minutes each, in memory only.
+const hangups = new HangUpStore();
+const handle = createHandler(config, { opinion, investigator, sam, voice, approvals, guardians, devices, pears, checks, hangups });
 // Behind a tunnel or proxy (TRUST_PROXY=1) the client's IP is the one the proxy added; otherwise the socket's.
 const trustProxy = process.env.TRUST_PROXY === "1";
 const server = Bun.serve({
