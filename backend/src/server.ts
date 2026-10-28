@@ -8,6 +8,7 @@ import { guardianPage } from "./guardians/page";
 import { type GuardianStore, readEvent } from "./guardians/store";
 import { investigate, readInvestigation } from "./investigator/investigate";
 import { type PearStore, readPear } from "./pears/store";
+import { type BlockStore, readPrints } from "./pears/blocks";
 import { ANSWERS, type CheckStore, KINDS as CHECK_KINDS } from "./checks/store";
 import type { HangUpStore } from "./pears/hangups";
 import { readInput, secondOpinion } from "./investigator/opinion";
@@ -76,6 +77,8 @@ export interface Services {
   checks?: CheckStore | null;
   /** "Hang up their call": a guardian asks a family phone's Peri to end a stranger's call. */
   hangups?: HangUpStore | null;
+  /** Numbers blocked on one family phone, as fingerprints, so they protect the others too. */
+  blocks?: BlockStore | null;
 }
 
 function sameSecret(req: Request, secret: string): boolean {
@@ -198,6 +201,7 @@ function routes(config: Config, services: Services) {
       services.pears?.forget(me.id);
       services.checks?.forget(me.id);
       services.hangups?.forget(me.id);
+      services.blocks?.forget(me.id);
       return json({ ok: true });
     }
 
@@ -212,6 +216,7 @@ function routes(config: Config, services: Services) {
       services.pears?.forget(one[1]);
       services.checks?.forget(one[1]);
       services.hangups?.forget(one[1]);
+      services.blocks?.forget(one[1]);
       return devices?.revoke(one[1]) ? json({ ok: true }) : json({ error: "not_found" }, 404);
     }
 
@@ -258,6 +263,27 @@ function routes(config: Config, services: Services) {
       const found = services.hangups?.take(me.id);
       const from = found ? (services.pears?.list().find((p) => p.device === found.from)?.name ?? "") : null;
       return json({ from });
+    }
+
+    // Numbers blocked on one phone protect the whole family: each phone sends fingerprints of its own (HMAC-SHA256 under
+    // the family's salt, computed on the phone) and gets the salt and the others' fingerprints, never whose they are.
+    if (pathname === "/v1/blocks" && req.method === "GET") {
+      const me = ownDevice(req, devices);
+      if (!me) return json({ error: "unauthorized" }, 401);
+      if (!services.blocks) return json({ error: "no_blocks" }, 503);
+      const paired = new Set(devices!.list().map((d) => d.id));
+      return json({ salt: services.blocks.salt, prints: services.blocks.othersOf(me.id, paired) });
+    }
+    if (pathname === "/v1/blocks/self" && req.method === "PUT") {
+      const me = ownDevice(req, devices);
+      if (!me) return json({ error: "unauthorized" }, 401);
+      if (!services.blocks) return json({ error: "no_blocks" }, 503);
+      const body = await readJson(req);
+      if (body instanceof Response) return body;
+      const prints = readPrints(body);
+      if (typeof prints === "string") return json({ error: "bad_request", detail: prints }, 400);
+      services.blocks.put(me.id, prints);
+      return json({ ok: true });
     }
 
     // "Was it you?": a phone asks the rest of the family about a message from a new number; each answers once.
