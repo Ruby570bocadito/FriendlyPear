@@ -1001,15 +1001,17 @@ class PeriHub(context: Context) {
     /**
      * "Look at this picture": Muse Spark and SAM 3.1 through the backend. A scam or a doubt makes the next money
      * app pause, like a scam message would. [done] gets null if anything failed; the picture is never kept.
+     * [risky]: the phone itself already found something wrong in it (a QR trap), so that pause comes whatever the
+     * model says, or if it can't be reached.
      */
-    fun lookAtPicture(jpegBase64: String, done: (PictureVerdict?) -> Unit) {
+    fun lookAtPicture(jpegBase64: String, risky: Boolean, done: (PictureVerdict?) -> Unit) {
         uses.add(UseLog.Kind.PICTURE)
         earn(Shields.Kind.ASKED)
         waiting.execute {
             val verdict = pictures.look(jpegBase64, lang)
             main.post {
-                Log.i(TAG, "picture verdict=${verdict?.verdict ?: "none"} marks=${verdict?.marks?.size ?: 0}")
-                if (verdict != null && verdict.verdict != "ok") {
+                Log.i(TAG, "picture verdict=${verdict?.verdict ?: "none"} marks=${verdict?.marks?.size ?: 0} risky=$risky")
+                if (risky || verdict != null && verdict.verdict != "ok") {
                     agent.onOutsideWarning()
                     watchApps()
                 }

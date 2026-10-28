@@ -18,6 +18,13 @@ import android.widget.TextView
 import app.friendlypear.PeriApp
 import app.friendlypear.R
 import app.friendlypear.core.agent.Mood
+import app.friendlypear.core.model.Level
+import app.friendlypear.core.shield.QrAction
+import app.friendlypear.core.shield.QrJudgement
+import app.friendlypear.core.shield.QrRisk
+import app.friendlypear.core.shield.QrTraps
+import app.friendlypear.device.QrReader
+import app.friendlypear.net.PictureMark
 import app.friendlypear.net.PictureVerdict
 import app.friendlypear.services.PeriView
 import java.io.ByteArrayOutputStream
@@ -111,17 +118,26 @@ class PictureActivity : Activity() {
         face.show(Mood.THINKING)
         said.text = getString(R.string.picture_looking)
         picture.show(null)
+        shown = null
+        // Only the latest picture answers: an earlier one's late verdict never lands on this one.
+        val turn = ++looks
         val hub = PeriApp.hub(this)
         work.execute {
             val bitmap = runCatching { load(uri) }.getOrNull()
+            // Its QR codes, read and judged here, never opened: what they hold is decided before any model looks.
+            val codes = bitmap?.let { QrReader.read(it) }.orEmpty().map { it to QrTraps.judge(it.text) }
             runOnUiThread {
-                if (bitmap == null) return@runOnUiThread answer(null)
+                if (turn != looks) return@runOnUiThread
+                if (bitmap == null) return@runOnUiThread answer(null, emptyList())
                 shown = bitmap
                 picture.show(bitmap)
-                hub.lookAtPicture(jpeg(bitmap)) { verdict -> if (!isFinishing) answer(verdict) }
+                val risky = codes.any { it.second.risks.isNotEmpty() }
+                hub.lookAtPicture(jpeg(bitmap), risky) { verdict -> if (!isFinishing && turn == looks) answer(verdict, codes) }
             }
         }
     }
+
+    private var looks = 0
 
     /** At most 1280 px on the long side, upright: about 1,400 tokens for Muse Spark, sharp enough for a QR code. */
     private fun load(uri: Uri): Bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri)) { decoder, info, _ ->
@@ -138,37 +154,90 @@ class PictureActivity : Activity() {
         Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
     }
 
-    /** Peri's own sentence: the verdict, then what not to do for each kind of risk she saw. */
-    private fun answer(v: PictureVerdict?) {
-        val text: String
-        val mood: Mood
-        if (v == null) {
-            text = getString(R.string.picture_failed)
-            mood = Mood.CALM
-        } else {
-            val donts = v.kinds.mapNotNull { DONTS[it] }.map { getString(it) }
-            val marked = if (v.marks.isNotEmpty()) " " + getString(R.string.picture_marked) else ""
-            when (v.verdict) {
-                "scam" -> {
-                    text = (listOf(getString(R.string.picture_scam)) + donts).joinToString(" ") + marked + " " + getString(R.string.picture_check_yourself)
-                    mood = Mood.PROTECTIVE
-                }
-                "ok" -> {
-                    text = getString(R.string.picture_ok)
-                    mood = Mood.HAPPY
-                }
-                else -> {
-                    text = (listOf(getString(R.string.picture_doubt)) + donts).joinToString(" ") + marked + " " + getString(R.string.picture_ask_family)
-                    mood = Mood.WORRIED
-                }
-            }
-            picture.show(shown, v.marks.map { it to getString(LABELS[it.kind] ?: R.string.picture_label_risk) })
+    /**
+     * Peri's own sentence, danger first: the verdict, what the picture's QR codes would do (judged on the phone, the
+     * worst one speaking for them), what not to do for each kind of risk seen, and the next step. A QR code can make
+     * the verdict worse, never better: one that looks fine is mentioned only when the rest does too. With no model at
+     * hand (offline, say) what the codes hold still stands.
+     */
+    private fun answer(v: PictureVerdict?, codes: List<Pair<QrReader.Found, QrJudgement>>) {
+        val qr = codes.maxByOrNull { it.second.level }?.second
+        val seen = when (v?.verdict) {
+            null -> null
+            "scam" -> Level.SCAM
+            "ok" -> Level.OK
+            else -> Level.DOUBT
         }
+        val overall = listOfNotNull(seen, qr?.level).maxOrNull()
+        val worried = seen == Level.SCAM || seen == Level.DOUBT
+        val parts = mutableListOf<String>()
+        if (overall == Level.SCAM) parts += getString(R.string.picture_scam)
+        else if (worried) parts += getString(R.string.picture_doubt)
+        if (qr != null && (qr.level != Level.OK || !worried)) parts += when {
+            codes.size == 1 -> getString(R.string.qr_found) + " " + qrSentence(qr)
+            qr.level == Level.OK -> getString(R.string.qr_many_ok)
+            else -> getString(R.string.qr_found_many) + " " + qrSentence(qr)
+        }
+        // A trap code has already been told not to be scanned.
+        if (worried) parts += v?.kinds.orEmpty().filter { !(it == "qr" && qr?.level == Level.SCAM) }.mapNotNull { DONTS[it] }.map { getString(it) }
+        // The rings: the phone's own on its codes (those worth one, or all of them if the model worried about a
+        // code), the model's for the rest, except where it ringed a code the phone has ringed already.
+        val flagged = v != null && ("qr" in v.kinds || v.marks.any { it.kind == "qr" })
+        val ours = codes.filter { (_, j) -> j.level != Level.OK || flagged }.map { (found, j) ->
+            found.mark to getString(if (j.level == Level.SCAM) R.string.qr_label_trap else R.string.picture_label_qr)
+        }
+        val theirs = v?.marks.orEmpty().filter { m -> m.kind != "qr" || codes.none { it.first.mark.overlaps(m) } }
+            .map { it to getString(LABELS[it.kind] ?: R.string.picture_label_risk) }
+        val rings = ours + theirs
+        if (rings.isNotEmpty() && (overall == Level.SCAM || overall == Level.DOUBT)) parts += getString(R.string.picture_marked)
+        parts += getString(when {
+            v == null -> if (codes.isEmpty()) R.string.picture_failed else R.string.picture_only_qr
+            overall == Level.SCAM -> R.string.picture_check_yourself
+            overall == Level.DOUBT -> R.string.picture_ask_family
+            else -> R.string.picture_ok
+        })
+        val text = parts.joinToString(" ")
+        val mood = when {
+            overall == Level.SCAM -> Mood.PROTECTIVE
+            overall == Level.DOUBT -> Mood.WORRIED
+            seen == Level.OK -> Mood.HAPPY
+            else -> Mood.CALM
+        }
+        picture.show(shown, rings)
         face.show(mood)
         said.text = text
         mine = text
         PeriApp.hub(this).say(text)
     }
+
+    /** What a QR code would do, in Peri's words: never its address or its number. */
+    private fun qrSentence(j: QrJudgement): String {
+        val risks = j.risks
+        val scam = j.level == Level.SCAM
+        return when {
+            QrRisk.RUNS_CODE in risks -> getString(R.string.qr_run_code)
+            QrRisk.REMOTE_APP in risks -> getString(R.string.qr_remote_app)
+            QrRisk.INSTRUCTIONS in risks -> getString(R.string.qr_instructions)
+            QrRisk.PREMIUM_NUMBER in risks -> getString(R.string.qr_premium)
+            QrRisk.FAKE_CONTACT in risks -> getString(R.string.qr_fake_contact)
+            scam && j.brand != null -> getString(R.string.qr_website_scam, j.brand)
+            scam && (j.action == QrAction.WEBSITE || QrRisk.LOOKALIKE in risks) -> getString(R.string.qr_website_disguised)
+            scam -> getString(R.string.qr_hidden)
+            else -> getString(when (j.action) {
+                QrAction.WEBSITE -> if (risks.isEmpty()) R.string.qr_website_ok else R.string.qr_website_doubt
+                QrAction.TEXT_MESSAGE -> R.string.qr_message
+                QrAction.CALL -> R.string.qr_call
+                QrAction.WIFI -> R.string.qr_wifi
+                QrAction.CONTACT -> R.string.qr_contact
+                QrAction.APP -> R.string.qr_app
+                QrAction.EMAIL -> R.string.qr_email
+                else -> if (QrRisk.SCAM_WORDS in risks) R.string.qr_text_scam else R.string.qr_text_ok
+            })
+        }
+    }
+
+    /** Two rings over the same spot. */
+    private fun PictureMark.overlaps(o: PictureMark) = x1 < o.x2 && o.x1 < x2 && y1 < o.y2 && o.y1 < y2
 
     /** Peri on this screen is still Peri: a warning that arrives meanwhile (a scam text, a call) shows here too. */
     private val view = object : PeriView {

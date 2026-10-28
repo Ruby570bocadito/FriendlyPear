@@ -52,4 +52,6 @@ android {
 
 dependencies {
     implementation("app.friendlypear:core:0.1.0")
+    // Reads QR codes in a picture on the phone, offline (Apache License 2.0).
+    implementation("com.google.zxing:core:3.5.4")
 }
