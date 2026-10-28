@@ -64,6 +64,17 @@ export const FRAMES: Record<string, string> = {
   stepright: "Only change: Peri lifts the foot on the right side of the image a little off the ground, that leg slightly bent at the knee, as if taking a small cheerful step; the other foot stays flat on the ground. Head, body, arms, face, props and position stay exactly the same.",
 };
 
+/**
+ * Gestures for a pose whose two hands are both busy: "raise the free hand" drew a third one on the umbrella pose, so
+ * here the gesture is made with what each hand already holds.
+ */
+export const BUSY_HANDS: Record<string, Record<string, string>> = {
+  protective: {
+    gesturea: "Change: Peri is talking with a friendly open mouth. The hand on the left side of the image, which holds the small message card, lifts the card up to chest height as if showing it; the card stays in that same hand on the left side. The hand on the right side of the image keeps holding the umbrella handle exactly as before. She has exactly two arms and two hands. Same face style, eyes, props, framing, size and position.",
+    gestureb: "Change: Peri is talking with a friendly open mouth and tilts the open umbrella slightly to one side, still holding its handle with the same hand; her other hand keeps holding the small message card. She has exactly two arms and two hands. Same face style, eyes, props, framing, size and position.",
+  },
+};
+
 /** Illustrations made from one state, for the app icon and the screens around Peri. */
 export const EXTRAS: Record<string, { from: string; prompt: string }> = {
   icon: { from: "calm", prompt: "Close-up of Peri's head only: the face large and centred, filling most of the image, warm smile, leaf on top, no arms, no legs, no props." },
@@ -188,7 +199,8 @@ if (framesMode) {
     for (const [frame, plain] of Object.entries(FRAMES)) {
       if (pickedFrames && !pickedFrames.includes(frame)) continue;
       // A worried Peri talks worried: the wide mouth otherwise comes out as a happy grin.
-      const change = state === "worried" ? `${plain.replace("happy rounded", "concerned rounded")} Keep the worried eyebrows and the concerned look; she is not smiling.` : plain;
+      const own = BUSY_HANDS[state]?.[frame] ?? plain;
+      const change = state === "worried" ? `${own.replace("happy rounded", "concerned rounded")} Keep the worried eyebrows and the concerned look; she is not smiling.` : own;
       // Gestures change the arms on purpose: they keep everything but the pose.
       const keep = frame.startsWith("gesture") ? "Same image: same character, same framing, same size and position, same background and props." : "Exactly the same image: same character, same pose, same framing, same size and position, same background and props.";
       const prompt = `${keep} ${change} ${STYLE}`;
