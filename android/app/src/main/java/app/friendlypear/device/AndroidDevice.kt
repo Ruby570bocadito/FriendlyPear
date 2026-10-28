@@ -33,7 +33,7 @@ class AndroidDevice(
     /** When the voice really starts playing: some engines report "done" early, so the mouth follows this too. */
     private val onSpeechStart: () -> Unit = {},
     private val ask: (Capability, (Boolean) -> Unit) -> Unit,
-    private val pause: (text: String, callName: String?, hangUp: Boolean) -> Unit = { _, _, _ -> },
+    private val pause: (text: String, callName: String?, hangUp: Boolean, keep: Boolean) -> Unit = { _, _, _, _ -> },
     /** Right after Peri places a call, so Mini Peri can stay beside the call screen. */
     private val onCalling: () -> Unit = {},
     /** Each call, text and location share, for the person's own log ("What Peri did"). */
@@ -41,8 +41,8 @@ class AndroidDevice(
 ) : DevicePort {
     override fun prepare(capability: Capability, then: (Boolean) -> Unit) = ask(capability, then)
 
-    override fun showPause(text: String, callName: String?, hangUp: Boolean) {
-        main.post { pause(text, callName, hangUp) }
+    override fun showPause(text: String, callName: String?, hangUp: Boolean, keep: Boolean) {
+        main.post { pause(text, callName, hangUp, keep) }
     }
 
     /** Ends the call on the line: Android's permission to end calls is asked with the one to see calls. */

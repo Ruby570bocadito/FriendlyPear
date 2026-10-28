@@ -194,7 +194,7 @@ class PeriHub(context: Context) {
             views.forEach { it.speaking(true) }
         },
         ask = { capability, then -> permissions.ask(Need.of(capability), then) },
-        pause = { text, callName, hangUp -> pauseScreen.show(text, callName, hangUp) },
+        pause = { text, callName, hangUp, keep -> pauseScreen.show(text, callName, hangUp, keep) },
         onCalling = { miniBesideCall() },
         onUse = { kind, phone ->
             uses.add(kind, phone)
@@ -217,9 +217,10 @@ class PeriHub(context: Context) {
                     earn(Shields.Kind.FAMILY)
                     diary.add(app.friendlypear.config.Diary.Kind.FAMILY_CALLED)
                 }
-                PauseAnswer.HANG_UP, PauseAnswer.CONTINUE -> Unit
+                PauseAnswer.HANG_UP, PauseAnswer.KEEP_CALL, PauseAnswer.CONTINUE -> Unit
             }
-            share(NewsEntry(System.currentTimeMillis(), "pause", answer = answer.name.lowercase()))
+            // Keeping a call isn't a safety pause the family follows: only the pause's own answers are shared.
+            if (answer != PauseAnswer.KEEP_CALL) share(NewsEntry(System.currentTimeMillis(), "pause", answer = answer.name.lowercase()))
         }
     }
 
@@ -263,6 +264,7 @@ class PeriHub(context: Context) {
         main.post {
             Log.i(TAG, "call active=$active answered=$answered")
             callActive = active
+            if (!active) pauseScreen.callEnded()
             if (active) views.forEach { it.callStarted() }
             agent.onCallStateChanged(active, answered)
             views.forEach { it.mood(mood) }
@@ -378,7 +380,13 @@ class PeriHub(context: Context) {
                 main.post {
                     if (from != null) {
                         Log.i(TAG, "a guardian asked to hang up")
-                        agent.onFamilyHangUp(from.ifEmpty { context.getString(R.string.check_someone) })
+                        val name = from.ifEmpty { context.getString(R.string.check_someone) }
+                        if (agent.onFamilyHangUp(name)) main.postDelayed({
+                            // Hung up with the app out of sight: a notification says who asked, so it's never a mystery.
+                            if (agent.onFamilyHangUpDue() && !appVisible) {
+                                familyNotes.notify(FamilyNotes.HUNG_UP_ID, context.getString(R.string.family_hung_up_title, name), context.getString(R.string.family_hung_up_text), app.friendlypear.ui.peri.Palette.CORAL_INK)
+                            }
+                        }, HANGUP_WAIT_MS)
                     }
                 }
             }
@@ -395,13 +403,23 @@ class PeriHub(context: Context) {
     }
 
     /** The family's news as notifications while the app is closed ([FamilyNotes]): a look every minute. */
-    val familyNotes = FamilyNotes(this.context) { pearClient }
+    val familyNotes = FamilyNotes(this.context, { pearClient }) { name -> phoneOf(name) }
     private val familyLoop = object : Runnable {
         override fun run() {
             if (!appVisible && seesFamilyPears) network.execute { runCatching { familyNotes.look() } }
             main.postDelayed(this, FAMILY_NOTES_MS)
         }
     }
+
+    /** A family member's number from the saved contacts, by the name their pear goes by ("Mamá" or "Mama"). */
+    private fun phoneOf(name: String): String? {
+        val key = plain(name)
+        if (key.isEmpty()) return null
+        return contacts.orEmpty().firstOrNull { plain(it.name) == key }?.phones?.firstOrNull()
+    }
+
+    private fun plain(name: String): String =
+        java.text.Normalizer.normalize(name.lowercase().trim(), java.text.Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "")
 
     /** Numbers the person blocked from a scam's card. */
     val blocked = app.friendlypear.config.BlockList(this.context)
@@ -500,6 +518,7 @@ class PeriHub(context: Context) {
                 val someone = context.getString(R.string.check_someone)
                 when {
                     me != null -> tell(context.getString(R.string.check_result_me, me.name.ifEmpty { someone }))
+                    result?.gone == true -> tell(context.getString(R.string.check_result_silence))
                     result != null && result.asked > 0 && noes.size >= result.asked -> tell(context.getString(R.string.check_result_none))
                     question.firstNo > 0 && now - question.firstNo > CHECK_GRACE_MS ->
                         tell(context.getString(R.string.check_result_named, noes.joinToString(", ") { it.name.ifEmpty { someone } }))
@@ -907,6 +926,10 @@ class PeriHub(context: Context) {
                 intent.getStringExtra("text")?.let { heard(it) }
                 intent.getStringExtra("installed")?.let { onAppInstalled(it) }
                 intent.getStringExtra("opened")?.let { onAppOpened(it) }
+                // An email as its notification reaches Peri: "--es email 'sender|subject. text'" (no Gmail account here).
+                intent.getStringExtra("email")?.split("|", limit = 2)?.takeIf { it.size == 2 }?.let { (sender, text) ->
+                    onMessage(IncomingMessage(Channel.EMAIL, sender, text, System.currentTimeMillis()))
+                }
                 // A website's notice through Chrome: "--es web 'site|title|text'".
                 intent.getStringExtra("web")?.split("|", limit = 3)?.takeIf { it.size == 3 }?.let { (site, title, text) ->
                     val now = System.currentTimeMillis()
@@ -936,6 +959,8 @@ class PeriHub(context: Context) {
         const val SCAM_KIND_MS = 30 * 60_000L
         const val CHECK_POLL_MS = 10_000L
         const val HANGUP_POLL_MS = 6_000L
+        /** Three seconds for "keep talking", and a moment for Peri to say it. */
+        const val HANGUP_WAIT_MS = 6_000L
         const val FAMILY_NOTES_MS = 60_000L
         const val REPUBLISH_MS = 10_000L
         /** After this, a "was it you?" stops waiting for answers. */

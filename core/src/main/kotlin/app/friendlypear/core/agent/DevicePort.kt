@@ -28,15 +28,16 @@ interface DevicePort {
 
     /**
      * Stops the person for a moment over the app they just opened: Peri's [text], a button to call [callName]
-     * if there is someone to check with, a big "hang up" while a stranger is on the line ([hangUp]), "leave this
-     * app" and, after a few seconds, "continue anyway". The answer comes back through [PeriAgent.onPauseAnswer].
-     * Without a screen to show it on, Peri only speaks.
+     * if there is someone to check with, a big "hang up" while a stranger is on the line ([hangUp]), "keep talking"
+     * when the family asked Peri to hang up ([keep]: three seconds to say no), "leave this app" and, after a few
+     * seconds, "continue anyway". The answer comes back through [PeriAgent.onPauseAnswer]. Without a screen to show
+     * it on, Peri only speaks.
      */
-    fun showPause(text: String, callName: String?, hangUp: Boolean = false) = Unit
+    fun showPause(text: String, callName: String?, hangUp: Boolean = false, keep: Boolean = false) = Unit
 }
 
 /** What the person chose on the safety pause. */
-enum class PauseAnswer { CALL_FAMILY, HANG_UP, LEAVE, CONTINUE }
+enum class PauseAnswer { CALL_FAMILY, HANG_UP, KEEP_CALL, LEAVE, CONTINUE }
 
 /** What happened a moment ago that makes Peri pause the person: a scam, a doubtful message, a stranger's call, a picture. */
 enum class RecentKind { SCAM, DOUBT, CALL, PICTURE }

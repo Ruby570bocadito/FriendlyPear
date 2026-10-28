@@ -86,6 +86,7 @@
     <string name="pause_call">Call %1$s</string>
     <string name="pause_leave">Leave this app</string>
     <string name="pause_hang_up">Hang up</string>
+    <string name="pause_keep">Keep talking</string>
     <string name="pause_continue">Continue anyway</string>
     <string name="pause_continue_in">Continue anyway (%1$d)</string>
     <string name="share_news">Let my guardians see Peri\'s news</string>
@@ -274,6 +275,10 @@
         <item>Phew! Let me catch my breath. That was fun!</item>
     </string-array>
     <string name="family_news_channel">Your family</string>
+    <string name="family_hung_up_title">%1$s asked Peri to hang up a call</string>
+    <string name="family_hung_up_text">It was a number you don\'t know. Peri hung up for you.</string>
+    <string name="family_notify_public">News from your family</string>
+    <string name="family_notify_call">Call</string>
     <string name="guardian_channel">Family requests</string>
     <string name="guardian_title">%1$s is asking for your OK</string>
     <string name="guardian_send_code">They want to send %1$s a message with a code.</string>

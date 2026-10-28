@@ -24,7 +24,7 @@ private class Line(var canHangUp: Boolean = true) : DevicePort {
     }
     override fun sendSms(phone: String, text: String) = Unit
     override fun lastKnownLocation(): String? = null
-    override fun showPause(text: String, callName: String?, hangUp: Boolean) {
+    override fun showPause(text: String, callName: String?, hangUp: Boolean, keep: Boolean) {
         pauses += hangUp
     }
 }
@@ -76,9 +76,26 @@ class BusyLineTest {
         a.onCallStateChanged(active = false)
         a.onIncomingCall("+34 699 000 111")
         a.onCallStateChanged(active = true, answered = true)
-        a.onFamilyHangUp("Ana")
+        assertTrue(a.onFamilyHangUp("Ana"))
+        // Three seconds to keep talking first: nothing is hung up yet.
+        assertEquals(0, d.hungUp)
+        assertTrue(d.said.last().contains("Cuelgo en tres segundos"))
+        assertTrue(a.onFamilyHangUpDue())
         assertEquals(1, d.hungUp)
         assertTrue(d.said.last().contains("Ana me ha pedido que cuelgue esta llamada"))
+    }
+
+    @Test
+    fun `the person can keep talking when the family asks to hang up`() {
+        val d = Line()
+        val a = agent(d, Lang.EN)
+        a.onIncomingCall("+34 699 000 111")
+        a.onCallStateChanged(active = true, answered = true)
+        a.onFamilyHangUp("Ana")
+        a.onPauseAnswer(PauseAnswer.KEEP_CALL)
+        assertTrue(!a.onFamilyHangUpDue())
+        assertEquals(0, d.hungUp)
+        assertTrue(d.said.last().contains("keep talking"))
     }
 
     @Test
@@ -88,8 +105,9 @@ class BusyLineTest {
         a.onIncomingCall("+34 699 000 111")
         a.onCallStateChanged(active = true, answered = true)
         a.onFamilyHangUp("Ana")
+        a.onFamilyHangUpDue()
         assertTrue(d.said.last().contains("Ana asks you to hang up now"))
-        assertEquals(listOf(true), d.pauses)
+        assertEquals(listOf(true, true), d.pauses)
         a.onPauseAnswer(PauseAnswer.HANG_UP)
         assertTrue(d.said.last().contains("Press the red button"))
     }

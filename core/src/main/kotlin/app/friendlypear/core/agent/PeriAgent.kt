@@ -89,6 +89,9 @@ class PeriAgent(
     private var pending: Pending? = null
     private var callActive = false
     private var strangeCall: StrangeCall? = null
+    /** The family member who asked Peri to hang up, while the person has three seconds to keep talking. */
+    private var hangUpAsked: String? = null
+
     /** A call Peri was asked for while the line was busy: it goes out when that call ends. */
     private var afterCall: Action.Call? = null
     private var lastSaid = ""
@@ -194,7 +197,13 @@ class PeriAgent(
                 pending = null
                 perform(it.action)
             }
+            PauseAnswer.KEEP_CALL -> {
+                val guardian = hangUpAsked ?: return
+                hangUpAsked = null
+                say(p.keptCall(guardian), Mood.CALM)
+            }
             PauseAnswer.HANG_UP -> {
+                hangUpAsked = null
                 if (offered != null) pending = null
                 if (device.hangUp()) say(p.hungUp, Mood.HAPPY) else say(p.hangUpYourself, Mood.PROTECTIVE)
             }
@@ -213,11 +222,27 @@ class PeriAgent(
      * A guardian asked this Peri to hang up: they saw her pear on a call with a number that isn't in the contacts.
      * Only such a call, never one with family or friends; if the phone won't let Peri, she asks the person to.
      */
-    fun onFamilyHangUp(guardian: String) {
-        if (!callActive || strangeCall == null) return
-        if (device.hangUp()) return say(p.familyHungUp(guardian), Mood.PROTECTIVE)
+    fun onFamilyHangUp(guardian: String): Boolean {
+        if (!callActive || strangeCall == null || hangUpAsked != null) return false
+        // Never behind the person's back: Peri says who asks and waits three seconds, with "keep talking" on screen.
+        hangUpAsked = guardian
+        say(p.familyWillHangUp(guardian), Mood.PROTECTIVE)
+        device.showPause(lastSaid, null, hangUp = true, keep = true)
+        return true
+    }
+
+    /** Three seconds after [onFamilyHangUp]: unless the person chose to keep talking, Peri hangs up. True if she did. */
+    fun onFamilyHangUpDue(): Boolean {
+        val guardian = hangUpAsked ?: return false
+        hangUpAsked = null
+        if (!callActive || strangeCall == null) return false
+        if (device.hangUp()) {
+            say(p.familyHungUp(guardian), Mood.PROTECTIVE)
+            return true
+        }
         say(p.familyAsksHangUp(guardian), Mood.PROTECTIVE)
         device.showPause(lastSaid, null, hangUp = true)
+        return false
     }
 
     /** Before picking up: warns when the number isn't in the contacts. Never answers the call. */

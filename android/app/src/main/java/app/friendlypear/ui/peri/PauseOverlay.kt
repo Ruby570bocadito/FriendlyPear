@@ -27,8 +27,21 @@ class PauseOverlay(context: Context, private val onAnswer: (PauseAnswer) -> Unit
     private val windows = this.context.getSystemService(WindowManager::class.java)
     private val main = Handler(Looper.getMainLooper())
     private var shown: View? = null
+    /** Shown about the call on the line (its "hang up" button): it goes when that call ends. */
+    private var forCall = false
 
-    fun show(text: String, callName: String?, hangUp: Boolean = false) {
+    fun show(text: String, callName: String?, hangUp: Boolean = false, keep: Boolean = false) {
+        showing(text, callName, hangUp, keep)
+        forCall = hangUp
+    }
+
+    /** The call ended (hung up by Peri, by the person or by the caller): a pause about it has nothing left to do. */
+    fun callEnded() {
+        if (forCall) hide()
+        forCall = false
+    }
+
+    private fun showing(text: String, callName: String?, hangUp: Boolean, keep: Boolean) {
         if (!Settings.canDrawOverlays(context)) return
         hide()
         val c = context
@@ -65,6 +78,18 @@ class PauseOverlay(context: Context, private val onAnswer: (PauseAnswer) -> Unit
                 buttonParams(80, top = 18),
             )
         }
+        // The family asked Peri to hang up: "keep talking" stays the person's choice, right under it.
+        if (keep) {
+            root.addView(
+                Pill(c, c.getString(R.string.pause_keep), R.drawable.ic_call, primary = false).apply {
+                    setOnClickListener { answer(PauseAnswer.KEEP_CALL) }
+                },
+                buttonParams(64, top = 12),
+            )
+            windows.addView(root, overlayParams())
+            shown = root
+            return
+        }
         if (callName != null) {
             root.addView(
                 Pill(c, c.getString(R.string.pause_call, callName), R.drawable.ic_family, primary = true).apply {
@@ -96,16 +121,17 @@ class PauseOverlay(context: Context, private val onAnswer: (PauseAnswer) -> Unit
         root.addView(carryOn, buttonParams(56, top = 4))
         countdown(carryOn, WAIT_SECONDS)
 
-        val params = WindowManager.LayoutParams(
+        windows.addView(root, overlayParams())
+        shown = root
+    }
+
+    private fun overlayParams() = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSLUCENT,
         )
-        windows.addView(root, params)
-        shown = root
-    }
 
     fun hide() {
         main.removeCallbacksAndMessages(null)
