@@ -223,6 +223,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         shown = mood
         action = null
         frames = FRAMES.getValue(mood)
+        outfitLayer.base = frames.still
         outfitLayer.anchor = frames.still
         contentDescription = context.getString(DESCRIPTIONS.getValue(mood))
         // Only this mood's frames stay in memory: each is a full-quality illustration.
@@ -303,6 +304,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         posing = true
         action = null
         front.setImageDrawable(decode(res))
+        outfitLayer.base = res
         outfitLayer.anchor = res
         popStart = SystemClock.uptimeMillis()
         if (moves) when (moment) {
@@ -321,6 +323,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
 
     private val endPose = Runnable {
         posing = false
+        outfitLayer.base = frames.still
         outfitLayer.anchor = frames.still
         put(frames.still)
     }
@@ -361,6 +364,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
         val waving = shown == Mood.CALM && (res == R.drawable.peri_calm_wave1 || res == R.drawable.peri_calm_wave2)
         if (fading || posing || (res !in frames.all && !waving)) return
         front.setImageDrawable(drawable(res))
+        // Each frame places her outfit from its own eyes: a step or a gesture moves her a little.
+        outfitLayer.anchor = res
     }
 
     private val mouth = object : Runnable {
