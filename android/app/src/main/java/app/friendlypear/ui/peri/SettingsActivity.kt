@@ -217,9 +217,12 @@ class SettingsActivity : Activity() {
             }
         }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
 
-        // More from Peri, as in Learn's tools: the phone's security checkup, every permission with what she did with it,
-        // and her welcome again for whoever sets the phone up with the person.
+        // More from Peri, as in Learn's tools: the new Peri by layers (a preview), the phone's security checkup, every
+        // permission with what she did with it, and her welcome again for whoever sets the phone up with the person.
         list.addView(actionCard(listOf(
+            actionRow(R.drawable.ic_pear, getString(R.string.settings_layers), getString(R.string.settings_layers_line)) {
+                startActivity(android.content.Intent(this, LayersActivity::class.java))
+            },
             actionRow(R.drawable.ic_shield, getString(R.string.checkup_open), getString(R.string.tool_checkup_line)) {
                 startActivity(android.content.Intent(this, CheckupActivity::class.java))
             },

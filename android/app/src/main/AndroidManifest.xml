@@ -179,6 +179,12 @@
             android:exported="false"
             android:label="@string/guardian_channel" />
 
+        <!-- The new Peri, by layers: a preview to see before she replaces the Peri of every screen. -->
+        <activity
+            android:name=".ui.peri.LayersActivity"
+            android:exported="false"
+            android:label="@string/layers_title" />
+
         <activity
             android:name=".ui.peri.WardrobeActivity"
             android:exported="false"
