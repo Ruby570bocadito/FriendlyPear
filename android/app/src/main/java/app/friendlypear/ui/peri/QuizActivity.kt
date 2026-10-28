@@ -40,7 +40,7 @@ class QuizActivity : Activity() {
     private lateinit var content: LinearLayout
     private var round: List<Int> = emptyList()
     private var at = 0
-    private var right = 0
+    private var correct = 0
     private val marks = ArrayList<Boolean>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -117,7 +117,7 @@ class QuizActivity : Activity() {
         val fine = scams.indices.filter { scams[it] == 0 }.shuffled().take(ROUND - TRAPS)
         round = (traps + fine).shuffled()
         at = 0
-        right = 0
+        correct = 0
         marks.clear()
         say(resources.getQuantityString(R.plurals.quiz_intro, round.size, round.size))
         ask()
@@ -196,7 +196,7 @@ class QuizActivity : Activity() {
     private fun answer(i: Int, scam: Boolean) {
         val wasScam = resources.getIntArray(R.array.quiz_scam)[i] == 1
         val ok = scam == wasScam
-        if (ok) right++
+        if (ok) correct++
         marks += ok
         showDots()
         // The buttons go; what it really was, and why, takes their place.
@@ -239,8 +239,8 @@ class QuizActivity : Activity() {
     /** The end of the round: the score, Peri's line for it, and a shield for a round played well (once a day). */
     private fun finished() {
         content.removeAllViews()
-        progress.text = getString(R.string.quiz_score, right, round.size)
-        val share = right.toFloat() / round.size
+        progress.text = getString(R.string.quiz_score, correct, round.size)
+        val share = correct.toFloat() / round.size
         val bank = when {
             share >= 0.8f -> R.array.quiz_end_great
             share >= 0.5f -> R.array.quiz_end_good
@@ -254,10 +254,10 @@ class QuizActivity : Activity() {
             face.moment(if (share >= 0.5f) PeriMoment.THUMBS_UP else PeriMoment.LOVE)
         }
         val line = Lines.next(this, bank)
-        hub.diary.add(Diary.Kind.QUIZ, "$right/${round.size}")
+        hub.diary.add(Diary.Kind.QUIZ, "$correct/${round.size}")
         val prefs = getSharedPreferences(PREFS, MODE_PRIVATE)
-        if (best(this)?.let { right.toFloat() / it.second > it.first.toFloat() / it.second } != false) {
-            prefs.edit().putInt(BEST, right).putInt(BEST_OF, round.size).apply()
+        if (best(this)?.let { correct.toFloat() / it.second > it.first.toFloat() / it.second } != false) {
+            prefs.edit().putInt(BEST, correct).putInt(BEST_OF, round.size).apply()
         }
         val today = Calendar.getInstance().let { it.get(Calendar.YEAR) * 1000 + it.get(Calendar.DAY_OF_YEAR) }
         val shield = share >= 0.66f && prefs.getInt(SHIELD_DAY, -1) != today
@@ -270,7 +270,7 @@ class QuizActivity : Activity() {
         val score = whiteCard().apply {
             gravity = Gravity.CENTER_HORIZONTAL
             addView(TextView(this@QuizActivity).apply {
-                text = getString(R.string.quiz_score, right, round.size)
+                text = getString(R.string.quiz_score, correct, round.size)
                 sizeSp(30f)
                 typeface = Fonts.display(700)
                 setTextColor(Palette.INK)
@@ -316,7 +316,7 @@ class QuizActivity : Activity() {
         }
     }
 
-    /** A dot per message: green for right, coral for a miss, grey to come; the current one larger. */
+    /** A dot per message: green for correct, coral for a miss, grey to come; the current one larger. */
     private fun showDots() {
         dots.removeAllViews()
         round.indices.forEach { i ->
