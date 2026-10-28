@@ -30,7 +30,7 @@ KOTLIN = os.path.join(HERE, "..", "..", "android", "app", "src", "main", "java",
 MOODS = ["calm", "listening", "thinking", "worried", "protective", "calling", "waiting", "happy", "sleeping"]
 POSES = ["calm_wave1", "calm_wave2", "calm_idea", "calm_sorry", "calm_thumbsup", "calm_laugh", "calm_love", "calm_dizzy",
          "calm_yawn", "calm_letter", "calm_hero", "calm_medal", "calm_peekaboo", "calm_clap", "calm_detective",
-         "calm_surprised", "calm_party", "calm_glasses", "calm_scarf", "calm_bye"]
+         "calm_surprised", "calm_party", "calm_glasses", "calm_scarf", "calm_bye", "calm_hum", "calm_butterfly", "calm_tea", "calm_flower", "calm_phone"]
 FRAMES = ["_blink", "_blinkhalf", "_talk", "_talkwide", "_talko", "_glanceleft", "_glanceright", "_stepleft", "_stepright",
           "_gesturea", "_gestureb", "_wink"]
 # A frame never moves her more than this (px) from her still image; a match further away is a mistake.

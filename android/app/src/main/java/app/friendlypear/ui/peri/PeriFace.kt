@@ -59,7 +59,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
     enum class Trick { HOP, SPIN, DANCE, WINK, STRETCH }
 
     /** What she does by herself now and then, when nothing else is going on; DROP is her entrance. */
-    private enum class Idle { HOP, STEPS, LOOK, WAVE, STRETCH, WINK, SPIN, DANCE, DROP }
+    private enum class Idle { HOP, STEPS, LOOK, WAVE, STRETCH, WINK, SPIN, DANCE, DROP, POSE }
 
     /** One moment of an action: how high (dp), squash (−) or stretch (+), extra tilt (°) and width (−1 is turned round). */
     private data class Shape(val lift: Float = 0f, val squash: Float = 0f, val tilt: Float = 0f, val width: Float = 1f)
@@ -323,6 +323,21 @@ class PeriFace(context: Context) : FrameLayout(context) {
             app.friendlypear.services.PeriMoment.SCARF -> R.drawable.peri_calm_scarf
             app.friendlypear.services.PeriMoment.BYE -> R.drawable.peri_calm_bye
         }
+        hold(res, POSE_MILLIS)
+        if (moves) when (moment) {
+            app.friendlypear.services.PeriMoment.SORRY, app.friendlypear.services.PeriMoment.LETTER, app.friendlypear.services.PeriMoment.GLASSES,
+            app.friendlypear.services.PeriMoment.DETECTIVE, app.friendlypear.services.PeriMoment.SCARF -> Unit
+            app.friendlypear.services.PeriMoment.LOVE, app.friendlypear.services.PeriMoment.PEEKABOO, app.friendlypear.services.PeriMoment.BYE -> sparkles.play(Sparkles.Effect.HEARTS)
+            app.friendlypear.services.PeriMoment.PARTY, app.friendlypear.services.PeriMoment.HERO -> sparkles.burst(26)
+            app.friendlypear.services.PeriMoment.SURPRISED -> sparkles.burst(6)
+            app.friendlypear.services.PeriMoment.YAWN -> sparkles.play(Sparkles.Effect.SLEEPY)
+            app.friendlypear.services.PeriMoment.DIZZY -> sparkles.burst(8)
+            else -> sparkles.burst()
+        }
+    }
+
+    /** [res] on her for [millis], dressed as she is, with a little pop; then back to her mood. */
+    private fun hold(res: Int, millis: Long) {
         front.animate().cancel()
         back.animate().cancel()
         front.alpha = 1f
@@ -334,18 +349,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
         outfitLayer.anchor = res
         front.setImageDrawable(dressed(res, decode(res)))
         popStart = SystemClock.uptimeMillis()
-        if (moves) when (moment) {
-            app.friendlypear.services.PeriMoment.SORRY, app.friendlypear.services.PeriMoment.LETTER, app.friendlypear.services.PeriMoment.GLASSES,
-            app.friendlypear.services.PeriMoment.DETECTIVE, app.friendlypear.services.PeriMoment.SCARF -> Unit
-            app.friendlypear.services.PeriMoment.LOVE, app.friendlypear.services.PeriMoment.PEEKABOO, app.friendlypear.services.PeriMoment.BYE -> sparkles.play(Sparkles.Effect.HEARTS)
-            app.friendlypear.services.PeriMoment.PARTY, app.friendlypear.services.PeriMoment.HERO -> sparkles.burst(26)
-            app.friendlypear.services.PeriMoment.SURPRISED -> sparkles.burst(6)
-            app.friendlypear.services.PeriMoment.YAWN -> sparkles.play(Sparkles.Effect.SLEEPY)
-            app.friendlypear.services.PeriMoment.DIZZY -> sparkles.burst(8)
-            else -> sparkles.burst()
-        }
         main.removeCallbacks(endPose)
-        main.postDelayed(endPose, POSE_MILLIS)
+        main.postDelayed(endPose, millis)
     }
 
     private val endPose = Runnable {
@@ -492,6 +497,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
                 main.postDelayed({ if (!talking) put(frames.still) }, 1_950)
             }
             Idle.WAVE -> greet()
+            // A moment of her own while all is calm: humming, a butterfly on her finger, a cup of tea...
+            Idle.POSE -> if (moves) hold(CALM_MOMENTS.random(), CALM_MOMENT_MILLIS)
             Idle.WINK -> {
                 val w = frames.wink ?: return
                 busyUntil = now + 850
@@ -754,6 +761,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
         val DECODER = Executors.newSingleThreadExecutor { r -> Thread(r, "peri-frames").apply { isDaemon = true; priority = Thread.NORM_PRIORITY - 1 } }
         const val POP_MS = 420f
         const val IDLE_FIRST = 3_500L
+        /** Her calm moments (Muse Image, like her other poses), a little longer than a reaction. */
+        val CALM_MOMENTS = listOf(R.drawable.peri_calm_hum, R.drawable.peri_calm_butterfly, R.drawable.peri_calm_tea, R.drawable.peri_calm_flower, R.drawable.peri_calm_phone)
+        const val CALM_MOMENT_MILLIS = 3_200L
         const val IDLE_MIN = 7_000L
         const val IDLE_MAX = 12_000L
         const val SPIN_MS = 720f
@@ -784,7 +794,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         const val SHADOW_FLATNESS = 0.16f
 
         val MOTIONS = mapOf(
-            Mood.CALM to Motion(tilt = 3f, tiltMs = 3_800, bob = 5f, bobMs = 1_900, sway = 2.5f, idles = listOf(Idle.HOP, Idle.STEPS, Idle.LOOK, Idle.WAVE, Idle.STRETCH, Idle.WINK, Idle.SPIN, Idle.DANCE)),
+            Mood.CALM to Motion(tilt = 3f, tiltMs = 3_800, bob = 5f, bobMs = 1_900, sway = 2.5f, idles = listOf(Idle.HOP, Idle.STEPS, Idle.LOOK, Idle.WAVE, Idle.STRETCH, Idle.WINK, Idle.SPIN, Idle.DANCE, Idle.POSE, Idle.POSE, Idle.POSE)),
             Mood.LISTENING to Motion(tilt = 2f, tiltMs = 3_000, bob = 2.5f, bobMs = 1_500, sway = 1f),
             Mood.THINKING to Motion(tilt = 3.5f, tiltMs = 2_800, bob = 3f, bobMs = 1_400, sway = 1.5f, idles = listOf(Idle.LOOK, Idle.STEPS, Idle.STRETCH)),
             Mood.WORRIED to Motion(tilt = 1.5f, tiltMs = 2_000, bob = 1.5f, bobMs = 1_000, sway = 1.2f, idles = listOf(Idle.STEPS, Idle.LOOK)),

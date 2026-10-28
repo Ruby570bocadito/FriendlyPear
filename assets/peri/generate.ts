@@ -104,6 +104,12 @@ export const EXTRAS: Record<string, { from: string; prompt: string }> = {
   calm_glasses: { from: "calm", prompt: "Only change: Peri wears small round reading glasses and holds a little open notebook in both hands, reading it with a gentle smile." },
   calm_scarf: { from: "calm", prompt: "Only change: Peri wears a cosy knitted scarf with coral and cream stripes around her neck, rosy cheeks, a happy warm smile." },
   calm_bye: { from: "calm", prompt: "Only change: Peri waves goodbye with one hand held high and the other hand on her chest, a warm smile, a tiny coral heart floating near the waving hand." },
+  // Idle moments, for when all is calm: a little life of her own between one thing and the next.
+  calm_hum: { from: "calm", prompt: "Only change: Peri hums a happy tune with her eyes gently closed in a smile and her head tilted a little, two small green music notes floating beside her head. Her two hands rest at her sides." },
+  calm_butterfly: { from: "calm", prompt: "Only change: Peri looks up with delight at a small lilac butterfly resting on the tip of one raised finger; the other hand rests at her side." },
+  calm_tea: { from: "calm", prompt: "Only change: Peri holds a small round coral cup of tea with both hands in front of her chest, a tiny wisp of steam rising from it, a calm content smile." },
+  calm_flower: { from: "calm", prompt: "Only change: Peri smells a small white daisy that she holds up near her face with one hand, her eyes closed and smiling; the other hand rests at her side." },
+  calm_phone: { from: "calm", prompt: "Only change: Peri holds a tiny green smartphone in both hands and looks at its screen with a curious, attentive face, as if checking that everything is safe. The screen shows no text." },
 };
 
 /**

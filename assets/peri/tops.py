@@ -27,7 +27,7 @@ WEB = os.path.join(HERE, "..", "..", "backend", "public", "bare.webp")
 MOODS = ["calm", "listening", "thinking", "worried", "protective", "calling", "waiting", "happy"]
 POSES = ["calm_wave1", "calm_wave2", "calm_idea", "calm_sorry", "calm_thumbsup", "calm_laugh", "calm_love", "calm_dizzy",
          "calm_yawn", "calm_letter", "calm_hero", "calm_medal", "calm_peekaboo", "calm_clap", "calm_surprised",
-         "calm_glasses", "calm_scarf", "calm_bye"]
+         "calm_glasses", "calm_scarf", "calm_bye", "calm_hum", "calm_butterfly", "calm_tea", "calm_flower", "calm_phone"]
 MARGIN = 24  # px kept around what changed
 FADE = 16  # px of soft edge at the sides and the bottom
 CHANGE = 90  # a colour difference (sum of the three channels) that counts as changed

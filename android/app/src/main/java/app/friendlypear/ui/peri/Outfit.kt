@@ -105,6 +105,9 @@ internal data class Outfit(val head: Item? = null, val eyes: Item? = null, val n
             R.drawable.peri_calm_peekaboo to setOf(Slot.EYES),
             R.drawable.peri_calm_glasses to setOf(Slot.EYES, Slot.NECK),
             R.drawable.peri_calm_scarf to setOf(Slot.NECK),
+            // A cup or a phone held in front of her: nothing round her neck on top of it.
+            R.drawable.peri_calm_tea to setOf(Slot.NECK),
+            R.drawable.peri_calm_phone to setOf(Slot.NECK),
         )
     }
 }
