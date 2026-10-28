@@ -1,241 +1,126 @@
 # ROADMAP — FriendlyPear
 
-Único escritor: DIR. Cada rol marca `[x]` sus tareas al terminar y propone ideas en su estado.
+Único escritor: DIR (o quien trabaje a petición de la persona). Cada rol marca `[x]` sus tareas al terminar y propone ideas en su estado.
 Formato: `- [ ] (ID) slug — [talla] descripción — rutas`. Tallas: `[S]` corta · `[M]` con tests · `[L]` partir en piezas.
 Entrega: **4 nov 2026, 21:00 ET**. Objetivo propio: 18:00 ET.
 
-## Base
-- [x] (PUL) estructura-base — [S] carpetas, builds de core/android/backend, CI y documentación — /
+**Empezado de cero el 28 oct por la noche (decisión de la persona).** Lo hecho en las rondas 1 a 4 está en
+[`ROADMAP_RONDAS_1-4.md`](ROADMAP_RONDAS_1-4.md); aquí va todo lo que falta, junto y por orden. Lo que se trae de antes
+lleva su nombre viejo entre paréntesis.
 
-## Ronda 2 · Peri viva (28 oct – 3 nov; decisión de la persona, 27 oct)
+## Lo que pide la persona (28 oct, noche)
 
-La app funciona, pero se ve estática y de plantilla, y Peri tiene poca vida. Orden de la persona: primero la UI completa (profesional y viva), luego Peri (frases, poses, interacciones), luego detecciones y seguridad, probando muchas más situaciones (sobre todo la familia), y al final el guion del vídeo, juntos. **Lo más importante:** simpleza, cómo se vende y seguridad, porque mucha gente puede llegar a depender de esto. **Público:** todos; las personas mayores siguen siendo el ejemplo principal. Personalidad de Peri: [`docs/PERI_PERSONAJE.md`](../PERI_PERSONAJE.md).
+1. La app no se pudo ni descargar en su móvil: la seguridad lo bloqueó. Tiene que instalarse y funcionar en un móvil de verdad.
+2. «¿De verdad detecta vishing y phishing, o tiene que ser el texto exacto?»: el chat parece fijo («Tengo un problema» no
+   lo entiende). Tomárselo más en serio: que funcione con lo que escribe la gente de verdad.
+3. Efecto fantasma al cambiar de fotograma (las piernas al andar); que no pase en ninguna animación.
+4. Al coger algo (el té, la flor, el móvil) se mueve todo el disfraz.
+5. Sí a la Peri por capas en el inicio y en todo.
+6. El logotipo parece un texto encima de otro.
+7. Las herramientas de Peri están escondidas: más protagonismo.
+8. El diario se hace larguísimo cuando hay mucho.
+9. La imagen del chat (el paraguas) no tiene naturalidad.
+10. Una lista de todas las imágenes para el vídeo (efectos, fondos, rótulos) y para la UI, como la de Peri.
+11. Seguir el roadmap.
 
-### A · Sistema visual vivo
-- [x] (IMP-2) r2-direccion-visual — [S] elegir con la persona la dirección visual (bocetos) y fijarla en `docs/DISENO.md`; sustituye a las reglas planas del 27 oct — docs/DISENO.md · hecho 2026-10-28 (el mundo de Peri: fondos que van cambiando)
-- [x] (IMP-2) r2-tipografia — [S] fuentes propias: títulos redondeados y simpáticos y lectura muy legible, con licencia libre y dentro de la app — android/app/src/main/res/font/, ui/peri/Style.kt · hecho 2026-10-28 (Fredoka y Atkinson Hyperlegible, OFL)
-- [x] (IMP-2) r2-mundo-peri — [M] fondo vivo que cambia con el estado de Peri y la hora (cielo, nubes, sol, estrellas, el rojo suave de un aviso), quieto si se quitan las animaciones — ui/peri/ · hecho 2026-10-28 (`PeriWorld`: 4 cielos, 5 lugares por estación, elegible en Ajustes)
-- [x] (IMP-2) r2-componentes — [M] paleta viva y componentes con movimiento (botones con rebote, tarjetas, chips, transiciones entre pantallas) — ui/peri/Style.kt · hecho 2026-10-28 (botones y tarjetas de goma)
-- [x] (IMP-2) r2-navegacion — [M] barra inferior con apartados: Peri, Diario, Aprende, Familia (y Ajustes) — ui/peri/ · hecho 2026-10-28
-- [x] (IMP-2) r2-diario — [M] "Diario de Peri": avisos, escudos, denuncias y lo que hizo, en una línea de tiempo — ui/peri/, config/ · hecho 2026-10-28 (`Diary` en el móvil, sin textos ni remitentes)
-- [x] (IMP-2) r2-aprende — [M] "Aprende con Peri": la biblioteca de trampas (viñetas) y el juego "¿Timo o no?" — ui/peri/, backend/src/ · hecho 2026-10-28 (16 mensajes por idioma, en la app)
-- [x] (IMP-2) r2-pantallas — [M] todas las pantallas con el sistema nuevo — ui/peri/ · hecho 2026-10-28 (heredan fuentes, goma y el cielo claro de la hora)
-- [ ] (IMP-2) r2-barra-volver — [S] barra superior con botón de volver en las pantallas secundarias y la bienvenida sobre el mundo de Peri — ui/peri/
+## P0 · En un móvil de verdad
 
-### B · Peri con personalidad
-- [x] (IMP-2) r2-poses — [M] 10 poses nuevas con Muse Image (sorpresa, medalla, capa de superheroína, detective, aplauso, confeti, gafas, bufanda, cucú, despedida) — assets/peri/ · hecho 2026-10-28 (0,10 $)
-- [x] (IMP-2) r2-interacciones — [M] cosquillas al mantener pulsado, arrastrarla, agitar el móvil, rascar la hoja — ui/peri/PeriFace.kt, PeriActivity.kt · hecho 2026-10-28
-- [x] (IMP-1) r2-frases — [M] bancos de frases mucho más grandes y según el momento (rachas, hitos, volver tras días sin abrir, primera vez en cada pantalla); propuestas con **Muse Wonder** y revisadas una a una — res/values*/, core/.../agent/Phrases.kt · hecho 2026-10-28 (18 bancos; 0,36 $)
-- [ ] (IMP-1) r2-hitos — [S] rachas de días tranquilos e hitos de escudos (el primero, cinco) con su pose y su frase — ui/peri/, res/values*/
-- [ ] (IMP-1) r2-charla — [M] "Pregúntale a Peri": dudas y charla con Muse Spark, con guardarraíles (nunca lee enlaces ni códigos; lo que dice el modelo pasa el filtro de Peri) — backend/src/, android/
+- [ ] (IMP-2) r5-instalar — [M] el APK se instala en el móvil de la persona: por USB con `adb install` (sin pasar por el navegador ni la descarga del chat), y si Play Protect avisa, «Instalar de todas formas» lo decide la persona; guía en inglés `INSTALL.md` para el jurado y las familias (orígenes desconocidos, Play Protect, ajustes restringidos de Android 13+ para notificaciones y accesibilidad, permisos de SMS y llamadas) — docs/, README.md
+- [ ] (IMP-2) r5-release — [M] APK de release firmado con una clave propia guardada fuera del repo (`~/.gradle/gradle.properties`), minificado y sin el token compartido de pruebas: es el que se enseña y se entrega; el de depuración nunca se publica — android/app/build.gradle.kts
+- [ ] (TEST) r5-movil-real — [M] una tarde con el móvil de la persona: SMS, WhatsApp y correo de verdad (sintéticos enviados desde otro móvil), una llamada de número desconocido, Mini Peri encima de otras apps, batería y fluidez con la Peri por capas; informe de fallos — eval/, docs/agentes/hallazgos/
+- [ ] (SEG) r5-restricciones — [M] (r2-android-restricciones) pelear con Android: ajustes restringidos, optimización de batería, rol de filtro de llamadas, superposición y códigos ocultos en Android 15; para cada uno, la app lo detecta y guía a la persona con un paso claro — android/
+- [ ] (IMP-1) r5-servidor-publico — [M] (tunel-https) el servidor de la familia con dirección HTTPS pública para que la familia funcione en móviles de verdad fuera de casa; preparado hasta el último paso en la ronda 1 — backend/
 
-### C · Seguridad y pruebas
-- [ ] (TEST) r2-escenarios — [L] batería automática de 150+ situaciones en es y en (mensajes, llamadas, familia, webs, fotos), con informe de fallos — eval/
-- [ ] (TEST) r2-familia-e2e — [M] la familia de punta a punta en dos emuladores: aprobación por la web y Peri a Peri, caducidad, enlace reenviado o reutilizado, número falso, aviso de caída — eval/, docs/agentes/hallazgos/
-- [ ] (SEG) r2-revision — [M] revisión de seguridad de lo nuevo (`/v1/report`, avisos de webs, registros en el móvil, Peri a Peri) — backend/src/, android/
-- [x] (IMP-1) r2-detecciones — [M] arreglar lo que salga de las pruebas; reglas nuevas (letras que imitan a otras, acortadores, QR) — core/.../shield/ · hecho 2026-10-28: letras disfrazadas (cirílicas y griegas que imitan a las latinas, invisibles dentro de una palabra, nombres xn--) se leen como lo que imitan y son una señal (`DISGUISED_LETTERS`); la regla dura pilla pаypal.com y xn--pypal-4ve.com; acortadores y QR ya estaban (r2s-qr-trampa) y lo de las pruebas, en r2s-meta-rojo
+## P0 · El chat y la detección, en serio
 
-### D · Vídeo y anuncio (con la persona)
-- [ ] (DIR) r2-guion — [S] el guion juntos: arranque de anuncio que vende, luego ejemplos de uso, para quién es (todos), la personalidad de Peri, los modelos de Meta y resultados — docs/VIDEO.md
-- [ ] (DIR) r2-grabaciones — [M] regrabar los clips con la UI nueva y con la voz de Peri — docs/demo/
-- Se llevan: video-3-min, anuncio y post-x (Día 8). **No hay modelo de vídeo de Meta en la API** (`muse-wonder-1.0` es texto) y **Higgsfield queda descartado** (D11): el vídeo sale de los clips reales, de los fondos del mundo de Peri y de animar fotogramas de Muse Image.
+- [ ] (IMP-1) r5-chat-libre — [L] «Pregúntale a Peri» entiende lo que escribe la gente: en el idioma en que se le escribe (aunque el móvil esté en otro), frases vagas («tengo un problema», «me han liado») con una pregunta y opciones en vez de «no sé», faltas y sin tildes, mezcla de idiomas; 200+ frases de prueba en core en los dos idiomas — core/.../agent/, android/.../ui/peri/ChatActivity.kt
+- [ ] (IMP-1) r5-chat-escudo — [M] pegar o contar un mensaje en el chat y que lo mire el escudo de verdad (las mismas señales que con los SMS): veredicto, por qué y qué hacer, sin que salga del móvil — core/, ChatActivity.kt
+- [ ] (IMP-1) r5-vishing — [M] las llamadas en serio: lo que se detecta hoy (código durante una llamada, número nuevo que pide datos o que le devuelvas la llamada, «cuenta segura», empresa desde un móvil), lo que no (el audio: por diseño, D3) y lo que se añade: al colgar un número desconocido largo, «¿te han pedido algo?», y aviso si se abre el banco o una app de control remoto durante la llamada o justo después — core/, android/.../services/
+- [ ] (IMP-2) r5-lo-que-ve — [S] una pantalla honesta «Lo que Peri puede ver y lo que no» (mensajes sí, audio de llamadas no, WhatsApp por la notificación...), en Ajustes y en el README — ui/peri/, README.md
+- [ ] (TEST) r5-escenarios — [L] (r2-escenarios) batería automática de 200+ situaciones en es y en (mensajes, llamadas, familia, webs, fotos, chat), con informe de fallos — eval/
+- [ ] (TEST) r5-reales — [M] (reservado-200) mensajes reales de familias, anonimizados y con permiso, que nunca entrenan: el número honesto — eval/data/ (no se sube)
+- [ ] (TEST) r5-metricas — [M] (metricas) acierto y falsas alarmas con intervalo de Wilson en el conjunto reservado, una fila por capa — eval/
+- [ ] (TEST) r5-familia-e2e — [M] (r2-familia-e2e) la familia de punta a punta en dos emuladores: aprobación por la web y Peri a Peri, caducidad, enlace reenviado o reutilizado, número falso, aviso de caída — eval/
+- [ ] (IMP-1) r5-meta-seguridad — [M] (r2-meta-seguridad) más jugo a los modelos de Meta: viñetas al vuelo con Muse Image para trampas nuevas, resumen semanal escrito por Spark (revisado por las reglas de Peri) — backend/src/
 
-### E · Ideas de la persona (28 oct, escritas antes de ver la ronda 2)
-Ya hechas: el fondo que cambia (mundo de Peri), fuentes y animaciones, más personalidad (poses, frases, gestos). El vídeo de anuncio con la herramienta en uso y un ejemplo real con un modelo de Meta va en `r2-guion`; las pruebas reales y la familia con varios móviles, en `r2-familia-e2e` y `pruebas-mayores`.
-- [x] (IMP-2) r2-atuendos — [M] vestir a tu Peri: accesorios de cabeza, ojos y cuello hechos con Muse Image y colocados en cada pose (también en Mini Peri), con un armario para elegirlos — assets/peri/, ui/peri/ · hecho 2026-10-28 (11 accesorios, 0,13 $); pulido por la noche: gafas nuevas sin patillas, cada ojo medido entero (todo iba a la izquierda), cada prenda centrada en su eje y sin hoja bajo los sombreros (48 cabezas de Muse Image, 0,48 $); por la tarde: siguen cada fotograma (plantilla de la cabeza en `anchors.py`), gafas sin patillas que la atraviesen, nada sobre lo que sujeta en el pecho y una caché de imágenes al tamaño justo
-- [x] (IMP-2) r2-peras-familia — [L] las peras de tu familia como amigos en el apartado Familia, con su atuendo y su papel (te cuida, la cuidas, familia), por el servidor de la familia; avisos dentro de la app además del SMS, y la pera afectada se ve en peligro o en atención — backend/src/, ui/peri/ · hecho 2026-10-28 (probado con dos emuladores; el aviso solo mientras la app está abierta: falta en segundo plano)
-- [x] (IMP-2) r2-fondo-sorpresa — [S] un lugar al azar cada vez que se abre, además de "cada día" y uno fijo — ui/peri/PeriWorld.kt · hecho 2026-10-28
-- [x] (IMP-2) r2-fondo-vivo — [M] el fondo con profundidad y luz: colinas lejanas en la bruma, montañas nevadas, faro que gira de noche, sol de arcilla con rayos, nubes y árboles con sombra, paralaje al inclinar el móvil; formas y degradados en caché — ui/peri/PeriWorld.kt · hecho 2026-10-28 (0,2 ms por fotograma en el hilo de la interfaz, sin fotogramas tarde)
-- [x] (IMP-2) r2-bienvenida — [M] la bienvenida nueva: el mundo de Peri, los apartados y vestir a tu Peri desde el principio — ui/peri/WelcomeActivity.kt · hecho 2026-10-28 (sobre su mundo, con la página de su ropa)
-- [x] (IMP-1) r2-confianza-familia — [M] correlación de confianza entre familiares: Peri pregunta en silencio al Peri del familiar ("¿has cambiado de número?") antes de avisar; el mismo timo a dos familiares a la vez avisa a toda la familia; un sí solo cuenta si el móvil del guardián no está él mismo en peligro — core/, backend/src/ · hecho 2026-10-28: «¿has sido tú?» (`/v1/checks`, 15 min, solo la pregunta, cada móvil contesta una vez; Peri dice quién contestó o que nadie, y un sí nunca quita el aviso) y aviso de campaña (misma trampa en dos o más en 30 min); probado con dos emuladores. El guardián en peligro pasa a `r2-guardian-en-peligro`
-- [x] (IMP-1) r2-doble-familia — [M] mejorar la doble autenticación familiar (la petición con la pera de quien la pide, quién aprobó, dos guardianes para lo más arriesgado) — backend/src/approvals/, android/ · hecho 2026-10-28: la pera de quien pide, vestida como la conoce la familia, en la página (navegador) y en el Peri del cuidador; probado. Quién aprobó y dos guardianes pasan a `r2-guardian-en-peligro`
-- [x] (IMP-1) r2-colgar — [M] colgar al desconocido: botón en la pausa, la llamada que espera a que la línea quede libre, y «colgar su llamada» para la familia (`/v1/pears/:id/hangup`) — core/, backend/src/pears/, android/ · hecho 2026-10-28 (probado con dos emuladores: Ana colgó la llamada de Mamá)
-- [x] (IMP-1) r2-bloquear — [S] bloquear el número de un timo desde su tarjeta: llamadas rechazadas (con el rol de filtrar llamadas), mensajes en silencio, desbloqueo en Ajustes — android/ · hecho 2026-10-28
-- [x] (IMP-1) r2-avisos-fuera — [M] las noticias de la familia como notificaciones con la app cerrada, con «¿has sido tú?» contestable desde la notificación — services/FamilyNotes.kt · hecho 2026-10-28 (probado con dos emuladores)
-- [x] (IMP-2) r2-estrellas — [S] estrellas de plastilina de Muse Image que saltan de Peri — ui/peri/Sparkles.kt · hecho 2026-10-28 (0,02 $)
-- [x] (IMP-2) r2-pueblo — [M] un fondo con sprites de Muse Image (el pueblo de Peri) junto a los dibujados a mano, para compararlos — ui/peri/PeriWorld.kt · hecho y retirado 2026-10-28: la persona prefiere el mundo dibujado a mano desde cero (queda en el commit 478e636)
-- [x] (IMP-1) r2-pulido-estres — [M] la app menos cargada, más animada, optimizada y probada en situaciones de estrés; la ropa bien en el fotograma de mirar a la derecha — ui/peri/, eval/stress.py · hecho 2026-10-28: dos anclajes (cara y cabeza) en `anchors.py`; una tarjeta cada vez y fondo más tranquilo; 30 SMS seguidos, sin red, poca memoria, app matada, letra grande, 60 cambios de pestaña y 3.700 toques del monkey sin un cierre ni un bloqueo; memoria tras recorrer las pestañas de 121 a 76 MB
-- [x] (IMP-1) r2-guardian-en-peligro — [M] un sí solo cuenta si el móvil del guardián no está él mismo en peligro (su pera en atención o una llamada rara); quién aprobó, a la vista de la familia; dos guardianes para lo más arriesgado — backend/src/approvals/, android/ · hecho 2026-10-28: además de la llamada rara (409), el sí espera con señales de SIM cambiada, algo dado tras un timo o un timo parado hace menos de 15 min (423, con su texto en la web y en el Peri del guardián); quién aprobó y dos guardianes ya estaban (r2s-guardian-seguro)
-- [x] (IMP-2) r2-trampas-mas — [S] más viñetas de ataques con Muse Image (Hacienda, luz, inversión, policía falsa, amor, trabajo, segunda mano, QR, voz clonada) y sus preguntas del juego — assets/peri/, res/values*/ · hecho 2026-10-28: cinco clases nuevas con sus viñetas (número para llamar, pago falso de segunda mano, falso organismo para Hacienda y Tráfico, factura falsa con corte, falso amor; 16 imágenes, unos 16 céntimos) y cuatro preguntas del juego; quedan inversión, policía falsa, trabajo, QR y voz clonada, sin señal propia que las distinga
-- [x] (IMP-2) r3-fluidez — [S] la simulación sin latencia — ui/peri/ · hecho 2026-10-28: cuatro emuladores pedían ~20 núcleos a un PC de 12 (ahora `-cores 2` y pantallas que se apagan a los 5 min); Peri en calma a 30 fps y a 20 sin tocar, el mundo en los mismos fotogramas (`Rest`); fotograma mediano de 150–450 ms a 25 ms; las secciones ya no pasan bajo el reloj
-- [ ] (SEG) r2-android-restricciones — [M] pelear con las restricciones de Android (ajustes restringidos, códigos ocultos en Android 15, batería, rol de llamadas, superposición): una revisión con la guía de cada una — android/
-- [ ] (IMP-1) r2-meta-seguridad — [M] más jugo a los modelos de Meta en seguridad: viñetas al vuelo con Muse Image para trampas nuevas, Muse Spark comparando con lo que dice el Peri del familiar, resumen semanal escrito por Spark — backend/src/
-- [ ] (IMP-2) r2-taste — [S] una pasada con la skill design-taste-frontend sobre las pantallas, con D8 por delante — ui/peri/
+## P0 · Peri viva de verdad
 
-### F · Seguridad al máximo (28 oct, noche)
-Por orden: primero lo que corta un timo en curso o impide que el propio Peri se vuelva contra la persona; después lo que endurece el servidor y el móvil; al final, lo que necesita servicios de fuera.
-- [x] (IMP-1) r2s-colgar-con-aviso — [S] «colgar su llamada» con margen: Peri dice «Ana me pide que cuelgue» y cuenta tres segundos en los que la persona puede decir que no; queda en el registro — core/, android/ · hecho 2026-10-28 (tres segundos con «Seguir hablando»; la pausa se cierra al acabar la llamada)
-- [x] (IMP-1) r2s-guardian-seguro — [M] = `r2-guardian-en-peligro`: un sí no cuenta si el móvil del guardián está en peligro (su pera en atención o con un desconocido al teléfono); dos guardianes para cambiar guardianes o mandar un código durante una llamada; quién aprobó, a la vista — backend/src/approvals/, android/ · a medias 2026-10-28: el sí espera si el móvil del cuidador está con un desconocido (en el móvil y en el servidor) y queda quién decidió · hecho 2026-10-28: un enlace por guardián; cambiar guardianes o un código tras la llamada de un desconocido piden dos síes si hay dos guardianes o más, un no lo para; Peri dice quién ha dicho que sí (probado con tres móviles: Ana por la web, Papá en su Peri, el mensaje sale tras el segundo sí)
-- [x] (SEG) r2s-sin-token-release — [S] la build de release sin el token compartido y el servidor de la demo con `ALLOW_SHARED_TOKEN=0`; un test que falle si el token entra en un APK de release — android/app/build.gradle.kts, backend/ · hecho 2026-10-28 (release sin token, comprobado con `eval/release_check.py`)
-- [ ] (SEG) r2s-https-pin — [M] servidor de la familia solo por HTTPS (túnel fijo), HSTS y el certificado fijado en la app (network security config con pin y fecha de caducidad) — android/app/src/main/res/xml/, backend/
-- [x] (SEG) r2s-revision-nuevo — [M] revisión de seguridad de lo de hoy: `/v1/checks`, `/v1/pears/:id/hangup`, `/v1/hangup`, notificaciones con acciones, lista de bloqueo; límites por clave de móvil además de por IP — backend/src/, android/ · hecho 2026-10-28: límites por móvil (120/min) y 5 «colgar» cada 10 min por móvil; la burbuja de Mini Peri tapaba los toques junto a ella (ventana propia ahora)
-- [x] (IMP-1) r2s-accesibilidad-intrusa — [S] avisar si una app desconocida tiene accesibilidad o está compartiendo la pantalla (lo que usan los troyanos bancarios y el «soporte técnico» falso) — android/.../device/ · hecho 2026-10-28 (accesibilidad; compartir pantalla no se puede ver desde otra app en Android)
-- [x] (IMP-1) r2s-primeros-auxilios — [M] qué hacer cuando ya se dio algo (código, tarjeta, dinero, app de control, documento, contraseña) o hubo una filtración: Peri lo entiende dicho con sus palabras, dice con calma el primer paso y abre los pasos en orden, cada uno con su botón; «avisar a mi familia» llama al cuidador y la pera pide una mano; recordatorio al día siguiente — core/, android/, backend/ · hecho 2026-10-28 (probado en el emulador: tarjeta, «creo que les he dado algo» y el aviso en el móvil de Ana)
-- [x] (IMP-1) r2s-sim-cambiada — [M] notar un cambio de SIM o de número en el móvil de la persona y preguntar a la familia (el robo de SIM abre las cuentas) — android/, backend/src/checks/ · hecho 2026-10-28: `LineWatch` (otra SIM por su huella sellada, o la línea muerta 15 min con internet), voz y notificación, pera `sim` y «¿has sido tú?» `sim`; la familia nunca ve «Llamar» a ese número (probado con tres móviles: línea cortada en el de Mamá, Ana y Papá preguntados, la línea vuelve)
-- [x] (IMP-1) r2s-bloqueo-familiar — [M] los números bloqueados por un móvil protegen a toda la familia: solo viaja su huella (SHA-256 con sal de la familia), nunca el número — backend/src/pears/, android/ · hecho 2026-10-28: HMAC-SHA256 con la sal de la familia calculado en el móvil (`FamilyBlocks`, `/v1/blocks`); nunca un contacto guardado; desbloquear lo libera para todos (probado con dos móviles: SMS y llamada rechazados en el de Ana, contacto guardado que sí entra, desbloqueo)
-- [x] (IMP-1) r2s-guardado-cifrado — [M] lo que Peri guarda en el móvil (diario, último timo, bloqueados, peras) cifrado con una clave del Keystore — android/.../config/ · hecho 2026-10-28: `Sealed` (AES-256-GCM, clave del Keystore) en último timo, bloqueados, registro de uso, diario, investigaciones, familia y aviso web; lo guardado antes se sella al abrir; lo que se dio tras un timo ya no se guarda (probado en el emulador)
-- [x] (TEST) r2s-e2e-familia — [M] las pruebas de dos móviles en un script repetible (¿has sido tú?, colgar, aprobación, notificaciones con la app cerrada) con informe — eval/ · hecho 2026-10-28: `eval/family4.py` con cuatro móviles (llamada de un desconocido colgada desde la notificación de Papá, «número nuevo» con respuesta de Pablo, email de phishing a Ana y la misma trampa por SMS a Pablo: aviso de campaña); sin cierres
-- [x] (IMP-1) r2s-meta-rojo — [M] Muse Spark escribe cada semana variantes nuevas de timos para probar el escudo (equipo rojo) y Muse Image las viñetas; los fallos van al informe — training/, eval/ · hecho 2026-10-28: `eval/redteam/` (Spark contributor, 15 clases es/en, `report.py` con lo que pasa); tres lotes (374 timos): el último, juzgado antes de leerlo, 80 % avisado (40 % con las reglas del día anterior); cinco señales nuevas (número para llamar, empresa desde un móvil o Gmail, dinero «por error», «pago seguro» de compraventa, otra app), enlaces `.co.uk` y marcas de compraventa y NHS; `reservado-200` 88 → 91 % sin falsas alarmas nuevas. Pendiente: que corra cada semana (ahora a mano, `REDTEAM_DAY`) y las viñetas de Muse Image de las clases nuevas
-- [x] (IMP-1) r2s-compartir-imagen — [S] «Mira esta imagen» solo abre fotos compartidas de verdad — android/.../ui/peri/PictureActivity.kt · hecho 2026-10-28: nunca contactos, llamadas, SMS, calendario ni los archivos de la propia app; `file:` solo en debug y dentro de la carpeta de la app; si no, pide elegir una de la galería
-- [x] (IMP-1) r2s-qr-trampa — [S] «mira esta imagen» detecta QR que llevan a webs falsas (SAM 3.1 + Muse Spark), sin abrirlos — backend/src/models/ · hecho 2026-10-28: el móvil lee cada QR (`QrReader`, ZXing sin red, también invertidos) y lo juzga con reglas (`QrTraps`: marca en otro dominio, «@» y letras invisibles, javascript:/intent:, SMS y llamadas de pago, contacto que se hace pasar por el banco o la familia, app de control, órdenes para la IA); solo empeora el veredicto del modelo y vale sin red; nunca se abre ni se dice su dirección (probado: 11 carteles trampa sin red y 6 con el modelo, dos que piden a la IA decir que es seguro); Spark ya no duda de un QR normal (un menú y una biblioteca salen bien)
-- [x] (SEG) r2s-servidor-duro — [M] peticiones y preguntas persistidas cifradas, rotación de claves de móvil y del token de admin, registros sin datos personales revisados — backend/ · hecho 2026-10-28: `vault.ts` (AES-256-GCM, clave aparte de los datos) en todos los almacenes, aprobaciones y preguntas guardadas, `POST /v1/devices/self/key` y rotación mensual en el móvil, `bun rotate` con un día de solape, registro sin datos personales (con test)
-- [ ] (SEG) r2s-integridad — [L] (después) comprobar que la app que habla con el servidor es la nuestra (Play Integrity) y Safe Browsing para los enlaces — necesita Google Play
-### G · Lo que pide la persona (28 oct, tarde)
+- [ ] (IMP-2) r5-sin-fantasma — [S] ningún fundido entre fotogramas de piernas o brazos (se veían dobles): cambios secos, como la plastilina, con un estirón; entre estados, un «boing» en vez de un fundido — ui/peri/PeriFace.kt
+- [ ] (IMP-2) r5-ropa-cara — [M] la ropa pegada a la cara: los ojos de cada imagen medidos de verdad (en las poses con ojos cerrados se medían la boca, el brazo o la flor) y la ropa con la misma colocación que la cara, así no salta al parpadear, coger el té o la flor, ni al saludar — assets/peri/, ui/peri/Outfit.kt
+- [ ] (IMP-2) r5-capas-todo — [L] (r4-peri-capas) la Peri por capas en todas las pantallas: inicio, estados, pasos, gestos, poses y bailes; los cuerpos del mismo tamaño y con los pies en el suelo, para que nada salte al cambiar de pose; la Peri de imágenes enteras solo donde falte un cuerpo — ui/peri/, assets/peri/layers.py
+- [ ] (IMP-2) r5-mini-viva — [M] (r4-mini-viva) Mini Peri por capas: parpadea, habla, se asoma, saluda, duerme — ui/peri/MiniPeriService.kt
+- [ ] (IMP-2) r5-efectos — [S] los efectos del lote 6 (notas al tararear, gota de sudor, interrogación, bombilla, confeti, copos) en `Sparkles` — ui/peri/Sparkles.kt
+- [ ] (IMP-2) r5-movimientos — [M] los movimientos del lote 4 (saltar, bailar, señalar, reverencia, correr, sentarse, abrazo) en las acciones de Peri — ui/peri/PeriFace.kt
+- [ ] (IMP-1) r5-hitos — [S] (r2-hitos) rachas de días tranquilos e hitos de escudos (el primero, cinco) con su pose y su frase — core/, ui/peri/
 
-- [x] (IMP-1) r3-paraguas-manos — [S] la pose del paraguas tenía tres manos en un gesto (y el paraguas flotando en otro): gestos propios para las poses con las dos manos ocupadas — assets/peri/, android/.../res/drawable-nodpi/ · hecho 2026-10-28: `BUSY_HANDS` en `generate.ts`, dos fotogramas nuevos con sus cabezas sin hoja
-- [x] (IMP-1) r3-permisos-negados — [S] si se niegan todos los permisos el chat se queda colgado: sin micrófono «Hablar con Peri» no hace nada y el aviso promete una pantalla que no se abre — android/.../ui/peri/PeriActivity.kt · hecho 2026-10-28: sin micrófono «Hablar con Peri» abre el chat escrito; `why_notifications_later` dice dónde está lo que falta
-- [x] (IMP-1) r3-chat-seguro — [M] «Pregúntale a Peri»: chat escrito con consejos revisados sobre situaciones de seguridad (banco, códigos, enlaces, familia, apps, SIM...), sin mezclar nunca el chat con mensajes ni notificaciones — core/agent/, android/.../ui/peri/ · hecho 2026-10-28: `Advice` (19 temas) + `ChatActivity` + `PeriHub.ask` (solo lo que Peri dice en ese momento vuelve al chat); probado en el emulador sin permisos
-- [x] (IMP-1) r3-bienvenida-pro — [M] la bienvenida más profesional y menos vacía — android/.../ui/peri/WelcomeActivity.kt · hecho 2026-10-28: qué es cada página, tres puntos con icono, barra de progreso, botón redondo para escuchar
-- [x] (IMP-1) r3-peri-viva — [M] más vida en reposo: poses nuevas con Muse Image y más movimientos — assets/peri/, android/.../ui/peri/PeriFace.kt · hecho 2026-10-28: cinco momentos de calma de Muse Image (`CALM_MOMENTS`) entre sus gestos
-- [x] (IMP-1) r3-revision-seguridad — [M] más actuaciones de seguridad: revisión del móvil (bloqueo de pantalla, actualizaciones, depuración USB, apps con accesibilidad...) con el arreglo de cada una — android/ · hecho 2026-10-28: `CheckupActivity` (siete comprobaciones con su arreglo), desde Aprende y Ajustes
-- [x] (IMP-1) r3-apk-prueba — [S] un APK para probar en el móvil de la persona — android/ · hecho 2026-10-28: APK de depuración apuntando al servidor del PC en la red local (192.168.1.131:8711), enviado a la persona, nunca subido
-- [x] (IMP-1) r3-escena-estable — [S] con mucho texto el fondo se acercaba y alejaba de golpe — android/.../ui/peri/ · hecho 2026-10-28: bocadillo de una sola altura (letra grande si es corto) y Peri que se desliza a su nuevo tamaño desde los pies
-- [x] (IMP-1) r3-animacion-fluida — [M] más fotogramas y más fluidez — assets/peri/, PeriFace.kt · hecho 2026-10-28: fundido corto entre fotogramas del cuerpo y medios pasos de Muse Image en siete estados de ánimo (pasos en cuatro fases)
-- [x] (IMP-1) r3-permisos-deprisa — [S] al dar los permisos muy deprisa el chat avanzaba solo y el fondo se ampliaba — android/.../ui/peri/PeriActivity.kt · hecho 2026-10-28: mientras se piden uno tras otro la pantalla se queda quieta (la tarjeta y el estado, al final) y las frases salen enteras
-- [x] (IMP-1) r3-anuncio-ejemplo — [S] un anuncio de ejemplo con modelos de Meta, con una skill de vídeo como referencia — video/ · hecho 2026-10-28: Remotion (skill oficial), clips reales del emulador, tres fondos con Muse Image (0,03 $), 20 s en vertical; la API de Meta no tiene modelo de vídeo ni de voz
-- [x] (IMP-1) r3-parpadeo — [S] al hablar justo después de un gesto el cuerpo de Peri se volvía transparente un instante (visto grabando el anuncio) — android/.../ui/peri/PeriFace.kt · hecho 2026-10-28: un cambio de boca corta el fundido en curso; comprobado midiendo el verde de Peri fotograma a fotograma en una grabación
-- [x] (IMP-1) r3-medalla-aviso — [S] al parar un timo, la medalla de "escudo ganado" salía mientras Peri decía "Careful" y retrasaba el paraguas dos segundos — android/.../ui/peri/PeriActivity.kt · hecho 2026-10-28: mientras avisa, el contador sube sin medalla ni estrellas
-- [x] (IMP-1) r3-ui-viva — [M] seguir mejorando la UI y a Peri, que lo visual importa mucho — android/.../ui/peri/ · hecho 2026-10-28: Ajustes con fichas de goma y un mundo en miniatura por lugar (el mismo `PeriWorld`, a escala), interruptores de goma (Ajustes y familia), Diario y noticias de los guardianes como línea de tiempo, Peri viva en las pegatinas (respira, salta al tocarla y cambia de frase). Segunda pasada: filas de herramientas iguales en todas partes (`actionRow`), primeros auxilios con un icono por caso, arreglos de la revisión como botones, la denuncia con lo que llevará, viñetas numeradas con botón de volver y flechas en los permisos. Tercera: la configuración de la familia sin casillas ni desplegables de Android (inicial, interruptor de guardián, parentesco en lista), que además se entera sola de la respuesta de los guardianes; la petición al guardián para cambiar guardianes ya no dice "enviar" (botón, espera, voz, notificación y final), probada con dos móviles
-- [ ] (IMP-1) r3-historia — [M] la historia de Peri con el arte de plastilina para presentar el proyecto (demo y anuncio), sin lag — video/, docs/HISTORIA.md · a medias 2026-10-28: propuesta de guion, Carmen con Muse Image, teaser del primer minuto a 60 fps y grabación fluida (un solo emulador, 864×1920); falta decidir con la persona formato, voz e idioma
-- [x] (IMP-1) r3-ui-pulida — [S] cuidar la UI entera — android/.../ui/peri/ · hecho 2026-10-28: «Las herramientas de Peri» en Aprende como tarjeta con iconos, revisión de las pantallas principales
+## P1 · Una UI que se recuerde
 
-**Ronda 4 (28 oct, noche; pedida por la persona): que no parezca una app básica de Android, sino una mascota viva que se recuerde.**
+- [ ] (IMP-2) r5-logo — [S] el logotipo sin letras encima de otras: primero todos los bordes, luego las letras, y la luz sin copia desplazada — ui/peri/Wordmark.kt
+- [ ] (IMP-2) r5-chat-imagen — [S] Peri saludando con bocadillos (`scene_chat`) en la cabecera del chat en vez del paraguas — ui/peri/ChatActivity.kt
+- [ ] (IMP-2) r5-herramientas — [M] las herramientas de Peri a la vista: una fila en el inicio con «Mira una imagen», «Revisa tu móvil», «Juego de timos» y «Pregúntale», con sus ilustraciones de plastilina — ui/peri/PeriActivity.kt, Pages.kt
+- [ ] (IMP-2) r5-diario-corto — [M] el diario corto: lo de hoy arriba, los días anteriores plegados por día con su resumen y «ver más» — ui/peri/Pages.kt
+- [ ] (IMP-2) r5-ilustraciones — [M] las 15 ilustraciones del lote 7 en sus apartados (diario, aprende, familia, ajustes, foto, revisión, trofeo, mañana y noche) — ui/peri/, res/drawable-nodpi/
+- [ ] (IMP-2) r5-barra-volver — [S] (r2-barra-volver) barra superior con volver en las pantallas secundarias y la bienvenida sobre el mundo de Peri — ui/peri/
+- [ ] (IMP-2) r5-taste — [S] (r2-taste) una pasada con la skill design-taste-frontend por todas las pantallas, con D8 por delante — ui/peri/
+- [ ] (IMP-2) r5-accesible — [S] TalkBack, letra al 200 % y contraste en las pantallas nuevas (chat, prueba de capas, herramientas) — ui/peri/
 
-- [ ] (IMG) r4-sprites — [L] Peri por partes: 183 imágenes de Muse Image en siete lotes según `docs/PERI_SPRITES.md`; el lote 1 (prueba, 15) y parar hasta que la persona vea la Peri por capas — assets/peri/sprites/ (agente de imágenes; no toca la app)
-- [ ] (IMP-1) r4-peri-capas — [L] montar a Peri por capas: cuerpo sin cara y encima ojos, cejas y boca recortados, la ropa pegada a la cara (adiós al salto de las gafas al saludar), boca al ritmo de la voz y mirada que sigue al dedo; primero con el lote 1 — android/.../ui/peri/PeriFace.kt · a medias 2026-10-28: `assets/peri/layers.py` recorta 16 ojos y 19 bocas de las imágenes de Muse (cada píxel que cambia va al tipo de imagen que más lo cambia, porque Muse retoca un ojo en alguna boca; borde suave, sin costuras ni a 2×) y siete cuerpos sin cara (calma, saludo, dos gestos, pulgar, amor), con la cara puesta por los ojos de su imagen (`PeriAnchors`); `LayeredPeri` la dibuja: parpadea, habla con la boca en cualquier cara y con las manos, sigue el dedo con la mirada, diez caras con saltos y efectos, ritmo tranquilo; pantalla de prueba en Ajustes > Más de Peri; falta llevarla al inicio y a los estados, la ropa pegada a la cara y Mini Peri
-- [ ] (IMP-1) r4-ui-wow — [L] la UI viva y moderna sin esperar imágenes: Peri contesta a hola y charla, árboles en su sitio y más vida en el fondo, logotipo animado, bocadillo con letra amable y palabras al ritmo de la voz, risa con boca al tocarla, inicio más ligero, apartados con Peri y corazones — android/.../ui/peri/, core/agent/ · a medias 2026-10-28: charla (`SmallTalk`, diez casos, chat con tres puntitos), nieve sin pinos flotando y con cabaña y pájaros, logotipo de plastilina (`Wordmark`), bocadillo en Fredoka con palabras que aparecen y mueven la boca, la pose ya no congela la boca, adornos que flotan en los apartados (`Floaties`), botones de color; falta aligerar más el inicio y lo que llegue con las imágenes
-- [ ] (IMP-1) r4-mini-viva — [M] Mini Peri viva con la cabeza por capas (parpadea, habla, se asoma, saluda, duerme) — android/.../ui/peri/MiniPeriService.kt
+## P1 · Seguridad
 
-### Se llevan de antes
-- Con la persona: pruebas-mayores, voice-transcribe (voces reales), bases-y-dudas, peri-referencia-video y la entrega.
-- TEST y PUL: metricas, readme-resultados.
-- Opcionales o fuera de alcance: tunel-https, iphone (necesita un Mac). Aparcadas: glimmer-servido y el LoRA (`training/FINETUNE.md`).
+- [ ] (SEG) r5-revision — [M] (r2-revision y r2s-revision-nuevo) revisión de lo nuevo: `/v1/report`, avisos de webs, registros en el móvil, Peri a Peri, preguntas y colgar, notificaciones con acciones, bloqueados, el chat con el escudo — backend/src/, android/
+- [ ] (SEG) r5-https-pin — [M] (r2s-https-pin) servidor solo por HTTPS, HSTS y certificado fijado en la app con fecha de caducidad — android/app/src/main/res/xml/, backend/
+- [ ] (SEG) r5-integridad — [L] (r2s-integridad, después) comprobar que la app que habla con el servidor es la nuestra (Play Integrity) y Safe Browsing para los enlaces — necesita Google Play
 
-## Día 1 · 27 oct — validar lo desconocido
-- [x] (IMP-1) creditos-y-spark — [S] reclamar los 150 $, límite de gasto, probar formato de Muse Spark y llamadas a herramientas — backend/src/models/ · hecho 2026-10-27
-- [x] (IMP-1) muse-voz — [M] Muse Voice Transcribe como oídos de Peri (Ajustes, desactivado por defecto): grabación con fin por silencio, `POST /v1/transcribe`, vuelta al reconocedor de Android — backend/src/models/voice.ts, android/.../device/VoiceRecorder.kt · hecho 2026-10-27
-- [ ] (IMP-2) voice-transcribe — [S] 10 órdenes en español dichas por personas mayores; comparar con el reconocedor de Android — android/app/src/main/java/app/friendlypear/device/
-- [ ] (IMP-1) glimmer-servido — [M] servir Muse Glimmer en local o en Modal/Baseten y medir latencia — models/glimmer/ · aparcada 27 oct (decisión de la persona): la segunda opinión va con Muse Spark Open en Baseten; Glimmer no hace falta para la demo
-- [x] (IMP-1) finetune-viable — [S] comprobar si Modal o Fireworks permiten LoRA de Muse Glimmer / Spark Open y su coste — training/ · hecho 2026-10-27: Glimmer sí (Unsloth, gratis en Kaggle), pero servir el adaptador exige un despliegue propio; Spark Open (816B) no es viable aquí. Recomendación: no afinar en el hackathon (`training/FINETUNE.md`)
-- [ ] (TEST) reservado-200 — [M] recoger 200 mensajes reales anonimizados que nunca se usan para entrenar — eval/data/ (no se sube) · a medias: 200 escritos a mano en `eval/reservado-200/` (no reales); faltan los reales de familias
-- [x] (TEST) prueba-20-20 — [S] 20 estafas actuales y 20 mensajes reales anonimizados por Spark y Glimmer; criterio de pivote si fallan más de un tercio — eval/ · hecho 2026-10-27 con 40 sintéticos (es/en) y Muse Spark Open: sin pivote; repetir con reales
-- [ ] (DIR) bases-y-dudas — [S] confirmar en #questions que el diseño previo está permitido; guardar la respuesta — docs/agentes/
+## P1 · Vídeo y entrega
 
-## Día 2 · 28 oct — núcleo y datos
-- [x] (IMP-1) base-conocimiento — [M] fichas de los 15 tipos de estafa (señales, ejemplos, acción segura) — training/knowledge/ · hecho 2026-10-27: 15 fichas en `backend/src/investigator/knowledge.ts` (amor, trabajos de tareas, segunda mano, falsa policía y préstamos con comisión añadidas), con tests
-- [x] (IMP-1) dataset-entrenamiento — [M] ~1.500 ejemplos anonimizados en JSONL con etiquetas de `ENTRENAMIENTO.md` — training/data/ (no se sube) · hecho 2026-10-27 (1.306 sintéticos con Spark contributor, `training/generate.ts`; sin mensajes reales todavía)
-- [x] (IMP-1) pesos-aprendidos — [M] regresión logística para los pesos de las señales del escudo, con informe — training/, core/.../shield/ · hecho 2026-10-27 (`eval/REPORT.md`: AUC 0,965 frente a 0,957 y 67 % de avisos firmes frente a 53 %, pero una falsa alarma firme en 20/20; `ShieldWeights.LEARNED` existe y no es el de por defecto)
-- [x] (IMP-1) escudo-capas — [L] señales, log-odds, reglas duras, acción segura y explicación de Peri — core/.../shield/ · hecho 2026-10-27
-- [x] (IMP-1) voz-y-agenda — [M] órdenes en español, alias y relaciones — core/.../voice/ · hecho 2026-10-27
-- [x] (IMP-1) agente-base — [M] bucle con confirmaciones y verificación de resultados — core/.../agent/ · hecho 2026-10-27
-- [x] (IMP-2) android-servicios — [M] lector de notificaciones, estado de llamada, voz y TTS — android/.../services/, device/ · hecho 2026-10-27
-- [x] (SEG) permisos-minimos — [S] permisos justos y ningún log con texto de mensajes — android/app/src/main/AndroidManifest.xml · hecho 2026-10-27 (revisados; HTTP en claro solo en debug; el puente de depuración exige DUMP, es decir, `adb`)
+- [ ] (IMG) r5-imagenes — [L] las imágenes de [`docs/IMAGENES_VIDEO_UI.md`](../IMAGENES_VIDEO_UI.md) (lotes 8 a 15: familia, lugares, timos sin miedo, efectos, rótulos, Peri para la historia, UI e icono) con Muse Image, lote a lote — video/public/, assets/ui/
+- [ ] (DIR) r5-guion — [S] (r2-guion) el guion juntos, con las cuatro decisiones de `docs/HISTORIA.md` (formato, Carmen, voz, idioma) — docs/HISTORIA.md, docs/VIDEO.md
+- [ ] (DIR) r5-historia — [M] (r3-historia) la historia de Peri en Remotion con el arte nuevo, sin lag — video/
+- [ ] (DIR) r5-grabaciones — [M] (r2-grabaciones) regrabar los clips de la app con la Peri por capas y la UI nueva — video/public/clips/
+- [ ] (DIR) r5-video — [M] (video-3-min) montaje de la demo de 3 min — video/
+- [ ] (DIR) r5-anuncio — [M] (anuncio) anuncio de 30–45 s, vertical y cuadrado, es/en — video/
+- [ ] (DIR) r5-post — [S] (post-x) post con el anuncio para Most Viral — docs/demo/
+- [ ] (PUL) r5-readme — [S] (readme-resultados) resultados, límites, cómo instalar, qué se hizo en el hackathon, capturas y GIF nuevos — README.md
+- [ ] (DIR) r5-entrega — [S] (entrega) entregar antes de las 18:00 ET: repo público, vídeo y post accesibles — /
 
-- [x] (IMP-1) peri-bilingue — [L] Peri habla y entiende inglés además de español: frases del escudo y del agente, órdenes de voz, relaciones y señales de estafa en inglés; TTS y reconocedor en el idioma del móvil — core/.../shield/, voice/, agent/, android/.../device/ · hecho 2026-10-27
+## Con la persona
 
-## Día 3 · 29 oct — primer flujo en el móvil
-- [x] (IMP-2) ui-compose — [M] pasar la UI a Jetpack Compose + Material 3 con la paleta de `docs/DISENO.md` — android/app/ · descartada 2026-10-27: la app se queda en vistas nativas con `Style.kt` y el diseño plano de `docs/DISENO.md`; pasarla a Compose no cambia nada que vea el jurado
-- [x] (IMP-2) peri-animada — [L] Peri vectorial con estados tranquila, escuchando, pensando, preocupada y protectora; respeta "quitar animaciones" — android/.../ui/peri/ · a medias: fotogramas de Muse Image recortados (parpadeo en 4 pasos, dos bocas, saludo) con inclinación, bote, sombra y pop entre estados; sustituida 2026-10-27 por la Peri de plastilina (9 estados de 13 fotogramas y 13 poses en `PeriFace`, con movimiento propio y quieta si se quitan las animaciones): la vectorial ya no hace falta
-- [x] (IMP-2) peri-mini — [M] modo Mini Peri: solo la pera flotando sobre otras apps, con bocadillo; tocar = hablar, arrastrar = mover, mantener = abrir la app — android/.../ui/peri/MiniPeriService.kt
-- [x] (IMP-2) peri-fotogramas — [S] 4 fotogramas por estado con Muse Image (36, 0,36 $) — assets/peri/
-- [x] (IMP-2) peri-miradas — [S] 27 fotogramas más (miradas a cada lado y boca en "o"), 0,27 $; Peri mira a los lados cada 6–11 s — assets/peri/, ui/peri/PeriFace.kt · hecho 2026-10-27
-- [x] (TEST) prueba-amplia-1 — [S] emulador + backend; 3 fallos arreglados (fundido, fotogramas viejos, diálogo de ubicación en la emergencia) — docs/agentes/hallazgos/2026-10-27-prueba-amplia.md · hecho 2026-10-27
-- [x] (IMP-2) peri-pulido — [M] interfaz profesional: Peri recortada a 1024 px (`cutout.py`), animación sin fundidos entre poses, 24 imágenes nuevas (0,24 $), icono de la app, botones con icono, chip de estado, tarjeta de pasos pendientes, bocadillo con cola, familia en tarjetas — assets/peri/, android/.../ui/peri/
-- [x] (IMP-2) permisos-progresivos — [M] pedir cada permiso al usarlo por primera vez con la explicación de Peri; degradar funciones si se deniega — android/.../ui/peri/, config/ · hecho 2026-10-27 (primer arranque: agenda, SMS y estado de llamada de uno en uno; micrófono, llamadas, envío de SMS y ubicación al usarlos)
-- [x] (IMP-2) momento-1 — [M] "he cambiado de número" → llamada a la hija real en un móvil — android/ · hecho 2026-10-27 (en el emulador, en español e inglés; falta grabarlo en un móvil real)
-- [x] (IMP-2) momento-2 — [S] código durante llamada → "cuelga" — android/ · hecho 2026-10-27 (en el emulador, en español e inglés; falta grabarlo en un móvil real)
-- [x] (IMP-1) investigador — [L] Muse Spark con herramientas de solo lectura (dominio, historial, agenda, imagen) — backend/src/investigator/
-- [x] (IMP-1) investigador-en-el-movil — [M] si tras la segunda opinión sigue en DOUBT, el móvil llama a `/v1/investigate` y guarda la evidencia para la familia — android/app/src/main/java/app/friendlypear/net/
-- [x] (IMP-2) peri-v1 — [M] pantalla de un botón con estados básicos de Peri — android/.../ui/peri/ · hecho 2026-10-27 (pantalla de un botón con la frase de Peri en grande (sin estados ilustrados todavía))
+- (pruebas-mayores) 20 tareas con 2-3 personas mayores, con permiso.
+- (voice-transcribe) 10 órdenes en español dichas por personas mayores frente al reconocedor de Android.
+- (bases-y-dudas) confirmar en #questions que el diseño previo está permitido.
+- (peri-referencia-video) imagen de referencia de Peri para el vídeo (D11: sin Higgsfield).
 
-## Día 4 · 30 oct — familia y llamadas
-- [x] (IMP-1) cuentame-llamada — [M] clasificador de relatos de llamadas frente a guiones de vishing — backend/src/investigator/, training/ · hecho 2026-10-27: `core/shield/CallStory.kt`: reglas en el móvil (lo que cuenta la persona no sale de él) para quién decía ser y qué pedía; «¿Qué te pidieron?» tras un banco a secas; consejo por truco y oferta de llamar a la familia; 7 tests
-- [x] (IMP-2) filtro-llamadas — [M] `CallScreeningService`: aviso de número fuera de la agenda antes de descolgar — android/.../services/ · hecho 2026-10-27 (aviso antes de descolgar, probado en el emulador)
-- [x] (IMP-1) verificar-llamante — [M] al colgar, "¿quién decía ser?" → comparar con la agenda → ofrecer llamar al número guardado; palabra de la familia; si pide dinero, colgar y devolver la llamada — core/.../agent/, voice/, trust/ · hecho 2026-10-27 (al colgar, "¿quién decía ser?" → llamada al número guardado; probado en el emulador)
-- [x] (SEG) llamadas-sin-audio — [S] verificar que nada accede al audio de llamadas y que el rol de filtro se pide con explicación — android/app/src/main/AndroidManifest.xml · hecho 2026-10-27 (sin acceso al audio; el micrófono no se abre durante ninguna llamada)
-- [x] (IMP-1) aprobaciones — [M] enlace de un solo uso, 15 min, página del guardián — backend/src/approvals/ · hecho 2026-10-27
-- [x] (IMP-2) mfa-punta-a-punta — [M] MFA familiar con dos móviles — android/ · hecho 2026-10-27 (dos emuladores; SMS entre ellos entregado con adb)
-- [x] (IMP-1) avisos-familia — [M] inmediatos, ataque en curso, resumen semanal — core/.../alerts/ · hecho 2026-10-27 (avisos al momento en la página, URGENTE en la petición, y resumen semanal por SMS con solo los recuentos: `WeeklySummary`, alarma diaria inexacta; probado: "avisé de 3 mensajes que eran timos")
-- [x] (IMP-2) ajustes-idioma — [S] pantalla de Ajustes (rueda en la cabecera) con Idioma: igual que el móvil, español o inglés; cambia pantallas y voz de Peri sin reiniciar — android/.../ui/peri/SettingsActivity.kt · hecho 2026-10-27
-- [x] (IMP-2) mini-en-llamadas — [S] Mini Peri sale sola junto a la pantalla de la llamada (llamadas que hace Peri y llamadas descolgadas de desconocidos) y se va al colgar — android/.../ui/peri/MiniPeriService.kt · hecho 2026-10-27
-- [x] (IMP-1) novedades-en-disco — [S] enlaces de guardianes (solo hash) y novedades en `backend/data/guardians.json`, escritura atómica — backend/src/guardians/ · hecho 2026-10-27
-- [ ] (IMP-2) iphone — [L] app de iPhone según `docs/IPHONE.md`: `core` con Kotlin Multiplatform, SwiftUI, filtro de SMS, pausa con Screen Time, Live Activity, compartir con Peri — necesita un Mac con Xcode y cuenta de Apple Developer
-- [x] (IMP-1) pausa-segura — [M] app de dinero o de control remoto durante la llamada de un desconocido, o 30 min después de un timo, un dudoso o una llamada desconocida → pantalla de pausa sobre la app: llamar a la familia, salir, o seguir (a los 5 s) — core/.../agent/, android/.../ui/peri/PauseOverlay.kt · hecho 2026-10-27
-- [x] (IMP-1) enlaces-inseguros — [S] señal `INSECURE_LINK`: `http://`, puerto distinto de 443 o IP sin nombre; peso 2,5, avisa siempre (dudoso) aunque venga de la familia — core/.../shield/ · hecho 2026-10-27
-- [x] (IMP-1) pedir-ayuda — [S] "pide ayuda a mamá", "avisa a mi hija", "ask my daughter for help", "llama a mamá, que necesito ayuda" → llamada con el "sí" de siempre; relación `PARENT` (madre, padre, mum, dad) — core/.../voice/ · hecho 2026-10-27
-- [x] (IMP-1) docs-confianza-y-modelos — [S] `docs/CONFIANZA.md` (acompañar, no vigilar; guion para proponerlo) y `docs/META_MODELS.md` (modelos en el motor y en las imágenes) · hecho 2026-10-27
-- [x] (IMP-2) vista-guardian — [M] "Novedades de Peri": enlace personal por guardián (`/g/:token`, solo su hash), resumen de 7 días y cronología de avisos, pausas y aprobaciones; solo si la persona lo activa, con la misma lista en su móvil; quitarlo invalida los enlaces — backend/src/guardians/ · hecho 2026-10-27 (se guarda en disco desde novedades-en-disco)
-- [x] (SEG) backend-endurecido — [S] cabeceras, límites de cuerpo y de peticiones — backend/src/server.ts · hecho 2026-10-27 (`limits.ts`: 30/min en `/a/` y `/g/`, 240/min en `/v1/`, 10 tokens malos → 15 min fuera; cuerpo leído hasta el límite; cabeceras en todo)
+## Aparcado o fuera de alcance
 
-## Día 5 · 31 oct — confianza y emergencia
-- [x] (IMP-2) te-estan-guiando — [M] avisos al instalar apps de control remoto y al abrir la app del banco durante una llamada desconocida — android/.../services/ · hecho 2026-10-27 (apps de control remoto y app del banco en llamada desconocida; probado con el puente de depuración, sin apps reales)
-- [ ] (IMP-1) finetune-glimmer-1 — [L] apuesta: LoRA de Glimmer con el dataset — training/ · aparcada 27 oct (decisión de la persona: no afinar en el hackathon); el porqué en `training/FINETUNE.md`
-- [x] (IMP-2) emergencia — [M] cuenta atrás, llamada y SMS con ubicación — android/ · hecho (ya estaba): "me he caído" → 10 s para cancelar, SMS a la familia con la última ubicación y llamada (`PeriAgent.onEmergencyTimeout`, tests en es y en)
-- [x] (IMP-2) config-familia — [M] guardianes, alias, relaciones, números oficiales — android/.../config/ · hecho 2026-10-27 (guardianes, relaciones, apodos y palabra de la familia sin guardarla; faltan los números oficiales)
-- [x] (IMP-2) panel-permisos — [M] "Lo que Peri puede hacer": estado de cada permiso, para qué sirve, botón para quitarlo y registro de usos sensibles — android/.../ui/peri/, config/ · hecho 2026-10-27: `AccessActivity` con 12 permisos y accesos, encender o apagar en la pantalla de Android, y `UseLog` (llamadas, SMS, ubicación, fotos, voz, denuncias)
-- [x] (PUL) docs-hackaton — [S] README con "At a glance" para el jurado, conectar cada móvil, bienvenida, guía de desbloqueo y voz; META_MODELS (diseños, fotogramas, datos de entrenamiento) y ARQUITECTURA al día; página de `bun pair` con Peri, pasos y cuenta atrás — README.md, docs/, backend/src/pair.ts · hecho 2026-10-27
-- [x] (SEG) emparejamiento-qr — [L] clave por dispositivo con QR en persona — android/.../config/, backend/src/ · hecho 2026-10-27 (`bun pair`: código de un uso, 10 min, QR propio sin dependencias verificado con los dos lectores de OpenCV; clave por móvil cifrada con el Keystore, solo hashes en el servidor, desconexión por móvil, `ALLOW_SHARED_TOKEN=0`; un QR de otro servidor se rechaza; sin copias de seguridad)
-- [x] (IMP-2) gifs-y-microfono — [S] los dos GIFs del README regrabados con el diseño nuevo en dos emuladores (aprobación por la web en inglés; Peri a Peri, madre en español e hija en inglés); al grabarlos salió que el reconocedor seguía abierto si empezaba una llamada mientras Peri escuchaba: ahora se cierra y lo oído se descarta — docs/media/, android/.../device/VoiceInput.kt · hecho 2026-10-27
-- [x] (IMP-2) diseno-sencillo — [M] la app y las páginas web con la guía design-taste-frontend, sin perder el estilo amable: fondo crema liso, bordes finos sin sombras, tres tamaños de letra, un botón verde por pantalla; textos sin jerga y más frases; 5 poses nuevas (risa, corazón, mareo, bostezo, carta, 0,05 $) con corazones y zzz dibujados; fotogramas al tamaño justo y en segundo plano (Mini Peri fuera: 176 → 65 MB) — android/.../ui/peri/, backend/src/, assets/peri/ · hecho 2026-10-27
-- [x] (IMP-2) bienvenida — [M] Peri se presenta antes de pedir permisos: 4 páginas animadas, idioma arriba, solo la primera en voz alta; no sale al actualizar — android/.../ui/peri/WelcomeActivity.kt · hecho 2026-10-27
-- [x] (IMP-1) circulo-reglas — [S] segundo guardián y 48 h para cambios — core/.../trust/ · hecho 2026-10-27 (el sí de un guardián actual + 48 h; la persona puede cancelar)
+- (iphone) app de iPhone: necesita un Mac con Xcode y cuenta de Apple Developer.
+- (glimmer-servido, finetune-glimmer-1 y -2) aparcadas el 27 oct: la segunda opinión va con Muse Spark Open; el porqué en `training/FINETUNE.md`.
+- (r2-charla) charla libre con Muse Spark: choca con la promesa del chat («lo que escribes no sale del móvil»); el chat entiende más en el propio móvil (r5-chat-libre).
 
-## Día 6 · 1 nov — Meta a fondo y Peri
-- [ ] (IMP-1) finetune-glimmer-2 — [M] evaluar el modelo afinado frente al baseline en el reservado — training/, eval/
-- [x] (IMP-1) denuncia-un-toque — [S] P2: informe para policía o 017 generado con Muse Spark — backend/src/investigator/ · hecho 2026-10-27: `POST /v1/report` + `ReportActivity`: declaración en primera persona y sin género, enlaces desactivados, «dónde llevarlo» fijo (017, comisaría; Report Fraud, FTC); probado con la API real
-- [x] (IMP-2) vineta-trampa — [S] P2: viñeta de 3 escenas con Muse Image tras una estafa — android/, assets/peri/ · hecho 2026-10-27: `TrapActivity`: 6 tipos × 3 viñetas de Muse Image (0,18 $), elegidas por las señales y la marca
-- [ ] (DIR) peri-referencia-video — [S] imagen de referencia de Peri para el vídeo (sin Higgsfield, D11) — docs/demo/
-- [x] (IMP-1) mira-esta-imagen — [M] Muse Spark multimodal + SAM 3.1 marcando QR o enlace — backend/src/models/, investigator/ · hecho 2026-10-27 (`POST /v1/picture`: Spark con imagen + SAM 3.1 para el QR; botón "Mira esta imagen" y compartir con Peri desde cualquier app; prueba real: timo 97 %, QR marcado)
-- [x] (IMP-1) glimmer-primera-opinion — [M] Glimmer como primera opinión privada en dudosos — backend/src/models/ · hecho 2026-10-27 (resuelta con Muse Spark Open en Baseten en lugar de Glimmer)
-- [x] (IMP-2) peri-estados-extra — [M] llamando, esperando a la familia, contenta (confeti) y dormida; vibraciones y sonidos suaves — android/.../ui/peri/ · hecho 2026-10-27: los estados ya estaban; `device/Haptics.kt` añade vibraciones por estado (sin sonidos, que asustan); comprobado en el registro de vibración de Android
-- [x] (IMP-2) escudos-ganados — [S] P1: escuditos por estafas frenadas y por preguntar antes — android/, core/ · hecho 2026-10-27: `config/Shields.kt`, insignia junto a Peri y felicitación solo con calma
-- [x] (IMP-2) peri-ilustrada — [M] estados de Peri con Muse Image — assets/peri/, android/app/src/main/res/drawable/ · hecho 2026-10-27 (9 estados con Muse Image, misma Peri por edición de una base; 0,11 $)
-- [x] (IMP-2) web-basica — [S] P2: notificaciones basura de webs y DNS privado guiado — android/ · hecho 2026-10-27: avisos de webs por el navegador al escudo y botón al interruptor de esa web; DNS privado con Quad9 guiado en Ajustes
+## Ideas
 
-## Día 7 · 2 nov — evaluación
-- [ ] (TEST) metricas — [M] TPR, FPR, falsas alarmas/mes con Wilson en el conjunto reservado, una fila por capa de entrenamiento — eval/
-- [ ] (TEST) pruebas-mayores — [M] 20 tareas con 2-3 personas mayores, con permiso — eval/
-- [ ] (PUL) readme-resultados — [S] resultados, límites, qué se hizo en el hackathon, capturas — README.md
-
-## Día 8 · 3 nov — demo
-- [x] (DIR) grabaciones-reales — [M] los 5 momentos grabados en emulador o móvil real — docs/demo/ · hecho 2026-10-27 a petición de la persona: 7 clips reales en dos emuladores, montados a 1080p con rótulos en inglés (`docs/demo/README.md`; los vídeos en `dist/demo/`, fuera del repo). Faltan la voz y la música, que van en el montaje final
-- [ ] (IMP-1) tunel-https — [S] **opcional** (27 oct, decisión de la persona): servidor con dirección HTTPS pública para probar en móviles reales fuera de casa. Preparado y probado hasta el último paso: backend con `PUBLIC_BASE_URL=https://rby.tailb6f848.ts.net TRUST_PROXY=1`, APK con `-Pfriendlypear.backendUrl=…` y la IP del cliente tomada de lo que añade el proxy. Falta solo aprobar Funnel en la cuenta de Tailscale (`tailscale funnel --bg 8711`). Los móviles no necesitan Tailscale. Sin túnel, la demo se graba con los dos emuladores — backend/src/main.ts, android/app/build.gradle.kts
-- [x] (DIR) escenas-higgsfield — [M] escenas de historia con Higgsfield, rotuladas como generadas con IA — docs/demo/ · descartada 2026-10-28 (D11): fondos del mundo de Peri en su lugar
-- [ ] (DIR) video-3-min — [M] montaje del vídeo de demo según `docs/VIDEO.md` — docs/demo/
-- [ ] (DIR) anuncio — [M] anuncio de 30–45 s vertical y cuadrado, ES/EN — docs/demo/
-- [ ] (DIR) post-x — [S] post con el anuncio para Most Viral — docs/demo/
-- [x] (IMP-1) peri-a-peri — [L] si el guardián tiene FriendlyPear, la petición se abre en su Peri (voz, pantalla propia, notificación); solo de un contacto guardado y con enlace a nuestro servidor, datos leídos del servidor; "Llamar a Mamá ahora"; SMS que imitan a Peri → timo; página del guardián rediseñada con Peri y paso "¿Seguro?"; bloqueo del móvil para aprobar y para la configuración de la familia; `docs/SECURITY.md` — core/.../trust/FamilyRequestLink.kt, android/.../ui/peri/GuardianActivity.kt, backend/src/approvals/ · hecho 2026-10-27
-- [x] (IMP-1) escudo-ronda-2 — [M] señales nuevas por análisis de errores en el entrenamiento (secreto, susto de virus, cebo romántico, más "número nuevo" y "reenvíame el SMS"; la negación se corta en "y"): reservado-200 del 83 % al 88 % de avisos y del 53 % al 60 % de avisos firmes, mismas falsas alarmas — core/.../shield/, eval/REPORT.md · hecho 2026-10-27
-- [x] (IMP-1) mfa-dos-moviles — [M] doble verificación familiar con dos móviles: tercera respuesta "Que me llame primero" (Peri no manda nada y ofrece llamar al guardián), aviso URGENTE si hay o acaba de haber una llamada de un desconocido; probado con dos emuladores (madre y Ana) de principio a fin; GIF en el README — core/.../agent/, backend/src/approvals/, android/.../net/ApprovalClient.kt · hecho 2026-10-27
-- [x] (TEST) movil-real-3 — [M] tercera ronda: notificaciones bloqueadas por ajustes restringidos (guía de desbloqueo de 3 pasos, sin pedir SMS al arrancar si está bloqueada), la "×" de Mini Peri parecía un muro (ahora ligera), SMS reales en el emulador (7 casos), chispas, mirar al dedo y bocadillo que se escribe; `docs/FEATURES.md` con todo lo que hay — docs/agentes/hallazgos/2026-10-27-movil-real.md · hecho 2026-10-27
-- [x] (IMP-2) peri-viva — [M] Peri menos estática: pasos con un pie en alto (16 imágenes, 0,16 $), saltitos, pasitos, mirar alrededor, estirarse y saludar solos; peso al lado, aplastamiento al aterrizar y cabeceo al hablar; Mini Peri a 100 dp; entrada suave y tarjetas con borde — android/.../ui/peri/, assets/peri/ · hecho 2026-10-27
-- [x] (IMP-2) peri-plastilina — [M] Peri en plastilina 3D (el diseño elegido de los 8): 9 estados, 7 fotogramas por estado y 9 extras con Muse Image (82 imágenes, 0,82 $); recorte que quita también el suelo — assets/peri/, res/drawable-nodpi/ · hecho 2026-10-27
-- [x] (TEST) movil-real-2 — [M] segunda ronda en el móvil de la persona: SMS bloqueado (ahora opcional), voz robótica (elegir voz), Mini Peri descuidada, más poses y 8 diseños nuevos para elegir — docs/agentes/hallazgos/2026-10-27-movil-real.md · hecho 2026-10-27
-- [x] (TEST) movil-real-1 — [M] primera prueba en el móvil de la persona: cierre al abrir, letra grande, voz, Mini Peri, familia con muchos contactos, personalidad — docs/agentes/hallazgos/2026-10-27-movil-real.md · hecho 2026-10-27
-- [x] (TEST) instalacion-limpia — [S] instalar desde el README en un móvil limpio — docs/agentes/hallazgos/ · hecho 2026-10-27 en un clon nuevo + emulador (huecos del README cubiertos; los 5 momentos en es/en: `hallazgos/2026-10-27-instalacion-y-momentos.md`); falta en un móvil real
-
-## Día 9 · 4 nov — entrega
-- [ ] (DIR) entrega — [S] entregar antes de las 18:00 ET; repo público, vídeo y post accesibles — /
-
-## Ideas (P3, el Director las amplía)
 - Entrenamiento amable: simulacros seguros personalizados con Muse Spark + Muse Image.
-- Guía visual con SAM 3.1: "toca aquí" en pantalla y en aparatos.
+- Guía visual con SAM 3.1: «toca aquí» en pantalla y en aparatos.
 - App FriendlyPear Familia con push.
 - Filtro web propio con VPN local.
+- Sonidos suaves de plastilina (un «boing» al saltar, un «pop» al aparecer), siempre apagables.
+- Peri que cambia de ropa sola según el tiempo de verdad (bufanda con frío, gafas de sol en verano).
 
 ## Riesgos y decisiones vigentes
+
 - R1: modelo flojo en español → escudo más determinista (criterio en prueba-20-20).
 - R2: Android bloquea llamadas desde segundo plano → servicio en primer plano.
 - R3: Google Play restringe SMS y llamadas → APK instalado a mano para el hackathon.
-- R4 (27 oct): sin servidor público, en un móvil real solo funciona lo local (escudo con reglas, llamadas, Mini Peri, Peri); la segunda opinión, el investigador, "mira esta imagen", la voz de Meta y la familia necesitan el túnel o un hosting. La demo de familia se graba con dos emuladores.
+- R4 (27 oct): sin servidor público, en un móvil real solo funciona lo local (escudo, llamadas, Mini Peri, Peri, chat); la segunda opinión, el investigador, «Mira esta imagen», la voz de Meta y la familia necesitan el servidor (r5-servidor-publico).
+- R5 (28 oct, noche): la descarga del APK desde el chat o el navegador la bloquea la seguridad del móvil, y Play Protect avisa o bloquea las apps instaladas a mano que piden SMS, notificaciones o accesibilidad → instalar por USB (`adb install`) y guía clara (r5-instalar); el jurado verá sobre todo el vídeo.
 - D1: las reglas deciden; el modelo ajusta como máximo ±2 y nunca anula una regla dura.
 - D2: ningún permiso se usa sin pedirlo y explicarlo; lo concede la persona protegida, no la familia.
 - D3: Peri no escucha el audio de las llamadas; actúa antes (filtro) y después (verificación).
 - D4: público = cualquier persona y familia; personas mayores como ejemplo principal de la demo.
-- D5: nunca se evalúa con datos de entrenamiento ni sintéticos; solo con los 200 reales reservados.
+- D5: nunca se evalúa con datos de entrenamiento ni sintéticos; solo con los reservados (reales cuando los haya).
 - D6: en los vídeos, todo lo que es producto se graba de verdad; lo generado con IA solo para escenas de historia y rotulado.
-- D7 (27 oct, decisión de la persona): el jurado habla inglés. La app es **bilingüe inglés/español** y sigue el idioma del móvil; todo lo que ve el jurado (UI, README, vídeo, post) va en inglés. Reglas en `PROTOCOLO.md` §9.
-- D8 (27 oct, decisión de la persona): la app tiene que verse **viva y llamativa** (colores vivos, fondo animado, fuentes propias, efectos, más apartados) y Peri, graciosa y con mucha más vida. Donde las reglas planas de diseño choquen con esto, manda D8, sin perder la letra grande, el contraste y la simpleza.
-- D9 (27 oct): prioridades de la ronda 2: simpleza, cómo se vende y seguridad. Público: todos.
-- D10 (27 oct): la API de Meta no tiene modelo de vídeo; `muse-wonder-1.0` (texto, más caro) solo para trabajo puntual, como proponer frases de Peri que luego se revisan.
-- D11 (28 oct, decisión de la persona): sin Higgsfield. "Podemos ir variando fondo": el mundo de Peri cambia de cielo con la hora y el estado, y de lugar cada día según la estación; esos mismos fondos sirven en el vídeo.
+- D7 (27 oct): el jurado habla inglés. La app es bilingüe inglés/español; todo lo que ve el jurado va en inglés. Reglas en `PROTOCOLO.md` §9.
+- D8 (27 oct): la app tiene que verse viva y llamativa, y Peri, graciosa y con mucha vida; manda sobre las reglas planas de diseño, sin perder letra grande, contraste y simpleza.
+- D9 (27 oct): prioridades: simpleza, cómo se vende y seguridad. Público: todos.
+- D10 (27 oct): la API de Meta no tiene modelo de vídeo; `muse-wonder-1.0` solo para trabajo puntual revisado (con `reasoning_effort` bajo).
+- D11 (28 oct): sin Higgsfield; el mundo de Peri cambia de cielo con la hora y el estado, y de lugar con la estación; esos fondos sirven en el vídeo.
+- D12 (28 oct, noche, decisión de la persona): Peri por capas en toda la app (cuerpo sin cara, ojos y boca encima, ropa pegada a la cara).
+- D13 (28 oct, noche): el chat contesta en el idioma en que se le escribe y sigue sin sacar nada del móvil; entiende más con reglas y el escudo en el propio móvil, no con un modelo en la nube.

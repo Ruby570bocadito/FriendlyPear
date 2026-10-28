@@ -2,6 +2,8 @@
 
 Vista general para personas. La lista de tareas que usan los agentes (con IDs, slugs y rutas) está en [`agentes/ROADMAP.md`](agentes/ROADMAP.md).
 
+**28 oct, noche:** el roadmap de los agentes empieza de cero (ronda 5) con todo lo que falta junto: móvil de verdad, chat y detección en serio, Peri por capas en todo, UI y vídeo. Lo de las rondas 1 a 4 está en [`agentes/ROADMAP_RONDAS_1-4.md`](agentes/ROADMAP_RONDAS_1-4.md).
+
 **Regla de oro:** todo lo P0 funciona en un móvil (o emulador) el **31 de octubre**. Si algo se retrasa, se recorta primero lo P2; la demo P0 nunca se recorta.
 
 ## Hitos
