@@ -65,7 +65,11 @@ All of Peri is made with **Muse Image** (`muse-image-1.0`, `/v1/images/generatio
 3. Each mood has 12 animation frames, each an edit of **its mood's own image** that changes one small thing and keeps the pose and framing: two blink steps, three mouth shapes, two glances, a foot lifted on each side, two hand gestures for talking and a wink.
 4. Extras made the same way: a wave hello, an idea, "sorry", a thumbs up, a laugh, a heart, dizzy spiral eyes, a yawn, reading a letter, 18 comic panels for "see the trap" (three per kind of scam, cream background kept, 640 px in the app), the app icon, the family heart, the shield, and **Peri the guardian** holding a phone (calm and urgent) for the family screens and the guardian's web page.
 
-About 125 frames and 18 panels ship in the app, from roughly 273 generations (about $2.73 in all, re-dos included). Every prompt is saved in [`assets/peri/prompts.json`](../assets/peri/prompts.json). [`assets/peri/cutout.py`](../assets/peri/cutout.py) removes the cream background and the floor so she stands on any screen.
+Round 2 added ten poses the same way (a hero's cape, a medal, peekaboo, a clap, a detective hat, a surprise, a party, reading glasses, a winter scarf and a goodbye, $0.10). About 135 frames and 18 panels ship in the app, from roughly 283 generations (about $2.83 in all, re-dos included). Every prompt is saved in [`assets/peri/prompts.json`](../assets/peri/prompts.json). [`assets/peri/cutout.py`](../assets/peri/cutout.py) removes the cream background and the floor so she stands on any screen.
+
+## For Peri's personality
+
+**Muse Wonder** (`muse-wonder-1.0`, Meta's frontier model) proposed the lines for 18 new banks in one call: tickles, being dragged, a shaken phone, her leaf, peekaboo, goodbye, her hero's cape, a medal, winter, coming back after days, a hello for each section and the game's reactions. Every line was then reviewed by hand against [`PERI_VOZ.md`](PERI_VOZ.md): no gender towards the person, short, her humour about herself, puns adapted to each language. Wonder reasons a lot: the first try spent all 12,000 tokens thinking and returned nothing; with `reasoning_effort: "low"` it wrote all 18 banks in about 5,800 tokens. About $0.36 in all. The app never calls it: the lines ship as text.
 
 ## For the training data
 

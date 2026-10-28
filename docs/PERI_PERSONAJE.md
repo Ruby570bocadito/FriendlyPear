@@ -74,18 +74,21 @@ Cada lista se baraja y da la vuelta entera antes de repetir.
 - **Nunca la frase de un modelo en voz alta.** Los modelos pueden *proponer* frases para el banco, pero se revisan una a una antes de entrar en la app.
 - Mínimo por banco: 8 frases (saludos por franja, toques, chistes, datos, palabras amables). Más es mejor, siempre que ninguna rompa las reglas.
 
-## 6. Ronda 2: Peri viva
+## 6. Ronda 2: Peri viva (hecho el 28 oct)
 
-- **Poses nuevas:** sorprendida, orgullosa con medalla, con capa de superheroína (timo frenado), detective (investigando), aplaudiendo, confeti, gafas de leer, bufanda (noche), escondida (cucú), despedida.
-- **Interacciones nuevas:** mantener pulsado (cosquillas), arrastrarla (protesta y vuelve), agitar el móvil (se marea), rascar la hoja (ronronea, a su manera).
-- **Frases que dependen del momento:** días seguidos, primer escudo, cinco escudos, volver tras días sin abrir, primera vez en cada pantalla.
-- **El mundo de Peri:** el fondo cambia con su estado y con la hora (sección 7).
+- **Poses nuevas** (Muse Image, `PeriMoment`): capa de heroína (`HERO`, al saludar cuando ya está todo en calma tras un timo parado, nunca durante), medalla (`MEDAL`, al ganar un escudo), cucú (`PEEKABOO`, al volver tras 3 horas o más), aplauso (`CLAP`, acierto en el juego), detective (`DETECTIVE`, cada mensaje del juego y pegatina de Aprende), sorpresa (`SURPRISED`, al arrastrarla), fiesta (`PARTY`, partida casi perfecta), gafas (`GLASSES`, pegatina del Diario), bufanda (`SCARF`, mañanas de invierno) y despedida (`BYE`, al irse a Mini Peri).
+- **Interacciones nuevas** (`PeriActivity`, `PeriFace`): mantener pulsado 0,55 s → cosquillas (risa, baile y destellos); arrastrarla → la sigue con un muelle, se inclina con la velocidad, su sombra se queda en el suelo y al soltar vuelve de un salto; frotar la hoja (tres idas y vueltas arriba) → corazón y corazoncitos; agitar el móvil (tres sacudidas de más de 2,3 g en un segundo) → vuelta y ojos en espiral. Solo cuando está tranquila, contenta o dormida: nunca durante un aviso ni esperando una respuesta.
+- **Frases nuevas:** 18 bancos de 8 frases en las dos lenguas, propuestas por **Muse Wonder** y revisadas una a una: cosquillas, arrastrar, agitar, hoja, cucú, despedida, heroína, medalla, invierno, volver tras días, el saludo de cada apartado y las del juego (acierto, fallo y tres finales). También se quitó el género hacia la persona de cinco frases antiguas.
+- **Saludo según el momento:** tras días sin abrir, un gran hola; tras horas, cucú; en invierno, la bufanda; tras un timo parado y ya en calma, la capa. Peri duerme de 22:00 a 7:00.
+- **Falta:** rachas de días tranquilos e hitos de escudos (el primero, cinco), y que Peri hable en los apartados con su propia voz.
+- **El mundo de Peri:** sección 7 y `docs/DISENO.md` §2.
 
 ## 7. El mundo de Peri (identidad visual)
 
 - **Paleta:** verde pera `#7CC242` y verde bosque `#25541A` (marca), crema `#FFF8EC` (luz), amarillo sol `#FFC83D`, coral `#FF8A7A` (cuidado), cielo `#6EC6FF` (llamadas), lila `#A98BFF` (familia). Texto siempre con contraste de 7:1 o más.
 - **Movimiento:** aplastar y estirar, anticipación y rebote, como la plastilina. Nada parpadea más de 3 veces por segundo. Con "quitar animaciones" activado, todo queda quieto.
-- **Tipografía:** una de títulos redondeada y simpática, y otra muy legible para leer (sección del roadmap "ronda 2").
+- **Tipografía:** Fredoka (títulos, botones, chips) y Atkinson Hyperlegible (todo lo que se lee), ver `docs/DISENO.md` §3.
+- **Su mundo:** cielo por la hora y por su estado, y un lugar distinto cada día según la estación (`PeriWorld.kt`).
 
 ## 8. Cómo añadir cosas
 
@@ -95,6 +98,7 @@ Cada lista se baraja y da la vuelta entera antes de repetir.
 | Un fotograma | `FRAMES` en `generate.ts` | `generate.ts frames <estado> --frame=<nombre>` |
 | Una frase de pantalla | `res/values/strings.xml` y `values-es/strings.xml` | En las dos; los bancos son `string-array` |
 | Una frase del agente | `core/.../agent/Phrases.kt` | `Spanish` y `English`, con test |
-| Una interacción | `ui/peri/PeriActivity.kt` (toques) y `PeriFace.kt` (animación) | Respetar "quitar animaciones" y la accesibilidad (TalkBack) |
+| Una interacción | `ui/peri/PeriActivity.kt` (toques, `touch` y `shake`) y `PeriFace.kt` (animación, `drag`) | Solo si `playful()`; respetar "quitar animaciones" y la accesibilidad (TalkBack) |
+| Un lugar del mundo | `ui/peri/PeriWorld.kt` (`Place`, `HILLS`, `drawPlaceLife`) | Colores de colinas, lo que vive allí y en qué estación sale; añadirlo en Ajustes |
 
 **Antes de dar algo por bueno:** verlo en el emulador, leerlo en voz alta en los dos idiomas y comprobar que no rompe ninguna regla de la sección 2.

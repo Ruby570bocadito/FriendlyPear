@@ -13,18 +13,20 @@ La app funciona, pero se ve estática y de plantilla, y Peri tiene poca vida. Or
 
 ### A · Sistema visual vivo
 - [x] (IMP-2) r2-direccion-visual — [S] elegir con la persona la dirección visual (bocetos) y fijarla en `docs/DISENO.md`; sustituye a las reglas planas del 27 oct — docs/DISENO.md · hecho 2026-10-28 (el mundo de Peri: fondos que van cambiando)
-- [ ] (IMP-2) r2-tipografia — [S] fuentes propias: títulos redondeados y simpáticos y lectura muy legible, con licencia libre y dentro de la app — android/app/src/main/res/font/, ui/peri/Style.kt
-- [ ] (IMP-2) r2-mundo-peri — [M] fondo vivo que cambia con el estado de Peri y la hora (cielo, nubes, sol, estrellas, el rojo suave de un aviso), quieto si se quitan las animaciones — ui/peri/
-- [ ] (IMP-2) r2-componentes — [M] paleta viva y componentes con movimiento (botones con rebote, tarjetas, chips, transiciones entre pantallas) — ui/peri/Style.kt
-- [ ] (IMP-2) r2-navegacion — [M] barra inferior con apartados: Peri, Diario, Aprende, Familia (y Ajustes) — ui/peri/
-- [ ] (IMP-2) r2-diario — [M] "Diario de Peri": avisos, escudos, denuncias y lo que hizo, en una línea de tiempo — ui/peri/, config/
-- [ ] (IMP-2) r2-aprende — [M] "Aprende con Peri": la biblioteca de trampas (viñetas) y el juego "¿Timo o no?" — ui/peri/, backend/src/
-- [ ] (IMP-2) r2-pantallas — [M] todas las pantallas con el sistema nuevo — ui/peri/
+- [x] (IMP-2) r2-tipografia — [S] fuentes propias: títulos redondeados y simpáticos y lectura muy legible, con licencia libre y dentro de la app — android/app/src/main/res/font/, ui/peri/Style.kt · hecho 2026-10-28 (Fredoka y Atkinson Hyperlegible, OFL)
+- [x] (IMP-2) r2-mundo-peri — [M] fondo vivo que cambia con el estado de Peri y la hora (cielo, nubes, sol, estrellas, el rojo suave de un aviso), quieto si se quitan las animaciones — ui/peri/ · hecho 2026-10-28 (`PeriWorld`: 4 cielos, 5 lugares por estación, elegible en Ajustes)
+- [x] (IMP-2) r2-componentes — [M] paleta viva y componentes con movimiento (botones con rebote, tarjetas, chips, transiciones entre pantallas) — ui/peri/Style.kt · hecho 2026-10-28 (botones y tarjetas de goma)
+- [x] (IMP-2) r2-navegacion — [M] barra inferior con apartados: Peri, Diario, Aprende, Familia (y Ajustes) — ui/peri/ · hecho 2026-10-28
+- [x] (IMP-2) r2-diario — [M] "Diario de Peri": avisos, escudos, denuncias y lo que hizo, en una línea de tiempo — ui/peri/, config/ · hecho 2026-10-28 (`Diary` en el móvil, sin textos ni remitentes)
+- [x] (IMP-2) r2-aprende — [M] "Aprende con Peri": la biblioteca de trampas (viñetas) y el juego "¿Timo o no?" — ui/peri/, backend/src/ · hecho 2026-10-28 (16 mensajes por idioma, en la app)
+- [x] (IMP-2) r2-pantallas — [M] todas las pantallas con el sistema nuevo — ui/peri/ · hecho 2026-10-28 (heredan fuentes, goma y el cielo claro de la hora)
+- [ ] (IMP-2) r2-barra-volver — [S] barra superior con botón de volver en las pantallas secundarias y la bienvenida sobre el mundo de Peri — ui/peri/
 
 ### B · Peri con personalidad
-- [ ] (IMP-2) r2-poses — [M] 10 poses nuevas con Muse Image (sorpresa, medalla, capa de superheroína, detective, aplauso, confeti, gafas, bufanda, cucú, despedida) — assets/peri/
-- [ ] (IMP-2) r2-interacciones — [M] cosquillas al mantener pulsado, arrastrarla, agitar el móvil, rascar la hoja — ui/peri/PeriFace.kt, PeriActivity.kt
-- [ ] (IMP-1) r2-frases — [M] bancos de frases mucho más grandes y según el momento (rachas, hitos, volver tras días sin abrir, primera vez en cada pantalla); propuestas con **Muse Wonder** y revisadas una a una — res/values*/, core/.../agent/Phrases.kt
+- [x] (IMP-2) r2-poses — [M] 10 poses nuevas con Muse Image (sorpresa, medalla, capa de superheroína, detective, aplauso, confeti, gafas, bufanda, cucú, despedida) — assets/peri/ · hecho 2026-10-28 (0,10 $)
+- [x] (IMP-2) r2-interacciones — [M] cosquillas al mantener pulsado, arrastrarla, agitar el móvil, rascar la hoja — ui/peri/PeriFace.kt, PeriActivity.kt · hecho 2026-10-28
+- [x] (IMP-1) r2-frases — [M] bancos de frases mucho más grandes y según el momento (rachas, hitos, volver tras días sin abrir, primera vez en cada pantalla); propuestas con **Muse Wonder** y revisadas una a una — res/values*/, core/.../agent/Phrases.kt · hecho 2026-10-28 (18 bancos; 0,36 $)
+- [ ] (IMP-1) r2-hitos — [S] rachas de días tranquilos e hitos de escudos (el primero, cinco) con su pose y su frase — ui/peri/, res/values*/
 - [ ] (IMP-1) r2-charla — [M] "Pregúntale a Peri": dudas y charla con Muse Spark, con guardarraíles (nunca lee enlaces ni códigos; lo que dice el modelo pasa el filtro de Peri) — backend/src/, android/
 
 ### C · Seguridad y pruebas

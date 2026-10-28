@@ -8,7 +8,7 @@ FriendlyPear debe sentirse **viva, alegre y cercana**, como una mascota de video
 2. **Viva pero legible.** Color y movimiento en el fondo, los botones y Peri; el texto, siempre con contraste de 7:1 o más (tabla de la §4).
 3. **El mundo acompaña.** El cielo sigue la hora y el estado de Peri; el lugar cambia cada día. Nada se mueve porque sí: cada movimiento dice algo (escucho, pienso, cuidado, todo bien).
 4. **El peligro primero.** Ante un timo, el mundo se queda quieto y se tiñe de coral suave, sin partículas ni bromas; nada de rojos parpadeantes ni sirenas.
-5. **Grande y tocable.** Botones de 56 dp o más (el principal, 76 dp), texto base de 20 sp, títulos de 28 sp.
+5. **Grande y tocable.** Botones de 56 dp o más (el principal, 76 dp), texto base de 20 sp, títulos de 26 sp.
 6. **Respeta "quitar animaciones".** Con la opción del sistema activada, el fondo se dibuja quieto y Peri cambia de estado sin moverse.
 
 ## 2. Dirección visual: el mundo de Peri (28 oct)
@@ -29,7 +29,7 @@ Elegida con la persona: **fondos que van cambiando**, en vez de escenas de víde
 | Títulos, botones, chips, barra de apartados, el nombre | **Fredoka** (variable, 600–700) | Redonda y simpática, como Peri |
 | Todo lo que se lee (bocadillo, textos, listas) | **Atkinson Hyperlegible** (400 y 700) | Hecha por el Braille Institute para personas con poca visión |
 
-Licencia OFL 1.1, dentro de la app (`android/app/src/main/assets/fonts/`, con sus licencias), sin internet. Tamaños: títulos 28, lo que se lee o se pulsa 20, letra pequeña 16; crecen con la letra del móvil hasta ×1,15.
+Licencia OFL 1.1, dentro de la app (`android/app/src/main/res/font/`; licencias en `assets/licenses/`), sin internet. Atkinson es la letra por defecto del tema; Fredoka se construye en código a 500, 600 y 700 (`Fonts` en `Style.kt`). Tamaños: títulos 26, lo que se lee o se pulsa 20, letra pequeña 16; crecen con la letra del móvil hasta ×1,15.
 
 ## 4. Paleta
 
@@ -99,7 +99,7 @@ Barra inferior flotante con cuatro apartados, cada uno con su color; Ajustes en 
 | Estilo | `Style.kt`: paleta, fuentes (`Fonts`), `Pill`, tarjetas, cabeceras, movimiento |
 | Mundo | `PeriWorld.kt`: cielo, astros, nubes, colinas, lugares y partículas en `Canvas`, a 30 fps y parado si no se ve |
 | Peri | `PeriFace.kt` + `Sparkles.kt`; ilustraciones de Muse Image en `res/drawable-nodpi/` |
-| Fuentes | `android.graphics.fonts.Font` desde `assets/fonts/` (Fredoka variable a 600 y 700) |
+| Fuentes | `res/font/`: Atkinson por el tema; Fredoka variable con `android.graphics.fonts.Font` a 500, 600 y 700 |
 | Vibración | `Haptics` con patrones cortos por estado |
 
 ## 10. Más ideas
