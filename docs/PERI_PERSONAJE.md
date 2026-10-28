@@ -81,7 +81,7 @@ Cada lista se baraja y da la vuelta entera antes de repetir.
 - **Frases nuevas:** 18 bancos de 8 frases en las dos lenguas, propuestas por **Muse Wonder** y revisadas una a una: cosquillas, arrastrar, agitar, hoja, cucú, despedida, heroína, medalla, invierno, volver tras días, el saludo de cada apartado y las del juego (acierto, fallo y tres finales). También se quitó el género hacia la persona de cinco frases antiguas.
 - **Saludo según el momento:** tras días sin abrir, un gran hola; tras horas, cucú; en invierno, la bufanda; tras un timo parado y ya en calma, la capa. Peri duerme de 22:00 a 7:00.
 - **Su armario** (28 oct): 11 accesorios de Muse Image (cabeza, ojos, bajo la sonrisa) que se colocan en cada pose a partir de sus ojos (`PeriAnchors`, generado), giran con su cabeza y se quitan donde la pose ya lleva algo (gorro de dormir, lupa, bufanda). Reacciona a cada prenda con su frase (`peri_outfit`, `peri_outfit_off`).
-- **Las peras de la familia:** su pera la ven los móviles de su familia, con su ropa; si su Peri avisa de un timo, su pera se preocupa en el móvil de los demás.
+- **Las peras de la familia:** su pera la ven los móviles de su familia, con su ropa; si su Peri avisa de un timo, su pera se preocupa en el móvil de los demás. Si a alguien le escriben de un número nuevo diciendo ser de la familia, su Peri pregunta en silencio a los demás «¿has sido tú?» y le dice lo que contestan; nunca convierte un aviso en un sí (`check_*`). Si la misma trampa llega a varios, todas avisan (`campaign_*`). En la página de aprobación y en el Peri del cuidador sale la pera de quien pide, vestida como la conoce la familia.
 - **Falta:** rachas de días tranquilos e hitos de escudos (el primero, cinco), y que Peri hable en los apartados con su propia voz.
 - **El mundo de Peri:** sección 7 y `docs/DISENO.md` §2.
 
@@ -90,7 +90,7 @@ Cada lista se baraja y da la vuelta entera antes de repetir.
 - **Paleta:** verde pera `#7CC242` y verde bosque `#25541A` (marca), crema `#FFF8EC` (luz), amarillo sol `#FFC83D`, coral `#FF8A7A` (cuidado), cielo `#6EC6FF` (llamadas), lila `#A98BFF` (familia). Texto siempre con contraste de 7:1 o más.
 - **Movimiento:** aplastar y estirar, anticipación y rebote, como la plastilina. Nada parpadea más de 3 veces por segundo. Con "quitar animaciones" activado, todo queda quieto.
 - **Tipografía:** Fredoka (títulos, botones, chips) y Atkinson Hyperlegible (todo lo que se lee), ver `docs/DISENO.md` §3.
-- **Su mundo:** cielo por la hora y por su estado, y un lugar distinto cada día según la estación (`PeriWorld.kt`).
+- **Su mundo:** cielo por la hora y por su estado, y un lugar distinto cada día según la estación (`PeriWorld.kt`), con profundidad (colinas en la bruma, montañas nevadas, un faro) y luz de plastilina desde arriba a la izquierda, como ella; lo lejano se mueve un poco al inclinar el móvil.
 
 ## 8. Cómo añadir cosas
 

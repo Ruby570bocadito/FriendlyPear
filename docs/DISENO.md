@@ -19,6 +19,9 @@ Elegida con la persona: **fondos que van cambiando**, en vez de escenas de víde
 - **Cielo por el estado:** aviso de timo → velo coral suave y todo quieto; contenta → confeti por el cielo; dormida → noche.
 - **Un lugar cada día, según la estación:** pradera con flores, huerto de perales, playa con barquito, colinas de otoño con hojas que caen y nieve con pinos. En Ajustes se puede fijar uno.
 - **Las colinas llegan a los pies de Peri** en su apartado; al ir a otro apartado se hunden y el cielo deja sitio a las tarjetas.
+- **Profundidad y luz de plastilina** (28 oct, tarde): colinas lejanas que se funden con el cielo (o montañas con nieve, o un cabo con un faro cuyo haz gira de noche), colinas con degradado y borde de luz, huellas en la arcilla y matas de hierba; sol de arcilla con rayos lentos y un halo grande que aclara el cielo; nubes con la panza en sombra; estrellas con destello; reflejos del sol o la luna en el agua; árboles, matas, sombrilla y muñeco de nieve sobre su sombra. La luz viene de arriba a la izquierda, como en Peri.
+- **Inclinar el móvil** mueve un poco lo lejano (el sol 18 dp como mucho, las nubes, las colinas del fondo; la colina de Peri no), con el acelerómetro que ya escuchaba para agitarla. Quieto mientras avisa y con "quitar animaciones".
+- **Rendimiento:** las formas se hacen una vez por tamaño y lugar, alrededor de la línea del suelo, y los degradados se guardan hasta que la hora cambia sus colores; sin objetos nuevos por fotograma. En el emulador: 0,2 ms por fotograma en el hilo de la interfaz, 2 ms en el de dibujo, ningún fotograma tarde.
 - **Pantallas secundarias** (Ajustes, denuncia, viñetas…): el cielo claro de la hora, sin colinas, para que lean bien.
 - **Vídeo:** los mismos lugares y cielos sirven de fondo detrás de los clips del móvil.
 
@@ -97,7 +100,7 @@ Barra inferior flotante con cuatro apartados, cada uno con su color; Ajustes en 
 |---|---|
 | Interfaz | Vistas de Android creadas en código (`ui/peri/`), sin librerías externas |
 | Estilo | `Style.kt`: paleta, fuentes (`Fonts`), `Pill`, tarjetas, cabeceras, movimiento |
-| Mundo | `PeriWorld.kt`: cielo, astros, nubes, colinas, lugares y partículas en `Canvas`, a 30 fps y parado si no se ve |
+| Mundo | `PeriWorld.kt`: cielo, astros, nubes, colinas, lugares y partículas en `Canvas`, a 30 fps y parado si no se ve; formas y degradados en caché (`shape`, `Shade`), paralaje con `tilt` |
 | Peri | `PeriFace.kt` + `Sparkles.kt`; ilustraciones de Muse Image en `res/drawable-nodpi/` |
 | Fuentes | `res/font/`: Atkinson por el tema; Fredoka variable con `android.graphics.fonts.Font` a 500, 600 y 700 |
 | Vibración | `Haptics` con patrones cortos por estado |
