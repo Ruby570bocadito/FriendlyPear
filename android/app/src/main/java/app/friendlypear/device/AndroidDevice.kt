@@ -1,5 +1,7 @@
 package app.friendlypear.device
 
+import android.telecom.TelecomManager
+import android.annotation.SuppressLint
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -31,7 +33,7 @@ class AndroidDevice(
     /** When the voice really starts playing: some engines report "done" early, so the mouth follows this too. */
     private val onSpeechStart: () -> Unit = {},
     private val ask: (Capability, (Boolean) -> Unit) -> Unit,
-    private val pause: (text: String, callName: String?) -> Unit = { _, _ -> },
+    private val pause: (text: String, callName: String?, hangUp: Boolean) -> Unit = { _, _, _ -> },
     /** Right after Peri places a call, so Mini Peri can stay beside the call screen. */
     private val onCalling: () -> Unit = {},
     /** Each call, text and location share, for the person's own log ("What Peri did"). */
@@ -39,9 +41,27 @@ class AndroidDevice(
 ) : DevicePort {
     override fun prepare(capability: Capability, then: (Boolean) -> Unit) = ask(capability, then)
 
-    override fun showPause(text: String, callName: String?) {
-        main.post { pause(text, callName) }
+    override fun showPause(text: String, callName: String?, hangUp: Boolean) {
+        main.post { pause(text, callName, hangUp) }
     }
+
+    /** Ends the call on the line: Android's permission to end calls is asked with the one to see calls. */
+    @SuppressLint("MissingPermission")
+    override fun hangUp(): Boolean {
+        if (!granted(Manifest.permission.ANSWER_PHONE_CALLS)) return false
+        val telecom = context.getSystemService(TelecomManager::class.java) ?: return false
+        @Suppress("DEPRECATION")
+        val ended = runCatching { telecom.endCall() }.getOrDefault(false)
+        if (ended) onUse(UseLog.Kind.HANG_UP, null)
+        return ended
+    }
+
+    /** Right after a hang-up the line takes a moment to free up; a call waits for it, a few seconds at most. */
+    @SuppressLint("MissingPermission")
+    private fun lineBusy(): Boolean =
+        granted(Manifest.permission.READ_PHONE_STATE) && context.getSystemService(TelecomManager::class.java)?.isInCall == true
+
+    private var lineWaits = 0
 
     private val context = context.applicationContext
 
@@ -139,6 +159,12 @@ class AndroidDevice(
 
     override fun call(phone: String) {
         require(granted(Manifest.permission.CALL_PHONE)) { "CALL_PHONE not granted" }
+        if (lineBusy() && lineWaits < LINE_WAITS) {
+            lineWaits++
+            main.postDelayed({ call(phone) }, LINE_WAIT_MS)
+            return
+        }
+        lineWaits = 0
         val intent = Intent(Intent.ACTION_CALL, Uri.fromParts("tel", phone, null)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
         onUse(UseLog.Kind.CALL, phone)
@@ -179,3 +205,7 @@ fun speechLocale(lang: Lang): Locale = when (lang) {
 
 const val GOOGLE_TTS = "com.google.android.tts"
 private const val MAX_VOICES = 8
+
+/** How long a call waits for the line to free up after a hang-up: six times 0.8 s at most. */
+private const val LINE_WAITS = 6
+private const val LINE_WAIT_MS = 800L

@@ -207,6 +207,25 @@ class SettingsActivity : Activity() {
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply { topMargin = dp(10) })
         }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
 
+        // Numbers blocked from a scam's card, each with its way back.
+        val blocked = app.friendlypear.config.BlockList(this)
+        if (blocked.all().isNotEmpty()) list.addView(LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = cardBackground()
+            setPadding(dp(18), dp(16), dp(18), dp(18))
+            addView(heading(getString(R.string.settings_blocked), TextSize.BODY))
+            addView(body(getString(R.string.settings_blocked_note), TextSize.SMALL).apply { setPadding(0, dp(4), 0, dp(6)) })
+            blocked.all().forEach { sender ->
+                val row = LinearLayout(this@SettingsActivity).apply { gravity = Gravity.CENTER_VERTICAL }
+                row.addView(body(sender, TextSize.BODY), LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+                row.addView(chipButton(getString(R.string.settings_unblock)) {
+                    blocked.remove(sender)
+                    row.visibility = View.GONE
+                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(48)))
+                addView(row, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
+            }
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
+
         // Every permission, what for and how to switch it off, and what Peri did with them.
         list.addView(Pill(this, getString(R.string.settings_access), R.drawable.ic_shield, primary = false).apply {
             setOnClickListener { startActivity(android.content.Intent(this@SettingsActivity, AccessActivity::class.java)) }

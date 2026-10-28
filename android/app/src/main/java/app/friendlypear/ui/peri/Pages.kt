@@ -246,6 +246,8 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
                 Diary.Kind.WEB_SILENCED -> Line(e.at, R.drawable.ic_notifications, Palette.SKY_TINT, Palette.SKY_INK, c.getString(R.string.diary_web))
                 Diary.Kind.QUIZ -> Line(e.at, R.drawable.ic_learn, Palette.SKY_TINT, Palette.SKY_INK, c.getString(R.string.diary_quiz, e.detail))
                 Diary.Kind.FAMILY_CHECKED -> Line(e.at, R.drawable.ic_family, Palette.LILAC_TINT, Palette.LILAC_INK, c.getString(R.string.diary_family_checked))
+                Diary.Kind.BLOCKED_CALL -> Line(e.at, R.drawable.ic_shield, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(R.string.diary_blocked_call))
+                Diary.Kind.BLOCKED_TEXT -> Line(e.at, R.drawable.ic_shield, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(R.string.diary_blocked_text))
             }
         }
         val uses = hub.uses.all().map { e ->
@@ -257,6 +259,7 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
                 UseLog.Kind.PICTURE -> Line(e.at, R.drawable.ic_image_search, Palette.SKY_TINT, Palette.SKY_INK, c.getString(R.string.diary_picture))
                 UseLog.Kind.VOICE -> Line(e.at, R.drawable.ic_mic, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(R.string.diary_voice))
                 UseLog.Kind.REPORT -> Line(e.at, R.drawable.ic_message, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(R.string.diary_report))
+                UseLog.Kind.HANG_UP -> Line(e.at, R.drawable.ic_call, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(R.string.diary_hang_up))
             }
         }
         return (diary + uses).sortedByDescending { it.at }.take(MAX_LINES)
@@ -542,6 +545,9 @@ internal class FamilyPage(context: Context, private val hub: PeriHub, private va
                 if (alert) typeface = Fonts.reading(bold = true)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(4) })
+            if (alert && pear.kind == "call") addView(c.chipButton(c.getString(R.string.family_call_button)) {
+                hub.requestHangUp(pear.id) { sent -> hub.say(c.getString(if (sent) R.string.family_call_sent else R.string.family_call_failed, name)) }
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, c.dp(46)).apply { topMargin = c.dp(10) })
             if (pear.self) addView(LinearLayout(c).apply {
                 addView(c.chipButton(c.getString(R.string.pear_dress)) { open(Intent(c, WardrobeActivity::class.java)) }, LinearLayout.LayoutParams(0, c.dp(46), 1f).apply { marginEnd = c.dp(3) })
                 addView(c.chipButton(c.getString(R.string.pear_rename)) { askName() }, LinearLayout.LayoutParams(0, c.dp(46), 1f).apply { marginStart = c.dp(3) })

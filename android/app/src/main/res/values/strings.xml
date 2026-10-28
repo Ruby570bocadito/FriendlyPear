@@ -13,7 +13,7 @@
     <string name="denied_contacts">No problem. Without your contacts I can still warn you about suspicious messages, but I can\'t check if someone is really family.</string>
     <string name="why_sms_read">To warn you about scam texts, even the ones with codes, I need to read the texts you receive. I only read them on your phone, and only doubtful ones ever leave it.</string>
     <string name="denied_sms_read">That\'s fine. I\'ll keep looking at the message alerts, but I may miss texts with codes.</string>
-    <string name="why_phone_state">To warn you if a code arrives while you\'re on the phone, I need to know when you\'re on a call. I never listen to your calls.</string>
+    <string name="why_phone_state">To warn you if a code arrives while you\'re on the phone, I need to know when you\'re on a call, and to hang up a stranger\'s call when you ask me. I never listen to your calls.</string>
     <string name="denied_phone_state">All right. I won\'t know when you\'re on a call, so I can\'t warn you about codes during one.</string>
     <string name="why_mic">To understand you when you talk to me, I need the microphone. I only listen when you press the button or when I\'ve just asked you something.</string>
     <string name="denied_mic">No worries. You can still read everything I say here on the screen.</string>
@@ -85,6 +85,7 @@
     <string name="pause_title">Wait a moment</string>
     <string name="pause_call">Call %1$s</string>
     <string name="pause_leave">Leave this app</string>
+    <string name="pause_hang_up">Hang up</string>
     <string name="pause_continue">Continue anyway</string>
     <string name="pause_continue_in">Continue anyway (%1$d)</string>
     <string name="share_news">Let my guardians see Peri\'s news</string>
@@ -404,6 +405,8 @@
     <string name="report_card_title">That was a trap</string>
     <string name="report_card_text">See how it worked, or have it written up for the police.</string>
     <string name="report_card_button">Report it</string>
+    <string name="block_button">Block this number</string>
+    <string name="block_says">Blocked. I won\'t read you its messages, and if I screen your calls, I\'ll turn its calls away too.</string>
     <string name="report_hide">Hide</string>
     <string name="report_title">Report it</string>
     <string name="report_intro">I\'ll write down what arrived, who sent it and why it\'s a scam, ready for the police or a fraud helpline. To write it, the message and its sender go to Peri\'s server and to Meta\'s Muse Spark. Nothing is kept.</string>
@@ -419,6 +422,7 @@
     <string name="report_none">There\'s no scam to report right now. If one arrives, I\'ll offer to write it up.</string>
     <string name="report_ready">Here\'s your report. You can send it, or show it at the police station.</string>
     <string name="use_report">Sent a scam message to write a report</string>
+    <string name="use_hang_up">Hung up a call from a number you don\'t know</string>
     <string name="trap_card_how">See the trap</string>
     <string name="trap_title">How the trap worked</string>
     <string name="trap_done">Got it</string>
@@ -450,6 +454,9 @@
     <string name="settings_web_on">On: %1$s</string>
     <string name="settings_web_off">Off</string>
     <string name="settings_web_setup">Set it up</string>
+    <string name="settings_blocked">Numbers you blocked</string>
+    <string name="settings_blocked_note">Peri turns their calls away and never reads you their messages.</string>
+    <string name="settings_unblock">Unblock</string>
     <string name="web_dns_title">Turn on safer web</string>
     <string name="web_dns_steps">1. Tap Open settings, then Private DNS (on some phones it\'s under Connections, More connection settings).\n\n2. Choose \"Private DNS provider hostname\".\n\n3. Paste %1$s (I\'ve copied it for you) and tap Save.</string>
     <string name="web_dns_copy">Copy the name</string>
@@ -481,6 +488,9 @@
     <string name="diary_picture">I looked at a picture with you</string>
     <string name="diary_voice">I listened to something you asked me</string>
     <string name="diary_report">I wrote up a scam for you to report</string>
+    <string name="diary_hang_up">I hung up a call from a number you don\'t know</string>
+    <string name="diary_blocked_call">I turned away a call from a number you blocked</string>
+    <string name="diary_blocked_text">I silenced a message from a sender you blocked</string>
     <string name="learn_title">Learn with Peri</string>
     <string name="learn_traps_title">Traps I know</string>
     <string name="learn_tips_title">My golden rules</string>
@@ -494,6 +504,7 @@
     <string name="trap_name_family">The fake relative</string>
     <string name="trap_name_remote">The fake helper</string>
     <string name="trap_name_prize">The big prize</string>
+    <string name="trap_name_call">A stranger on the phone</string>
     <string name="family_page_title">Your family</string>
     <string name="family_guardians_title">Your guardians</string>
     <string name="family_no_guardians">Nobody yet. Choose the people you trust in “Change my family”.</string>
@@ -880,6 +891,12 @@
     <string name="family_alert_title">%1$s\'s Peri needs attention</string>
     <string name="family_alert_text">Someone may be trying to trick them. Give them a call to check they\'re all right.</string>
     <string name="family_alert_button">See my family</string>
+    <string name="family_call_title">%1$s is on a call with a number they don\'t know</string>
+    <string name="family_call_text">Their Peri is with them. If it sounds like a scam, ask it to hang up.</string>
+    <string name="family_call_button">Hang up their call</string>
+    <string name="family_call_says">%1$s is on a call with a number they don\'t know. If you think it\'s a scam, I can ask their Peri to hang up.</string>
+    <string name="family_call_sent">Done: I asked %1$s\'s Peri to hang up.</string>
+    <string name="family_call_failed">I couldn\'t reach %1$s\'s Peri. Better call them now.</string>
     <string name="family_alert_says">Heads up: %1$s\'s Peri is on alert. Someone may be trying to trick them. Give them a call.</string>
     <string-array name="pear_name_ideas">
         <item>Mum</item>

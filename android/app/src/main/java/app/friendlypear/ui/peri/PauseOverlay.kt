@@ -28,7 +28,7 @@ class PauseOverlay(context: Context, private val onAnswer: (PauseAnswer) -> Unit
     private val main = Handler(Looper.getMainLooper())
     private var shown: View? = null
 
-    fun show(text: String, callName: String?) {
+    fun show(text: String, callName: String?, hangUp: Boolean = false) {
         if (!Settings.canDrawOverlays(context)) return
         hide()
         val c = context
@@ -56,6 +56,15 @@ class PauseOverlay(context: Context, private val onAnswer: (PauseAnswer) -> Unit
             addView(face, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
             addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
         }
+        // A stranger on the line: hanging up comes first, the biggest button.
+        if (hangUp) {
+            root.addView(
+                Pill(c, c.getString(R.string.pause_hang_up), R.drawable.ic_call, primary = true, rubber = Rubber.CORAL).apply {
+                    setOnClickListener { answer(PauseAnswer.HANG_UP) }
+                },
+                buttonParams(80, top = 18),
+            )
+        }
         if (callName != null) {
             root.addView(
                 Pill(c, c.getString(R.string.pause_call, callName), R.drawable.ic_family, primary = true).apply {
@@ -65,13 +74,13 @@ class PauseOverlay(context: Context, private val onAnswer: (PauseAnswer) -> Unit
             )
         }
         root.addView(
-            Pill(c, c.getString(R.string.pause_leave), R.drawable.ic_shield, primary = callName == null).apply {
+            Pill(c, c.getString(R.string.pause_leave), R.drawable.ic_shield, primary = callName == null && !hangUp).apply {
                 setOnClickListener {
                     context.startActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                     answer(PauseAnswer.LEAVE)
                 }
             },
-            buttonParams(if (callName == null) 80 else 64, top = 12),
+            buttonParams(if (callName == null && !hangUp) 80 else 64, top = 12),
         )
         // A speed bump, not a wall: "continue" unlocks after a few seconds.
         val carryOn = TextView(c).apply {

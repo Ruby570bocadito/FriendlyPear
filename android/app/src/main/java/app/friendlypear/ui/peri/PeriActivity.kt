@@ -67,6 +67,10 @@ class PeriActivity : Activity() {
     private var tab = TAB_PERI
     private var bars = android.graphics.Insets.NONE
     private lateinit var familyAlert: View
+    private lateinit var blockScam: View
+    private lateinit var familyHangUp: View
+    /** The family member on a stranger's call, if that's the alert on show: their pear's id and name. */
+    private var callAlert: Pair<String, String>? = null
     private lateinit var familyAlertTitle: TextView
     private lateinit var familyAlertText: TextView
     private lateinit var question: View
@@ -236,6 +240,19 @@ class PeriActivity : Activity() {
                 topMargin = dp(10)
                 marginEnd = dp(8)
             })
+            // Or never hear from that number again.
+            blockScam = Pill(this@PeriActivity, getString(R.string.block_button), R.drawable.ic_shield, primary = false, rubber = Rubber.CORAL).apply {
+                setOnClickListener {
+                    val scam = hub.lastScam.offer() ?: return@setOnClickListener
+                    hub.blocked.add(scam.sender)
+                    hub.say(getString(R.string.block_says))
+                    showSetup()
+                }
+            }
+            addView(blockScam, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply {
+                topMargin = dp(10)
+                marginEnd = dp(8)
+            })
         }
 
         // A family member's Peri is on alert: their pear needs attention. It comes before every other card.
@@ -268,6 +285,18 @@ class PeriActivity : Activity() {
                         showSetup()
                     }
                 }, LinearLayout.LayoutParams(dp(44), dp(44)))
+            })
+            // On a stranger's call: their Peri can hang up for them, if the family asks.
+            familyHangUp = Pill(this@PeriActivity, getString(R.string.family_call_button), R.drawable.ic_call, primary = true, rubber = Rubber.CORAL).apply {
+                visibility = View.GONE
+                setOnClickListener {
+                    val (id, name) = callAlert ?: return@setOnClickListener
+                    hub.requestHangUp(id) { sent -> hub.say(getString(if (sent) R.string.family_call_sent else R.string.family_call_failed, name)) }
+                }
+            }
+            addView(familyHangUp, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(60)).apply {
+                topMargin = dp(10)
+                marginEnd = dp(8)
             })
             addView(Pill(this@PeriActivity, getString(R.string.family_alert_button), R.drawable.ic_family, primary = false, rubber = Rubber.CORAL).apply {
                 setOnClickListener { showTab(TAB_FAMILY) }
@@ -1097,9 +1126,11 @@ class PeriActivity : Activity() {
             // doesn't repeat it. Once all is calm, the next one is new.
             val key = when {
                 campaign != null -> "campaign:$campaign"
-                alert != null -> "pear:${alert.id}"
+                alert != null -> "pear:${alert.id}:${alert.kind}"
                 else -> null
             }
+            callAlert = alert?.takeIf { campaign == null && it.kind == "call" }?.let { it.id to it.name }
+            familyHangUp.visibility = if (callAlert != null) View.VISIBLE else View.GONE
             if (key == null) asked.edit().remove(FAMILY_SAID).remove(FAMILY_DISMISSED).apply()
             if (key == null || key == asked.getString(FAMILY_DISMISSED, null)) {
                 familyAlertKey = null
@@ -1109,6 +1140,9 @@ class PeriActivity : Activity() {
             if (campaign != null) {
                 familyAlertTitle.text = getString(R.string.campaign_title)
                 familyAlertText.text = getString(R.string.campaign_text, getString(TRAP_NAMES[campaign] ?: R.string.trap_name_link).lowercase())
+            } else if (alert != null && alert.kind == "call") {
+                familyAlertTitle.text = getString(R.string.family_call_title, alert.name)
+                familyAlertText.text = getString(R.string.family_call_text)
             } else if (alert != null) {
                 familyAlertTitle.text = getString(R.string.family_alert_title, alert.name)
                 familyAlertText.text = getString(R.string.family_alert_text)
@@ -1117,7 +1151,13 @@ class PeriActivity : Activity() {
             if (key != asked.getString(FAMILY_SAID, null)) {
                 asked.edit().putString(FAMILY_SAID, key).apply()
                 hub.haptics.mood(Mood.WORRIED)
-                hub.say(if (campaign != null) getString(R.string.campaign_says) else getString(R.string.family_alert_says, alert!!.name))
+                hub.say(
+                    when {
+                        campaign != null -> getString(R.string.campaign_says)
+                        alert!!.kind == "call" -> getString(R.string.family_call_says, alert.name)
+                        else -> getString(R.string.family_alert_says, alert.name)
+                    },
+                )
             }
         }
     }
@@ -1152,8 +1192,11 @@ class PeriActivity : Activity() {
         val site = hub.webNotices.offer()?.takeIf { !family && !asked }
         web.visibility = if (site != null) View.VISIBLE else View.GONE
         if (site != null) webText.text = getString(R.string.web_card_text, site.site ?: getString(R.string.web_unknown_site))
-        val reporting = !family && !asked && site == null && hub.lastScam.offer() != null
+        val scam = hub.lastScam.offer()
+        val reporting = !family && !asked && site == null && scam != null
         report.visibility = if (reporting) View.VISIBLE else View.GONE
+        val blockable = scam != null && app.friendlypear.config.BlockList.key(scam.sender) != null && !hub.blocked.has(scam.sender)
+        blockScam.visibility = if (blockable) View.VISIBLE else View.GONE
         setup.visibility = if (first != null && !reporting && site == null && !family && !asked) View.VISIBLE else View.GONE
         // Contacts and calls, plus a way to see messages (texts or alerts): that's enough to protect.
         val seesMessages = hub.permissions.granted(Need.READ_SMS) || !noAccess
@@ -1352,6 +1395,7 @@ class PeriActivity : Activity() {
             "family" to R.string.trap_name_family,
             "remote" to R.string.trap_name_remote,
             "prize" to R.string.trap_name_prize,
+            "call" to R.string.trap_name_call,
         )
         const val FAMILY_SAID = "family_said"
         const val FAMILY_DISMISSED = "family_dismissed"

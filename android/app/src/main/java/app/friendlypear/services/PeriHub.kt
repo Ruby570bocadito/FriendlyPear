@@ -193,9 +193,12 @@ class PeriHub(context: Context) {
             views.forEach { it.speaking(true) }
         },
         ask = { capability, then -> permissions.ask(Need.of(capability), then) },
-        pause = { text, callName -> pauseScreen.show(text, callName) },
+        pause = { text, callName, hangUp -> pauseScreen.show(text, callName, hangUp) },
         onCalling = { miniBesideCall() },
-        onUse = { kind, phone -> uses.add(kind, phone) },
+        onUse = { kind, phone ->
+            uses.add(kind, phone)
+            if (kind == UseLog.Kind.HANG_UP) main.post { earn(Shields.Kind.STOPPED) }
+        },
     )
 
     /** The safety pause over a money app; the person's choice goes back to the agent. */
@@ -213,7 +216,7 @@ class PeriHub(context: Context) {
                     earn(Shields.Kind.FAMILY)
                     diary.add(app.friendlypear.config.Diary.Kind.FAMILY_CALLED)
                 }
-                PauseAnswer.CONTINUE -> Unit
+                PauseAnswer.HANG_UP, PauseAnswer.CONTINUE -> Unit
             }
             share(NewsEntry(System.currentTimeMillis(), "pause", answer = answer.name.lowercase()))
         }
@@ -264,6 +267,10 @@ class PeriHub(context: Context) {
             views.forEach { it.mood(mood) }
             watchApps()
             if (agent.strangerOnLine) miniBesideCall() else if (!active) MiniPeriService.endCall(context)
+            // The family sees a stranger on the line (if the person shares Peri's news), and can ask Peri to hang up.
+            if (pearState() != sharedState || pearKind() != sharedKind) publishPear()
+            main.removeCallbacks(hangUpWatch)
+            if (agent.strangerOnLine) main.postDelayed(hangUpWatch, HANGUP_POLL_MS)
         }
     }
     private val countdownEnd = Runnable { agent.onEmergencyTimeout() }
@@ -348,7 +355,50 @@ class PeriHub(context: Context) {
         }
 
     /** Attention while Peri warns or waits for the family, but only if the person shares Peri's news with them. */
-    private fun pearState(): String = if (news.sharing && mood in ATTENTION_MOODS) "attention" else "calm"
+    private fun pearState(): String = if (news.sharing && (mood in ATTENTION_MOODS || agent.strangerOnLine)) "attention" else "calm"
+
+    /** Why her pear needs attention, in a word: on a stranger's call right now, or the kind of a recent scam. */
+    private fun pearKind(): String {
+        if (pearState() != "attention") return ""
+        if (agent.strangerOnLine) return "call"
+        return lastScam.load()?.takeIf { System.currentTimeMillis() - it.at < SCAM_KIND_MS }?.kind.orEmpty()
+    }
+
+    private var sharedKind = ""
+
+    /** While a stranger is on the line, a guardian may ask this Peri to hang up: she looks every few seconds. */
+    private val hangUpWatch = object : Runnable {
+        override fun run() {
+            if (!agent.strangerOnLine || !pearClient.enabled) return
+            network.execute {
+                val from = pearClient.hangUpRequest()
+                main.post {
+                    if (from != null) {
+                        Log.i(TAG, "a guardian asked to hang up")
+                        agent.onFamilyHangUp(from.ifEmpty { context.getString(R.string.check_someone) })
+                    }
+                }
+            }
+            main.postDelayed(this, HANGUP_POLL_MS)
+        }
+    }
+
+    /** Asks a family member's Peri to hang up their stranger's call; [done] learns if the request got there. */
+    fun requestHangUp(pearId: String, done: (Boolean) -> Unit) {
+        network.execute {
+            val sent = pearClient.hangUp(pearId)
+            main.post { done(sent) }
+        }
+    }
+
+    /** Numbers the person blocked from a scam's card. */
+    val blocked = app.friendlypear.config.BlockList(this.context)
+
+    /** From [CallScreener]: a blocked number's call was turned away before it rang. */
+    fun onBlockedCall() = main.post {
+        diary.add(app.friendlypear.config.Diary.Kind.BLOCKED_CALL)
+        Log.i(TAG, "blocked call turned away")
+    }
 
     /**
      * Sends this phone's pear: its name, what Peri wears, the role (looked after, if there are guardians here), and
@@ -361,8 +411,10 @@ class PeriHub(context: Context) {
         sharedState = state
         val outfit = app.friendlypear.ui.peri.Outfit.load(context).code()
         val role = if (family.load().guardians.isNotEmpty()) "protected" else "guardian"
-        // The kind of trap, if a scam is why her pear needs attention: the family's server spots one reaching many.
-        val kind = lastScam.load()?.takeIf { state == "attention" && System.currentTimeMillis() - it.at < SCAM_KIND_MS }?.kind.orEmpty()
+        // The kind of trap, if a scam is why her pear needs attention (the family's server spots one reaching many),
+        // or "call" while a stranger is on the line.
+        val kind = pearKind()
+        sharedKind = kind
         waiting.execute {
             val sent = pearClient.publish(name, outfit, role, state, kind)
             Log.i(TAG, "pear published=$sent state=$state")
@@ -485,6 +537,12 @@ class PeriHub(context: Context) {
 
     fun onMessage(message: IncomingMessage) = main.post {
         if (contacts == null) refreshNow()
+        // A number the person blocked: never read aloud, only a line in the diary.
+        if (blocked.has(message.sender)) {
+            diary.add(app.friendlypear.config.Diary.Kind.BLOCKED_TEXT)
+            Log.i(TAG, "message from a blocked sender silenced")
+            return@post
+        }
         // Peri to Peri: a family member's request, from a saved contact and to Peri's own server, opens in the app.
         FamilyRequestLink.find(message.text, BuildConfig.BACKEND_URL)?.let { found ->
             val from = familyContact(message.sender)
@@ -858,6 +916,7 @@ class PeriHub(context: Context) {
         /** A scam this recent is why the pear needs attention, and its kind travels with it. */
         const val SCAM_KIND_MS = 30 * 60_000L
         const val CHECK_POLL_MS = 10_000L
+        const val HANGUP_POLL_MS = 6_000L
         /** After this, a "was it you?" stops waiting for answers. */
         const val CHECK_MAX_MS = 10 * 60_000L
         /** After the first "it wasn't me", this long for anyone else to say it was them. */

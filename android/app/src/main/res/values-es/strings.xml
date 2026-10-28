@@ -12,7 +12,7 @@
     <string name="denied_contacts">No pasa nada. Sin tu agenda puedo seguir avisándote de mensajes sospechosos, pero no puedo comprobar si alguien es de verdad de tu familia.</string>
     <string name="why_sms_read">Para avisarte de los SMS trampa, también los que traen códigos, necesito leer los SMS que te llegan. Solo los leo en tu móvil, y solo los dudosos salen de él.</string>
     <string name="denied_sms_read">Vale. Seguiré mirando los avisos de mensajes, pero se me pueden escapar los SMS con códigos.</string>
-    <string name="why_phone_state">Para avisarte si te llega un código mientras hablas por teléfono, necesito saber cuándo estás en una llamada. Nunca escucho tus llamadas.</string>
+    <string name="why_phone_state">Para avisarte si te llega un código mientras hablas por teléfono, necesito saber cuándo estás en una llamada, y poder colgar la de un desconocido si me lo pides. Nunca escucho tus llamadas.</string>
     <string name="denied_phone_state">De acuerdo. No sabré cuándo estás en una llamada, así que no podré avisarte de códigos durante ellas.</string>
     <string name="why_mic">Para entenderte cuando me hablas, necesito el micrófono. Solo escucho cuando pulsas el botón o cuando te acabo de preguntar algo.</string>
     <string name="denied_mic">No te preocupes. Puedes seguir leyendo aquí en la pantalla todo lo que te digo.</string>
@@ -84,6 +84,7 @@
     <string name="pause_title">Espera un momento</string>
     <string name="pause_call">Llamar a %1$s</string>
     <string name="pause_leave">Salir de esta app</string>
+    <string name="pause_hang_up">Colgar</string>
     <string name="pause_continue">Seguir de todos modos</string>
     <string name="pause_continue_in">Seguir de todos modos (%1$d)</string>
     <string name="share_news">Que mis guardianes vean las novedades de Peri</string>
@@ -405,6 +406,8 @@
     <string name="report_card_title">Eso era una trampa</string>
     <string name="report_card_text">Mira cómo funcionaba, o te lo dejo escrito para la policía.</string>
     <string name="report_card_button">Denunciarlo</string>
+    <string name="block_button">Bloquear este número</string>
+    <string name="block_says">Bloqueado. No te leeré sus mensajes y, si filtro tus llamadas, también rechazaré las suyas.</string>
     <string name="report_hide">Ocultar</string>
     <string name="report_title">Denúncialo</string>
     <string name="report_intro">Escribo lo que llegó, quién lo mandó y por qué es un timo, listo para la policía o el 017. Para escribirlo, el mensaje y su remitente van al servidor de Peri y a Muse Spark de Meta. No se guarda nada.</string>
@@ -420,6 +423,7 @@
     <string name="report_none">Ahora no hay ningún timo que denunciar. Si llega uno, te ofrezco escribirlo.</string>
     <string name="report_ready">Aquí tienes tu denuncia. Puedes mandarla o enseñarla en comisaría.</string>
     <string name="use_report">Mandó un mensaje de timo para escribir la denuncia</string>
+    <string name="use_hang_up">Colgó una llamada de un número que no conoces</string>
     <string name="trap_card_how">Ver la trampa</string>
     <string name="trap_title">Así funcionaba la trampa</string>
     <string name="trap_done">Entendido</string>
@@ -451,6 +455,9 @@
     <string name="settings_web_on">Activado: %1$s</string>
     <string name="settings_web_off">Desactivado</string>
     <string name="settings_web_setup">Configurarlo</string>
+    <string name="settings_blocked">Números que bloqueaste</string>
+    <string name="settings_blocked_note">Peri rechaza sus llamadas y nunca te lee sus mensajes.</string>
+    <string name="settings_unblock">Desbloquear</string>
     <string name="web_dns_title">Activar internet más seguro</string>
     <string name="web_dns_steps">1. Toca Abrir ajustes y luego DNS privado (en algunos móviles está en Conexiones, Más ajustes de conexión).\n\n2. Elige «Nombre de host del proveedor de DNS privado».\n\n3. Pega %1$s (ya te lo he copiado) y toca Guardar.</string>
     <string name="web_dns_copy">Copiar el nombre</string>
@@ -482,6 +489,9 @@
     <string name="diary_picture">Miré contigo una imagen</string>
     <string name="diary_voice">Escuché algo que me pediste</string>
     <string name="diary_report">Escribí la denuncia de un timo</string>
+    <string name="diary_hang_up">Colgué una llamada de un número que no conoces</string>
+    <string name="diary_blocked_call">Rechacé una llamada de un número que bloqueaste</string>
+    <string name="diary_blocked_text">Silencié un mensaje de un remitente que bloqueaste</string>
     <string name="learn_title">Aprende con Peri</string>
     <string name="learn_traps_title">Trampas que conozco</string>
     <string name="learn_tips_title">Mis reglas de oro</string>
@@ -495,6 +505,7 @@
     <string name="trap_name_family">El falso familiar</string>
     <string name="trap_name_remote">El falso técnico</string>
     <string name="trap_name_prize">El gran premio</string>
+    <string name="trap_name_call">Un desconocido al teléfono</string>
     <string name="family_page_title">Tu familia</string>
     <string name="family_guardians_title">Tus guardianes</string>
     <string name="family_no_guardians">Todavía nadie. Elige a las personas de confianza en «Cambiar mi familia».</string>
@@ -849,6 +860,12 @@
     <string name="family_alert_title">El Peri de %1$s necesita atención</string>
     <string name="family_alert_text">Puede que alguien le esté intentando engañar. Llámale para ver si está bien.</string>
     <string name="family_alert_button">Ver mi familia</string>
+    <string name="family_call_title">%1$s está en una llamada con un número que no conoce</string>
+    <string name="family_call_text">Su Peri está a su lado. Si te suena a timo, pídele que cuelgue.</string>
+    <string name="family_call_button">Colgar su llamada</string>
+    <string name="family_call_says">%1$s está en una llamada con un número que no conoce. Si crees que es un timo, puedo pedirle a su Peri que cuelgue.</string>
+    <string name="family_call_sent">Hecho: le he pedido a la Peri de %1$s que cuelgue.</string>
+    <string name="family_call_failed">No he podido llegar a la Peri de %1$s. Mejor llámale ahora.</string>
     <string name="family_alert_says">Ojo: el Peri de %1$s está en alerta. Puede que alguien le esté intentando engañar. Llámale.</string>
     <string-array name="pear_name_ideas">
         <item>Mamá</item>

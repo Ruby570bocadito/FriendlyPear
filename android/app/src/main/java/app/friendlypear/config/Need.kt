@@ -12,7 +12,7 @@ import app.friendlypear.core.agent.Capability
 enum class Need(val permissions: List<String>, val why: Int, val denied: Int) {
     CONTACTS(listOf(Manifest.permission.READ_CONTACTS), R.string.why_contacts, R.string.denied_contacts),
     READ_SMS(listOf(Manifest.permission.RECEIVE_SMS), R.string.why_sms_read, R.string.denied_sms_read),
-    PHONE_STATE(listOf(Manifest.permission.READ_PHONE_STATE), R.string.why_phone_state, R.string.denied_phone_state),
+    PHONE_STATE(listOf(Manifest.permission.READ_PHONE_STATE, Manifest.permission.ANSWER_PHONE_CALLS), R.string.why_phone_state, R.string.denied_phone_state),
     MIC(listOf(Manifest.permission.RECORD_AUDIO), R.string.why_mic, R.string.denied_mic),
     CALL(listOf(Manifest.permission.CALL_PHONE), R.string.why_call, 0),
     SEND_SMS(listOf(Manifest.permission.SEND_SMS), R.string.why_sms_send, 0),

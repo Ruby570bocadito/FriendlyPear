@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <!-- Calling the real family member, always after a spoken "yes". -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
+    <!-- To hang up a call from a number that isn't in the contacts, when the person or their family asks. -->
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
     <!-- Messages the person dictates and the emergency alert. -->
     <uses-permission android:name="android.permission.SEND_SMS" />
     <!-- Incoming SMS in full: Android 15+ hides one-time codes from notification listeners. -->

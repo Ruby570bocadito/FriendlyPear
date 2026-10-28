@@ -268,6 +268,7 @@ class AccessActivity : Activity() {
             UseLog.Kind.PICTURE -> getString(R.string.use_picture)
             UseLog.Kind.VOICE -> getString(R.string.use_voice)
             UseLog.Kind.REPORT -> getString(R.string.use_report)
+            UseLog.Kind.HANG_UP -> getString(R.string.use_hang_up)
         }
     }
 

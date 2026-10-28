@@ -13,7 +13,8 @@ import java.net.URL
  * never the key); a pear is sent once more if the first try fails, and that's all.
  */
 class PearClient(private val baseUrl: String, private val ownKey: () -> String?) {
-    data class Pear(val id: String, val name: String, val outfit: String, val role: String, val state: String, val updatedAt: Long, val self: Boolean)
+    /** [kind]: the kind of trap behind an attention, or "call" while they're on a call with a number they don't know. */
+    data class Pear(val id: String, val name: String, val outfit: String, val role: String, val state: String, val updatedAt: Long, val self: Boolean, val kind: String = "")
 
     /** Everyone's pears, and the kind of trap reaching several of them right now, if any. */
     data class Family(val pears: List<Pear>, val campaign: String?)
@@ -40,7 +41,7 @@ class PearClient(private val baseUrl: String, private val ownKey: () -> String?)
         val list = json.optJSONArray("pears") ?: return null
         val pears = (0 until list.length()).mapNotNull { i ->
             val o = list.optJSONObject(i) ?: return@mapNotNull null
-            Pear(o.optString("id"), o.optString("name"), o.optString("outfit"), o.optString("role"), o.optString("state"), o.optLong("updatedAt"), o.optBoolean("self"))
+            Pear(o.optString("id"), o.optString("name"), o.optString("outfit"), o.optString("role"), o.optString("state"), o.optLong("updatedAt"), o.optBoolean("self"), o.optString("kind"))
         }
         return Family(pears, if (json.isNull("campaign")) null else json.optString("campaign").ifEmpty { null })
     }
@@ -55,6 +56,15 @@ class PearClient(private val baseUrl: String, private val ownKey: () -> String?)
             val o = list.optJSONObject(i) ?: return@mapNotNull null
             Check(o.optString("id"), o.optString("from"), o.optString("kind"))
         }
+    }
+
+    /** Asks a family phone's Peri to hang up its stranger's call (its pear shows one). */
+    fun hangUp(id: String): Boolean = call("POST", "/v1/pears/$id/hangup", JSONObject(), expect = 202) != null
+
+    /** Who in the family asked this phone's Peri to hang up, if anyone ("" if their pear has no name); taken once. */
+    fun hangUpRequest(): String? {
+        val json = call("GET", "/v1/hangup", null) ?: return null
+        return if (json.isNull("from")) null else json.optString("from")
     }
 
     fun answer(id: String, me: Boolean): Boolean = call("POST", "/v1/checks/$id/answer", JSONObject().put("answer", if (me) "me" else "not_me")) != null
