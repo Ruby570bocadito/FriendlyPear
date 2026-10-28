@@ -58,6 +58,12 @@ class MiniPeriService : Service(), PeriView {
     private lateinit var ring: View
     private lateinit var face: PeriFace
     private lateinit var bubble: TextView
+    /**
+     * The bubble's own window, above hers and just its size: next to her nothing is covered, so what's underneath
+     * stays usable (one window for both was as wide as a long sentence, and took the touches beside her).
+     */
+    private lateinit var bubbleRoot: FrameLayout
+    private lateinit var bubbleParams: WindowManager.LayoutParams
     private lateinit var voice: VoiceInput
     private lateinit var params: WindowManager.LayoutParams
     /** The "drop here to put Peri away" target, in its own window, shown only while she is dragged. */
@@ -105,6 +111,7 @@ class MiniPeriService : Service(), PeriView {
         snap?.cancel()
         pulse?.cancel()
         if (::root.isInitialized) runCatching { windows.removeView(root) }
+        if (::bubbleRoot.isInitialized) runCatching { windows.removeView(bubbleRoot) }
         target?.let { runCatching { windows.removeView(it) } }
         if (::voice.isInitialized) voice.destroy()
         super.onDestroy()
@@ -165,7 +172,6 @@ class MiniPeriService : Service(), PeriView {
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
             elevation = dp(4).toFloat()
             visibility = View.GONE
-            setOnClickListener { fadeBubble() }
         }
         onRight = prefs.getBoolean(KEY_RIGHT, true)
         shapeBubble()
@@ -177,9 +183,18 @@ class MiniPeriService : Service(), PeriView {
             // Room for the bubble's shadow inside the window.
             val edge = dp(10)
             setPadding(edge, edge, edge, edge)
-            addView(bubble, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { bottomMargin = -dp(6) })
             addView(holder, LinearLayout.LayoutParams(dp(SIZE_DP), dp(SIZE_DP)))
         }
+        bubbleRoot = FrameLayout(this).apply {
+            clipChildren = false
+            clipToPadding = false
+            val edge = dp(10)
+            setPadding(edge, edge, edge, edge)
+            addView(bubble, FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT))
+        }
+        // Touchable, so Android keeps it fully opaque; a tap on it puts it away.
+        bubbleParams = overlay(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
+        bubble.setOnClickListener { fadeBubble() }
         params = overlay().apply {
             gravity = Gravity.BOTTOM or (if (onRight) Gravity.END else Gravity.START)
             x = 0
@@ -195,6 +210,8 @@ class MiniPeriService : Service(), PeriView {
         // The target's window goes in first, so Peri, dragged over it, stays in front.
         buildTarget()
         windows.addView(root, params)
+        windows.addView(bubbleRoot, bubbleParams)
+        placeBubble()
         appShown(hub.appVisible)
         showFace(hub.mood)
         if (hub.lastSaid.isNotEmpty()) said(hub.lastSaid)
@@ -250,6 +267,7 @@ class MiniPeriService : Service(), PeriView {
                         params.x = startX + dx.toInt()
                         params.y = startY - dy.toInt()
                         windows.updateViewLayout(root, params)
+                        placeBubble()
                         hover(e.rawX, e.rawY)
                     }
                 }
@@ -307,6 +325,7 @@ class MiniPeriService : Service(), PeriView {
             addUpdateListener {
                 params.x = it.animatedValue as Int
                 if (root.isAttachedToWindow) windows.updateViewLayout(root, params)
+                placeBubble()
             }
             addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
@@ -326,7 +345,22 @@ class MiniPeriService : Service(), PeriView {
         root.gravity = if (onRight) Gravity.END else Gravity.START
         shapeBubble()
         windows.updateViewLayout(root, params)
+        placeBubble()
         prefs.edit().putBoolean(KEY_RIGHT, onRight).putInt(KEY_Y, params.y).apply()
+    }
+
+    /** Her bubble's window sits right above her, on her side, its tail on her. */
+    private fun placeBubble() {
+        if (!::bubbleRoot.isInitialized || !bubbleRoot.isAttachedToWindow) return
+        bubbleParams.gravity = params.gravity
+        bubbleParams.x = params.x
+        bubbleParams.y = params.y + dp(SIZE_DP) + dp(10) * 2 - dp(16)
+        bubbleRoot.foregroundGravity = if (onRight) Gravity.END else Gravity.START
+        (bubble.layoutParams as? FrameLayout.LayoutParams)?.let {
+            it.gravity = if (onRight) Gravity.END else Gravity.START
+            bubble.layoutParams = it
+        }
+        windows.updateViewLayout(bubbleRoot, bubbleParams)
     }
 
     /** Dropped on the "×": she shrinks into the ground and Mini Peri stops, until it's turned on again. */
@@ -496,6 +530,8 @@ class MiniPeriService : Service(), PeriView {
         bubble.animate().alpha(0f).translationY(dp(8).toFloat()).setDuration(180).withEndAction {
             bubble.visibility = View.GONE
             bubble.translationY = 0f
+            // Nothing left of its window either.
+            bubbleRoot.visibility = View.GONE
         }.start()
     }
 
@@ -511,6 +547,7 @@ class MiniPeriService : Service(), PeriView {
     }
 
     override fun said(text: String) {
+        bubbleRoot.visibility = View.VISIBLE
         bubble.text = text
         fitBubble()
         bubble.animate().cancel()
