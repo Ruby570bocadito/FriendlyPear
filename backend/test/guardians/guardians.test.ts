@@ -103,3 +103,14 @@ test("links and news survive a restart, and the file never holds a link itself",
   again.revokeAll();
   expect(new GuardianStore(Date.now, file).byLink(token)).toBeUndefined();
 });
+
+test("the guardians' page says who said yes to a request", async () => {
+  const { approvals, handle } = setup();
+  const { links } = approvals.create("circle_change", "quitar a Papá", "es", false, undefined, ["Ana", "Papá"]);
+  approvals.decide(links[0]!.token, "approve");
+  const half = await (await page(handle, await linkFor(handle, "Pablo", "es"))).text();
+  expect(half).toContain("pendiente, sí de Ana");
+  approvals.decide(links[1]!.token, "approve", "Papá");
+  const done = await (await page(handle, await linkFor(handle, "Pablo", "es"))).text();
+  expect(done).toContain("aprobado, sí de Ana y Papá");
+});

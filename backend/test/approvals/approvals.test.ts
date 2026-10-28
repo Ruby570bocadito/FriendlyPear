@@ -102,7 +102,7 @@ test("the guardian's Peri can read the request as data, never the code", async (
   const { url } = (await res.json()) as { url: string };
   const data = (await (await handle(new Request(url, { headers: { accept: "application/json" } }))).json()) as Record<string, unknown>;
   expect(data).toMatchObject({ kind: "send_code", toName: "Pablo", lang: "es", onCall: true, status: "pending" });
-  expect(Object.keys(data).sort()).toEqual(["expiresAt", "kind", "lang", "onCall", "pear", "status", "toName"]);
+  expect(Object.keys(data).sort()).toEqual(["expiresAt", "kind", "lang", "needed", "onCall", "pear", "status", "toName", "yes"]);
   // Asked with the shared test token, there's no phone and no pear behind it.
   expect(data.pear).toBeNull();
 });
@@ -219,4 +219,72 @@ test("an unknown decision is refused", async () => {
   const a = await newApproval(handle);
   expect((await handle(decide(a.url, "maybe"))).status).toBe(400);
   expect(await statusOf(handle, a.id)).toBe("pending");
+});
+
+// Two guardians for the riskiest requests: changing the guardians, or a code while a stranger may be on the line.
+const twoOf = async (handle: (r: Request) => Promise<Response>, body: object) => {
+  const res = await handle(device("POST", "/v1/approvals", { toName: "Pablo", lang: "es", guardians: ["Ana", "Papá"], ...body }));
+  expect(res.status).toBe(201);
+  return (await res.json()) as { id: string; url: string; links: { name: string; url: string }[]; needed: number };
+};
+const answerOf = async (handle: (r: Request) => Promise<Response>, id: string) =>
+  (await (await handle(device("GET", `/v1/approvals/${id}`))).json()) as { status: string; needed: number; yes: string[]; by: string | null };
+
+test("a code during a stranger's call needs both guardians' yes, each with their own link, and says who said yes", async () => {
+  const { handle } = setup();
+  const a = await twoOf(handle, { kind: "send_code", onCall: true });
+  expect(a.needed).toBe(2);
+  expect(a.links.map((l) => l.name)).toEqual(["Ana", "Papá"]);
+  expect(new Set(a.links.map((l) => l.url)).size).toBe(2);
+  // The second guardian's page says the request needs two.
+  expect(visible(await (await handle(new Request(a.links[1]!.url))).text())).toContain("Hace falta el sí de dos guardianes");
+  const first = await handle(decide(a.links[0]!.url, "approve"));
+  expect(first.status).toBe(202);
+  expect(visible(await first.text())).toContain("Falta el de otro guardián");
+  expect(await answerOf(handle, a.id)).toEqual({ status: "pending", needed: 2, yes: ["Ana"], by: null });
+  // Ana can't say yes again with her link; Papá's page now says Ana already did.
+  expect((await handle(decide(a.links[0]!.url, "approve"))).status).toBe(404);
+  expect(visible(await (await handle(new Request(a.links[1]!.url))).text())).toContain("Ana ya ha dicho que sí");
+  expect((await handle(decide(a.links[1]!.url, "approve"))).status).toBe(200);
+  expect(await answerOf(handle, a.id)).toEqual({ status: "approved", needed: 2, yes: ["Ana", "Papá"], by: "Papá" });
+});
+
+test("one no settles it, even after a yes, and the other link stops working", async () => {
+  const { handle } = setup();
+  const a = await twoOf(handle, { kind: "circle_change", toName: "quitar a Papá" });
+  expect(a.needed).toBe(2);
+  await handle(decide(a.links[0]!.url, "approve"));
+  expect((await handle(decide(a.links[1]!.url, "reject"))).status).toBe(200);
+  expect(await answerOf(handle, a.id)).toEqual({ status: "rejected", needed: 2, yes: ["Ana"], by: "Papá" });
+  const b = await twoOf(handle, { kind: "circle_change", toName: "añadir a Marisa" });
+  await handle(decide(b.links[1]!.url, "callback"));
+  expect((await answerOf(handle, b.id)).status).toBe("callback");
+  expect((await handle(decide(b.links[0]!.url, "approve"))).status).toBe(404);
+});
+
+test("one yes is enough for a code with no stranger on the line, or when there's only one guardian", async () => {
+  const { handle } = setup();
+  const calm = await twoOf(handle, { kind: "send_code", onCall: false });
+  expect(calm.needed).toBe(1);
+  await handle(decide(calm.links[1]!.url, "approve"));
+  expect(await answerOf(handle, calm.id)).toEqual({ status: "approved", needed: 1, yes: ["Papá"], by: "Papá" });
+  const alone = await twoOf(handle, { kind: "circle_change", guardians: ["Ana"] });
+  expect(alone.needed).toBe(1);
+});
+
+test("the same guardian's Peri can't say yes twice through two links", () => {
+  const store = new ApprovalStore();
+  const { approval, links } = store.create("send_code", "Pablo", "es", true, undefined, ["Ana", "Papá"]);
+  expect(store.decide(links[0]!.token, "approve", "Ana")).toBe(approval);
+  expect(store.decide(links[1]!.token, "approve", "Ana")).toBe("used");
+  expect(approval.status).toBe("pending");
+  expect(store.decide(links[1]!.token, "approve", "Papá")).toBe(approval);
+  expect(approval.status).toBe("approved");
+});
+
+test("guardians are first names, five at most", async () => {
+  const { handle } = setup();
+  for (const guardians of [["Ana 600111222"], ["<b>"], "Ana", [1], ["A", "B", "C", "D", "E", "F"]]) {
+    expect((await handle(device("POST", "/v1/approvals", { kind: "send_code", toName: "Pablo", guardians }))).status).toBe(400);
+  }
 });

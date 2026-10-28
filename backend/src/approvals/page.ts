@@ -19,7 +19,11 @@ const T = {
     why_title: "Por qué Peri lo ha parado",
     why_send_code: "Peri lo ha parado porque los estafadores piden códigos para entrar en cuentas o mover dinero.",
     why_circle_change:
-      "Los cambios en los guardianes necesitan el sí de un guardián y esperan 48 horas, para que nadie pueda quedarse con la protección de tu familiar. Si no lo reconoces, recházalo.",
+      "Los cambios en los guardianes necesitan el sí de los guardianes (de dos, si hay dos o más) y esperan 48 horas, para que nadie pueda quedarse con la protección de tu familiar. Si no lo reconoces, recházalo.",
+    two_title: "Hace falta el sí de dos guardianes",
+    two_first: "Lo más delicado lo aprueban dos guardianes, cada uno con su enlace. Un solo no lo para.",
+    two_after: (names: string) => `${names} ya ha dicho que sí. Falta un sí más, y un solo no lo para.`,
+    half: "Tu sí está anotado. Falta el de otro guardián: hasta entonces, Peri no manda nada.",
     meanwhile_title: "Mientras decides",
     meanwhile: "Peri no manda nada. Si no contestas, tampoco se manda.",
     advice: "Si tienes dudas, llámale antes de decidir.",
@@ -60,7 +64,11 @@ const T = {
     why_title: "Why Peri stopped it",
     why_send_code: "Peri stopped it because scammers ask for codes to get into accounts or move money.",
     why_circle_change:
-      "Changes to the guardians need a guardian's yes and wait 48 hours, so nobody can take over your relative's protection. If you don't recognise it, decline it.",
+      "Changes to the guardians need the guardians' yes (two of them, if there are two or more) and wait 48 hours, so nobody can take over your relative's protection. If you don't recognise it, decline it.",
+    two_title: "This needs two guardians' yes",
+    two_first: "The most delicate requests need two guardians, each with their own link. A single no stops it.",
+    two_after: (names: string) => `${names} already said yes. One more yes is needed, and a single no stops it.`,
+    half: "Your yes is in. Another guardian still has to say yes: until then, Peri sends nothing.",
     meanwhile_title: "While you decide",
     meanwhile: "Peri sends nothing. If you don't answer, nothing is sent either.",
     advice: "If you're unsure, give them a call before deciding.",
@@ -91,7 +99,7 @@ const T = {
   },
 };
 
-export type Outcome = "approved" | "rejected" | "callback" | "used" | "expired" | "unknown" | "busy" | "oncall";
+export type Outcome = "approved" | "rejected" | "callback" | "used" | "expired" | "unknown" | "busy" | "oncall" | "half";
 
 /** Which picture of Peri goes with each moment (served by this server from backend/public/). */
 const ART: Record<Outcome | "ask" | "alert" | "confirm", string> = {
@@ -106,6 +114,7 @@ const ART: Record<Outcome | "ask" | "alert" | "confirm", string> = {
   unknown: "sorry",
   busy: "waiting",
   oncall: "protective",
+  half: "waiting",
 };
 
 export function esc(s: string): string {
@@ -144,6 +153,15 @@ button:focus-visible,.button:focus-visible{outline:4px solid #f2c46d;outline-off
 .done{text-align:center;padding-top:16px}.done .peri{margin:0 auto 10px;display:block}.done h1{margin-bottom:10px}
 .who{display:flex;gap:14px;align-items:center}.pear{position:relative;flex:none}.pear img{position:absolute;display:block}`;
 
+/** Two guardians must say yes: who already did, as each answers. */
+function two(a: Approval): string {
+  if (a.needed < 2) return "";
+  const t = T[a.lang];
+  const yes = a.yes.filter((n) => n).map(esc);
+  const text = yes.length > 0 ? t.two_after(yes.join(a.lang === "es" ? " y " : " and ")) : t.two_first;
+  return `<section class="card"><h2>${t.two_title}</h2><p>${text}</p></section>`;
+}
+
 /** Who's asking: their pear as the family knows it, a sign a fake page can't copy. */
 function who(a: Approval): string {
   if (!a.pear) return "";
@@ -167,7 +185,7 @@ export function askPage(a: Approval, token: string, now: number): string {
   return layout(
     a.lang,
     `<header class="hero">${peri(a.onCall ? ART.alert : ART.ask)}<h1>${t.heading}</h1></header>
-<section class="card ask"><p>${t[a.kind](a.toName)}</p></section>${who(a)}${alert}
+<section class="card ask"><p>${t[a.kind](a.toName)}</p></section>${who(a)}${alert}${two(a)}
 <form method="post" action="${action}">
 <button class="no" name="decision" value="reject">${t[`no_${a.kind}`]}</button>
 <button class="call" name="decision" value="callback">${t.ask_call}</button>
@@ -197,6 +215,6 @@ export function confirmPage(a: Approval, token: string): string {
 
 export function resultPage(lang: Lang, outcome: Outcome): string {
   const t = T[lang];
-  const thanks = outcome === "approved" || outcome === "rejected" || outcome === "callback" ? `<p class="small">${t.thanks}</p>` : "";
+  const thanks = outcome === "approved" || outcome === "rejected" || outcome === "callback" || outcome === "half" ? `<p class="small">${t.thanks}</p>` : "";
   return layout(lang, `<section class="done">${peri(ART[outcome], 160)}<h1>Peri</h1><p>${t[outcome]}</p>${thanks}</section>`);
 }

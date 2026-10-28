@@ -2,7 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { askPage, confirmPage, resultPage } from "./approvals/page";
 import { asset } from "./assets";
 import { CODE, type DeviceStore } from "./devices/store";
-import { type ApprovalStore, DECISIONS, type Decision, KINDS, type Kind } from "./approvals/store";
+import { type ApprovalStore, DECISIONS, type Decision, KINDS, type Kind, MAX_GUARDIANS } from "./approvals/store";
 import type { Config } from "./config";
 import { guardianPage } from "./guardians/page";
 import { type GuardianStore, readEvent } from "./guardians/store";
@@ -407,7 +407,7 @@ function routes(config: Config, services: Services) {
 
     const approvals = services.approvals;
 
-    // The phone asks for a guardian's approval and gets the one-time link to text them.
+    // The phone asks for its guardians' approval and gets a one-time link to text each of them (first names only).
     if (req.method === "POST" && pathname === "/v1/approvals") {
       if (!fromDevice(req, config, services.devices)) return json({ error: "unauthorized" }, 401);
       if (!approvals) return json({ error: "no_approvals" }, 503);
@@ -416,21 +416,26 @@ function routes(config: Config, services: Services) {
       if (!KINDS.includes(body?.kind)) return json({ error: "bad_request", detail: "unknown kind" }, 400);
       if (typeof body.toName !== "string" || !NAME.test(body.toName)) return json({ error: "bad_request", detail: "bad name" }, 400);
       const lang = body.lang === "en" ? "en" : "es";
+      const guardians = body.guardians ?? [];
+      if (!Array.isArray(guardians) || guardians.length > MAX_GUARDIANS || !guardians.every((g) => typeof g === "string" && NAME.test(g))) {
+        return json({ error: "bad_request", detail: "bad guardians" }, 400);
+      }
       // Asked from a phone with its own key and a pear: the guardian will see that pear, as the family knows it.
       const me = ownDevice(req, devices);
       const mine = me ? services.pears?.list().find((p) => p.device === me.id) : undefined;
       const pear = mine ? { name: mine.name, outfit: mine.outfit } : undefined;
-      const { approval, token } = approvals.create(body.kind as Kind, body.toName, lang, body.onCall === true, pear);
-      return json({ id: approval.id, url: `${config.publicBaseUrl}/a/${token}`, expiresAt: approval.expiresAt }, 201);
+      const { approval, links } = approvals.create(body.kind as Kind, body.toName, lang, body.onCall === true, pear, guardians);
+      const urls = links.map(({ name, token }) => ({ name, url: `${config.publicBaseUrl}/a/${token}` }));
+      return json({ id: approval.id, url: urls[0]!.url, links: urls, needed: approval.needed, expiresAt: approval.expiresAt }, 201);
     }
 
-    // The phone polls until the guardian decides or the link expires.
+    // The phone polls until the guardians decide or the links expire; who said yes, as they do.
     const status = pathname.match(/^\/v1\/approvals\/([A-Za-z0-9_-]{8,40})$/);
     if (req.method === "GET" && status) {
       if (!fromDevice(req, config, services.devices)) return json({ error: "unauthorized" }, 401);
       const a = approvals?.get(status[1]);
       if (!a) return json({ error: "not_found" }, 404);
-      return json({ status: a.status });
+      return json({ status: a.status, needed: a.needed, yes: a.yes, by: a.decidedBy ?? null });
     }
 
     const guardians = services.guardians;
@@ -483,8 +488,8 @@ function routes(config: Config, services: Services) {
       if (req.method === "GET" && (req.headers.get("accept") ?? "").includes("application/json")) {
         const a = approvals.byLink(token);
         if (!a) return json({ error: "not_found" }, 404);
-        const { kind, toName, lang, onCall, status, expiresAt, pear } = a;
-        return json({ kind, toName, lang, onCall, status, expiresAt, pear: pear ?? null });
+        const { kind, toName, lang, onCall, status, expiresAt, pear, needed, yes } = a;
+        return json({ kind, toName, lang, onCall, status, expiresAt, pear: pear ?? null, needed, yes });
       }
       if (req.method === "GET") {
         const a = approvals.byLink(token);
@@ -514,6 +519,8 @@ function routes(config: Config, services: Services) {
         }
         const result = approvals.decide(token, decision as Decision, guardianPear?.name);
         if (typeof result === "string") return html(resultPage(lang, result), result === "unknown" ? 404 : 410);
+        // A first yes of two: counted, and the other guardian still has to answer.
+        if (result.status === "pending") return html(resultPage(result.lang, "half"), 202);
         return html(resultPage(result.lang, result.status === "approved" ? "approved" : result.status === "callback" ? "callback" : "rejected"));
       }
     }

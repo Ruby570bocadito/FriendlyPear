@@ -32,6 +32,8 @@ const T = {
     send_code: (name: string, s: string) => `Pidió permiso para mandar un código a ${esc(name)}: ${s}.`,
     circle_change: (name: string, s: string) => `Se pidió un cambio de guardianes (${esc(name)}): ${s}.`,
     status: { pending: "pendiente", approved: "aprobado", rejected: "rechazado", callback: "pidió hablarlo antes", expired: "nadie respondió a tiempo" },
+    yes_from: (names: string) => `sí de ${names}`,
+    and: " y ",
     privacy:
       "Nunca verás sus mensajes, llamadas, ubicación ni apps: solo que Peri ha avisado o ha hecho una pausa. Tu familiar puede dejar de compartir esto cuando quiera, y este enlace dejará de funcionar.",
     ago: (ms: number) => ago("es", ms),
@@ -54,6 +56,8 @@ const T = {
     send_code: (name: string, s: string) => `They asked for permission to send a code to ${esc(name)}: ${s}.`,
     circle_change: (name: string, s: string) => `A change of guardians was asked (${esc(name)}): ${s}.`,
     status: { pending: "pending", approved: "approved", rejected: "declined", callback: "asked to talk first", expired: "nobody answered in time" },
+    yes_from: (names: string) => `yes from ${names}`,
+    and: " and ",
     privacy:
       "You will never see their messages, calls, location or apps: only that Peri warned them or paused them. Your relative can stop sharing this whenever they like, and this link will stop working.",
     ago: (ms: number) => ago("en", ms),
@@ -87,7 +91,8 @@ export function guardianPage(link: GuardianLink, events: FamilyEvent[], approval
     }),
     ...approvals.map((a): Item => ({
       at: a.createdAt,
-      text: t[a.kind](a.toName, t.status[a.status]),
+      // Who said yes, a la vista: "approved, yes from Ana and Papá".
+      text: t[a.kind](a.toName, [t.status[a.status], ...(a.yes.some((n) => n) ? [t.yes_from(a.yes.filter((n) => n).map(esc).join(t.and))] : [])].join(", ")),
       tone: a.status === "approved" ? "green" : "amber",
     })),
   ].sort((x, y) => y.at - x.at);
