@@ -22,7 +22,9 @@ STATES = ["calm", "listening", "thinking", "worried", "protective", "calling", "
 # Frames the app animates with (the app sways her with a smooth tilt, so there are no sway frames).
 FRAMES = ["", "_blink", "_blinkhalf", "_talk", "_talkwide", "_talko", "_glanceleft", "_glanceright", "_stepleft", "_stepright", "_gesturea", "_gestureb", "_wink"]
 EXTRAS = ["calm_wave1", "calm_wave2", "calm_idea", "calm_sorry", "calm_thumbsup", "family", "report", "shield", "icon", "guardian", "guardian_alert",
-          "calm_laugh", "calm_love", "calm_dizzy", "calm_yawn", "calm_letter"]
+          "calm_laugh", "calm_love", "calm_dizzy", "calm_yawn", "calm_letter",
+          "calm_hero", "calm_medal", "calm_peekaboo", "calm_clap", "calm_detective", "calm_surprised", "calm_party", "calm_glasses",
+          "calm_scarf", "calm_bye"]
 
 FILL_THRESHOLD = 80  # sum of channel differences from the cream, for the flood fill from the border
 POCKET_THRESHOLD = 18  # enclosed pockets must be almost exactly cream

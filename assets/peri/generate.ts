@@ -79,6 +79,17 @@ export const EXTRAS: Record<string, { from: string; prompt: string }> = {
   guardian: { from: "calm", prompt: "Peri holding a small phone in both hands in front of her, its screen showing a soft coral heart, looking up warmly and attentively, as if a loved one just asked her something. Same big round dark eyes." },
   guardian_alert: { from: "calm", prompt: "Peri holding a small phone in both hands in front of her, its screen showing a bold amber exclamation mark, with a serious but caring, alert expression and slightly raised eyebrows, ready to help a loved one. Same big round dark eyes." },
   shield: { from: "calm", prompt: "Peri holding a big green shield with a white leaf emblem in front of the body, confident and friendly smile." },
+  // Round 2: more of her personality (docs/PERI_PERSONAJE.md, "Peri viva").
+  calm_hero: { from: "calm", prompt: "Only change: Peri wears a small coral superhero cape flowing behind her and stands tall with both fists on her hips in a proud heroic pose, chin up, confident and kind smile." },
+  calm_medal: { from: "calm", prompt: "Only change: Peri proudly holds up a shiny round gold medal on a green ribbon with both hands in front of her chest, a big proud smile." },
+  calm_peekaboo: { from: "calm", prompt: "Only change: Peri plays peekaboo: both hands cover her eyes, and she peeks through her fingers with one eye, a big playful open-mouthed smile." },
+  calm_clap: { from: "calm", prompt: "Only change: Peri claps her hands together in front of her chest, her eyes happily squeezed into two upward curves, a big cheerful open smile." },
+  calm_detective: { from: "calm", prompt: "Only change: Peri wears a small brown detective hat and holds a big magnifying glass up in front of one eye, which looks big through the lens, a curious smile." },
+  calm_surprised: { from: "calm", prompt: "Only change: Peri looks surprised and delighted: eyes wide open, eyebrows raised, mouth in a small round 'oh', both hands up beside her cheeks." },
+  calm_party: { from: "calm", prompt: "Only change: Peri wears a small striped party hat and blows a curly party horn, small paper confetti in green, yellow and coral floating around her." },
+  calm_glasses: { from: "calm", prompt: "Only change: Peri wears small round reading glasses and holds a little open notebook in both hands, reading it with a gentle smile." },
+  calm_scarf: { from: "calm", prompt: "Only change: Peri wears a cosy knitted scarf with coral and cream stripes around her neck, rosy cheeks, a happy warm smile." },
+  calm_bye: { from: "calm", prompt: "Only change: Peri waves goodbye with one hand held high and the other hand on her chest, a warm smile, a tiny coral heart floating near the waving hand." },
 };
 
 /**
