@@ -735,6 +735,8 @@ class PeriHub(context: Context) {
         main.postDelayed(familyLoop, FAMILY_NOTES_MS)
         apps.start()
         line.start()
+        // A fresh key for this phone once a month, so an old copy of it is worth nothing.
+        network.execute { app.friendlypear.net.DeviceKey.rotateIfDue(context) }
         if (BuildConfig.DEBUG) registerDebugVoice()
     }
 

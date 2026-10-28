@@ -24,6 +24,8 @@ import javax.crypto.spec.GCMParameterSpec
 object DeviceKey {
     private const val PREFS = "device"
     private const val SEALED = "sealed_key"
+    private const val ROTATED_AT = "rotated_at"
+    private const val ROTATE_MS = 30L * 24 * 60 * 60_000
     private const val ALIAS = "friendlypear_device_key"
     private val CODE = Regex("^[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$")
 
@@ -72,6 +74,35 @@ object DeviceKey {
                 c.disconnect()
             }
         }.getOrDefault(Outcome.FAILED)
+    }
+
+    /**
+     * Off the main thread: a new key from the family's server once a month, asked with the current one, which stops
+     * working at once; so a key copied off this phone some time ago is worth nothing. The first look only starts the
+     * count. If the server can't be reached, the current key stays and it's tried again another day.
+     */
+    fun rotateIfDue(context: Context, now: Long = System.currentTimeMillis()) {
+        val key = own(context) ?: return
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val since = prefs.getLong(ROTATED_AT, 0L)
+        if (since == 0L) return prefs.edit().putLong(ROTATED_AT, now).apply()
+        if (now - since < ROTATE_MS) return
+        runCatching {
+            val c = (URL("${BuildConfig.BACKEND_URL.trimEnd('/')}/v1/devices/self/key").openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                connectTimeout = 8_000
+                readTimeout = 8_000
+                setRequestProperty("authorization", "Bearer $key")
+            }
+            try {
+                if (c.responseCode == 201) {
+                    store(context, JSONObject(c.inputStream.bufferedReader().use { it.readText() }).getString("key"))
+                    prefs.edit().putLong(ROTATED_AT, now).apply()
+                }
+            } finally {
+                c.disconnect()
+            }
+        }
     }
 
     /** Off the main thread: tells the server to forget this phone's key, then forgets it here too. */
