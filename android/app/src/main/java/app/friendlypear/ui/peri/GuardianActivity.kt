@@ -41,6 +41,8 @@ class GuardianActivity : Activity() {
     private var kind = KIND_SEND_CODE
     private var pearName: String? = null
     private var pearOutfit = ""
+    private var needed = 1
+    private var yes: List<String> = emptyList()
     private lateinit var peri: ImageView
     private lateinit var answers: LinearLayout
     private lateinit var result: TextView
@@ -60,6 +62,8 @@ class GuardianActivity : Activity() {
         kind = intent.getStringExtra(EXTRA_KIND) ?: KIND_SEND_CODE
         pearName = intent.getStringExtra(EXTRA_PEAR_NAME)
         pearOutfit = intent.getStringExtra(EXTRA_PEAR_OUTFIT).orEmpty()
+        needed = intent.getIntExtra(EXTRA_NEEDED, 1)
+        yes = intent.getStringArrayListExtra(EXTRA_YES).orEmpty()
         build(intent.getLongExtra(EXTRA_EXPIRES, 0L))
         // Opened later from the notification, it may have been answered elsewhere: check with the server.
         io.execute {
@@ -88,6 +92,11 @@ class GuardianActivity : Activity() {
         val ask = card().apply {
             val what = if (kind == KIND_CIRCLE) getString(R.string.guardian_circle, toName) else getString(R.string.guardian_send_code, toName)
             addView(heading(what, TextSize.BODY))
+            // The riskiest requests need two guardians: say so, and who already said yes.
+            if (needed > 1) addView(body(
+                if (yes.isEmpty()) getString(R.string.guardian_two_first) else getString(R.string.guardian_two, namesAnd(this@GuardianActivity, yes)),
+                TextSize.SMALL,
+            ).apply { setPadding(0, dp(6), 0, 0) })
         }
         // Who's asking: their pear as the family knows it, from the server with the request, as on the web page.
         val who = pearName?.let { name ->
@@ -271,6 +280,12 @@ class GuardianActivity : Activity() {
                 // Their Peri now offers to call; the guardian's phone dials them too, so the two meet halfway.
                 if (answer == Answer.CALLBACK) fromPhone?.let { startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$it"))) }
             }
+            // A first yes of two: counted, and nothing goes until another guardian says yes too.
+            Outcome.HALF -> {
+                val text = getString(R.string.guardian_done_half, from)
+                hub.say(text)
+                showDone(text, R.drawable.peri_calm_thumbsup)
+            }
             Outcome.GONE -> showDone(getString(R.string.guardian_gone), R.drawable.peri_calm_sorry)
             Outcome.ON_CALL -> {
                 answers.alpha = 1f
@@ -316,6 +331,8 @@ class GuardianActivity : Activity() {
         private const val EXTRA_KIND = "kind"
         private const val EXTRA_EXPIRES = "expires"
         private const val EXTRA_PEAR_NAME = "pear_name"
+        private const val EXTRA_NEEDED = "needed"
+        private const val EXTRA_YES = "yes"
         private const val EXTRA_PEAR_OUTFIT = "pear_outfit"
         const val KIND_SEND_CODE = "send_code"
         const val KIND_CIRCLE = "circle_change"
@@ -335,6 +352,8 @@ class GuardianActivity : Activity() {
                 .putExtra(EXTRA_EXPIRES, request.expiresAt)
                 .putExtra(EXTRA_PEAR_NAME, request.pear?.name)
                 .putExtra(EXTRA_PEAR_OUTFIT, request.pear?.outfit)
+                .putExtra(EXTRA_NEEDED, request.needed)
+                .putStringArrayListExtra(EXTRA_YES, ArrayList(request.yes))
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
     }
 }

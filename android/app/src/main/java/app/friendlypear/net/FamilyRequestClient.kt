@@ -13,12 +13,16 @@ object FamilyRequestClient {
     /** The asking phone's pear when it asked: its name and what it wears ("STRAW,,BOWTIE"). */
     data class Pear(val name: String, val outfit: String)
 
-    data class Request(val kind: String, val toName: String, val onCall: Boolean, val pending: Boolean, val expiresAt: Long, val pear: Pear? = null)
+    /** [needed]: how many guardians must say yes; [yes]: who already did, by first name. */
+    data class Request(
+        val kind: String, val toName: String, val onCall: Boolean, val pending: Boolean, val expiresAt: Long, val pear: Pear? = null,
+        val needed: Int = 1, val yes: List<String> = emptyList(),
+    )
 
     enum class Answer(val form: String) { REJECT("decision=reject"), CALLBACK("decision=callback"), APPROVE("decision=approve&confirm=yes") }
 
-    /** [ON_CALL]: the server held a yes back, this phone being on a call with a stranger. */
-    enum class Outcome { DONE, GONE, ON_CALL, FAILED }
+    /** [ON_CALL]: the server held a yes back, this phone being on a call with a stranger; [HALF]: a first yes of two. */
+    enum class Outcome { DONE, HALF, GONE, ON_CALL, FAILED }
 
     fun fetch(url: String): Request? = runCatching {
         val c = open(url, "GET").apply { setRequestProperty("Accept", "application/json") }
@@ -28,7 +32,11 @@ object FamilyRequestClient {
             val kind = j.getString("kind")
             if (kind != "send_code" && kind != "circle_change") return null
             val pear = j.optJSONObject("pear")?.let { Pear(it.optString("name").take(40), it.optString("outfit").take(40)) }
-            Request(kind, j.getString("toName"), j.optBoolean("onCall"), j.getString("status") == "pending", j.optLong("expiresAt"), pear?.takeIf { it.name.isNotBlank() })
+            val yes = j.optJSONArray("yes")?.let { list -> (0 until list.length()).map { list.optString(it).take(40) }.filter { it.isNotBlank() } }.orEmpty()
+            Request(
+                kind, j.getString("toName"), j.optBoolean("onCall"), j.getString("status") == "pending", j.optLong("expiresAt"), pear?.takeIf { it.name.isNotBlank() },
+                j.optInt("needed", 1).coerceIn(1, 2), yes,
+            )
         } finally {
             c.disconnect()
         }
@@ -48,6 +56,7 @@ object FamilyRequestClient {
             c.outputStream.use { it.write(answer.form.toByteArray()) }
             when (c.responseCode) {
                 200 -> Outcome.DONE
+                202 -> Outcome.HALF
                 404, 410 -> Outcome.GONE
                 409 -> Outcome.ON_CALL
                 else -> Outcome.FAILED

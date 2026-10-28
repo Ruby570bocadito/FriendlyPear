@@ -234,25 +234,32 @@ class PeriHub(context: Context) {
     /** Waiting for a guardian can take minutes, so it never shares a thread with second opinions. */
     private val waiting = Executors.newCachedThreadPool()
 
-    /** Family MFA: create the one-time link, text it to the guardians, then wait for their answer. */
+    /**
+     * Family MFA: a one-time link per guardian, each texted their own (so nobody can give two yeses), then wait for
+     * their answers, saying who said yes while a second yes is still needed.
+     */
     private val approvals: ApprovalPort = object : ApprovalPort {
         override fun request(ticket: String, kind: ApprovalKind, toName: String, guardians: List<Contact>, onCall: Boolean, smsFor: (url: String) -> String) {
             val asking = agent
+            val reachable = guardians.filter { it.phones.isNotEmpty() }
             waiting.execute {
-                val created = approvalClient.create(kind, toName, lang, onCall)
+                val created = approvalClient.create(kind, toName, lang, onCall, firstNames(reachable))
                 if (created == null) {
                     main.post { asking.onApprovalResult(ticket, ApprovalResult.FAILED) }
                     return@execute
                 }
                 earn(Shields.Kind.FAMILY)
                 main.post { diary.add(app.friendlypear.config.Diary.Kind.FAMILY_ASKED) }
-                val text = smsFor(created.url)
-                val sent = guardians.count { g -> g.phones.firstOrNull()?.let { runCatching { device.sendSms(it, text) }.isSuccess } == true }
-                Log.i(TAG, "approval requested, texted $sent of ${guardians.size} guardian(s)")
-                val result = if (sent == 0) ApprovalResult.FAILED else approvalClient.await(created.id)
+                val sent = reachable.withIndex().count { (i, g) ->
+                    val url = created.links.getOrNull(i)?.url ?: created.url
+                    runCatching { device.sendSms(g.phones.first(), smsFor(url)) }.isSuccess
+                }
+                Log.i(TAG, "approval requested, texted $sent of ${reachable.size} guardian(s), ${created.needed} yes needed")
+                val answer = if (sent < created.needed || sent == 0) ApprovalClient.Answer(ApprovalResult.FAILED)
+                else approvalClient.await(created.id, onYes = { yes -> main.post { asking.onApprovalProgress(ticket, yes) } })
                 main.post {
-                    Log.i(TAG, "approval result=$result")
-                    asking.onApprovalResult(ticket, result)
+                    Log.i(TAG, "approval result=${answer.result} yes=${answer.yes.size}")
+                    asking.onApprovalResult(ticket, answer.result, answer.yes, answer.by)
                 }
             }
         }
@@ -990,11 +997,14 @@ class PeriHub(context: Context) {
         family.savePending(pending)
         device.speak(context.getString(R.string.circle_explain))
         waiting.execute {
-            val created = approvalClient.create(ApprovalKind.CIRCLE_CHANGE, change, lang)
-            val text = created?.let { context.getString(R.string.circle_sms, change, it.url) }
-            val sent = if (text == null) 0 else guardians.count { g -> runCatching { device.sendSms(g.phones.first(), text) }.isSuccess }
+            // A link per guardian: with two of them or more, two must say yes.
+            val created = approvalClient.create(ApprovalKind.CIRCLE_CHANGE, change, lang, guardians = firstNames(guardians))
+            val sent = if (created == null) 0 else guardians.withIndex().count { (i, g) ->
+                val url = created.links.getOrNull(i)?.url ?: created.url
+                runCatching { device.sendSms(g.phones.first(), context.getString(R.string.circle_sms, change, url)) }.isSuccess
+            }
             main.post {
-                if (created == null || sent == 0) return@post settleCircle(pending, ApprovalResult.FAILED)
+                if (created == null || sent == 0 || sent < created.needed) return@post settleCircle(pending, ApprovalClient.Answer(ApprovalResult.FAILED))
                 // Kept with the change, so waiting resumes if the app is restarted before the family answers.
                 val asked = pending.copy(approvalId = created.id)
                 if (family.loadPending()?.requestedAt == pending.requestedAt) family.savePending(asked)
@@ -1010,24 +1020,49 @@ class PeriHub(context: Context) {
         if (awaitingCircle == id) return
         awaitingCircle = id
         waiting.execute {
-            val result = approvalClient.await(id)
+            val answer = approvalClient.await(id, onYes = { yes ->
+                val names = yes.filter { it.isNotBlank() }
+                main.post { device.speak(context.getString(R.string.circle_one_more, app.friendlypear.ui.peri.namesAnd(context, names).ifEmpty { context.getString(R.string.guardian_word) })) }
+            })
             main.post {
                 awaitingCircle = null
-                settleCircle(pending, result)
+                settleCircle(pending, answer)
             }
         }
     }
 
-    private fun settleCircle(pending: PendingCircleChange, result: ApprovalResult) {
+    private fun settleCircle(pending: PendingCircleChange, answer: ApprovalClient.Answer) {
+        val result = answer.result
         Log.i(TAG, "circle change result=$result")
         // Only the request still on file counts: the person may have cancelled it meanwhile.
         if (family.loadPending()?.requestedAt != pending.requestedAt) return
         if (result == ApprovalResult.APPROVED) {
             family.savePending(pending.copy(approved = true))
-            device.speak(context.getString(R.string.circle_approved))
+            // Who said yes, said aloud: the person always knows who approved a change of guardians.
+            val names = answer.yes.filter { it.isNotBlank() }
+            device.speak(
+                if (names.isEmpty()) context.getString(R.string.circle_approved)
+                else context.getString(if (names.size == 1) R.string.circle_approved_by_one else R.string.circle_approved_by_many, app.friendlypear.ui.peri.namesAnd(context, names)),
+            )
         } else {
             family.savePending(null)
             device.speak(context.getString(if (result == ApprovalResult.REJECTED) R.string.circle_rejected else R.string.circle_no_answer))
+        }
+    }
+
+    /**
+     * The guardians' first names as the family's server takes them (letters, 40 at most), told apart when two share
+     * one ("Ana G."); a name with no letters becomes "Guardian".
+     */
+    private fun firstNames(guardians: List<Contact>): List<String> {
+        val words = guardians.map { g ->
+            g.name.filter { it.isLetter() || it == ' ' || it == '.' || it == '\'' || it == '-' }.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
+        }
+        return words.mapIndexed { i, w ->
+            val first = w.firstOrNull()?.takeIf { it.first().isLetter() } ?: context.getString(R.string.guardian_word)
+            val shared = words.withIndex().any { (j, other) -> j != i && other.firstOrNull() == w.firstOrNull() }
+            val second = w.getOrNull(1)?.firstOrNull()?.takeIf { it.isLetter() }
+            (if (shared && second != null) "$first $second." else first).take(40)
         }
     }
 
