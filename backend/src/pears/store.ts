@@ -17,8 +17,9 @@ export const ITEMS = {
 export const ROLES = ["protected", "guardian", "family"] as const;
 export const STATES = ["calm", "attention"] as const;
 /** The kinds of trap the app draws (android/.../TrapActivity.kt), or none. */
-// "call": on a call with a number that isn't in the contacts, right now (the family can ask her Peri to hang up).
-export const TRAP_KINDS = ["", "parcel", "link", "code", "family", "remote", "prize", "call"] as const;
+// "call": on a call with a number that isn't in the contacts, right now (the family can ask their Peri to hang up).
+// "breach": they gave something away and asked the family for a hand.
+export const TRAP_KINDS = ["", "parcel", "link", "code", "family", "remote", "prize", "call", "breach"] as const;
 /** The same kind of trap reaching two or more family phones within this time is a campaign against the family. */
 export const CAMPAIGN_WINDOW_MS = 30 * 60 * 1000;
 /** An attention nobody refreshed is old news after this long. */
