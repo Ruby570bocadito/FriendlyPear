@@ -61,6 +61,8 @@ export const FRAMES: Record<string, string> = {
   gestureb: "Change: Peri is talking with a friendly open mouth and opens her arms a little outwards at the sides, palms up, as if saying 'you see?'. If a hand holds something, it keeps holding it and only the free arm opens wider. Same face style, eyes, props, framing, size and position.",
   wink: "Only change: Peri winks: the eye on the right side of the image is closed in a happy curve, the other eye stays open, and the smile is a little bigger. Everything else stays exactly the same.",
   stepleft: "Only change: Peri lifts the foot on the left side of the image a little off the ground, that leg slightly bent at the knee, as if taking a small cheerful step; the other foot stays flat on the ground. Head, body, arms, face, props and position stay exactly the same.",
+  steplefthalf: "Only change: Peri lifts the foot on the left side of the image just slightly off the ground, the very start of a small step, its heel barely raised and the leg only a little bent; the other foot stays flat on the ground. Head, body, arms, face, props and position stay exactly the same.",
+  steprighthalf: "Only change: Peri lifts the foot on the right side of the image just slightly off the ground, the very start of a small step, its heel barely raised and the leg only a little bent; the other foot stays flat on the ground. Head, body, arms, face, props and position stay exactly the same.",
   stepright: "Only change: Peri lifts the foot on the right side of the image a little off the ground, that leg slightly bent at the knee, as if taking a small cheerful step; the other foot stays flat on the ground. Head, body, arms, face, props and position stay exactly the same.",
 };
 

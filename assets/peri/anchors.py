@@ -32,7 +32,7 @@ POSES = ["calm_wave1", "calm_wave2", "calm_idea", "calm_sorry", "calm_thumbsup",
          "calm_yawn", "calm_letter", "calm_hero", "calm_medal", "calm_peekaboo", "calm_clap", "calm_detective",
          "calm_surprised", "calm_party", "calm_glasses", "calm_scarf", "calm_bye", "calm_hum", "calm_butterfly", "calm_tea", "calm_flower", "calm_phone"]
 FRAMES = ["_blink", "_blinkhalf", "_talk", "_talkwide", "_talko", "_glanceleft", "_glanceright", "_stepleft", "_stepright",
-          "_gesturea", "_gestureb", "_wink"]
+          "_gesturea", "_gestureb", "_wink", "_steplefthalf", "_steprighthalf"]
 # A frame never moves her more than this (px) from her still image; a match further away is a mistake.
 REACH = 48
 # Poses whose eyes can't be found (hidden by her hands, or spirals): the calm Peri's eyes stand in.
