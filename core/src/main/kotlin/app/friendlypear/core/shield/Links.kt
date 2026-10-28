@@ -19,6 +19,10 @@ internal object Links {
         "t.ly", "tiny.cc", "rb.gy", "s.id", "buff.ly", "acortar.link", "shorturl.ly", "v.gd", "lnkd.in", "qr.link",
     )
 
+    /** A host as people see it: an international name (xn--) decoded to its letters. */
+    fun shown(host: String): String =
+        if ("xn--" in host) runCatching { java.net.IDN.toUnicode(host, java.net.IDN.ALLOW_UNASSIGNED) }.getOrDefault(host) else host
+
     /** Hosts of every link in the text, lowercase and without "www.". */
     fun hosts(text: String): List<String> {
         val lower = text.lowercase()

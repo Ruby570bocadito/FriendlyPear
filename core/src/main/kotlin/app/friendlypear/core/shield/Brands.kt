@@ -88,7 +88,7 @@ internal object Brands {
     }
 
     private fun parts(host: String): List<String> =
-        host.split('.').flatMap { label -> label.split('-') + label.replace("-", "") }.filter { it.isNotEmpty() }.distinct()
+        Links.shown(host).split('.').flatMap { label -> label.split('-') + label.replace("-", "") }.filter { it.isNotEmpty() }.distinct()
 
     private fun skeleton(part: String): String = lookalikeChars.fold(Text.fold(part)) { s, (from, to) -> s.replace(from, to) }
 }

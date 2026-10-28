@@ -146,6 +146,7 @@ object QrTraps {
         val scammy = setOf(
             Signal.CODE_FORWARD_REQUEST, Signal.CREDENTIAL_REQUEST, Signal.MONEY_REQUEST, Signal.PRIZE_OR_PROFIT, Signal.URGENCY, Signal.SECRECY,
             Signal.CALLBACK_REQUEST, Signal.CHANNEL_SWITCH, Signal.MISTAKEN_PAYMENT, Signal.COMPANY_FROM_MOBILE, Signal.SAFE_PAYMENT_BAIT,
+            Signal.DISGUISED_LETTERS,
         )
         if (signals.any { it in scammy }) risks += QrRisk.SCAM_WORDS
     }

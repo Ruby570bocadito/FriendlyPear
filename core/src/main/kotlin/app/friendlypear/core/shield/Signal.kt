@@ -34,6 +34,8 @@ enum class Signal {
     SAFE_PAYMENT_BAIT,
     /** "Soy Marta de Correos", "Sarah from your bank" from a personal mobile or a Gmail address: companies write under their own name. */
     COMPANY_FROM_MOBILE,
+    /** Letters from another alphabet or invisible ones inside a word ("pаypal", "ur​gente"): written to slip past filters. */
+    DISGUISED_LETTERS,
     AI_INSTRUCTIONS,
     ONE_TIME_CODE,
     CODE_DURING_CALL,

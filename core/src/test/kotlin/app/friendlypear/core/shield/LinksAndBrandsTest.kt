@@ -24,6 +24,10 @@ class LinksAndBrandsTest {
         assertNull(Brands.impersonated("dhl.co.uk", setOf(brand("DHL"))))
         assertNull(Brands.impersonated("vodafone.co.uk", setOf(brand("Vodafone"))))
         assertNull(Brands.impersonated("www.nhs.scot", setOf(brand("the NHS"))))
+        // A Cyrillic а, raw or as an international name, is still PayPal's name on someone else's site.
+        assertEquals(brand("PayPal"), Brands.impersonated("pаypal.com", emptySet()))
+        assertEquals(brand("PayPal"), Brands.impersonated("xn--pypal-4ve.com", emptySet()))
+        assertEquals("españa.es", Links.shown("xn--espaa-rta.es"))
     }
 
     @Test

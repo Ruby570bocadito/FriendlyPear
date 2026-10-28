@@ -103,6 +103,22 @@ class SignalDetectorTest {
     }
 
     @Test
+    fun `letters from another alphabet, or invisible ones inside a word, are a disguise that hides nothing`() {
+        val cyrillic = signals("Su cuenta está bloqueada: www.pаypal.com/login")
+        assertTrue(Signal.BRAND_LOOKALIKE in cyrillic)
+        assertTrue(Signal.DISGUISED_LETTERS in cyrillic)
+        val hidden = signals("Es ur​gente: paga hoy la multa")
+        assertTrue(Signal.DISGUISED_LETTERS in hidden)
+        assertTrue(Signal.URGENCY in hidden)
+        val punycode = signals("Entra en https://xn--pypal-4ve.com/verify")
+        assertTrue(Signal.BRAND_LOOKALIKE in punycode)
+        assertTrue(Signal.DISGUISED_LETTERS in punycode)
+        assertFalse(Signal.DISGUISED_LETTERS in signals("Feliz cumpleaños 👨‍👩‍👧 os quiero", sender = "Laura"))
+        assertFalse(Signal.DISGUISED_LETTERS in signals("Mira la web www.xn--espaa-rta.es", sender = "Laura"))
+        assertFalse(Signal.DISGUISED_LETTERS in signals("Привет, мама! Llego a las 8", sender = "Laura"))
+    }
+
+    @Test
     fun `a free gift with a fee to pay is a prize, free delivery is not`() {
         assertTrue(Signal.PRIZE_OR_PROFIT in signals("Te enviamos gratis el kit de test para casa, solo pagas 4,10 de mensajería"))
         assertTrue(Signal.PRIZE_OR_PROFIT in signals("We have free test kits for over 60s, small £3.99 delivery fee", sender = "+44 7712 904318"))

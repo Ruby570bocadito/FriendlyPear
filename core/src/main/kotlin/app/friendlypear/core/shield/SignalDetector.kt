@@ -274,6 +274,8 @@ internal object SignalDetector {
         if (!context.knows(message.sender) && (affection.containsMatchIn(folded) || loveStory.containsMatchIn(folded))) signals += Signal.ROMANCE_BAIT
         if (remoteApps.containsMatchIn(folded)) signals += Signal.REMOTE_ACCESS_APP
         if (aiInstructions.any { it in folded }) signals += Signal.AI_INSTRUCTIONS
+        // Letters from another alphabet or invisible ones inside a word, in the text or in a link's international name.
+        if (Text.disguised(message.text) || hosts.any { "xn--" in it && Text.disguised(Links.shown(it)) }) signals += Signal.DISGUISED_LETTERS
         val fromMobile = mobile(Text.phoneDigits(message.sender))
         if ((callBack.containsMatchIn(folded) && phoneInText.containsMatchIn(message.text) && personBehind(folded, message)) ||
             (fromMobile && personalCall.containsMatchIn(folded) && thisNumber.containsMatchIn(folded))
