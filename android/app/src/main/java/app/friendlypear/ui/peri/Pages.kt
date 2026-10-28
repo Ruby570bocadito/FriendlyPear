@@ -3,6 +3,7 @@ package app.friendlypear.ui.peri
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Canvas
 import android.graphics.ImageDecoder
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
@@ -237,10 +238,24 @@ internal abstract class Page(context: Context) : ScrollView(context) {
         clipToPadding = false
     }
 
+    /** Where the status bar ends: cards scrolling up stop there instead of running under the clock. */
+    var clipTop = 0
+        set(value) {
+            field = value
+            invalidate()
+        }
+
     init {
         clipToPadding = false
         isVerticalScrollBarEnabled = false
         addView(list)
+    }
+
+    override fun dispatchDraw(canvas: Canvas) {
+        val saved = canvas.save()
+        if (clipTop > 0) canvas.clipRect(0, scrollY + clipTop, width, scrollY + height)
+        super.dispatchDraw(canvas)
+        canvas.restoreToCount(saved)
     }
 
     /** Builds the section again from what's on the phone now, its pieces arriving one after another. */
@@ -371,6 +386,8 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
             "family" to R.string.diary_scam_family,
             "remote" to R.string.diary_scam_remote,
             "prize" to R.string.diary_scam_prize,
+            "callback" to R.string.diary_scam_callback,
+            "payment" to R.string.diary_scam_payment,
         )
     }
 }
@@ -514,6 +531,8 @@ internal class LearnPage(context: Context, private val hub: PeriHub, private val
             Triple("family", R.string.trap_name_family, R.drawable.peri_trap_family_2),
             Triple("remote", R.string.trap_name_remote, R.drawable.peri_trap_remote_2),
             Triple("prize", R.string.trap_name_prize, R.drawable.peri_trap_prize_2),
+            Triple("callback", R.string.trap_name_callback, R.drawable.peri_trap_callback_2),
+            Triple("payment", R.string.trap_name_payment, R.drawable.peri_trap_payment_2),
         )
     }
 }

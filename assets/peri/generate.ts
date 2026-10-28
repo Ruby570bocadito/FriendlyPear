@@ -12,7 +12,7 @@
  *   cd backend; bun ../assets/peri/generate.ts frames calm      only the named states' frames
  *   cd backend; bun ../assets/peri/generate.ts frames --frame=blinkhalf,talkwide   only those frames
  *   cd backend; bun ../assets/peri/generate.ts extras           the app icon and the illustrations for screens
- *   cd backend; bun ../assets/peri/generate.ts traps            "how the trap worked": 3 panels for 6 kinds of scam (18 images)
+ *   cd backend; bun ../assets/peri/generate.ts traps            "how the trap worked": 3 panels for 8 kinds of scam (24 images)
  *   cd backend; bun ../assets/peri/generate.ts wear             accessories to dress Peri in (11 images, then assets/peri/wear.py)
  *   cd backend; bun ../assets/peri/generate.ts tops calm happy  her head without leaf and stem, for hats (then assets/peri/tops.py)
  *   cd backend; bun ../assets/peri/generate.ts fx               sprites for her effects: stars (2 images, then assets/peri/wear.py)
@@ -137,6 +137,13 @@ export const TRAPS: Record<string, string> = {
   trap_prize_1: "Peri holds a smartphone with a shiny golden trophy and golden coins bursting out of the screen. Her eyes are wide with excitement.",
   trap_prize_2: "Golden coins turn out to be painted cardboard, peeling at the edges, while a shadowy grey hand behind them takes away real coins. Peri looks surprised.",
   trap_prize_3: "Peri kindly shakes her head with a calm smile, holding a small coin purse safely closed in both hands.",
+  // Found by the red team (eval/redteam): a number to call instead of a link, and a payment that never came.
+  trap_callback_1: "Peri holds a smartphone; on its screen a big old-fashioned telephone handset with a red exclamation mark. She looks a little puzzled.",
+  trap_callback_2: "A shadowy grey hand comes out of the earpiece of a big clay telephone handset on a curly cord, trying to grab a bank card. Peri watches with wide, surprised eyes.",
+  trap_callback_3: "Peri holds her own plain bank card in one hand and a phone to her ear with the other, smiling confidently, with a green check mark beside her.",
+  trap_payment_1: "Peri holds a smartphone; golden coins seem to slide into its screen along a green arrow, and a small question mark floats beside her. She looks pleasantly surprised.",
+  trap_payment_2: "A shadowy grey hand comes out of a smartphone screen holding up a cardboard receipt with a painted green tick, while another grey hand reaches for Peri's small coin purse. Peri leans back, surprised.",
+  trap_payment_3: "Peri holds her own smartphone up in one hand and examines its screen through a big magnifying glass held in the other hand, calm and smiling, with a green check mark beside her. A small closed coin purse rests on the floor at her feet.",
 };
 
 /** Accessories to dress Peri in, each on its own: worn on her head, her eyes or below her smile (ui/peri/Outfit.kt). */

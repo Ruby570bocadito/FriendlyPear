@@ -116,12 +116,19 @@ class TrapActivity : Activity() {
         const val LINK = "link"
         private val COURIERS = setOf("Correos", "SEUR", "DHL", "Royal Mail", "Evri", "UPS", "FedEx", "USPS")
 
-        /** The kind of trap, from what the shield found: a code, a fake relative, remote control, a prize, a parcel or a fake link. */
+        /**
+         * The kind of trap, from what the shield found: a code, a fake payment, a fake relative, remote control, a prize,
+         * a number to call, a parcel or a fake link.
+         */
         fun kindOf(signals: Collection<String>, brand: String?): String = when {
-            signals.any { it in setOf("CODE_DURING_CALL", "CODE_FORWARD_REQUEST", "ONE_TIME_CODE", "CREDENTIAL_REQUEST") } -> "code"
+            "CODE_DURING_CALL" in signals -> "code"
+            // A buyer's "safe payment" asks for the card too: its own panels tell that trick better than the code's.
+            signals.any { it in setOf("MISTAKEN_PAYMENT", "SAFE_PAYMENT_BAIT") } -> "payment"
+            signals.any { it in setOf("CODE_FORWARD_REQUEST", "ONE_TIME_CODE", "CREDENTIAL_REQUEST") } -> "code"
             signals.any { it in setOf("NEW_NUMBER_CLAIM", "SECRECY", "ROMANCE_BAIT") } -> "family"
             signals.any { it in setOf("REMOTE_ACCESS_APP", "DEVICE_SCARE") } -> "remote"
             "PRIZE_OR_PROFIT" in signals -> "prize"
+            "LINK" !in signals && signals.any { it in setOf("CALLBACK_REQUEST", "COMPANY_FROM_MOBILE") } -> "callback"
             brand in COURIERS -> "parcel"
             else -> LINK
         }
@@ -133,6 +140,8 @@ class TrapActivity : Activity() {
             "family" to R.string.trap_name_family,
             "remote" to R.string.trap_name_remote,
             "prize" to R.string.trap_name_prize,
+            "callback" to R.string.trap_name_callback,
+            "payment" to R.string.trap_name_payment,
         )
 
         private val PANELS: Map<String, List<Pair<Int, Int>>> = mapOf(
@@ -165,6 +174,16 @@ class TrapActivity : Activity() {
                 R.drawable.peri_trap_prize_1 to R.string.trap_prize_1,
                 R.drawable.peri_trap_prize_2 to R.string.trap_prize_2,
                 R.drawable.peri_trap_prize_3 to R.string.trap_prize_3,
+            ),
+            "callback" to listOf(
+                R.drawable.peri_trap_callback_1 to R.string.trap_callback_1,
+                R.drawable.peri_trap_callback_2 to R.string.trap_callback_2,
+                R.drawable.peri_trap_callback_3 to R.string.trap_callback_3,
+            ),
+            "payment" to listOf(
+                R.drawable.peri_trap_payment_1 to R.string.trap_payment_1,
+                R.drawable.peri_trap_payment_2 to R.string.trap_payment_2,
+                R.drawable.peri_trap_payment_3 to R.string.trap_payment_3,
             ),
         )
     }

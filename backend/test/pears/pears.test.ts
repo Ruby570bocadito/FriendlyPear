@@ -69,6 +69,9 @@ test("only known names, outfits, roles and states get in", () => {
   // A calm pear carries no kind of trap, whatever it sends.
   expect((readPear({ ...mum, kind: "parcel" }) as any).kind).toBe("");
   expect((readPear({ ...mum, state: "attention", kind: "parcel" }) as any).kind).toBe("parcel");
+  // The red team's two kinds: a number to call, and a payment that never came.
+  expect((readPear({ ...mum, state: "attention", kind: "callback" }) as any).kind).toBe("callback");
+  expect((readPear({ ...mum, state: "attention", kind: "payment" }) as any).kind).toBe("payment");
 });
 
 test("an attention nobody refreshed fades back to calm", async () => {

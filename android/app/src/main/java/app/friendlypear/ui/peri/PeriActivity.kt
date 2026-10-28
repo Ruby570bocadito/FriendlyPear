@@ -552,7 +552,10 @@ class PeriActivity : Activity() {
         val side = dp(20)
         val bottom = dp(TAB_BAR_DP) + bars.bottom + dp(8) + dp(14)
         home.setPadding(side + bars.left, dp(8) + bars.top, side + bars.right, bottom)
-        listOfNotNull(diary, learn, family).forEach { it.setPadding(dp(16) + bars.left, dp(12) + bars.top, dp(16) + bars.right, bottom) }
+        listOfNotNull(diary, learn, family).forEach {
+            it.setPadding(dp(16) + bars.left, dp(12) + bars.top, dp(16) + bars.right, bottom)
+            it.clipTop = bars.top
+        }
     }
 
     /**
@@ -1506,6 +1509,8 @@ class PeriActivity : Activity() {
             "remote" to R.string.trap_name_remote,
             "prize" to R.string.trap_name_prize,
             "call" to R.string.trap_name_call,
+            "callback" to R.string.trap_name_callback,
+            "payment" to R.string.trap_name_payment,
         )
         const val FAMILY_SAID = "family_said"
         const val FAMILY_DISMISSED = "family_dismissed"

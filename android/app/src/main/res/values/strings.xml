@@ -658,6 +658,12 @@
     <string name="trap_prize_1">A message says you\'ve won a prize, or offers an investment that can\'t fail.</string>
     <string name="trap_prize_2">To release it, they ask for a fee or your details. The prize doesn\'t exist.</string>
     <string name="trap_prize_3">If it sounds too good to be true, it is. Don\'t pay anything, and delete it.</string>
+    <string name="trap_callback_1">A message says something is wrong, and gives you a number to call instead of a link.</string>
+    <string name="trap_callback_2">That number goes to the scammers: on the phone they sound like the bank, and ask for your details.</string>
+    <string name="trap_callback_3">Call only the number on the back of your card or in the official app, never one from a message.</string>
+    <string name="trap_payment_1">Someone says they paid you, by mistake or for something you sell, and asks you to accept it or send it back.</string>
+    <string name="trap_payment_2">That payment doesn\'t exist: their page is after your card, and the money you send back is yours.</string>
+    <string name="trap_payment_3">Look in your own bank\'s app. If nothing came in, there\'s nothing to accept or give back.</string>
     <string name="web_card_title">A website sent that</string>
     <string name="web_card_text">It isn\'t your phone talking: %1$s sends those notices. Switch them off so it can\'t scare you again.</string>
     <string name="web_card_button">Silence this website</string>
@@ -690,6 +696,8 @@
     <string name="diary_scam_family">I stopped someone pretending to be family</string>
     <string name="diary_scam_remote">I stopped a fake helper who wanted your phone</string>
     <string name="diary_scam_prize">I stopped a prize that was too good to be true</string>
+    <string name="diary_scam_callback">I stopped a message with a fake number to call</string>
+    <string name="diary_scam_payment">I stopped a fake payment</string>
     <string name="diary_doubt">I checked a doubtful message for you</string>
     <string name="diary_pause_left">You left a money app in time</string>
     <string name="diary_family_called">You chose to call your family first</string>
@@ -723,6 +731,8 @@
     <string name="trap_name_remote">The fake helper</string>
     <string name="trap_name_prize">The big prize</string>
     <string name="trap_name_call">A stranger on the phone</string>
+    <string name="trap_name_callback">The number to call</string>
+    <string name="trap_name_payment">The fake payment</string>
     <string name="family_page_title">Your family</string>
     <string name="family_guardians_title">Your guardians</string>
     <string name="family_no_guardians">Nobody yet. Choose the people you trust in “Change my family”.</string>
