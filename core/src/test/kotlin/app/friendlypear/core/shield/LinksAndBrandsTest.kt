@@ -15,6 +15,18 @@ class LinksAndBrandsTest {
     }
 
     @Test
+    fun `finds British links without a scheme, and fake marketplace pages`() {
+        assertEquals(listOf("brightpay-secure.co.uk"), Links.hosts("just pop your card in here brightpay-secure.co.uk/p/8821"))
+        assertEquals(brand("Vinted"), Brands.impersonated("vintd-payhelp.co.uk", setOf(brand("Vinted"))))
+        assertEquals(brand("Gumtree"), Brands.impersonated("gumtree-safebox.co.uk", emptySet()))
+        assertNull(Brands.impersonated("vinted.co.uk", setOf(brand("Vinted"))))
+        // Seen as links now, the brands' own British sites must not look like impersonations.
+        assertNull(Brands.impersonated("dhl.co.uk", setOf(brand("DHL"))))
+        assertNull(Brands.impersonated("vodafone.co.uk", setOf(brand("Vodafone"))))
+        assertNull(Brands.impersonated("www.nhs.scot", setOf(brand("the NHS"))))
+    }
+
+    @Test
     fun `abbreviations, amounts and emails are not links`() {
         assertEquals(emptyList(), Links.hosts("Son 1,99 €, p.ej. mañana. Escribe a laura@gmail.com"))
     }

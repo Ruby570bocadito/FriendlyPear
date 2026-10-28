@@ -24,6 +24,16 @@ enum class Signal {
     /** Affection or a far-away love story (a widower, a soldier, an oil rig) from someone not in the contacts. */
     ROMANCE_BAIT,
     REMOTE_ACCESS_APP,
+    /** "Call me on 910...", "ring us on 0800...": a number in the message itself, how a fake bank or courier gets them on the phone. */
+    CALLBACK_REQUEST,
+    /** "Let's talk on Telegram", "add me on WhatsApp" from a text or an email: away from where it can be checked. */
+    CHANNEL_SWITCH,
+    /** "I sent you 50 by mistake, can you send it back?": the refund trick, often by Bizum. */
+    MISTAKEN_PAYMENT,
+    /** "Ya te pagué con la compra protegida, revisa tu correo y acéptalo": a second-hand sale's fake payment page. */
+    SAFE_PAYMENT_BAIT,
+    /** "Soy Marta de Correos", "Sarah from your bank" from a personal mobile or a Gmail address: companies write under their own name. */
+    COMPANY_FROM_MOBILE,
     AI_INSTRUCTIONS,
     ONE_TIME_CODE,
     CODE_DURING_CALL,

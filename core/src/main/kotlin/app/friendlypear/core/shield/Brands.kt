@@ -12,7 +12,7 @@ internal object Brands {
     val ALL = listOf(
         Brand("Correos", listOf("correos"), listOf("correos"), listOf("correos.es", "correos.com")),
         Brand("SEUR", listOf("seur"), listOf("seur"), listOf("seur.com", "seur.es")),
-        Brand("DHL", listOf("dhl"), listOf("dhl"), listOf("dhl.com", "dhl.es", "dhl.de")),
+        Brand("DHL", listOf("dhl"), listOf("dhl"), listOf("dhl.com", "dhl.es", "dhl.de", "dhl.co.uk")),
         Brand("la DGT", listOf("dgt"), listOf("dgt", "trafico"), listOf("dgt.es", "dgt.gob.es")),
         Brand(
             "la Agencia Tributaria", listOf("agenciatributaria", "aeat", "hacienda"),
@@ -38,8 +38,14 @@ internal object Brands {
         Brand("Endesa", listOf("endesa"), listOf("endesa"), listOf("endesa.com", "endesa.es")),
         Brand("Naturgy", listOf("naturgy"), listOf("naturgy"), listOf("naturgy.es", "naturgy.com")),
         Brand("Movistar", listOf("movistar"), listOf("movistar"), listOf("movistar.es", "movistar.com", "telefonica.es")),
-        Brand("Vodafone", listOf("vodafone"), listOf("vodafone"), listOf("vodafone.es", "vodafone.com")),
+        Brand("Vodafone", listOf("vodafone"), listOf("vodafone"), listOf("vodafone.es", "vodafone.com", "vodafone.co.uk")),
         Brand("Orange", listOf("orange"), listOf("orange"), listOf("orange.es", "orange.com")),
+        // Second-hand marketplaces: their fake "secure payment" pages (found by the red team).
+        Brand("Wallapop", listOf("wallapop"), listOf("wallapop"), listOf("wallapop.com", "wallapop.es")),
+        Brand("Vinted", listOf("vinted"), listOf("vinted"), listOf("vinted.es", "vinted.com", "vinted.co.uk", "vinted.fr", "vinted.de", "vinted.it", "vinted.pt", "vinted.ie", "vinted.nl", "vinted.be", "vinted.pl")),
+        Brand("Milanuncios", listOf("milanuncios"), listOf("milanuncios"), listOf("milanuncios.com")),
+        Brand("eBay", listOf("ebay"), listOf("ebay"), listOf("ebay.es", "ebay.com", "ebay.co.uk", "ebay.de", "ebay.fr", "ebay.it", "ebay.ie", "ebay.us", "ebay.com.au", "ebay.ca", "ebay.nl", "ebay.at", "ebay.ch")),
+        Brand("Gumtree", listOf("gumtree"), listOf("gumtree"), listOf("gumtree.com", "gumtree.ie", "gumtree.com.au")),
         // United Kingdom and United States, for families there and for the English demo.
         Brand("Royal Mail", listOf("royalmail"), listOf("royal mail"), listOf("royalmail.com", "royalmail.co.uk")),
         Brand("Evri", listOf("evri", "hermes"), listOf("evri"), listOf("evri.com")),
@@ -48,6 +54,7 @@ internal object Brands {
         Brand("USPS", listOf("usps"), listOf("usps"), listOf("usps.com")),
         Brand("HMRC", listOf("hmrc"), listOf("hmrc"), listOf("gov.uk")),
         Brand("the DVLA", listOf("dvla"), listOf("dvla"), listOf("gov.uk")),
+        Brand("the NHS", listOf("nhs"), listOf("nhs"), listOf("nhs.uk", "nhs.net", "nhs.scot", "nhs.wales")),
         Brand("the IRS", listOf("irs"), listOf("irs"), listOf("irs.gov")),
         Brand("Barclays", listOf("barclays"), listOf("barclays"), listOf("barclays.co.uk", "barclays.com")),
         Brand("HSBC", listOf("hsbc"), listOf("hsbc"), listOf("hsbc.co.uk", "hsbc.com")),

@@ -10,6 +10,8 @@ internal object Links {
         "com", "es", "net", "org", "info", "eu", "cat", "gal", "eus", "io", "co", "me", "ly", "gl", "gd", "at", "cc", "id",
         "app", "site", "online", "link", "click", "shop", "store", "top", "xyz", "icu", "vip", "live", "biz", "sbs",
         "cfd", "bond", "buzz", "fun", "life", "work", "support", "help", "ru", "cn", "tk", "ml", "ga", "cf", "gq", "de", "fr",
+        // ".co.uk" and a few more: the red team's "brightpay-secure.co.uk/p/8821" was not seen as a link.
+        "uk", "pt", "ie", "nl", "ch", "pl", "tv", "pro", "website", "club", "mobi", "cyou", "ws", "pw",
     )
 
     private val shorteners = setOf(

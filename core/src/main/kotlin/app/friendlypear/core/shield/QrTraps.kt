@@ -143,7 +143,10 @@ object QrTraps {
         if (Signal.AI_INSTRUCTIONS in signals) risks += QrRisk.INSTRUCTIONS
         if (Signal.REMOTE_ACCESS_APP in signals) risks += QrRisk.REMOTE_APP
         if (Signal.BRAND_LOOKALIKE in signals) risks += QrRisk.LOOKALIKE
-        val scammy = setOf(Signal.CODE_FORWARD_REQUEST, Signal.CREDENTIAL_REQUEST, Signal.MONEY_REQUEST, Signal.PRIZE_OR_PROFIT, Signal.URGENCY, Signal.SECRECY)
+        val scammy = setOf(
+            Signal.CODE_FORWARD_REQUEST, Signal.CREDENTIAL_REQUEST, Signal.MONEY_REQUEST, Signal.PRIZE_OR_PROFIT, Signal.URGENCY, Signal.SECRECY,
+            Signal.CALLBACK_REQUEST, Signal.CHANNEL_SWITCH, Signal.MISTAKEN_PAYMENT, Signal.COMPANY_FROM_MOBILE, Signal.SAFE_PAYMENT_BAIT,
+        )
         if (signals.any { it in scammy }) risks += QrRisk.SCAM_WORDS
     }
 
