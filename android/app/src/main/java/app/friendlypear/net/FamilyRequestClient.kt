@@ -17,7 +17,8 @@ object FamilyRequestClient {
 
     enum class Answer(val form: String) { REJECT("decision=reject"), CALLBACK("decision=callback"), APPROVE("decision=approve&confirm=yes") }
 
-    enum class Outcome { DONE, GONE, FAILED }
+    /** [ON_CALL]: the server held a yes back, this phone being on a call with a stranger. */
+    enum class Outcome { DONE, GONE, ON_CALL, FAILED }
 
     fun fetch(url: String): Request? = runCatching {
         val c = open(url, "GET").apply { setRequestProperty("Accept", "application/json") }
@@ -33,17 +34,22 @@ object FamilyRequestClient {
         }
     }.getOrNull()
 
-    /** The same form the guardian's page sends; a yes always carries the confirmation the page asks for. */
-    fun answer(url: String, answer: Answer): Outcome = runCatching {
+    /**
+     * The same form the guardian's page sends; a yes always carries the confirmation the page asks for. With this
+     * phone's own [key] the server knows who decides, and holds a yes back while this phone is on a stranger's call.
+     */
+    fun answer(url: String, answer: Answer, key: String? = null): Outcome = runCatching {
         val c = open(url, "POST").apply {
             doOutput = true
             setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+            if (key != null) setRequestProperty("Authorization", "Bearer $key")
         }
         try {
             c.outputStream.use { it.write(answer.form.toByteArray()) }
             when (c.responseCode) {
                 200 -> Outcome.DONE
                 404, 410 -> Outcome.GONE
+                409 -> Outcome.ON_CALL
                 else -> Outcome.FAILED
             }
         } finally {

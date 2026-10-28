@@ -228,6 +228,9 @@ class GuardianActivity : Activity() {
 
     /** Three checks, the safe answer first, then the phone's own lock: a yes must be on purpose. */
     private fun confirmYes() {
+        // Someone on the line may be talking the guardian into it: first hang up, then decide.
+        if (PeriApp.hub(this).strangerOnLine) return onCall()
+
         val checks = listOf(
             getString(R.string.guardian_check_1, from),
             getString(R.string.guardian_check_2, toName),
@@ -249,7 +252,7 @@ class GuardianActivity : Activity() {
         answers.isEnabled = false
         for (i in 0 until answers.childCount) answers.getChildAt(i).isEnabled = false
         io.execute {
-            val outcome = FamilyRequestClient.answer(url, answer)
+            val outcome = FamilyRequestClient.answer(url, answer, app.friendlypear.net.DeviceKey.mine(this))
             runOnUiThread { answered(answer, outcome) }
         }
     }
@@ -269,6 +272,11 @@ class GuardianActivity : Activity() {
                 if (answer == Answer.CALLBACK) fromPhone?.let { startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$it"))) }
             }
             Outcome.GONE -> showDone(getString(R.string.guardian_gone), R.drawable.peri_calm_sorry)
+            Outcome.ON_CALL -> {
+                answers.alpha = 1f
+                for (i in 0 until answers.childCount) answers.getChildAt(i).isEnabled = true
+                onCall()
+            }
             Outcome.FAILED -> {
                 answers.alpha = 1f
                 for (i in 0 until answers.childCount) answers.getChildAt(i).isEnabled = true
@@ -277,6 +285,15 @@ class GuardianActivity : Activity() {
                 result.visibility = View.VISIBLE
             }
         }
+    }
+
+    /** On a stranger's call: Peri says so, and the yes waits; "no" and "call them now" still work. */
+    private fun onCall() {
+        val text = getString(R.string.guardian_on_call)
+        PeriApp.hub(this).say(text)
+        result.text = text
+        result.visibility = View.VISIBLE
+        peri.setImageResource(R.drawable.peri_protective)
     }
 
     private fun showDone(text: String, art: Int) {

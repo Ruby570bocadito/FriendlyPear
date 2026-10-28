@@ -29,8 +29,11 @@ object DeviceKey {
 
     @Volatile private var cached: String? = null
 
-    /** The key every request carries. */
-    fun current(context: Context): String = own(context) ?: BuildConfig.DEVICE_TOKEN
+    /** The key every request carries. The shared test token only ever in a debug build. */
+    fun current(context: Context): String = own(context) ?: if (BuildConfig.DEBUG) BuildConfig.DEVICE_TOKEN else ""
+
+    /** This phone's own key, if it is paired: never the shared test token. */
+    fun mine(context: Context): String? = own(context)
 
     fun paired(context: Context): Boolean = own(context) != null
 
