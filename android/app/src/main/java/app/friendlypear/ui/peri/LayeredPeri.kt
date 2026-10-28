@@ -48,10 +48,7 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
     }
 
     /** Where her face goes on a body: the middle of its eyes, its turn (°) and its size against the calm body's. */
-    private class Place(val x: Float, val y: Float, val turn: Float, val scale: Float) {
-        fun towards(other: Place, f: Float) =
-            Place(x + (other.x - x) * f, y + (other.y - y) * f, turn + (other.turn - turn) * f, scale + (other.scale - scale) * f)
-    }
+    private class Place(val x: Float, val y: Float, val turn: Float, val scale: Float)
 
     private val moves = context.animationsOn()
     private val main = Handler(Looper.getMainLooper())
@@ -79,10 +76,9 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
     private var talking = false
     private var waving = false
 
-    /** The body on show, and the one it's fading in over (her arms moving). */
+    /** The body on show, and when it last changed: she squashes a touch as her arms move, like clay. */
     private var bodyShown = "calm"
-    private var bodyBefore: String? = null
-    private var bodyFadeStart = 0L
+    private var snapStart = -SNAP_MS
 
     // Where she looks, from -1 to 1 each way (left and up are negative), where she wants to look and how fast it moves.
     private var gazeX = 0f
@@ -339,9 +335,8 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
     private fun refresh() {
         val next = gesture ?: look?.body ?: "calm"
         if (next != bodyShown) {
-            bodyBefore = if (moves) bodyShown else null
             bodyShown = next
-            bodyFadeStart = SystemClock.uptimeMillis()
+            if (moves) snapStart = SystemClock.uptimeMillis()
         }
         wake()
     }
@@ -398,7 +393,6 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
     }
 
     private fun drawPeri(canvas: Canvas, body: Bitmap) {
-        val now = SystemClock.uptimeMillis()
         // Her shadow on the ground, smaller and lighter as she rises.
         if (shadow.shader != null) {
             val rise = (lift / (side * 0.12f)).coerceIn(0f, 1f)
@@ -416,20 +410,11 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
         canvas.rotate(tilt)
         canvas.scale(stretchX * k, stretchY * k)
         canvas.translate(-PeriLayerData.SIZE / 2, -PeriLayerData.SIZE * FEET)
-        // The new body fades in over the one before, so her arms flow from pose to pose.
-        val before = bodyBefore
-        val f = if (before == null) 1f else ((now - bodyFadeStart) / BLEND_MS.toFloat()).coerceIn(0f, 1f)
-        if (before != null) {
-            pictures["body_$before"]?.let { draw(canvas, it, WHOLE) }
-            paint.alpha = (255 * f).toInt()
-        }
+        // One body at a time (two, one fading over the other, showed two pairs of arms).
         draw(canvas, body, WHOLE)
-        paint.alpha = 255
-        if (f >= 1f) bodyBefore = null
         // Her face where this body's picture has its eyes, turned a little towards what she looks at; her eyes move a
         // little more, and the mouth goes over them (its edge gives way to the eyes, see layers.py).
-        val to = PLACES[bodyShown] ?: PLACES.getValue("calm")
-        val place = before?.let { PLACES[it]?.towards(to, f) } ?: to
+        val place = PLACES[bodyShown] ?: PLACES.getValue("calm")
         canvas.translate(place.x, place.y)
         canvas.rotate(place.turn)
         canvas.scale(place.scale, place.scale)
@@ -478,6 +463,9 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
         // A little nod with each word.
         val n = (now - nodStart) / NOD_MS.toFloat()
         val nod = if (n in 0f..1f) sin(PI * n).toFloat() else 0f
+        // A new body: a quick squash and back.
+        val sn = (now - snapStart) / SNAP_MS.toFloat()
+        if (sn in 0f..1f) squash -= SNAP * sin(PI * sn).toFloat()
         // A shiver when worried.
         val sh = (now - shiverStart) / SHIVER_MS.toFloat()
         val shiver = if (sh in 0f..1f) sin(2 * PI * (now - shiverStart) / 90.0).toFloat() * side * 0.006f * (1 - sh) else 0f
@@ -490,7 +478,7 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
 
     /** Anything moving beyond her breathing: then every frame, otherwise the calm frame rate. */
     private fun lively(now: Long): Boolean =
-        talking || touching || bodyBefore != null || now - hopStart < HOP_MS || now - nodStart < NOD_MS || now - shiverStart < SHIVER_MS ||
+        talking || touching || now - snapStart < SNAP_MS || now - hopStart < HOP_MS || now - nodStart < NOD_MS || now - shiverStart < SHIVER_MS ||
             abs(wantX - gazeX) + abs(wantY - gazeY) > 0.004f || abs(gazeVX) + abs(gazeVY) > 0.01f ||
             abs(pressTarget - press) > 0.004f || abs(pressV) > 0.01f
 
@@ -625,7 +613,8 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
         const val HOP_MS = 640L
         const val NOD_MS = 220L
         const val SHIVER_MS = 600L
-        const val BLEND_MS = 130L
+        const val SNAP_MS = 140L
+        const val SNAP = 0.025f
         const val WAVE_STEP_MS = 260L
         const val YAWN_MS = 1_500L
         const val LAUGH_HOP_MS = 520L

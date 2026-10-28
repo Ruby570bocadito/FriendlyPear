@@ -32,7 +32,9 @@ import java.util.concurrent.Executors
  * then she does something by herself: a hop, steps or a little dance, a spin, a wink, a look around, a stretch,
  * a wave. She drops in when the screen opens, hops when her mood changes, squishes like clay when pressed and
  * talks with her hands. Only quick changes swap frames: blinks, glances, steps, gestures and mouth shapes.
- * Moods cross-fade with a small pop. With "remove animations" on she changes mood without moving.
+ * Two pictures never show at once (blended, her legs and arms looked doubled, like a ghost): a new frame takes the
+ * old one's place at once with a small clay squash, and a new mood pops in. With "remove animations" on she changes
+ * mood without moving.
  */
 class PeriFace(context: Context) : FrameLayout(context) {
     private data class Frames(
@@ -96,8 +98,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private val sparkles = Sparkles(context)
     /** What she wears, drawn over her picture inside the rig, so it moves with her. */
     private val outfitLayer = OutfitLayer(context)
-    private var front = layer()
-    private var back = layer()
+    private val front = layer()
     private var shown: Mood? = null
     private var frames = FRAMES.getValue(Mood.CALM)
     private val loaded = HashMap<Int, Drawable>()
@@ -105,7 +106,6 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private val tops = HashMap<Int, Drawable>()
     private var onShow = 0
     private var talking = false
-    private var fading = false
     private var popStart = 0L
     private val pop = OvershootInterpolator(2.2f)
     private var running = false
@@ -117,8 +117,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
     /** Until then a blink or glance owns the frame, so running steps don't cut it short. */
     private var busyUntil = 0L
     private var lastRun = -1L
-    /** The start of the little nod that goes with each word. */
+    /** The start of the little nod that goes with each word, and of the squash as her body changes frame. */
     private var nodStart = 0L
+    private var snapStart = 0L
     /** Pressed, she squishes; let go, she springs back past straight and settles, like clay. */
     private var pressTarget = 0f
     private var pressX = 0f
@@ -135,13 +136,11 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private var velY = 0f
 
     init {
-        rig.addView(back, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         rig.addView(front, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         rig.addView(outfitLayer, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         outfitLayer.outfit = Outfit.load(context)
         addView(rig, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         addView(sparkles, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
-        back.alpha = 0f
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
         clipChildren = false
         clipToPadding = false
@@ -276,28 +275,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
         // Only this mood's frames stay in memory: each is a full-quality illustration.
         loaded.keys.retainAll(frames.all)
         tops.keys.retainAll(setOfNotNull(PeriTops.TOPS[frames.still]?.picture))
-        val still = dressed(frames.still, drawable(frames.still))
-        // A change during the previous fade: stop it first, or its end would hide the new mood.
-        front.animate().cancel()
-        back.animate().cancel()
-        front.alpha = 1f
-        back.alpha = 0f
-        fading = false
-        if (!moves || first) {
-            front.setImageDrawable(still)
-        } else {
-            fading = true
-            back.setImageDrawable(still)
-            back.alpha = 0f
-            back.bringToFront()
-            outfitLayer.bringToFront()
-            val leaving = front
-            back.animate().alpha(1f).setDuration(MOOD_FADE).withEndAction {
-                leaving.alpha = 0f
-                fading = false
-            }.start()
-            front = back
-            back = leaving
+        // The new mood at once, popping in with a hop: fading over the old one showed both, one through the other.
+        front.setImageDrawable(dressed(frames.still, drawable(frames.still)))
+        if (moves && !first) {
             popStart = SystemClock.uptimeMillis()
             if (mood != Mood.SLEEPING) act(Idle.HOP)
             if (mood == Mood.HAPPY) sparkles.burst(22)
@@ -371,11 +351,6 @@ class PeriFace(context: Context) : FrameLayout(context) {
 
     /** [res] on her for [millis], dressed as she is, with a little pop; then back to her mood. */
     private fun hold(res: Int, millis: Long) {
-        front.animate().cancel()
-        back.animate().cancel()
-        front.alpha = 1f
-        back.alpha = 0f
-        fading = false
         posing = true
         action = null
         outfitLayer.base = res
@@ -410,8 +385,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
     fun greet() {
         if (!moves || shown != Mood.CALM || talking) return
         val steps = listOf(R.drawable.peri_calm_wave1, R.drawable.peri_calm_wave2, R.drawable.peri_calm_wave1, R.drawable.peri_calm_wave2, R.drawable.peri_calm_wave1)
-        steps.forEachIndexed { i, res -> main.postDelayed({ if (shown == Mood.CALM && !talking) put(res, blend = true) }, WAVE_START + i * WAVE_STEP) }
-        main.postDelayed({ if (shown == Mood.CALM && !talking) put(frames.still, blend = true) }, WAVE_START + steps.size * WAVE_STEP)
+        steps.forEachIndexed { i, res -> main.postDelayed({ if (shown == Mood.CALM && !talking) put(res, snap = true) }, WAVE_START + i * WAVE_STEP) }
+        main.postDelayed({ if (shown == Mood.CALM && !talking) put(frames.still, snap = true) }, WAVE_START + steps.size * WAVE_STEP)
     }
 
     /**
@@ -429,36 +404,17 @@ class PeriFace(context: Context) : FrameLayout(context) {
     }
 
     /**
-     * [res] on her now. With [blend], the new frame comes in over the old one in a breath (a step, a gesture, a
-     * wave), so her body flows from pose to pose; blinks and her mouth stay instant, as they are in life.
+     * [res] on her now, in place of the frame before (never over it: two at once looked like a ghost). With [snap],
+     * her body changes (a step, a gesture, a wave) and she squashes a touch as she moves, like clay; blinks and her
+     * mouth just change, as they do in life.
      */
-    private fun put(res: Int, blend: Boolean = false) {
+    private fun put(res: Int, snap: Boolean = false) {
         if (windowVisibility != VISIBLE) return
         // A blink or wave scheduled before a mood change never shows a frame of the old mood.
         val waving = shown == Mood.CALM && (res == R.drawable.peri_calm_wave1 || res == R.drawable.peri_calm_wave2)
-        if (fading || posing || (res !in frames.all && !waving)) return
-        val next = dressed(res, drawable(res))
-        if (blend && moves) {
-            front.animate().cancel()
-            back.animate().cancel()
-            val leaving = front
-            leaving.alpha = 1f
-            back.setImageDrawable(next)
-            back.alpha = 0f
-            back.bringToFront()
-            outfitLayer.bringToFront()
-            back.animate().alpha(1f).setDuration(BLEND_MS).withEndAction { leaving.alpha = 0f }.start()
-            front = back
-            back = leaving
-        } else {
-            // A blend still running would keep fading this frame in from nothing, with the old one already
-            // hidden: her body flashed see-through when the mouth moved right after a gesture.
-            front.animate().cancel()
-            back.animate().cancel()
-            front.setImageDrawable(next)
-            front.alpha = 1f
-            back.alpha = 0f
-        }
+        if (posing || (res !in frames.all && !waving)) return
+        front.setImageDrawable(dressed(res, drawable(res)))
+        if (snap && moves) snapStart = SystemClock.uptimeMillis()
         // Each frame places her outfit from its own eyes: a step or a gesture moves her a little.
         outfitLayer.anchor = res
     }
@@ -472,7 +428,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
             if (gesture.isNotEmpty() && last !in gesture && Random.nextInt(9) == 0) {
                 val g = gesture.random()
                 last = g
-                put(g, blend = true)
+                put(g, snap = true)
                 nodStart = SystemClock.uptimeMillis()
                 main.postDelayed(this, Random.nextLong(700, 1_050))
                 return
@@ -481,7 +437,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
             // Out of a gesture her arms come down softly; between mouth shapes it's instant.
             val fromGesture = last == frames.gestureA || last == frames.gestureB
             last = next
-            put(next, blend = fromGesture)
+            put(next, snap = fromGesture)
             if (next != frames.still) nodStart = SystemClock.uptimeMillis()
             main.postDelayed(this, if (next == frames.still) Random.nextLong(110, 180) else Random.nextLong(140, 230))
         }
@@ -518,7 +474,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private val idle = object : Runnable {
         override fun run() {
             val mood = shown
-            if (mood != null && !talking && !posing && !fading && action == null) {
+            if (mood != null && !talking && !posing && action == null) {
                 MOTIONS.getValue(mood).idles.randomOrNull()?.let { act(it) }
                 // Asleep, she breathes out a little "z z z" now and then.
                 if (mood == Mood.SLEEPING && moves) sparkles.play(Sparkles.Effect.SLEEPY)
@@ -551,8 +507,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
                 val stride = if (lh != null && rh != null) listOf(lh, l, lh, frames.still, rh, r, rh, frames.still) else listOf(l, frames.still, r, frames.still)
                 val beat = STEP_MS * 4 / stride.size
                 val steps = stride + stride
-                steps.forEachIndexed { i, res -> main.postDelayed({ if (!talking && action == Idle.STEPS) put(res, blend = true) }, i * beat) }
-                main.postDelayed({ if (!talking) put(frames.still, blend = true) }, steps.size * beat)
+                steps.forEachIndexed { i, res -> main.postDelayed({ if (!talking && action == Idle.STEPS) put(res, snap = true) }, i * beat) }
+                main.postDelayed({ if (!talking) put(frames.still, snap = true) }, steps.size * beat)
             }
             Idle.LOOK -> {
                 busyUntil = now + 2_100
@@ -580,9 +536,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
                 actionStart = now
                 busyUntil = now + DANCE_STEPS * DANCE_MS
                 (0 until DANCE_STEPS).forEach { i ->
-                    main.postDelayed({ if (!talking && action == Idle.DANCE) put(if (i % 2 == 0) l else r, blend = true) }, i * DANCE_MS)
+                    main.postDelayed({ if (!talking && action == Idle.DANCE) put(if (i % 2 == 0) l else r, snap = true) }, i * DANCE_MS)
                 }
-                main.postDelayed({ if (!talking) put(frames.still, blend = true) }, DANCE_STEPS * DANCE_MS)
+                main.postDelayed({ if (!talking) put(frames.still, snap = true) }, DANCE_STEPS * DANCE_MS)
             }
         }
     }
@@ -600,7 +556,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
      */
     fun lookToward(fromCenter: Float) {
         val now = SystemClock.uptimeMillis()
-        if (!moves || shown == null || talking || posing || fading || action != null || now < busyUntil) return
+        if (!moves || shown == null || talking || posing || action != null || now < busyUntil) return
         if (!MOTIONS.getValue(shown!!).blinks) return
         busyUntil = now + 1_000
         put(if (fromCenter < 0) frames.left else frames.right)
@@ -641,7 +597,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
 
     /** A trick right now, if she's free to move. */
     fun play(trick: Trick) {
-        if (!moves || shown == null || posing || fading) return
+        if (!moves || shown == null || posing) return
         action = null
         act(
             when (trick) {
@@ -759,7 +715,10 @@ class PeriFace(context: Context) : FrameLayout(context) {
             offY += velY * dt
             val speed = kotlin.math.sqrt(velX * velX + velY * velY) / density
             val pull = (speed * 0.00012f).coerceAtMost(0.09f)
-            val squash = breath + landing + shape.squash + nod - PRESS_SQUASH * pressX + pull
+            // A new body frame: a quick squash and back, so the change reads as clay moving.
+            val s = ((t - snapStart) / SNAP_MS).coerceIn(0f, 1f)
+            val snap = if (s < 1f) -SNAP * sin(PI * s).toFloat() else 0f
+            val squash = breath + landing + shape.squash + nod + snap - PRESS_SQUASH * pressX + pull
             // Two waves at unrelated speeds: her sway never looks like a metronome.
             val sway = (wave(m.tiltMs) + 0.4f * wave((m.tiltMs * 0.61f).toLong())) / 1.4f
             rig.rotation = sway * m.tilt + shape.tilt + (velX / density * 0.012f).coerceIn(-14f, 14f)
@@ -776,7 +735,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
                 val step = t / m.bobMs
                 if (step != lastRun) {
                     lastRun = step
-                    (if (step % 2 == 0L) frames.stepLeft else frames.stepRight)?.let { put(it, blend = true) }
+                    (if (step % 2 == 0L) frames.stepLeft else frames.stepRight)?.let { put(it, snap = true) }
                 }
             }
             invalidate()
@@ -786,7 +745,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
 
     /** Something more than her calm breathing is moving: a finger on her, a spring settling, a word, a pose, an action. */
     private fun lively(t: Long, m: Motion): Boolean =
-        holding || talking || posing || action != null || m.bounce || m.runs || t < busyUntil || t - popStart < POP_MS ||
+        holding || talking || posing || action != null || m.bounce || m.runs || t < busyUntil || t - popStart < POP_MS || t - snapStart < SNAP_MS ||
             abs(pressV) > 0.01f || abs(pressTarget - pressX) > 0.01f || abs(velX) + abs(velY) > 1f || abs(offX) + abs(offY) > 0.5f
 
     override fun onAttachedToWindow() {
@@ -833,9 +792,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
     }
 
     private companion object {
-        const val MOOD_FADE = 200L
-        /** One body frame flowing into the next: shorter than a beat of her steps. */
-        const val BLEND_MS = 110L
+        /** The squash as her body changes frame: shorter than a beat of her steps, and small. */
+        const val SNAP_MS = 140f
+        const val SNAP = 0.025f
         const val CHEER_MILLIS = 2_200L
         const val POSE_MILLIS = 2_800L
         /** How long a pose holds once she starts talking, before her talking face takes over. */
