@@ -28,6 +28,9 @@ backend/data/
 # Evaluation data with real (even anonymised) messages stays local
 eval/data/
 training/data/
+# The red team's messages and raw answers: made up, but a made-up number or address may belong to someone real
+eval/redteam/*/mensajes.tsv
+eval/redteam/*/raw/
 
 # Demo video clips: large, they go to the video host, not the repo
 dist/demo/
