@@ -362,13 +362,14 @@ class PeriHub(context: Context) {
 
     /** Attention while Peri warns or waits for the family, but only if the person shares Peri's news with them. */
     private fun pearState(): String =
-        if (news.sharing && (mood in ATTENTION_MOODS || agent.strangerOnLine || screenIntruder != null)) "attention" else "calm"
+        if (news.sharing && (mood in ATTENTION_MOODS || agent.strangerOnLine || screenIntruder != null || helpWanted())) "attention" else "calm"
 
-    /** Why her pear needs attention, in a word: on a stranger's call right now, or the kind of a recent scam. */
+    /** Why their pear needs attention, in a word: on a stranger's call right now, or the kind of a recent scam. */
     private fun pearKind(): String {
         if (pearState() != "attention") return ""
         if (agent.strangerOnLine) return "call"
         if (screenIntruder != null) return "remote"
+        if (helpWanted()) return "breach"
         return lastScam.load()?.takeIf { System.currentTimeMillis() - it.at < SCAM_KIND_MS }?.kind.orEmpty()
     }
 
@@ -414,7 +415,7 @@ class PeriHub(context: Context) {
 
     /**
      * Looks for apps that can see and use the screen ([app.friendlypear.device.ScreenAccess]): a new one is said once,
-     * with a notification that opens the accessibility settings; while one is on, her pear shows it to the family.
+     * with a notification that opens the accessibility settings; while one is on, their pear shows it to the family.
      */
     fun checkScreenAccess() = main.post { screenAccess(app.friendlypear.device.ScreenAccess.intruders(context)) }
 
@@ -472,6 +473,28 @@ class PeriHub(context: Context) {
     private fun plain(name: String): String =
         java.text.Normalizer.normalize(name.lowercase().trim(), java.text.Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "")
 
+    /**
+     * After giving something away, the person chose to tell the family: for a day their pear asks for a hand
+     * ("breach"), if they share Peri's news. Only that: never what was given.
+     */
+    fun needsFamilyHelp(what: app.friendlypear.core.agent.Breach) {
+        aftercare.edit().putLong(HELP_UNTIL, System.currentTimeMillis() + HELP_MS).putString(HELP_KIND, what.name).apply()
+        publishPear()
+    }
+
+    private val aftercare = this.context.getSharedPreferences("aftercare_help", Context.MODE_PRIVATE)
+
+    private fun helpWanted() = aftercare.getLong(HELP_UNTIL, 0L) > System.currentTimeMillis()
+
+    /** Whether the family's phones see this pear (and so a call for a hand): it has a name and Peri shares its news. */
+    val familySeesPear: Boolean get() = news.sharing && pearClient.enabled && pearName.isNotEmpty()
+
+    /** The first guardian's number, to call them from the steps. */
+    fun guardianPhone(): String? {
+        val guardians = family.load().guardians
+        return contacts.orEmpty().firstOrNull { it.id in guardians }?.phones?.firstOrNull()
+    }
+
     /** Numbers the person blocked from a scam's card. */
     val blocked = app.friendlypear.config.BlockList(this.context)
 
@@ -492,7 +515,7 @@ class PeriHub(context: Context) {
         sharedState = state
         val outfit = app.friendlypear.ui.peri.Outfit.load(context).code()
         val role = if (family.load().guardians.isNotEmpty()) "protected" else "guardian"
-        // The kind of trap, if a scam is why her pear needs attention (the family's server spots one reaching many),
+        // The kind of trap, if a scam is why their pear needs attention (the family's server spots one reaching many),
         // or "call" while a stranger is on the line.
         val kind = pearKind()
         sharedKind = kind
@@ -1017,6 +1040,9 @@ class PeriHub(context: Context) {
         /** Three seconds for "keep talking", and a moment for Peri to say it. */
         const val HANGUP_WAIT_MS = 6_000L
         const val FAMILY_NOTES_MS = 60_000L
+        const val HELP_UNTIL = "until"
+        const val HELP_KIND = "kind"
+        const val HELP_MS = 24 * 60 * 60_000L
         const val ALERTS_CHANNEL = "peri_alerts"
         const val WARNED = "warned"
         const val REPUBLISH_MS = 10_000L

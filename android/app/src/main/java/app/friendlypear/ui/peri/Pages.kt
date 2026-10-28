@@ -304,6 +304,9 @@ internal class LearnPage(context: Context, private val hub: PeriHub, private val
         list.addView(quiz(), c.below())
         list.addView(c.label(c.getString(R.string.learn_traps_title)), LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(20) })
         list.addView(traps(), c.below(10))
+        // Already fell for one: what to do now, without a word of reproach.
+        list.addView(c.chipButton(c.getString(R.string.after_learn)) { open(AftercareActivity.intent(c, null)) },
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, c.dp(56)).apply { topMargin = c.dp(20) })
         list.addView(c.label(c.getString(R.string.learn_tips_title)), LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(20) })
         list.addView(tips(), c.below(10))
     }

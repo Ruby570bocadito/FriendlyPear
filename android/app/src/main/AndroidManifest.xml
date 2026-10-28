@@ -140,6 +140,15 @@
             android:name=".services.SummaryReceiver"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.peri.AftercareActivity"
+            android:exported="false" />
+
+        <!-- The day after a scam: a reminder to look at the bank's movements. -->
+        <receiver
+            android:name=".ui.peri.AftercareReminder"
+            android:exported="false" />
+
         <!-- The buttons on the family's notifications ("was it you?", "hang up their call"): only this app sends them. -->
         <receiver
             android:name=".services.FamilyActionReceiver"

@@ -259,10 +259,22 @@ class PeriActivity : Activity() {
                     showSetup()
                 }
             }
-            addView(blockScam, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                topMargin = dp(4)
-                gravity = Gravity.CENTER_HORIZONTAL
-            })
+            // Two quiet links: never hear from that number again, or "I'd already answered it": what to do now.
+            addView(LinearLayout(this@PeriActivity).apply {
+                gravity = Gravity.CENTER
+                addView(blockScam)
+                addView(TextView(this@PeriActivity).apply {
+                    text = getString(R.string.after_link)
+                    sizeSp(TextSize.SMALL)
+                    typeface = Fonts.display(600)
+                    setTextColor(Palette.GREEN_DARK)
+                    gravity = Gravity.CENTER
+                    minHeight = dp(48)
+                    setPadding(dp(14), 0, dp(14), 0)
+                    background = pressable(rounded(0, dp(24).toFloat()), Palette.RIPPLE_DARK)
+                    setOnClickListener { startActivity(AftercareActivity.intent(this@PeriActivity, null)) }
+                })
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(4) })
         }
 
         // A family member's Peri is on alert: their pear needs attention. It comes before every other card.
@@ -1159,6 +1171,9 @@ class PeriActivity : Activity() {
             if (campaign != null) {
                 familyAlertTitle.text = getString(R.string.campaign_title)
                 familyAlertText.text = getString(R.string.campaign_text, getString(TRAP_NAMES[campaign] ?: R.string.trap_name_link).lowercase())
+            } else if (alert != null && alert.kind == "breach") {
+                familyAlertTitle.text = getString(R.string.family_breach_title, alert.name)
+                familyAlertText.text = getString(R.string.family_breach_text)
             } else if (alert != null && alert.kind == "call") {
                 familyAlertTitle.text = getString(R.string.family_call_title, alert.name)
                 familyAlertText.text = getString(R.string.family_call_text)
@@ -1174,6 +1189,7 @@ class PeriActivity : Activity() {
                     when {
                         campaign != null -> getString(R.string.campaign_says)
                         alert!!.kind == "call" -> getString(R.string.family_call_says, alert.name)
+                        alert.kind == "breach" -> getString(R.string.family_breach_says, alert.name)
                         else -> getString(R.string.family_alert_says, alert.name)
                     },
                 )

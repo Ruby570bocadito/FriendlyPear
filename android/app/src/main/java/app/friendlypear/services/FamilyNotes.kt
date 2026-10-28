@@ -70,7 +70,14 @@ class FamilyNotes(context: Context, private val pears: () -> PearClient, private
                 context.getString(R.string.campaign_says),
                 Palette.CORAL_INK,
             )
-            pear!!.kind == "call" -> notify(
+            pear!!.kind == "breach" -> notify(
+                ALERT_ID,
+                context.getString(R.string.family_breach_title, pear.name),
+                context.getString(R.string.family_breach_text),
+                Palette.CORAL_INK,
+                listOfNotNull(callAction(pear.name)),
+            )
+            pear.kind == "call" -> notify(
                 ALERT_ID,
                 context.getString(R.string.family_call_title, pear.name),
                 context.getString(R.string.family_call_text),

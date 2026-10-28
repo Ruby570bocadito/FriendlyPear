@@ -41,6 +41,10 @@ class AndroidDevice(
 ) : DevicePort {
     override fun prepare(capability: Capability, then: (Boolean) -> Unit) = ask(capability, then)
 
+    override fun showAftercare(what: app.friendlypear.core.agent.Breach) {
+        main.post { runCatching { context.startActivity(app.friendlypear.ui.peri.AftercareActivity.intent(context, what)) } }
+    }
+
     override fun showPause(text: String, callName: String?, hangUp: Boolean, keep: Boolean) {
         main.post { pause(text, callName, hangUp, keep) }
     }
