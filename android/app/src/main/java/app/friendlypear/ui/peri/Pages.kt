@@ -16,6 +16,8 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import app.friendlypear.R
+import app.friendlypear.core.agent.Mood
+import app.friendlypear.net.PearClient
 import app.friendlypear.config.Diary
 import app.friendlypear.config.FamilyStore
 import app.friendlypear.config.PhoneContacts
@@ -77,6 +79,22 @@ internal fun Context.sized(res: Int, px: Int): Drawable = runCatching {
         if (info.size.width > px) decoder.setTargetSize(px, px * info.size.height / info.size.width)
     }
 }.getOrElse { getDrawable(res)!! }
+
+/** A small rubber button with a word and no icon, for narrow places (a pear's card). */
+internal fun Context.chipButton(label: String, onClick: () -> Unit): View = TextView(this).apply {
+    text = label
+    sizeSp(15f)
+    typeface = Fonts.display(600)
+    setTextColor(Palette.GREEN_DARK)
+    gravity = Gravity.CENTER
+    isSingleLine = true
+    background = RubberDrawable(Palette.GREEN_TINT, 0xFFB7D798.toInt(), dp(3).toFloat(), dp(23).toFloat())
+    setPadding(dp(6), 0, dp(6), dp(3))
+    isClickable = true
+    isFocusable = true
+    stateListAnimator = pressScale()
+    setOnClickListener { onClick() }
+}
 
 /** A round, tinted badge with an icon, for the rows of a list. */
 internal fun Context.badge(icon: Int, face: Int, ink: Int, size: Int = 40): View = FrameLayout(this).apply {
@@ -412,6 +430,7 @@ internal class FamilyPage(context: Context, private val hub: PeriHub, private va
         val store = FamilyStore(c)
         val config = store.load()
         list.addView(c.heroCard(c.getString(R.string.family_page_title), Lines.next(c, R.array.family_hello), R.drawable.peri_family, Palette.LILAC_TINT, 0xFFCDBEF5.toInt(), Palette.LILAC_INK))
+        list.addView(pears(), c.below())
         val guardians = c.whiteCard().apply {
             addView(c.heading(c.getString(R.string.family_guardians_title), TextSize.BODY))
         }
@@ -430,6 +449,164 @@ internal class FamilyPage(context: Context, private val hub: PeriHub, private va
         list.addView(Pill(c, c.getString(R.string.family_change), R.drawable.ic_family, primary = true).apply {
             setOnClickListener { open(Intent(c, FamilyActivity::class.java)) }
         }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, c.dp(68)).apply { topMargin = c.dp(18) })
+    }
+
+    /**
+     * The family's pears, like friends: this phone's first (right away), then everyone else's from the family's
+     * server, each with what their Peri wears, their role and whether they need attention.
+     */
+    private fun pears(): View {
+        val c = context
+        val box = LinearLayout(c).apply { orientation = LinearLayout.VERTICAL }
+        box.addView(c.label(c.getString(R.string.family_pears_title)), LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        val grid = GridLayout(c).apply { columnCount = 2 }
+        box.addView(grid, c.below(10))
+        showPears(grid, emptyList())
+        if (!hub.seesFamilyPears) {
+            box.addView(c.whiteCard().apply {
+                addView(c.body(c.getString(R.string.family_pears_pair), 18f).apply { setTextColor(Palette.INK) })
+                addView(Pill(c, c.getString(R.string.family_pears_connect), R.drawable.ic_settings, primary = false).apply {
+                    setOnClickListener { open(Intent(c, SettingsActivity::class.java)) }
+                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, c.dp(58)).apply { topMargin = c.dp(12) })
+            }, c.below(12))
+            return box
+        }
+        val note = c.body("", 16f).apply { visibility = View.GONE }
+        box.addView(note, c.below(8))
+        hub.familyPears { pears ->
+            if (pears == null) {
+                note.text = c.getString(R.string.family_pears_error)
+                note.visibility = View.VISIBLE
+                return@familyPears
+            }
+            val others = pears.filter { !it.self }
+            showPears(grid, others)
+            if (others.isEmpty()) {
+                note.text = c.getString(R.string.family_pears_alone)
+                note.visibility = View.VISIBLE
+            }
+        }
+        return box
+    }
+
+    private fun showPears(grid: GridLayout, others: List<PearClient.Pear>) {
+        val c = context
+        grid.removeAllViews()
+        val mine = PearClient.Pear("self", hub.pearName, Outfit.load(c).code(), if (FamilyStore(c).load().guardians.isNotEmpty()) "protected" else "guardian", "calm", 0L, true)
+        (listOf(mine) + others).forEachIndexed { i, pear ->
+            grid.addView(pearCard(pear), GridLayout.LayoutParams(GridLayout.spec(i / 2), GridLayout.spec(i % 2, 1f)).apply {
+                width = 0
+                setMargins(if (i % 2 == 0) 0 else c.dp(6), if (i < 2) 0 else c.dp(12), if (i % 2 == 0) c.dp(6) else 0, 0)
+            })
+        }
+    }
+
+    /** One pear: their Peri in her outfit (worried, on a coral card, if they need attention), name, role and state. */
+    private fun pearCard(pear: PearClient.Pear): View {
+        val c = context
+        val alert = !pear.self && pear.state == "attention"
+        val name = pear.name.ifEmpty { c.getString(R.string.pear_no_name) }
+        val role = c.getString(if (pear.role == "protected") R.string.pear_role_protected else R.string.pear_role_guardian)
+        val state = c.getString(if (alert) R.string.pear_attention else R.string.pear_calm)
+        return LinearLayout(c).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            background = if (alert) c.tintedCard(Palette.CORAL_TINT, 0xFFEFB4A8.toInt()) else c.cardBackground()
+            setPadding(c.dp(8), c.dp(8), c.dp(8), c.dp(14))
+            contentDescription = listOfNotNull(c.getString(R.string.pear_you).takeIf { pear.self }, name, role, state).joinToString(". ")
+            addView(PeriFace(c).apply {
+                outfit = Outfit.of(pear.outfit)
+                show(if (alert) Mood.WORRIED else Mood.CALM)
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, c.dp(124)))
+            addView(c.heading(name, 18f).apply {
+                gravity = Gravity.CENTER
+                maxLines = 1
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            })
+            addView(TextView(c).apply {
+                text = if (pear.self) c.getString(R.string.pear_you) else role
+                sizeSp(13f)
+                typeface = Fonts.display(600)
+                setTextColor(if (pear.self) Palette.GREEN_DARK else Palette.LILAC_INK)
+                background = rounded(if (pear.self) Palette.GREEN_TINT else Palette.LILAC_TINT, c.dp(12).toFloat())
+                setPadding(c.dp(10), c.dp(3), c.dp(10), c.dp(4))
+                gravity = Gravity.CENTER
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(4) })
+            addView(c.body(state, 15f).apply {
+                gravity = Gravity.CENTER
+                setTextColor(if (alert) Palette.CORAL_INK else Palette.INK_SOFT)
+                if (alert) typeface = Fonts.reading(bold = true)
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(4) })
+            if (pear.self) addView(LinearLayout(c).apply {
+                addView(c.chipButton(c.getString(R.string.pear_dress)) { open(Intent(c, WardrobeActivity::class.java)) }, LinearLayout.LayoutParams(0, c.dp(46), 1f).apply { marginEnd = c.dp(3) })
+                addView(c.chipButton(c.getString(R.string.pear_rename)) { askName() }, LinearLayout.LayoutParams(0, c.dp(46), 1f).apply { marginStart = c.dp(3) })
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(10) })
+            // A pear in trouble breathes gently, so the eye goes there; never flashing.
+            if (alert && c.animationsOn()) {
+                android.animation.ObjectAnimator.ofPropertyValuesHolder(
+                    this,
+                    android.animation.PropertyValuesHolder.ofFloat(View.SCALE_X, 1f, 1.03f),
+                    android.animation.PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f, 1.03f),
+                ).apply {
+                    duration = 900
+                    repeatCount = android.animation.ValueAnimator.INFINITE
+                    repeatMode = android.animation.ValueAnimator.REVERSE
+                    start()
+                }
+            }
+        }
+    }
+
+    /** "What does your family call you?": a few ideas to tap, or any name, as the family's pears show it. */
+    private fun askName() {
+        val c = context
+        val field = android.widget.EditText(c).apply {
+            setText(hub.pearName)
+            hint = c.getString(R.string.pear_name_hint)
+            sizeSp(TextSize.BODY)
+            setTextColor(Palette.INK)
+            isSingleLine = true
+            filters = arrayOf(android.text.InputFilter.LengthFilter(24))
+            background = rounded(Palette.WHITE, c.dp(16).toFloat(), Palette.LINE_STRONG, c.dp(1.5f))
+            setPadding(c.dp(16), c.dp(14), c.dp(16), c.dp(14))
+        }
+        val ideas = LinearLayout(c).apply {
+            c.resources.getStringArray(R.array.pear_name_ideas).forEach { idea ->
+                addView(TextView(c).apply {
+                    text = idea
+                    sizeSp(16f)
+                    typeface = Fonts.display(600)
+                    setTextColor(Palette.LILAC_INK)
+                    background = pressable(rounded(Palette.LILAC_TINT, c.dp(16).toFloat()), Palette.RIPPLE_DARK)
+                    setPadding(c.dp(14), c.dp(8), c.dp(14), c.dp(9))
+                    setOnClickListener { field.setText(idea) }
+                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { marginEnd = c.dp(8) })
+            }
+        }
+        val content = LinearLayout(c).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(c.dp(22), c.dp(8), c.dp(22), 0)
+            addView(field)
+            addView(android.widget.HorizontalScrollView(c).apply {
+                isHorizontalScrollBarEnabled = false
+                addView(ideas)
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(12) })
+        }
+        android.app.AlertDialog.Builder(c)
+            .setTitle(R.string.pear_name_title)
+            .setView(content)
+            .setPositiveButton(R.string.pear_name_save) { _, _ ->
+                if (field.text.toString().isNotBlank()) {
+                    hub.pearName = field.text.toString()
+                    refresh()
+                }
+            }
+            .setNegativeButton(R.string.pear_name_cancel, null)
+            .show()
+            .friendly()
     }
 
     /** The guardians' names come from the phone's contacts, read away from the screen's thread. */

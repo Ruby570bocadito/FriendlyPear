@@ -857,4 +857,34 @@
         <item>I\'ll keep it in the wardrobe for another day.</item>
         <item>My leaf says thank you!</item>
     </string-array>
+    <!-- The family's pears: name, outfit, role and calm or attention, from the family's own server. -->
+    <string name="family_pears_title">Your family\'s pears</string>
+    <string name="family_pears_pair">To see your family\'s pears, connect this phone to your family\'s Peri server in Settings.</string>
+    <string name="family_pears_connect">Connect this phone</string>
+    <string name="family_pears_error">I couldn\'t reach your family just now. I\'ll try again in a moment.</string>
+    <string name="family_pears_alone">Only you so far. When your family connect their phones, their pears appear here.</string>
+    <string name="pear_you">You</string>
+    <string name="pear_role_protected">Looked after by family</string>
+    <string name="pear_role_guardian">Looks after the family</string>
+    <string name="pear_calm">All calm</string>
+    <string name="pear_attention">Needs attention</string>
+    <string name="pear_dress">Dress</string>
+    <string name="pear_rename">Name</string>
+    <string name="pear_no_name">Give your pear a name</string>
+    <string name="pear_name_title">What does your family call you?</string>
+    <string name="pear_name_hint">Mum, Grandad, Ana…</string>
+    <string name="pear_name_save">Save</string>
+    <string name="pear_name_cancel">Cancel</string>
+    <string name="family_alert_title">%1$s\'s Peri needs attention</string>
+    <string name="family_alert_text">Someone may be trying to trick them. Give them a call to check they\'re all right.</string>
+    <string name="family_alert_button">See my family</string>
+    <string name="family_alert_says">Heads up: %1$s\'s Peri is on alert. Someone may be trying to trick them. Give them a call.</string>
+    <string-array name="pear_name_ideas">
+        <item>Mum</item>
+        <item>Dad</item>
+        <item>Grandma</item>
+        <item>Grandad</item>
+        <item>Auntie</item>
+        <item>Uncle</item>
+    </string-array>
 </resources>

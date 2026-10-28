@@ -676,6 +676,23 @@ class PeriFace(context: Context) : FrameLayout(context) {
         if (talking) main.post(mouth)
     }
 
+    /** Out of sight (another section on screen, a card scrolled away), she rests until she's back. */
+    override fun onVisibilityAggregated(isVisible: Boolean) {
+        super.onVisibilityAggregated(isVisible)
+        if (!moves || !isAttachedToWindow) return
+        if (isVisible && !running) {
+            running = true
+            Choreographer.getInstance().postFrameCallback(frame)
+            main.postDelayed(blink, 1_800)
+            main.postDelayed(glance, 5_000)
+            main.postDelayed(idle, Random.nextLong(IDLE_FIRST, IDLE_MIN))
+        } else if (!isVisible && running) {
+            running = false
+            Choreographer.getInstance().removeFrameCallback(frame)
+            listOf(blink, glance, idle).forEach { main.removeCallbacks(it) }
+        }
+    }
+
     override fun onDetachedFromWindow() {
         running = false
         Choreographer.getInstance().removeFrameCallback(frame)

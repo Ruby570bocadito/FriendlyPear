@@ -826,4 +826,34 @@
         <item>Lo guardo en el armario para otro día.</item>
         <item>¡Mi hoja me lo agradece!</item>
     </string-array>
+    <!-- The family's pears: name, outfit, role and calm or attention, from the family's own server. -->
+    <string name="family_pears_title">Las peras de tu familia</string>
+    <string name="family_pears_pair">Para ver las peras de tu familia, conecta este móvil con el servidor de Peri de tu familia en Ajustes.</string>
+    <string name="family_pears_connect">Conectar este móvil</string>
+    <string name="family_pears_error">Ahora no he podido ver a tu familia. Lo intento otra vez en un momento.</string>
+    <string name="family_pears_alone">De momento solo estás tú. Cuando tu familia conecte sus móviles, sus peras aparecerán aquí.</string>
+    <string name="pear_you">Tú</string>
+    <string name="pear_role_protected">Le cuida la familia</string>
+    <string name="pear_role_guardian">Cuida de la familia</string>
+    <string name="pear_calm">Todo tranquilo</string>
+    <string name="pear_attention">Necesita atención</string>
+    <string name="pear_dress">Vestir</string>
+    <string name="pear_rename">Nombre</string>
+    <string name="pear_no_name">Ponle nombre a tu pera</string>
+    <string name="pear_name_title">¿Cómo te llama tu familia?</string>
+    <string name="pear_name_hint">Mamá, Abuelo, Ana…</string>
+    <string name="pear_name_save">Guardar</string>
+    <string name="pear_name_cancel">Cancelar</string>
+    <string name="family_alert_title">El Peri de %1$s necesita atención</string>
+    <string name="family_alert_text">Puede que alguien le esté intentando engañar. Llámale para ver si está bien.</string>
+    <string name="family_alert_button">Ver mi familia</string>
+    <string name="family_alert_says">Ojo: el Peri de %1$s está en alerta. Puede que alguien le esté intentando engañar. Llámale.</string>
+    <string-array name="pear_name_ideas">
+        <item>Mamá</item>
+        <item>Papá</item>
+        <item>Abuela</item>
+        <item>Abuelo</item>
+        <item>Tía</item>
+        <item>Tío</item>
+    </string-array>
 </resources>

@@ -172,6 +172,8 @@ class WardrobeActivity : Activity() {
         Outfit.save(this, next)
         face.outfit = next
         showChosen()
+        // The family sees her new look on this phone's pear.
+        hub.publishPear()
     }
 
     private fun say(text: String) = hub.say(text)

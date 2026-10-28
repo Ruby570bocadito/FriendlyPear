@@ -181,6 +181,8 @@ class PeriHub(context: Context) {
                 it.mood(mood)
                 it.speaking(true)
             }
+            // The family's pear of this phone shows attention while Peri warns or waits for the family.
+            if (pearState() != sharedState) publishPear()
         },
         onSpeechDone = {
             speaking = false
@@ -324,6 +326,54 @@ class PeriHub(context: Context) {
 
     /** Peri's news for the guardians, only if the person turned it on; the same list stays on this phone. */
     val news = SharedNews(this.context)
+
+    /** The family's pears: this phone's goes to the family's server, the others' come back for the family section. */
+    private val pearClient = app.friendlypear.net.PearClient(BuildConfig.BACKEND_URL) {
+        if (app.friendlypear.net.DeviceKey.paired(this.context)) app.friendlypear.net.DeviceKey.current(this.context) else null
+    }
+    private val pearPrefs = this.context.getSharedPreferences("pear", Context.MODE_PRIVATE)
+    private var sharedState = ""
+
+    /** Only a phone paired with the family's server (its own key) has a pear there. */
+    val seesFamilyPears: Boolean get() = pearClient.enabled
+
+    /** What the family calls the person ("Mamá", "Ana"): the name on this phone's pear. Empty until they choose. */
+    var pearName: String
+        get() = pearPrefs.getString(PEAR_NAME, "").orEmpty()
+        set(value) {
+            // Letters, numbers and a few signs, as the family's server accepts them.
+            val clean = value.filter { it.isLetterOrDigit() || it in " .'()-" }.trim().take(24)
+            pearPrefs.edit().putString(PEAR_NAME, clean).apply()
+            publishPear()
+        }
+
+    /** Attention while Peri warns or waits for the family, but only if the person shares Peri's news with them. */
+    private fun pearState(): String = if (news.sharing && mood in ATTENTION_MOODS) "attention" else "calm"
+
+    /**
+     * Sends this phone's pear: its name, what Peri wears, the role (looked after, if there are guardians here), and
+     * calm or attention. Nothing about messages, calls or places.
+     */
+    fun publishPear() = main.post {
+        val name = pearName
+        if (name.isEmpty() || !pearClient.enabled) return@post
+        val state = pearState()
+        sharedState = state
+        val outfit = app.friendlypear.ui.peri.Outfit.load(context).code()
+        val role = if (family.load().guardians.isNotEmpty()) "protected" else "guardian"
+        waiting.execute {
+            val sent = pearClient.publish(name, outfit, role, state)
+            Log.i(TAG, "pear published=$sent state=$state")
+        }
+    }
+
+    /** Everyone's pears, this phone's included; null if the server can't be reached. */
+    fun familyPears(done: (List<app.friendlypear.net.PearClient.Pear>?) -> Unit) {
+        waiting.execute {
+            val pears = pearClient.family()
+            main.post { done(pears) }
+        }
+    }
 
     val isWaitingForAnswer: Boolean get() = agent.isWaitingForAnswer
 
@@ -734,5 +784,8 @@ class PeriHub(context: Context) {
         const val COUNTDOWN_MILLIS = 10_000L
         const val DEBUG_HEAR = "app.friendlypear.debug.HEAR"
         const val MUSE_VOICE = "muse_voice"
+        const val PEAR_NAME = "name"
+        /** Peri warning, protecting, or waiting for the family's answer: the family's pear needs attention. */
+        val ATTENTION_MOODS = setOf(Mood.WORRIED, Mood.PROTECTIVE, Mood.WAITING)
     }
 }

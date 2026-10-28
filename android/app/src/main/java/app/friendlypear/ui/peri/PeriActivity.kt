@@ -66,6 +66,10 @@ class PeriActivity : Activity() {
     private var family: FamilyPage? = null
     private var tab = TAB_PERI
     private var bars = android.graphics.Insets.NONE
+    private lateinit var familyAlert: View
+    private lateinit var familyAlertTitle: TextView
+    /** The family alert on show (whose pear, and since when), or null. */
+    private var familyAlertKey: String? = null
     private var pulse: ObjectAnimator? = null
     private var wantsMini = false
     /** Set while the app steps aside for Mini Peri, so the last resume before that doesn't put her away. */
@@ -228,6 +232,44 @@ class PeriActivity : Activity() {
             })
         }
 
+        // A family member's Peri is on alert: their pear needs attention. It comes before every other card.
+        familyAlertTitle = heading("", TextSize.BODY).apply { setTextColor(Palette.CORAL_INK) }
+        familyAlert = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = tintedCard(Palette.CORAL_TINT, 0xFFEFB4A8.toInt())
+            setPadding(dp(16), dp(12), dp(8), dp(14))
+            visibility = View.GONE
+            accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
+            addView(LinearLayout(this@PeriActivity).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                addView(badge(R.drawable.ic_family, Palette.WHITE, Palette.CORAL_INK, 44), LinearLayout.LayoutParams(dp(44), dp(44)))
+                addView(LinearLayout(this@PeriActivity).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(dp(10), 0, dp(4), 0)
+                    addView(familyAlertTitle)
+                    addView(body(getString(R.string.family_alert_text), TextSize.SMALL).apply { setTextColor(Palette.INK) })
+                }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+                addView(ImageView(this@PeriActivity).apply {
+                    setImageResource(R.drawable.ic_close)
+                    setColorFilter(Palette.INK_SOFT)
+                    contentDescription = getString(R.string.report_hide)
+                    background = pressable(rounded(0, dp(20).toFloat()), Palette.RIPPLE_DARK)
+                    setPadding(dp(10), dp(10), dp(10), dp(10))
+                    setOnClickListener {
+                        asked.edit().putString(FAMILY_DISMISSED, familyAlertKey).apply()
+                        familyAlertKey = null
+                        showSetup()
+                    }
+                }, LinearLayout.LayoutParams(dp(44), dp(44)))
+            })
+            addView(Pill(this@PeriActivity, getString(R.string.family_alert_button), R.drawable.ic_family, primary = false, rubber = Rubber.CORAL).apply {
+                setOnClickListener { showTab(TAB_FAMILY) }
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)).apply {
+                topMargin = dp(10)
+                marginEnd = dp(8)
+            })
+        }
+
         // A website's junk notice: it isn't the phone talking, and its notices can be switched off in one tap.
         webText = body("", TextSize.SMALL)
         web = LinearLayout(this).apply {
@@ -335,6 +377,7 @@ class PeriActivity : Activity() {
                 }, android.widget.FrameLayout.LayoutParams(dp(52), dp(52), Gravity.BOTTOM or Gravity.END).apply { bottomMargin = dp(8) })
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(4) })
             addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            addView(familyAlert, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
             addView(web, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
             addView(report, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
             addView(setup, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
@@ -642,6 +685,8 @@ class PeriActivity : Activity() {
         }
         world.refreshPlace()
         face.outfit = Outfit.load(this)
+        hub.publishPear()
+        familyAlert.post(pollFamily)
         if (tab != TAB_PERI) (page(tab) as? Page)?.refresh()
         sensors?.getDefaultSensor(android.hardware.Sensor.TYPE_ACCELEROMETER)?.let { sensors?.registerListener(shake, it, android.hardware.SensorManager.SENSOR_DELAY_UI) }
         showShieldCount(hub.shields.total, pop = false)
@@ -976,6 +1021,39 @@ class PeriActivity : Activity() {
 
     private val sensors by lazy { getSystemService(android.hardware.SensorManager::class.java) }
 
+    /** While Peri's screen is open, a look at the family's pears every half minute. */
+    private val pollFamily = object : Runnable {
+        override fun run() {
+            checkFamily()
+            familyAlert.postDelayed(this, FAMILY_POLL_MS)
+        }
+    }
+
+    /**
+     * A family member's pear needs attention (their Peri is warning them, or waiting for the family): a card here,
+     * and Peri says so once per alert. Hiding the card hides that alert only.
+     */
+    private fun checkFamily() {
+        if (!hub.seesFamilyPears) return
+        hub.familyPears { pears ->
+            if (pears == null || !resumed) return@familyPears
+            val alert = pears.firstOrNull { !it.self && it.state == "attention" }
+            val key = alert?.let { "${it.id}:${it.updatedAt}" }
+            if (alert == null || key == asked.getString(FAMILY_DISMISSED, null)) {
+                familyAlertKey = null
+                return@familyPears showSetup()
+            }
+            familyAlertKey = key
+            familyAlertTitle.text = getString(R.string.family_alert_title, alert.name)
+            showSetup()
+            if (key != asked.getString(FAMILY_SAID, null)) {
+                asked.edit().putString(FAMILY_SAID, key).apply()
+                hub.haptics.mood(Mood.WORRIED)
+                hub.say(getString(R.string.family_alert_says, alert.name))
+            }
+        }
+    }
+
     /** The chip and the setup card: what's still missing for Peri to protect the person fully. */
     private fun showSetup() {
         val noAccess = !hasNotificationAccess()
@@ -987,13 +1065,16 @@ class PeriActivity : Activity() {
         val steps = listOf(noBasics to basics, noAccess to access, noSms to sms, noUsage to usage, noLocation to location)
         val first = steps.firstOrNull { it.first }?.second
         steps.forEach { (_, row) -> row.visibility = if (row == first) View.VISIBLE else View.GONE }
-        // A website to silence first, then a scam to report: one card at a time, so Peri keeps her room.
-        val site = hub.webNotices.offer()
+        // Family in trouble first, then a website to silence, then a scam to report: one card at a time, so Peri
+        // keeps her room.
+        val family = familyAlertKey != null
+        familyAlert.visibility = if (family) View.VISIBLE else View.GONE
+        val site = hub.webNotices.offer()?.takeIf { !family }
         web.visibility = if (site != null) View.VISIBLE else View.GONE
         if (site != null) webText.text = getString(R.string.web_card_text, site.site ?: getString(R.string.web_unknown_site))
-        val reporting = site == null && hub.lastScam.offer() != null
+        val reporting = !family && site == null && hub.lastScam.offer() != null
         report.visibility = if (reporting) View.VISIBLE else View.GONE
-        setup.visibility = if (first != null && !reporting && site == null) View.VISIBLE else View.GONE
+        setup.visibility = if (first != null && !reporting && site == null && !family) View.VISIBLE else View.GONE
         // Contacts and calls, plus a way to see messages (texts or alerts): that's enough to protect.
         val seesMessages = hub.permissions.granted(Need.READ_SMS) || !noAccess
         val protecting = !noBasics && seesMessages
@@ -1031,6 +1112,7 @@ class PeriActivity : Activity() {
 
     override fun onPause() {
         sensors?.unregisterListener(shake)
+        familyAlert.removeCallbacks(pollFamily)
         resumed = false
         asked.edit().putLong(LAST_SEEN, System.currentTimeMillis()).apply()
         // Off screen (the call screen, another app), Peri doesn't keep listening.
@@ -1181,6 +1263,9 @@ class PeriActivity : Activity() {
         const val SHAKE_G = 2.3f
         const val JOLT_GAP_MS = 120L
         val PLAYFUL = setOf(Mood.CALM, Mood.HAPPY, Mood.SLEEPING)
+        const val FAMILY_POLL_MS = 30_000L
+        const val FAMILY_SAID = "family_said"
+        const val FAMILY_DISMISSED = "family_dismissed"
         const val TAB_PERI = 0
         const val TAB_DIARY = 1
         const val TAB_LEARN = 2
