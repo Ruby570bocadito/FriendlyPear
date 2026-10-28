@@ -2,6 +2,7 @@ package app.friendlypear.ui.peri
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -13,15 +14,11 @@ import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
 import android.view.WindowInsets
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import android.widget.Spinner
 import android.widget.TextView
 import app.friendlypear.PeriApp
 import app.friendlypear.R
@@ -46,7 +43,6 @@ class FamilyActivity : Activity() {
     private lateinit var status: TextView
     private lateinit var cancel: View
     private var names: Map<String, String> = emptyMap()
-    private var syncing = false
     private var newsList: LinearLayout? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,7 +70,7 @@ class FamilyActivity : Activity() {
             background = rounded(Palette.AMBER_TINT, dp(18).toFloat())
             setPadding(dp(16), dp(12), dp(16), dp(12))
         }
-        cancel = Pill(this, getString(R.string.circle_cancel), R.drawable.ic_chevron, primary = false).apply {
+        cancel = Pill(this, getString(R.string.circle_cancel), R.drawable.ic_close, primary = false).apply {
             setOnClickListener {
                 store.savePending(null)
                 showPending()
@@ -222,21 +218,19 @@ class FamilyActivity : Activity() {
         status.visibility = View.VISIBLE
     }
 
-    /** Changing who the guardians are waits for a guardian's yes and 48 hours; the box stays as it is meanwhile. */
-    private fun onGuardianTicked(box: CheckBox, id: String, name: String, checked: Boolean) {
-        if (syncing) return
+    /** Changing who the guardians are waits for a guardian's yes and 48 hours; the switch goes back meanwhile ([revert]). */
+    private fun onGuardianTicked(revert: () -> Unit, id: String, name: String, checked: Boolean) {
         val next = config.withGuardian(id, checked)
         if (!CircleRules.needsGuardians(config, next)) return update(next)
-        syncing = true
-        box.isChecked = !checked
-        syncing = false
+        revert()
         if (store.loadPending() != null) {
             status.text = getString(R.string.circle_busy)
             status.visibility = View.VISIBLE
             return
         }
         PeriApp.hub(this).requestCircleChange(next, getString(if (checked) R.string.circle_add else R.string.circle_remove, name))
-        status.postDelayed({ showPending() }, 500)
+        status.removeCallbacks(recheck)
+        status.postDelayed(recheck, 500)
     }
 
     private var contactsMissing = false
@@ -263,36 +257,80 @@ class FamilyActivity : Activity() {
         super.onResume()
         // Back from Android's settings with contacts allowed: show the people now.
         if (contactsMissing && canReadContacts()) return recreate()
-        if (::status.isInitialized) showPending()
+        if (::status.isInitialized) {
+            status.removeCallbacks(recheck)
+            recheck.run()
+        }
         // News may have arrived while this screen was in the background.
         showNews()
     }
 
+    override fun onPause() {
+        if (::status.isInitialized) status.removeCallbacks(recheck)
+        super.onPause()
+    }
+
+    /**
+     * While a change of guardians waits, their answer can arrive with this screen open (Peri hears it and says it):
+     * the screen looks again every few seconds until nothing is pending.
+     */
+    private val recheck = object : Runnable {
+        override fun run() {
+            showPending()
+            if (store.loadPending()?.approved == false) status.postDelayed(this, RECHECK_MS)
+        }
+    }
+
     private fun row(id: String, name: String, guessed: Relation?): View {
         val box = card()
-        box.addView(heading(name, TextSize.BODY))
-        box.addView(CheckBox(this).apply {
-            text = getString(R.string.family_guardian)
-            sizeSp(TextSize.BODY)
-            setTextColor(Palette.INK)
-            isChecked = id in config.guardians
-            setOnCheckedChangeListener { box, checked -> onGuardianTicked(box as CheckBox, id, name, checked) }
-        })
-
-        val labels = listOf(getString(R.string.relation_none)) + RELATIONS.map { getString(it.second) }
-        box.addView(Spinner(this).apply {
-            adapter = ArrayAdapter(this@FamilyActivity, android.R.layout.simple_spinner_dropdown_item, labels)
-            val current = config.relations[id] ?: guessed
-            setSelection(RELATIONS.indexOfFirst { it.first == current } + 1)
-            onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, rowId: Long) {
-                    val chosen = RELATIONS.getOrNull(position - 1)?.first
-                    if (chosen != (config.relations[id] ?: guessed)) update(config.withRelation(id, chosen))
+        // Who: their initial in a lilac circle, as on the family's page, and their name.
+        box.addView(LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            addView(TextView(this@FamilyActivity).apply {
+                text = name.trim().take(1).uppercase()
+                sizeSp(20f)
+                typeface = Fonts.display(700)
+                setTextColor(Palette.LILAC_INK)
+                gravity = Gravity.CENTER
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.OVAL
+                    setColor(Palette.LILAC_TINT)
                 }
-
-                override fun onNothingSelected(parent: AdapterView<*>?) = Unit
-            }
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }, LinearLayout.LayoutParams(dp(44), dp(44)))
+            addView(heading(name, TextSize.BODY).apply { setPadding(dp(12), 0, 0, 0) },
+                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         })
+        // A guardian or not: a change waits for the guardians' yes, so the switch goes back meanwhile.
+        lateinit var guardian: Toggle
+        guardian = Toggle(this, getString(R.string.family_guardian), id in config.guardians) { checked ->
+            onGuardianTicked({ guardian.set(!checked) }, id, name, checked)
+        }
+        box.addView(guardian, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(4) })
+
+        // Who they are to the person: a field that opens the list.
+        val relation = TextView(this).apply {
+            text = relationText(config.relations[id] ?: guessed)
+            sizeSp(TextSize.BODY)
+            typeface = Fonts.display(600)
+            setTextColor(Palette.INK)
+        }
+        box.addView(LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            minimumHeight = dp(56)
+            background = pressable(rounded(Palette.WHITE, dp(16).toFloat(), Palette.LINE_STRONG, dp(1.5f)), Palette.RIPPLE_DARK)
+            setPadding(dp(14), dp(6), dp(10), dp(6))
+            isClickable = true
+            isFocusable = true
+            addView(relation, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            addView(ImageView(this@FamilyActivity).apply {
+                setImageResource(R.drawable.ic_chevron)
+                setColorFilter(Palette.INK_SOFT)
+                rotation = 90f
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }, LinearLayout.LayoutParams(dp(24), dp(24)))
+            setOnClickListener { pickRelation(id, name, guessed, relation) }
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
 
         box.addView(EditText(this).apply {
             hint = getString(R.string.family_aliases_hint)
@@ -306,8 +344,27 @@ class FamilyActivity : Activity() {
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
                 override fun afterTextChanged(s: Editable?) = update(config.withAliases(id, s?.toString().orEmpty()))
             })
-        })
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) })
         return box
+    }
+
+    private fun relationText(relation: Relation?): String =
+        RELATIONS.firstOrNull { it.first == relation }?.let { getString(R.string.family_relation_is, getString(it.second)) } ?: getString(R.string.relation_none)
+
+    /** Who [name] is to the person, from the list ("none" too); the field shows the choice at once. */
+    private fun pickRelation(id: String, name: String, guessed: Relation?, shown: TextView) {
+        val current = config.relations[id] ?: guessed
+        val labels = (listOf(getString(R.string.relation_none_item)) + RELATIONS.map { getString(it.second) }).toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.family_relation_title, name))
+            .setSingleChoiceItems(labels, RELATIONS.indexOfFirst { it.first == current } + 1) { dialog, which ->
+                val chosen = RELATIONS.getOrNull(which - 1)?.first
+                if (chosen != current) update(config.withRelation(id, chosen))
+                shown.text = relationText(chosen)
+                dialog.dismiss()
+            }
+            .show()
+            .friendly()
     }
 
     private fun update(next: FamilyConfig) {
@@ -351,6 +408,7 @@ class FamilyActivity : Activity() {
 
     private companion object {
         const val MAX_RESULTS = 20
+        const val RECHECK_MS = 3_000L
         /** What the guardians saw lately: enough to see what Peri shares, never a long scroll. */
         const val MAX_NEWS = 8
         val CHANNELS = mapOf(

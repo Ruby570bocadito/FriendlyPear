@@ -98,6 +98,9 @@
     <string name="family_guardian">Guardian: gets alerts and approves risky things</string>
     <string name="family_aliases_hint">Nicknames, separated by commas (the boy, Pablito)</string>
     <string name="relation_none">Relation: none</string>
+    <string name="family_relation_is">Relation: %1$s</string>
+    <string name="relation_none_item">None</string>
+    <string name="family_relation_title">Who is %1$s to you?</string>
     <string name="relation_child">Son or daughter</string>
     <string name="relation_grandchild">Grandchild</string>
     <string name="relation_nephew_niece">Nephew or niece</string>
@@ -452,6 +455,7 @@
     <string name="guardian_alert_title">Possible scam in progress</string>
     <string name="guardian_alert">They\'re on the phone, or just were, with a number they haven\'t saved. That\'s how scammers usually work.</string>
     <string name="guardian_no">No, don\'t send it</string>
+    <string name="guardian_no_circle">No, keep them as they are</string>
     <string name="guardian_call">Call %1$s now</string>
     <string name="guardian_yes">Yes, I approve</string>
     <string name="guardian_expires">This request expires in %1$d min and works only once.</string>
@@ -460,6 +464,7 @@
     <string name="guardian_why_circle">Changes to the guardians need a guardian\'s yes and wait 48 hours, so nobody can take over their protection.</string>
     <string name="guardian_meanwhile_title">While you decide</string>
     <string name="guardian_meanwhile">Their Peri sends nothing. If you don\'t answer, nothing is sent either.</string>
+    <string name="guardian_meanwhile_circle">Nothing changes until the guardians say yes. If you don\'t answer, nothing changes either.</string>
     <string name="guardian_pear_title">Asked by %1$s\'s pear</string>
     <string name="guardian_pear_note">The same pear you see in Family, dressed the same. If it isn\'t theirs, say No.</string>
     <string name="guardian_privacy">Your Peri checked this request with Peri\'s own server; it didn\'t trust the text message.</string>
@@ -474,14 +479,19 @@
     <string name="guardian_identity_title">Confirm it\'s you</string>
     <string name="guardian_identity_subtitle">To approve %1$s\'s request</string>
     <string name="guardian_done_no">Done. I told %1$s\'s Peri not to send it.</string>
+    <string name="guardian_done_no_circle">Done. I told %1$s\'s Peri to keep the guardians as they are.</string>
     <string name="guardian_done_call">Done. %1$s\'s Peri won\'t send anything and will offer to call you. I\'m dialling them for you.</string>
+    <string name="guardian_done_call_circle">Done. Nothing changes, and %1$s\'s Peri will offer to call you. I\'m dialling them for you.</string>
     <string name="guardian_done_yes">Done. I told %1$s\'s Peri you approve.</string>
     <string name="guardian_done_half">Your yes is in. Another guardian still has to say yes before anything is sent for %1$s.</string>
+    <string name="guardian_done_half_circle">Your yes is in. Another guardian still has to say yes before anything changes for %1$s.</string>
     <string name="guardian_gone">That family request has already been answered or has expired. Nothing was sent.</string>
     <string name="guardian_failed">I couldn\'t reach Peri\'s server. Try again, or call them.</string>
     <string name="guardian_says">%1$s is asking for your OK: they want to send %2$s a code. What shall we do?</string>
     <string name="guardian_says_urgent">Careful: %1$s wants to send %2$s a code, right after a call with an unknown number. It could be a scam. What shall we do?</string>
+    <string name="guardian_says_circle">%1$s is asking for your OK: someone wants to change their guardians: %2$s. What shall we do?</string>
     <string name="guardian_notify_text">Tap to decide. Nothing is sent until you do.</string>
+    <string name="guardian_notify_text_circle">Tap to decide. Nothing changes until you do.</string>
     <string name="family_identity_title">Confirm it\'s you</string>
     <string name="family_identity_subtitle">To change who looks after you</string>
     <string name="why_notify">May I show you notices? Only when your family needs you, or when I stop something important.</string>

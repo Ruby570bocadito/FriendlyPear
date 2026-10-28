@@ -817,14 +817,20 @@ class PeriHub(context: Context) {
                     return@post
                 }
                 val screen = GuardianActivity.intent(context, found.url, from.name, from.phones.firstOrNull(), request)
-                val line = if (request.onCall) R.string.guardian_says_urgent else R.string.guardian_says
+                // A change of guardians is said as one; a code, with the urgency of a stranger's call if there was one.
+                val circle = request.kind == GuardianActivity.KIND_CIRCLE
+                val line = when {
+                    circle -> R.string.guardian_says_circle
+                    request.onCall -> R.string.guardian_says_urgent
+                    else -> R.string.guardian_says
+                }
                 say(context.getString(line, from.name, request.toName))
-                if (appVisible) context.startActivity(screen) else notifyFamilyRequest(screen, from.name, found.token)
+                if (appVisible) context.startActivity(screen) else notifyFamilyRequest(screen, from.name, found.token, circle)
             }
         }
     }
 
-    private fun notifyFamilyRequest(screen: Intent, from: String, token: String) {
+    private fun notifyFamilyRequest(screen: Intent, from: String, token: String, circle: Boolean) {
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
         manager.createNotificationChannel(
             NotificationChannel(FAMILY_CHANNEL, context.getString(R.string.guardian_channel), NotificationManager.IMPORTANCE_HIGH),
@@ -834,7 +840,7 @@ class PeriHub(context: Context) {
             .setSmallIcon(R.drawable.ic_pear)
             .setColor(app.friendlypear.ui.peri.Palette.GREEN_DARK)
             .setContentTitle(context.getString(R.string.guardian_title, from))
-            .setContentText(context.getString(R.string.guardian_notify_text))
+            .setContentText(context.getString(if (circle) R.string.guardian_notify_text_circle else R.string.guardian_notify_text))
             .setCategory(Notification.CATEGORY_MESSAGE)
             .setContentIntent(open)
             .setAutoCancel(true)

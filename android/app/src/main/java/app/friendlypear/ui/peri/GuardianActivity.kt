@@ -139,7 +139,9 @@ class GuardianActivity : Activity() {
             }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             visibility = if (onCall) View.VISIBLE else View.GONE
         }
-        val no = Pill(this, getString(R.string.guardian_no), R.drawable.ic_shield, primary = true).apply {
+        // The safe answer in the request's own words: a code isn't sent; the guardians stay as they are.
+        val circle = kind == KIND_CIRCLE
+        val no = Pill(this, getString(if (circle) R.string.guardian_no_circle else R.string.guardian_no), R.drawable.ic_shield, primary = true).apply {
             setOnClickListener { send(Answer.REJECT) }
         }
         val call = Pill(this, getString(R.string.guardian_call, from), R.drawable.ic_call, primary = false).apply {
@@ -183,7 +185,7 @@ class GuardianActivity : Activity() {
                 setTextColor(Palette.GREEN_DARK)
                 setPadding(0, dp(8), 0, 0)
             })
-            addView(body(getString(R.string.guardian_meanwhile), TextSize.SMALL))
+            addView(body(getString(if (circle) R.string.guardian_meanwhile_circle else R.string.guardian_meanwhile), TextSize.SMALL))
         }
         val privacy = body(getString(R.string.guardian_privacy), TextSize.SMALL)
 
@@ -271,8 +273,8 @@ class GuardianActivity : Activity() {
         when (outcome) {
             Outcome.DONE -> {
                 val (text, art) = when (answer) {
-                    Answer.REJECT -> getString(R.string.guardian_done_no, from) to R.drawable.peri_protective
-                    Answer.CALLBACK -> getString(R.string.guardian_done_call, from) to R.drawable.peri_calling
+                    Answer.REJECT -> getString(if (kind == KIND_CIRCLE) R.string.guardian_done_no_circle else R.string.guardian_done_no, from) to R.drawable.peri_protective
+                    Answer.CALLBACK -> getString(if (kind == KIND_CIRCLE) R.string.guardian_done_call_circle else R.string.guardian_done_call, from) to R.drawable.peri_calling
                     Answer.APPROVE -> getString(R.string.guardian_done_yes, from) to R.drawable.peri_calm_thumbsup
                 }
                 hub.say(text)
@@ -282,7 +284,7 @@ class GuardianActivity : Activity() {
             }
             // A first yes of two: counted, and nothing goes until another guardian says yes too.
             Outcome.HALF -> {
-                val text = getString(R.string.guardian_done_half, from)
+                val text = getString(if (kind == KIND_CIRCLE) R.string.guardian_done_half_circle else R.string.guardian_done_half, from)
                 hub.say(text)
                 showDone(text, R.drawable.peri_calm_thumbsup)
             }
