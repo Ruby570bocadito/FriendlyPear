@@ -63,7 +63,7 @@ Ya hechas: el fondo que cambia (mundo de Peri), fuentes y animaciones, más pers
 
 ### F · Seguridad al máximo (28 oct, noche)
 Por orden: primero lo que corta un timo en curso o impide que el propio Peri se vuelva contra la persona; después lo que endurece el servidor y el móvil; al final, lo que necesita servicios de fuera.
-- [ ] (IMP-1) r2s-colgar-con-aviso — [S] «colgar su llamada» con margen: Peri dice «Ana me pide que cuelgue» y cuenta tres segundos en los que la persona puede decir que no; queda en el registro — core/, android/
+- [x] (IMP-1) r2s-colgar-con-aviso — [S] «colgar su llamada» con margen: Peri dice «Ana me pide que cuelgue» y cuenta tres segundos en los que la persona puede decir que no; queda en el registro — core/, android/ · hecho 2026-10-28 (tres segundos con «Seguir hablando»; la pausa se cierra al acabar la llamada)
 - [ ] (IMP-1) r2s-guardian-seguro — [M] = `r2-guardian-en-peligro`: un sí no cuenta si el móvil del guardián está en peligro (su pera en atención o con un desconocido al teléfono); dos guardianes para cambiar guardianes o mandar un código durante una llamada; quién aprobó, a la vista — backend/src/approvals/, android/
 - [ ] (SEG) r2s-sin-token-release — [S] la build de release sin el token compartido y el servidor de la demo con `ALLOW_SHARED_TOKEN=0`; un test que falle si el token entra en un APK de release — android/app/build.gradle.kts, backend/
 - [ ] (SEG) r2s-https-pin — [M] servidor de la familia solo por HTTPS (túnel fijo), HSTS y el certificado fijado en la app (network security config con pin y fecha de caducidad) — android/app/src/main/res/xml/, backend/
@@ -72,7 +72,7 @@ Por orden: primero lo que corta un timo en curso o impide que el propio Peri se 
 - [ ] (IMP-1) r2s-sim-cambiada — [M] notar un cambio de SIM o de número en el móvil de la persona y preguntar a la familia (el robo de SIM abre las cuentas) — android/, backend/src/checks/
 - [ ] (IMP-1) r2s-bloqueo-familiar — [M] los números bloqueados por un móvil protegen a toda la familia: solo viaja su huella (SHA-256 con sal de la familia), nunca el número — backend/src/pears/, android/
 - [ ] (IMP-1) r2s-guardado-cifrado — [M] lo que Peri guarda en el móvil (diario, último timo, bloqueados, peras) cifrado con una clave del Keystore — android/.../config/
-- [ ] (TEST) r2s-e2e-familia — [M] las pruebas de dos móviles en un script repetible (¿has sido tú?, colgar, aprobación, notificaciones con la app cerrada) con informe — eval/
+- [x] (TEST) r2s-e2e-familia — [M] las pruebas de dos móviles en un script repetible (¿has sido tú?, colgar, aprobación, notificaciones con la app cerrada) con informe — eval/ · hecho 2026-10-28: `eval/family4.py` con cuatro móviles (llamada de un desconocido colgada desde la notificación de Papá, «número nuevo» con respuesta de Pablo, email de phishing a Ana y la misma trampa por SMS a Pablo: aviso de campaña); sin cierres
 - [ ] (IMP-1) r2s-meta-rojo — [M] Muse Spark escribe cada semana variantes nuevas de timos para probar el escudo (equipo rojo) y Muse Image las viñetas; los fallos van al informe — training/, eval/
 - [ ] (IMP-1) r2s-qr-trampa — [S] «mira esta imagen» detecta QR que llevan a webs falsas (SAM 3.1 + Muse Spark), sin abrirlos — backend/src/models/
 - [ ] (SEG) r2s-servidor-duro — [M] peticiones y preguntas persistidas cifradas, rotación de claves de móvil y del token de admin, registros sin datos personales revisados — backend/

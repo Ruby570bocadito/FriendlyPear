@@ -24,7 +24,7 @@ in the code and covered by tests or by the two-phone tests of Oct 27 and 28.
 | 2 | Fake family member | "New number", secrecy ("don't tell dad"), romance and scareware signals; Peri offers to call the real relative at the saved number | ✅ |
 | 2 | "Mum, it's me, new number" | **"Was it you?"**: Peri quietly asks the family's other phones whether any of them wrote from a new number. Each answers once with a tap, with its own key, and Peri says what they answered, or that nobody did. An answer never turns a warning into an OK: even "yes, it was me" ends with "call them on their usual number first". 15 minutes, at most 3 open questions per phone, only while Peri's news is shared | ✅ |
 | 2 | The same trap reaching the family | When two or more family pears turn to attention with the same kind of trap within 30 minutes, every Peri warns that it is going around | ✅ |
-| 1 | A scammer on the line, right now | A big *Hang up* button whenever a number that isn't in the contacts is on the line. The family sees "on a call with a number they don't know" (only that, only while the person shares Peri's news) and can ask that phone's Peri to hang up: one request at a time, two minutes at most, with each phone's own key; it never ends a call with a contact | ✅ |
+| 1 | A scammer on the line, right now | A big *Hang up* button whenever a number that isn't in the contacts is on the line. The family sees "on a call with a number they don't know" (only that, only while the person shares Peri's news) and can ask that phone's Peri to hang up: one request at a time, two minutes at most, with each phone's own key; it never ends a call with a contact, and never behind the person's back: Peri says who asks and waits three seconds with *Keep talking* on screen | ✅ |
 | 1 | The same scammer calling again | The person can block a scam's number from its card: its calls are turned away before they ring, its texts never read aloud. Kept on the phone, never backed up, undone in Settings | ✅ |
 | 2 | A fake approval page | The guardian sees **the asking family member's pear, dressed as the family knows it** (taken from that phone when it asked), on the web page and in the app: a fake page can't copy it. Only the app's own accessories are drawn and names are escaped | ✅ |
 | 3 | Someone approves on the guardian's phone | In the app, a yes needs three checks **and the phone's own lock** (fingerprint, face or PIN). On the web page, a yes needs a second "are you sure?" step | ✅ |
@@ -55,7 +55,7 @@ can see the same trap going around.
 
 **"Hang up their call"** carries who asked, and nothing about the call: the family only ever sees "on a call with a number
 they don't know", never the number. The family's news reaches a phone with the app closed as notifications that say
-no more than the Family section does.
+no more than the Family section does; on the lock screen they only say there is family news.
 
 **"Was it you?"** carries the asking pear's name and one word, `new_number`: never the message, the number or who it
 claims to be. Only the phone that asked reads the answers, each phone answers once, and the question and its answers
