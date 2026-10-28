@@ -856,4 +856,8 @@
         <item>Tía</item>
         <item>Tío</item>
     </string-array>
+    <string name="welcome_dress_title">¡Vísteme a tu gusto!</string>
+    <string name="welcome_dress_text">Sombreros, gafas, pajarita… Elige mi ropa cuando quieras con la percha que hay junto a mis pies. Tu familia también me verá así.</string>
+    <string name="welcome_dress_now">Elegir ahora</string>
+    <string name="place_random">Una sorpresa cada vez</string>
 </resources>

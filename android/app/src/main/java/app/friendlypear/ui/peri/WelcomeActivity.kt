@@ -21,9 +21,11 @@ import app.friendlypear.services.PeriView
 import kotlin.math.abs
 
 /**
- * Peri's welcome, before any permission: who she is, what she does, that the family never spies, and that every
- * permission comes with a reason and can be refused. Four short pages with Peri herself (animated, not a picture).
- * She says only the first one aloud, so the first start isn't a lecture; each page has a button to hear it.
+ * Peri's welcome, before any permission: who she is, what she does, that the family never spies, that she can be
+ * dressed up, and that every permission comes with a reason and can be refused. Five short pages with Peri herself
+ * (animated, not a picture) standing on her hill in her world, the words on a card. She says only the first one
+ * aloud, so the first start isn't a lecture; each page has a button to hear it. On the wardrobe page she shows off
+ * a few outfits by herself.
  */
 class WelcomeActivity : Activity() {
     private data class Page(val title: Int, val text: Int, val mood: Mood, val moment: PeriMoment? = null)
@@ -32,8 +34,12 @@ class WelcomeActivity : Activity() {
         Page(R.string.welcome_1_title, R.string.welcome_1_text, Mood.CALM),
         Page(R.string.welcome_2_title, R.string.welcome_2_text, Mood.PROTECTIVE),
         Page(R.string.welcome_3_title, R.string.welcome_3_text, Mood.HAPPY),
+        Page(R.string.welcome_dress_title, R.string.welcome_dress_text, Mood.CALM),
         Page(R.string.welcome_4_title, R.string.welcome_4_text, Mood.CALM, PeriMoment.THUMBS_UP),
     )
+    private val dressPage = 3
+    private lateinit var world: PeriWorld
+    private lateinit var dressNow: View
     private var index = 0
     private lateinit var face: PeriFace
     private lateinit var title: TextView
@@ -71,33 +77,55 @@ class WelcomeActivity : Activity() {
             sizeSp(TextSize.SMALL)
             typeface = weight(600)
             setTextColor(Palette.GREEN_DARK)
-            setPadding(dp(16), dp(10), dp(16), dp(10))
-            background = pressable(rounded(0, dp(20).toFloat()), Palette.RIPPLE_DARK)
+            setPadding(dp(16), dp(8), dp(16), dp(8))
+            // On a white pill, so it reads on any sky.
+            background = pressable(rounded(Palette.WHITE, dp(20).toFloat()), Palette.RIPPLE_DARK)
             isClickable = true
             setOnClickListener { done() }
         }
+        dressNow = chipButton(getString(R.string.welcome_dress_now)) { startActivity(android.content.Intent(this, WardrobeActivity::class.java)) }
         val top = LinearLayout(this).apply {
             gravity = Gravity.CENTER_VERTICAL
             addView(languages(), LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
             addView(skip)
         }
-        val root = LinearLayout(this).apply {
+        // The words on a card: they read the same on any sky and any hill.
+        val card = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            background = ground()
+            gravity = Gravity.CENTER_HORIZONTAL
+            background = cardBackground()
+            setPadding(dp(18), dp(16), dp(18), dp(12))
+            addView(title, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+            addView(text, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
+            addView(dressNow, LinearLayout.LayoutParams(dp(200), dp(46)).apply { topMargin = dp(12) })
+            addView(dots, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(28)).apply { topMargin = dp(10) })
+        }
+        val column = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
             clipChildren = false
             addView(top)
             addView(face, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(4) })
-            addView(title, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
-            addView(text, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(10) })
-            addView(dots, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(28)).apply { topMargin = dp(18) })
+            addView(card, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(8) })
             addView(next, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(72)).apply { topMargin = dp(14) })
             addView(hear, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(58)).apply { topMargin = dp(10) })
         }
+        world = PeriWorld(this)
+        val root = android.widget.FrameLayout(this).apply {
+            addView(world, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
+            addView(column, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
+        }
         val pad = dp(20)
-        root.setOnApplyWindowInsetsListener { v, insets ->
+        root.setOnApplyWindowInsetsListener { _, insets ->
             val bars = insets.getInsets(WindowInsets.Type.systemBars())
-            v.setPadding(pad + bars.left, dp(8) + bars.top, pad + bars.right, pad + bars.bottom)
+            column.setPadding(pad + bars.left, dp(8) + bars.top, pad + bars.right, pad + bars.bottom)
             insets
+        }
+        // Peri stands on her hill, wherever the card leaves her.
+        column.viewTreeObserver.addOnGlobalLayoutListener {
+            if (face.height == 0 || world.height == 0) return@addOnGlobalLayoutListener
+            val at = IntArray(2).also { face.getLocationInWindow(it) }
+            val origin = IntArray(2).also { world.getLocationInWindow(it) }
+            world.setGround(at[1] - origin[1] + face.feetY + dp(3))
         }
         setContentView(root)
         show(first = savedInstanceState == null)
@@ -106,11 +134,24 @@ class WelcomeActivity : Activity() {
     override fun onResume() {
         super.onResume()
         hub.attach(view)
+        // Back from the wardrobe: she wears what was chosen there.
+        if (index != dressPage) face.outfit = Outfit.load(this)
     }
 
     override fun onPause() {
         hub.detach(view)
+        face.removeCallbacks(fashion)
         super.onPause()
+    }
+
+    /** On the wardrobe page she tries one outfit after another, with a hop, until the page turns. */
+    private val fashion = object : Runnable {
+        override fun run() {
+            if (index != dressPage) return
+            face.outfit = Outfit.random()
+            face.play(PeriFace.Trick.HOP)
+            face.postDelayed(this, FASHION_MS)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -149,6 +190,10 @@ class WelcomeActivity : Activity() {
         title.text = getString(page.title)
         text.text = getString(page.text)
         face.show(page.mood)
+        face.removeCallbacks(fashion)
+        face.outfit = Outfit.load(this)
+        dressNow.visibility = if (index == dressPage) View.VISIBLE else View.GONE
+        if (index == dressPage) face.post(fashion)
         if (index == 0) face.greet()
         page.moment?.let { m -> face.postDelayed({ face.moment(m) }, 400) }
         next.label = getString(if (index == pages.lastIndex) R.string.welcome_start else R.string.welcome_next)
@@ -216,6 +261,7 @@ class WelcomeActivity : Activity() {
 
     companion object {
         private const val PAGE = "page"
+        private const val FASHION_MS = 1_500L
         /** Same file as the permissions' answers: the welcome belongs to the first start. */
         const val PREFS = "permissions"
         const val WELCOMED = "welcomed"

@@ -775,6 +775,7 @@ class PeriWorld(context: Context) : View(context) {
         const val PREFS = "world"
         const val PLACE = "place"
         const val AUTO = "auto"
+        const val RANDOM = "random"
 
         private val SKIES = mapOf(
             Phase.DAWN to intArrayOf(0xFFFFC9A0.toInt(), 0xFFFFE3C4.toInt(), 0xFFFFF4E2.toInt()),
@@ -816,12 +817,14 @@ class PeriWorld(context: Context) : View(context) {
         }
 
         /**
-         * Today's place: the one chosen in Settings, or one of the season's, a different one each day. Winter has
-         * snow, spring and summer the meadow and the sea, autumn its hills (northern seasons).
+         * Today's place: the one chosen in Settings, a surprise each time if that's what was chosen, or one of the
+         * season's, a different one each day. Winter has snow, spring and summer the meadow and the sea, autumn its
+         * hills (northern seasons).
          */
         fun chosenPlace(context: Context, today: Calendar = Calendar.getInstance()): Place {
             val chosen = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(PLACE, AUTO)
             Place.entries.firstOrNull { it.name == chosen }?.let { return it }
+            if (chosen == RANDOM) return Place.entries.random()
             val season = when (today.get(Calendar.MONTH)) {
                 Calendar.DECEMBER, Calendar.JANUARY, Calendar.FEBRUARY -> listOf(Place.SNOW, Place.ORCHARD, Place.SEASIDE)
                 Calendar.MARCH, Calendar.APRIL, Calendar.MAY -> listOf(Place.MEADOW, Place.ORCHARD, Place.SEASIDE)

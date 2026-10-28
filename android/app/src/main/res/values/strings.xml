@@ -887,4 +887,8 @@
         <item>Auntie</item>
         <item>Uncle</item>
     </string-array>
+    <string name="welcome_dress_title">Dress me up!</string>
+    <string name="welcome_dress_text">Hats, glasses, a bow tie… Choose my look whenever you like with the hanger by my feet. Your family will see me like that too.</string>
+    <string name="welcome_dress_now">Choose now</string>
+    <string name="place_random">A surprise every time</string>
 </resources>

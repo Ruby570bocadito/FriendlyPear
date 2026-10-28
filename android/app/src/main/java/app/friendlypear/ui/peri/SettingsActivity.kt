@@ -86,6 +86,7 @@ class SettingsActivity : Activity() {
             addView(RadioGroup(this@SettingsActivity).apply {
                 listOf(
                     PeriWorld.AUTO to R.string.place_auto,
+                    PeriWorld.RANDOM to R.string.place_random,
                     PeriWorld.Place.MEADOW.name to R.string.place_meadow,
                     PeriWorld.Place.ORCHARD.name to R.string.place_orchard,
                     PeriWorld.Place.SEASIDE.name to R.string.place_seaside,
