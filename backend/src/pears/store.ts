@@ -1,8 +1,9 @@
 /**
  * Each family phone's pear, for the family section of the app: the name the person chose ("Mamá", "Ana"), what
- * their Peri wears, their role in the family, and whether their Peri is calm or needs attention right now. Nothing
- * else: no numbers, no messages, no places. Only this family's paired phones see them; a disconnected phone's pear
- * goes with it. An "attention" left behind by a phone that went quiet fades back to calm after a while.
+ * their Peri wears, their role in the family, and whether their Peri is calm or needs attention right now, with the
+ * kind of trap if it's a scam ("parcel"). Nothing else: no numbers, no messages, no places. Only this family's paired
+ * phones see them; a disconnected phone's pear goes with it. An "attention" left behind by a phone that went quiet
+ * fades back to calm after a while.
  */
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
@@ -15,6 +16,10 @@ export const ITEMS = {
 } as const;
 export const ROLES = ["protected", "guardian", "family"] as const;
 export const STATES = ["calm", "attention"] as const;
+/** The kinds of trap the app draws (android/.../TrapActivity.kt), or none. */
+export const TRAP_KINDS = ["", "parcel", "link", "code", "family", "remote", "prize"] as const;
+/** The same kind of trap reaching two or more family phones within this time is a campaign against the family. */
+export const CAMPAIGN_WINDOW_MS = 30 * 60 * 1000;
 /** An attention nobody refreshed is old news after this long. */
 export const ATTENTION_TTL_MS = 2 * 60 * 60 * 1000;
 const NAME = /^[\p{L}\p{N} .'()-]{1,24}$/u;
@@ -29,10 +34,11 @@ export interface Pear {
   outfit: string;
   role: Role;
   state: State;
+  kind: string;
   updatedAt: number;
 }
 
-export type PearInput = Pick<Pear, "name" | "outfit" | "role" | "state">;
+export type PearInput = Pick<Pear, "name" | "outfit" | "role" | "state" | "kind">;
 
 export class PearStore {
   private readonly pears = new Map<string, Pear>();
@@ -63,6 +69,11 @@ export class PearStore {
 
   forget(device: string) {
     if (this.pears.delete(device)) this.save();
+  }
+
+  /** The campaign, if any, among these phones' pears (the ones still paired). */
+  campaignAmong(devices: Set<string>): string | null {
+    return campaign(this.list().filter((p) => devices.has(p.device)), this.now());
   }
 
   private load(file: string) {
@@ -98,5 +109,17 @@ export function readPear(body: any): PearInput | string {
   if (parts.length !== 3 || parts.some((p: string, i: number) => p !== "" && !slots[i].includes(p))) return "outfit";
   if (!ROLES.includes(body?.role)) return "role";
   if (!STATES.includes(body?.state)) return "state";
-  return { name, outfit, role: body.role, state: body.state };
+  const kind = body?.kind ?? "";
+  if (!TRAP_KINDS.includes(kind)) return "kind";
+  return { name, outfit, role: body.role, state: body.state, kind: body.state === "attention" ? kind : "" };
+}
+
+/** The kind of trap that's reaching two or more of the family's phones right now, if any. */
+export function campaign(pears: Pear[], now: number): string | null {
+  const counts = new Map<string, number>();
+  for (const p of pears) {
+    if (p.state === "attention" && p.kind && now - p.updatedAt <= CAMPAIGN_WINDOW_MS) counts.set(p.kind, (counts.get(p.kind) ?? 0) + 1);
+  }
+  for (const [kind, n] of counts) if (n >= 2) return kind;
+  return null;
 }

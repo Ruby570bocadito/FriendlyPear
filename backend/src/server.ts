@@ -8,6 +8,7 @@ import { guardianPage } from "./guardians/page";
 import { type GuardianStore, readEvent } from "./guardians/store";
 import { investigate, readInvestigation } from "./investigator/investigate";
 import { type PearStore, readPear } from "./pears/store";
+import { ANSWERS, type CheckStore, KINDS as CHECK_KINDS } from "./checks/store";
 import { readInput, secondOpinion } from "./investigator/opinion";
 import { lookAtPicture, MAX_IMAGE_BASE64, readPicture } from "./investigator/picture";
 import { readReport, writeReport } from "./investigator/report";
@@ -70,6 +71,8 @@ export interface Services {
   devices?: DeviceStore | null;
   /** Each family phone's pear (name, outfit, role, calm or attention), for the family section. */
   pears?: PearStore | null;
+  /** "Was it you?": questions between the family's phones about messages from new numbers. */
+  checks?: CheckStore | null;
 }
 
 function sameSecret(req: Request, secret: string): boolean {
@@ -111,7 +114,13 @@ export function createHandler(config: Config, services: Services = {}, limiter =
   const https = config.publicBaseUrl.startsWith("https://");
   const route = routes(config, services);
   return async function handle(req: Request, ip = "local"): Promise<Response> {
-    const { pathname } = new URL(req.url);
+    let pathname: string;
+    try {
+      pathname = new URL(req.url).pathname;
+    } catch {
+      // A request whose address can't be read (no Host header, say) is the client's mistake, not ours.
+      return secure(json({ error: "bad_request" }, 400), https);
+    }
     const page = pathname.startsWith("/a/") || pathname.startsWith("/g/");
     const api = pathname.startsWith("/v1/");
     if (api && limiter.count(`token:${ip}`, LIMITS.badToken) >= LIMITS.badToken.max) {
@@ -176,6 +185,7 @@ function routes(config: Config, services: Services) {
       if (!me) return json({ error: "unauthorized" }, 401);
       devices!.revoke(me.id);
       services.pears?.forget(me.id);
+      services.checks?.forget(me.id);
       return json({ ok: true });
     }
 
@@ -188,6 +198,7 @@ function routes(config: Config, services: Services) {
     if (one && req.method === "DELETE") {
       if (!fromAdmin(req, config)) return json({ error: "unauthorized" }, 401);
       services.pears?.forget(one[1]);
+      services.checks?.forget(one[1]);
       return devices?.revoke(one[1]) ? json({ ok: true }) : json({ error: "not_found" }, 404);
     }
 
@@ -209,11 +220,50 @@ function routes(config: Config, services: Services) {
       if (!me) return json({ error: "unauthorized" }, 401);
       if (!services.pears) return json({ error: "no_pears" }, 503);
       const paired = new Set(devices!.list().map((d) => d.id));
-      const pears = services.pears
-        .list()
-        .filter((p) => paired.has(p.device))
-        .map(({ device, name, outfit, role, state, updatedAt }) => ({ id: device, name, outfit, role, state, updatedAt, self: device === me.id }));
-      return json({ pears });
+      const listed = services.pears.list().filter((p) => paired.has(p.device));
+      const pears = listed.map(({ device, name, outfit, role, state, kind, updatedAt }) => ({ id: device, name, outfit, role, state, kind, updatedAt, self: device === me.id }));
+      return json({ pears, campaign: services.pears.campaignAmong(paired) });
+    }
+
+    // "Was it you?": a phone asks the rest of the family about a message from a new number; each answers once.
+    if (pathname.startsWith("/v1/checks")) {
+      const me = ownDevice(req, devices);
+      if (!me) return json({ error: "unauthorized" }, 401);
+      const checks = services.checks;
+      if (!checks) return json({ error: "no_checks" }, 503);
+      const paired = new Set(devices!.list().map((d) => d.id));
+      const names = new Map((services.pears?.list() ?? []).map((p) => [p.device, p.name]));
+      if (pathname === "/v1/checks" && req.method === "POST") {
+        const body = (await readJson(req)) as any;
+        if (body instanceof Response) return body;
+        if (!CHECK_KINDS.includes(body?.kind)) return json({ error: "bad_request", detail: "kind" }, 400);
+        const check = checks.ask(me.id, body.kind);
+        if (!check) return json({ error: "too_many" }, 409);
+        return json({ id: check.id, expiresAt: checks.expiresAt(check) }, 201);
+      }
+      if (pathname === "/v1/checks" && req.method === "GET") {
+        const open = checks.open(me.id).filter((c) => paired.has(c.from));
+        return json({ checks: open.map((c) => ({ id: c.id, from: names.get(c.from) ?? "", kind: c.kind, createdAt: c.createdAt })) });
+      }
+      const answering = pathname.match(/^\/v1\/checks\/([A-Za-z0-9_-]{16})\/answer$/);
+      if (answering && req.method === "POST") {
+        const body = (await readJson(req)) as any;
+        if (body instanceof Response) return body;
+        if (!ANSWERS.includes(body?.answer)) return json({ error: "bad_request", detail: "answer" }, 400);
+        const result = checks.answer(answering[1], me.id, body.answer);
+        const status = { ok: 200, not_found: 404, own: 403, already: 409 }[result];
+        return json(result === "ok" ? { ok: true } : { error: result }, status);
+      }
+      const asked = pathname.match(/^\/v1\/checks\/([A-Za-z0-9_-]{16})$/);
+      if (asked && req.method === "GET") {
+        const check = checks.mine(asked[1], me.id);
+        if (!check) return json({ error: "not_found" }, 404);
+        const answers = [...check.answers].filter(([d]) => paired.has(d)).map(([d, a]) => ({ name: names.get(d) ?? "", answer: a.answer, at: a.at }));
+        // Asked: the other phones with a pear, the family's Peris in use; an old paired phone nobody uses won't answer.
+        const others = [...paired].filter((d) => d !== me.id && names.has(d)).length;
+        return json({ answers, asked: others, expiresAt: checks.expiresAt(check) });
+      }
+      return json({ error: "not_found" }, 404);
     }
 
     if (req.method === "POST" && pathname === "/v1/opinion") {

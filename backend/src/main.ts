@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { DeviceStore } from "./devices/store";
 import { GuardianStore } from "./guardians/store";
 import { PearStore } from "./pears/store";
+import { CheckStore } from "./checks/store";
 import { samFromEnv } from "./models/sam";
 import { sparkFromEnv } from "./models/spark";
 import { sparkOpenFromEnv } from "./models/spark-open";
@@ -23,7 +24,9 @@ const guardians = new GuardianStore(Date.now, join(process.env.DATA_DIR ?? "data
 const devices = new DeviceStore(Date.now, join(process.env.DATA_DIR ?? "data", "devices.json"));
 // The family's pears (a name, an outfit, calm or attention), next to the phones they belong to.
 const pears = new PearStore(Date.now, join(process.env.DATA_DIR ?? "data", "pears.json"));
-const handle = createHandler(config, { opinion, investigator, sam, voice, approvals, guardians, devices, pears });
+// "Was it you?" questions between the family's phones: 15 minutes each, in memory only.
+const checks = new CheckStore();
+const handle = createHandler(config, { opinion, investigator, sam, voice, approvals, guardians, devices, pears, checks });
 // Behind a tunnel or proxy (TRUST_PROXY=1) the client's IP is the one the proxy added; otherwise the socket's.
 const trustProxy = process.env.TRUST_PROXY === "1";
 const server = Bun.serve({
