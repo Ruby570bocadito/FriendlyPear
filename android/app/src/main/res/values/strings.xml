@@ -274,6 +274,11 @@
         <item>I can\'t keep up! You\'re a champion at this.</item>
         <item>Phew! Let me catch my breath. That was fun!</item>
     </string-array>
+    <string name="intruder_title">An app can control your screen</string>
+    <string name="intruder_text">%1$s can see and use everything on your screen. If someone asked you to switch it on, it\'s a trap: tap here and switch it off.</string>
+    <string name="intruder_says">Careful: %1$s can see and use everything on your screen. If someone on the phone asked you to switch it on, it\'s a trap. Tap my notice and switch it off.</string>
+    <string name="alerts_channel">Peri\'s warnings</string>
+    <string name="diary_intruder">I warned you about an app that could control your screen</string>
     <string name="family_news_channel">Your family</string>
     <string name="family_hung_up_title">%1$s asked Peri to hang up a call</string>
     <string name="family_hung_up_text">It was a number you don\'t know. Peri hung up for you.</string>
@@ -297,6 +302,7 @@
     <string name="guardian_pear_title">Asked by %1$s\'s pear</string>
     <string name="guardian_pear_note">The same pear you see in Family, dressed the same. If it isn\'t theirs, say No.</string>
     <string name="guardian_privacy">Your Peri checked this request with Peri\'s own server; it didn\'t trust the text message.</string>
+    <string name="guardian_on_call">You\'re on a call with a number you don\'t know. Hang up first, then decide: that way nobody can talk you into it.</string>
     <string name="guardian_check_1">You\'ve spoken to %1$s, on the phone or in person.</string>
     <string name="guardian_check_2">You know who %1$s is and trust them.</string>
     <string name="guardian_check_3">Nobody is rushing either of you.</string>

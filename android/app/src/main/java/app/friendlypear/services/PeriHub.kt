@@ -347,6 +347,9 @@ class PeriHub(context: Context) {
     /** Only a phone paired with the family's server (its own key) has a pear there. */
     val seesFamilyPears: Boolean get() = pearClient.enabled
 
+    /** On a call with a number that isn't in the contacts, right now: a guardian's yes waits until it's over. */
+    val strangerOnLine: Boolean get() = agent.strangerOnLine
+
     /** What the family calls the person ("Mamá", "Ana"): the name on this phone's pear. Empty until they choose. */
     var pearName: String
         get() = pearPrefs.getString(PEAR_NAME, "").orEmpty()
@@ -358,12 +361,14 @@ class PeriHub(context: Context) {
         }
 
     /** Attention while Peri warns or waits for the family, but only if the person shares Peri's news with them. */
-    private fun pearState(): String = if (news.sharing && (mood in ATTENTION_MOODS || agent.strangerOnLine)) "attention" else "calm"
+    private fun pearState(): String =
+        if (news.sharing && (mood in ATTENTION_MOODS || agent.strangerOnLine || screenIntruder != null)) "attention" else "calm"
 
     /** Why her pear needs attention, in a word: on a stranger's call right now, or the kind of a recent scam. */
     private fun pearKind(): String {
         if (pearState() != "attention") return ""
         if (agent.strangerOnLine) return "call"
+        if (screenIntruder != null) return "remote"
         return lastScam.load()?.takeIf { System.currentTimeMillis() - it.at < SCAM_KIND_MS }?.kind.orEmpty()
     }
 
@@ -404,8 +409,54 @@ class PeriHub(context: Context) {
 
     /** The family's news as notifications while the app is closed ([FamilyNotes]): a look every minute. */
     val familyNotes = FamilyNotes(this.context, { pearClient }) { name -> phoneOf(name) }
+    /** An app that can control the screen right now (its name), if any. */
+    @Volatile private var screenIntruder: String? = null
+
+    /**
+     * Looks for apps that can see and use the screen ([app.friendlypear.device.ScreenAccess]): a new one is said once,
+     * with a notification that opens the accessibility settings; while one is on, her pear shows it to the family.
+     */
+    fun checkScreenAccess() = main.post { screenAccess(app.friendlypear.device.ScreenAccess.intruders(context)) }
+
+    private fun screenAccess(found: List<Pair<String, String>>) {
+        val first = found.firstOrNull()
+        val was = screenIntruder
+        screenIntruder = first?.second
+        if (screenIntruder != was) publishPear()
+        val seen = intruders.getStringSet(WARNED, emptySet()).orEmpty()
+        val fresh = found.filter { it.first !in seen }
+        intruders.edit().putStringSet(WARNED, found.map { it.first }.toSet()).apply()
+        val (pkg, name) = fresh.firstOrNull() ?: return
+        Log.i(TAG, "an app can control the screen")
+        diary.add(app.friendlypear.config.Diary.Kind.SCREEN_INTRUDER, pkg.takeLast(20))
+        say(context.getString(R.string.intruder_says, name))
+        notifyIntruder(name)
+    }
+
+    private val intruders = this.context.getSharedPreferences("screen_access", Context.MODE_PRIVATE)
+
+    private fun notifyIntruder(name: String) {
+        val manager = context.getSystemService(NotificationManager::class.java) ?: return
+        manager.createNotificationChannel(NotificationChannel(ALERTS_CHANNEL, context.getString(R.string.alerts_channel), NotificationManager.IMPORTANCE_HIGH))
+        val settings = Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val open = PendingIntent.getActivity(context, 4_204, settings, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val text = context.getString(R.string.intruder_text, name)
+        val notification = Notification.Builder(context, ALERTS_CHANNEL)
+            .setSmallIcon(R.drawable.ic_pear)
+            .setColor(app.friendlypear.ui.peri.Palette.CORAL_INK)
+            .setContentTitle(context.getString(R.string.intruder_title))
+            .setContentText(text)
+            .setStyle(Notification.BigTextStyle().bigText(text))
+            .setCategory(Notification.CATEGORY_ALARM)
+            .setContentIntent(open)
+            .setAutoCancel(true)
+            .build()
+        runCatching { manager.notify(4_204, notification) }
+    }
+
     private val familyLoop = object : Runnable {
         override fun run() {
+            checkScreenAccess()
             if (!appVisible && seesFamilyPears) network.execute { runCatching { familyNotes.look() } }
             main.postDelayed(this, FAMILY_NOTES_MS)
         }
@@ -926,6 +977,10 @@ class PeriHub(context: Context) {
                 intent.getStringExtra("text")?.let { heard(it) }
                 intent.getStringExtra("installed")?.let { onAppInstalled(it) }
                 intent.getStringExtra("opened")?.let { onAppOpened(it) }
+                // An app able to control the screen, as if switched on in Settings: "--es intruder 'package|name'".
+                intent.getStringExtra("intruder")?.split("|", limit = 2)?.takeIf { it.size == 2 }?.let { (pkg, name) ->
+                    main.post { screenAccess(listOf(pkg to name)) }
+                }
                 // An email as its notification reaches Peri: "--es email 'sender|subject. text'" (no Gmail account here).
                 intent.getStringExtra("email")?.split("|", limit = 2)?.takeIf { it.size == 2 }?.let { (sender, text) ->
                     onMessage(IncomingMessage(Channel.EMAIL, sender, text, System.currentTimeMillis()))
@@ -962,6 +1017,8 @@ class PeriHub(context: Context) {
         /** Three seconds for "keep talking", and a moment for Peri to say it. */
         const val HANGUP_WAIT_MS = 6_000L
         const val FAMILY_NOTES_MS = 60_000L
+        const val ALERTS_CHANNEL = "peri_alerts"
+        const val WARNED = "warned"
         const val REPUBLISH_MS = 10_000L
         /** After this, a "was it you?" stops waiting for answers. */
         const val CHECK_MAX_MS = 10 * 60_000L

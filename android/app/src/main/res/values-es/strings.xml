@@ -273,6 +273,11 @@
         <item>¡No puedo seguirte el ritmo! Eres de campeonato.</item>
         <item>¡Uf! Déjame recuperar el aliento. ¡Qué divertido!</item>
     </string-array>
+    <string name="intruder_title">Una app puede controlar tu pantalla</string>
+    <string name="intruder_text">%1$s puede ver y usar todo lo que hay en tu pantalla. Si alguien te pidió activarla, es una trampa: toca aquí y apágala.</string>
+    <string name="intruder_says">Cuidado: %1$s puede ver y usar todo lo que hay en tu pantalla. Si alguien por teléfono te pidió activarla, es una trampa. Toca mi aviso y apágala.</string>
+    <string name="alerts_channel">Avisos de Peri</string>
+    <string name="diary_intruder">Te avisé de una app que podía controlar tu pantalla</string>
     <string name="family_news_channel">Tu familia</string>
     <string name="family_hung_up_title">%1$s pidió a Peri que colgara una llamada</string>
     <string name="family_hung_up_text">Era un número que no conoces. Peri colgó por ti.</string>
@@ -296,6 +301,7 @@
     <string name="guardian_pear_title">Lo pide la pera de %1$s</string>
     <string name="guardian_pear_note">La misma pera que ves en Familia, con la misma ropa. Si no es la suya, di que no.</string>
     <string name="guardian_privacy">Tu Peri ha comprobado esta petición con el servidor de Peri; no se ha fiado del texto del SMS.</string>
+    <string name="guardian_on_call">Estás hablando con un número que no conoces. Cuelga primero y luego decide: así nadie te puede guiar.</string>
     <string name="guardian_check_1">Has hablado con %1$s, por teléfono o en persona.</string>
     <string name="guardian_check_2">Sabes quién es %1$s y es de confianza.</string>
     <string name="guardian_check_3">Nadie os está metiendo prisa.</string>

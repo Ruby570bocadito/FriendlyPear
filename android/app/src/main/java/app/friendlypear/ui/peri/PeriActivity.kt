@@ -746,6 +746,8 @@ class PeriActivity : Activity() {
     override fun onResume() {
         super.onResume()
         resumed = true
+        // Back from anywhere (Settings included): is any app able to control the screen?
+        hub.checkScreenAccess()
         // Peri may have spoken while the screen was hidden, e.g. during a call.
         if (hub.lastSaid.isNotEmpty()) showSaid(hub.lastSaid)
         // Two modes, never both: opening the app puts Mini Peri away, unless she's about to come out or is
