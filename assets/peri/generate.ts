@@ -16,7 +16,6 @@
  *   cd backend; bun ../assets/peri/generate.ts wear             accessories to dress Peri in (11 images, then assets/peri/wear.py)
  *   cd backend; bun ../assets/peri/generate.ts tops calm happy  her head without leaf and stem, for hats (then assets/peri/tops.py)
  *   cd backend; bun ../assets/peri/generate.ts fx               sprites for her effects: stars (2 images, then assets/peri/wear.py)
- *   cd backend; bun ../assets/peri/generate.ts scene            scenery for Peri's village (4 images, then assets/peri/wear.py)
  * Then `python assets/peri/cutout.py` cuts the cream background out for the app.
  */
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -143,17 +142,6 @@ export const FX: Record<string, string> = {
   fx_star_green: "A small chubby five-pointed star with rounded tips, fresh lime green like a pear, seen exactly from the front.",
 };
 
-/** Scenery for Peri's village, one of the places of her world (ui/peri/PeriWorld.kt): drawn among the hills drawn in code. */
-export const SCENE: Record<string, string> = {
-  scene_cottage: "A small cosy cottage with a round red roof, a little chimney, a round window and a green door, seen from the front.",
-  scene_tree: "A small round pear tree with a short brown trunk and a few little yellow-green pears among its leaves.",
-  scene_cloud: "A small fluffy white cloud, puffy and round, wider than tall, seen from the front.",
-  scene_bush: "A small round green bush dotted with tiny pink and white flowers.",
-};
-
-/** Something white can't be cut out of the cream: it's made on blue instead. */
-const BACKDROP: Record<string, string> = { scene_cloud: "plain flat sky blue background (#7FB8E6)" };
-
 /** Her head without its leaf and stem, for when she wears a hat; only the top of each picture is used (tops.py). */
 export const BARE =
   "Exactly the same image: same character, same pose, same face, same arms, same framing, same size and position, same background. Only one change: the pear has no leaf and no stem on top; the top of her head is smooth, rounded green clay.";
@@ -187,8 +175,7 @@ const trapsMode = args[0] === "traps";
 const wearMode = args[0] === "wear";
 const topsMode = args[0] === "tops";
 const fxMode = args[0] === "fx";
-const sceneMode = args[0] === "scene";
-const special = framesMode || extrasMode || trapsMode || wearMode || topsMode || fxMode || sceneMode;
+const special = framesMode || extrasMode || trapsMode || wearMode || topsMode || fxMode;
 const only = special ? args.slice(1) : args;
 const pickedFrames = process.argv.find((a) => a.startsWith("--frame="))?.slice(8).split(",");
 const prompts: { name: string; prompt: string }[] = [];
@@ -233,11 +220,10 @@ if (framesMode) {
     const prompt = `${item} Soft 3D clay render of one single small accessory, isolated and centered, straight front view, symmetrical, no character, no person, no face, no text, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.`;
     prompts.push(save(name, await call("/images/generations", { model: "muse-image-1.0", prompt, n: 1, size: "1024x1024", output_format: "webp" }), prompt));
   }
-} else if (fxMode || sceneMode) {
-  for (const [name, item] of Object.entries(fxMode ? FX : SCENE)) {
+} else if (fxMode) {
+  for (const [name, item] of Object.entries(FX)) {
     if (only.length && !only.includes(name)) continue;
-    const backdrop = BACKDROP[name] ?? "plain flat warm cream background (#FFF8EC)";
-    const prompt = `${item} Soft 3D clay render of one single small object, isolated and centered, straight front view, symmetrical, no character, no face, no text, ${backdrop}, no floor shadow, tactile matte plasticine material, gentle studio lighting.`;
+    const prompt = `${item} Soft 3D clay render of one single small object, isolated and centered, straight front view, symmetrical, no character, no face, no text, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.`;
     prompts.push(save(name, await call("/images/generations", { model: "muse-image-1.0", prompt, n: 1, size: "1024x1024", output_format: "webp" }), prompt));
   }
 } else if (topsMode) {

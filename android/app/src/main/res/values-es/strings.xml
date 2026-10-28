@@ -543,7 +543,6 @@
     <string name="place_seaside">Playa</string>
     <string name="place_autumn">Colinas de otoño</string>
     <string name="place_snow">Nieve</string>
-    <string name="place_village">El pueblo de Peri (hecho con Muse Image)</string>
     <string name="back">Volver</string>
     <plurals name="quiz_intro">
         <item quantity="one">Te enseño %1$d mensaje. ¿Es trampa o es de fiar?</item>

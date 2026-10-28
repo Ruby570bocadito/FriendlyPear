@@ -77,6 +77,7 @@ class SettingsActivity : Activity() {
         // Peri's world: a different place each day with the season, or the one the person likes best.
         val places = getSharedPreferences(PeriWorld.PREFS, MODE_PRIVATE)
         val chosenPlace = places.getString(PeriWorld.PLACE, PeriWorld.AUTO)
+            .takeIf { it == PeriWorld.RANDOM || PeriWorld.Place.entries.any { p -> p.name == it } } ?: PeriWorld.AUTO
         val worldCard = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
@@ -92,7 +93,6 @@ class SettingsActivity : Activity() {
                     PeriWorld.Place.SEASIDE.name to R.string.place_seaside,
                     PeriWorld.Place.AUTUMN.name to R.string.place_autumn,
                     PeriWorld.Place.SNOW.name to R.string.place_snow,
-                    PeriWorld.Place.VILLAGE.name to R.string.place_village,
                 ).forEach { (key, label) ->
                     addView(RadioButton(this@SettingsActivity).apply {
                         id = View.generateViewId()

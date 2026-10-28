@@ -7,7 +7,7 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
   - Ropa: gafas nuevas de Muse Image sin patillas; cada ojo medido entero (el derecho, más iluminado, se medía por la mitad y todo iba a la izquierda); cada prenda centrada en su eje (`wear.py`); sin hoja bajo los sombreros: 48 cabezas redibujadas por Muse Image (`generate.ts tops`, `tops.py`, `PeriTops.kt`, `BareHead`), también en la página de aprobación (`/p/bare.webp`).
   - Llamadas: con la línea ocupada la llamada espera; botón de colgar en la pausa (`ANSWER_PHONE_CALLS`); «colgar su llamada» para la familia (`/v1/pears/:id/hangup`, `/v1/hangup`, pera con kind `call`); bloquear el número de un timo (`BlockList`, `CallScreener`, Ajustes). Probado con dos emuladores.
   - `FamilyNotes`: noticias de la familia como notificaciones con la app cerrada; «¿has sido tú?» se contesta desde la notificación (probado).
-  - Estrellas de plastilina (Muse Image) en `Sparkles.Effect.STARS`; el pueblo de Peri con sprites de Muse en `PeriWorld` (Place.VILLAGE).
+  - Estrellas de plastilina (Muse Image) en `Sparkles.Effect.STARS`; el pueblo con sprites de Muse se probó y se retiró: la persona prefiere el mundo dibujado a mano.
   - Roadmap de seguridad: sección F de `docs/agentes/ROADMAP.md`.
 - 28 oct, tarde: fondo con profundidad y luz de plastilina, «¿has sido tú?», campaña, la pera de quien pide, `docs/SECURITY.md`.
 - 28 oct, antes: armario, peras de la familia, bienvenida, `PeriWorld`, fuentes, apartados, juego, poses y gestos, frases de Muse Wonder.
@@ -18,7 +18,7 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
 - Dos móviles: AVD `Peri_Family` (5556) es Mamá, 5554 es Ana. Emparejar con `POST /v1/pairing` (token de admin) y el enlace. Ajustes de prueba con `run-as` y `MSYS_NO_PATHCONV=1`.
 - Llamada de un desconocido: `adb -s emulator-5556 emu gsm call 699000111` y `emu gsm accept 699000111`; antes `cmd role add-role-holder android.app.role.CALL_SCREENING app.friendlypear` y `pm grant app.friendlypear android.permission.ANSWER_PHONE_CALLS`.
 - Notificaciones: la app de Ana en segundo plano (HOME) y un SMS de número nuevo a Mamá; llegan en un minuto.
-- Lugar: `shared_prefs/world.xml` con `place` (VILLAGE, SNOW…). Hora: `adb shell service call alarm 3 s16 Pacific/Auckland` (noche), volver con `GMT`.
+- Lugar: `shared_prefs/world.xml` con `place` (SNOW, SEASIDE…). Hora: `adb shell service call alarm 3 s16 Pacific/Auckland` (noche), volver con `GMT`.
 - `uiautomator dump` se atasca mientras Peri se mueve: mejor tocar por coordenadas.
 - Backend: `cd backend; PUBLIC_BASE_URL=http://10.0.2.2:8711 bun src/main.ts`.
 
