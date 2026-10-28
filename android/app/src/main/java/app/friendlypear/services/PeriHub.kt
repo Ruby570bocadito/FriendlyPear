@@ -369,13 +369,14 @@ class PeriHub(context: Context) {
 
     /** Attention while Peri warns or waits for the family, but only if the person shares Peri's news with them. */
     private fun pearState(): String =
-        if (news.sharing && (mood in ATTENTION_MOODS || agent.strangerOnLine || screenIntruder != null || helpWanted())) "attention" else "calm"
+        if (news.sharing && (mood in ATTENTION_MOODS || agent.strangerOnLine || screenIntruder != null || lineAlert() || helpWanted())) "attention" else "calm"
 
     /** Why their pear needs attention, in a word: on a stranger's call right now, or the kind of a recent scam. */
     private fun pearKind(): String {
         if (pearState() != "attention") return ""
         if (agent.strangerOnLine) return "call"
         if (screenIntruder != null) return "remote"
+        if (lineAlert()) return "sim"
         if (helpWanted()) return "breach"
         return lastScam.load()?.takeIf { System.currentTimeMillis() - it.at < SCAM_KIND_MS }?.kind.orEmpty()
     }
@@ -460,6 +461,53 @@ class PeriHub(context: Context) {
             .setAutoCancel(true)
             .build()
         runCatching { manager.notify(4_204, notification) }
+    }
+
+    /**
+     * A SIM swap's signs ([app.friendlypear.device.LineWatch]): a different SIM, or the line dead while the internet
+     * works. Peri says what to do first (call the bank and the phone company from another phone), a notification says
+     * it too, the pear shows it to the family for a while, and the family is asked whether one of them changed it.
+     */
+    private val line = app.friendlypear.device.LineWatch(this.context) { event -> onLine(event) }
+
+    private var lineAlertUntil = 0L
+
+    private fun lineAlert() = lineAlertUntil > System.currentTimeMillis()
+
+    private fun onLine(event: app.friendlypear.device.LineWatch.Event) {
+        if (event == app.friendlypear.device.LineWatch.Event.LINE_BACK) {
+            lineAlertUntil = 0L
+            publishPear()
+            say(context.getString(R.string.line_back_says))
+            return
+        }
+        val newSim = event == app.friendlypear.device.LineWatch.Event.NEW_SIM
+        Log.i(TAG, "line: $event")
+        diary.add(app.friendlypear.config.Diary.Kind.LINE_ALERT, if (newSim) "new" else "lost")
+        lineAlertUntil = System.currentTimeMillis() + LINE_ALERT_MS
+        publishPear()
+        val text = context.getString(if (newSim) R.string.line_new_says else R.string.line_lost_says)
+        say(text)
+        notifyLine(context.getString(if (newSim) R.string.line_new_title else R.string.line_lost_title), text)
+        askFamily(SIM)
+    }
+
+    private fun notifyLine(title: String, text: String) {
+        val manager = context.getSystemService(NotificationManager::class.java) ?: return
+        manager.createNotificationChannel(NotificationChannel(ALERTS_CHANNEL, context.getString(R.string.alerts_channel), NotificationManager.IMPORTANCE_HIGH))
+        val screen = Intent(context, app.friendlypear.ui.peri.PeriActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val open = PendingIntent.getActivity(context, 4_205, screen, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        val notification = Notification.Builder(context, ALERTS_CHANNEL)
+            .setSmallIcon(R.drawable.ic_pear)
+            .setColor(app.friendlypear.ui.peri.Palette.CORAL_INK)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setStyle(Notification.BigTextStyle().bigText(text))
+            .setCategory(Notification.CATEGORY_ALARM)
+            .setContentIntent(open)
+            .setAutoCancel(true)
+            .build()
+        runCatching { manager.notify(4_205, notification) }
     }
 
     private val familyLoop = object : Runnable {
@@ -617,14 +665,14 @@ class PeriHub(context: Context) {
      * silence and says what they answered: if one says it was them, still call their usual number first; if all say
      * no, it's a trap. Only the question travels, never the message or the number.
      */
-    private fun askFamily() {
+    private fun askFamily(kind: String = NEW_NUMBER) {
         // Like the pear's attention, only while the person shares Peri's news with the family.
         if (!pearClient.enabled || !news.sharing) return
         waiting.execute {
-            val id = pearClient.ask("new_number") ?: return@execute
+            val id = pearClient.ask(kind) ?: return@execute
             main.post {
                 diary.add(app.friendlypear.config.Diary.Kind.FAMILY_CHECKED)
-                val question = FamilyQuestion(id, android.os.SystemClock.uptimeMillis())
+                val question = FamilyQuestion(id, android.os.SystemClock.uptimeMillis(), kind)
                 main.postDelayed(object : Runnable {
                     override fun run() = hearFamily(question, this)
                 }, CHECK_POLL_MS)
@@ -632,8 +680,8 @@ class PeriHub(context: Context) {
         }
     }
 
-    /** A "was it you?" being waited on: when it was asked, and when the first "it wasn't me" came. */
-    private class FamilyQuestion(val id: String, val started: Long, var firstNo: Long = 0L)
+    /** A "was it you?" being waited on: when it was asked, about what, and when the first "it wasn't me" came. */
+    private class FamilyQuestion(val id: String, val started: Long, val kind: String = NEW_NUMBER, var firstNo: Long = 0L)
 
     /**
      * Someone said it was them: still call their usual number. Everyone said no, or someone said no a minute ago
@@ -648,13 +696,23 @@ class PeriHub(context: Context) {
                 val noes = result?.answers?.filter { !it.me }.orEmpty()
                 if (noes.isNotEmpty() && question.firstNo == 0L) question.firstNo = now
                 val someone = context.getString(R.string.check_someone)
+                val sim = question.kind == SIM
                 when {
-                    me != null -> tell(context.getString(R.string.check_result_me, me.name.ifEmpty { someone }))
-                    result?.gone == true -> tell(context.getString(R.string.check_result_silence))
-                    result != null && result.asked > 0 && noes.size >= result.asked -> tell(context.getString(R.string.check_result_none))
-                    question.firstNo > 0 && now - question.firstNo > CHECK_GRACE_MS ->
-                        tell(context.getString(R.string.check_result_named, noes.joinToString(", ") { it.name.ifEmpty { someone } }))
-                    now - question.started > CHECK_MAX_MS -> tell(context.getString(R.string.check_result_silence))
+                    me != null -> tell(context.getString(if (sim) R.string.check_sim_me else R.string.check_result_me, me.name.ifEmpty { someone }))
+                    result?.gone == true -> tell(context.getString(if (sim) R.string.check_sim_silence else R.string.check_result_silence))
+                    result != null && result.asked > 0 && noes.size >= result.asked -> tell(context.getString(if (sim) R.string.check_sim_none else R.string.check_result_none))
+                    question.firstNo > 0 && now - question.firstNo > CHECK_GRACE_MS -> {
+                        // "Ana says", "Ana and Papá say": who said no, by name.
+                        val names = noes.map { it.name.ifEmpty { someone } }.distinct()
+                        val line = when {
+                            sim && names.size > 1 -> R.string.check_sim_named_many
+                            sim -> R.string.check_sim_named
+                            names.size > 1 -> R.string.check_result_named_many
+                            else -> R.string.check_result_named
+                        }
+                        tell(context.getString(line, app.friendlypear.ui.peri.namesAnd(context, names)))
+                    }
+                    now - question.started > CHECK_MAX_MS -> tell(context.getString(if (sim) R.string.check_sim_silence else R.string.check_result_silence))
                     else -> main.postDelayed(again, CHECK_POLL_MS)
                 }
             }
@@ -675,6 +733,7 @@ class PeriHub(context: Context) {
     init {
         main.postDelayed(familyLoop, FAMILY_NOTES_MS)
         apps.start()
+        line.start()
         if (BuildConfig.DEBUG) registerDebugVoice()
     }
 
@@ -1090,6 +1149,12 @@ class PeriHub(context: Context) {
                 intent.getStringExtra("intruder")?.split("|", limit = 2)?.takeIf { it.size == 2 }?.let { (pkg, name) ->
                     main.post { screenAccess(listOf(pkg to name)) }
                 }
+                // A SIM swap's signs, as the line watch would see them: "--es sim new|lost|back".
+                when (intent.getStringExtra("sim")) {
+                    "new" -> main.post { onLine(app.friendlypear.device.LineWatch.Event.NEW_SIM) }
+                    "lost" -> main.post { onLine(app.friendlypear.device.LineWatch.Event.LINE_LOST) }
+                    "back" -> main.post { onLine(app.friendlypear.device.LineWatch.Event.LINE_BACK) }
+                }
                 // An email as its notification reaches Peri: "--es email 'sender|subject. text'" (no Gmail account here).
                 intent.getStringExtra("email")?.split("|", limit = 2)?.takeIf { it.size == 2 }?.let { (sender, text) ->
                     onMessage(IncomingMessage(Channel.EMAIL, sender, text, System.currentTimeMillis()))
@@ -1126,6 +1191,11 @@ class PeriHub(context: Context) {
         /** Three seconds for "keep talking", and a moment for Peri to say it. */
         const val HANGUP_WAIT_MS = 6_000L
         const val FAMILY_NOTES_MS = 60_000L
+        /** The family sees a SIM swap's sign on the pear for this long (the server fades an attention after two hours). */
+        const val LINE_ALERT_MS = 2 * 60 * 60_000L
+        /** What a "was it you?" is about: a message from a new number, or a new SIM. */
+        const val NEW_NUMBER = "new_number"
+        const val SIM = "sim"
         /** The family's blocked numbers are fetched again after this long (and at once after a change here). */
         const val BLOCKS_SYNC_MS = 10 * 60_000L
         const val HELP_UNTIL = "until"

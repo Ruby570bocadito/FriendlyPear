@@ -249,6 +249,7 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
                 Diary.Kind.BLOCKED_CALL -> Line(e.at, R.drawable.ic_shield, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(if (e.detail == Diary.BY_FAMILY) R.string.diary_family_blocked_call else R.string.diary_blocked_call))
                 Diary.Kind.BLOCKED_TEXT -> Line(e.at, R.drawable.ic_shield, Palette.GREEN_TINT, Palette.GREEN_DARK, c.getString(if (e.detail == Diary.BY_FAMILY) R.string.diary_family_blocked_text else R.string.diary_blocked_text))
                 Diary.Kind.SCREEN_INTRUDER -> Line(e.at, R.drawable.ic_shield, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(R.string.diary_intruder))
+                Diary.Kind.LINE_ALERT -> Line(e.at, R.drawable.ic_shield, Palette.CORAL_TINT, Palette.CORAL_INK, c.getString(if (e.detail == "new") R.string.diary_line_new else R.string.diary_line_lost))
             }
         }
         val uses = hub.uses.all().map { e ->

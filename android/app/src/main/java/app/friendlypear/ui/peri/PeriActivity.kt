@@ -80,6 +80,7 @@ class PeriActivity : Activity() {
     private lateinit var questionText: TextView
     /** The "was it you?" on show (its id and who asks), or null. */
     private var asking: Pair<String, String>? = null
+    private var askingSim = false
     /** The family alert on show (whose pear, and since when), or null. */
     private var familyAlertKey: String? = null
     private var pulse: ObjectAnimator? = null
@@ -1136,16 +1137,17 @@ class PeriActivity : Activity() {
         if (!hub.seesFamilyPears) return
         hub.openChecks { checks ->
             if (checks == null || !resumed) return@openChecks
-            val next = checks.firstOrNull { it.kind == "new_number" }
+            val next = checks.firstOrNull { it.kind == "new_number" || it.kind == "sim" }
             asking = next?.let { it.id to it.from.ifEmpty { getString(R.string.check_someone) } }
+            askingSim = next?.kind == "sim"
             val (id, from) = asking ?: return@openChecks showSetup()
-            questionTitle.text = getString(R.string.check_question_title, from)
-            questionText.text = getString(R.string.check_question_text, from)
+            questionTitle.text = getString(if (askingSim) R.string.check_sim_title else R.string.check_question_title, from)
+            questionText.text = getString(if (askingSim) R.string.check_sim_text else R.string.check_question_text, from)
             showSetup()
             if (id != asked.getString(CHECK_SAID, null)) {
                 asked.edit().putString(CHECK_SAID, id).apply()
                 hub.haptics.mood(Mood.WORRIED)
-                hub.say(getString(R.string.check_question_says, from))
+                hub.say(getString(if (askingSim) R.string.check_sim_says else R.string.check_question_says, from))
             }
         }
         hub.familyPears { family ->
@@ -1171,6 +1173,9 @@ class PeriActivity : Activity() {
             if (campaign != null) {
                 familyAlertTitle.text = getString(R.string.campaign_title)
                 familyAlertText.text = getString(R.string.campaign_text, getString(TRAP_NAMES[campaign] ?: R.string.trap_name_link).lowercase())
+            } else if (alert != null && alert.kind == "sim") {
+                familyAlertTitle.text = getString(R.string.family_sim_title, alert.name)
+                familyAlertText.text = getString(R.string.family_sim_text)
             } else if (alert != null && alert.kind == "breach") {
                 familyAlertTitle.text = getString(R.string.family_breach_title, alert.name)
                 familyAlertText.text = getString(R.string.family_breach_text)
@@ -1190,6 +1195,7 @@ class PeriActivity : Activity() {
                         campaign != null -> getString(R.string.campaign_says)
                         alert!!.kind == "call" -> getString(R.string.family_call_says, alert.name)
                         alert.kind == "breach" -> getString(R.string.family_breach_says, alert.name)
+                        alert.kind == "sim" -> getString(R.string.family_sim_says, alert.name)
                         else -> getString(R.string.family_alert_says, alert.name)
                     },
                 )

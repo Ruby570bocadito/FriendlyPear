@@ -34,7 +34,7 @@ class FamilyNotes(context: Context, private val pears: () -> PearClient, private
     fun look() {
         val client = pears()
         if (!client.enabled) return
-        client.openChecks()?.firstOrNull { it.kind == "new_number" }?.let { question(it) }
+        client.openChecks()?.firstOrNull { it.kind == "new_number" || it.kind == "sim" }?.let { question(it) }
         client.family()?.let { family(it) }
     }
 
@@ -43,8 +43,8 @@ class FamilyNotes(context: Context, private val pears: () -> PearClient, private
         val from = check.from.ifEmpty { context.getString(R.string.check_someone) }
         notify(
             check.id.hashCode(),
-            context.getString(R.string.check_question_title, from),
-            context.getString(R.string.check_question_text, from),
+            context.getString(if (check.kind == "sim") R.string.check_sim_title else R.string.check_question_title, from),
+            context.getString(if (check.kind == "sim") R.string.check_sim_text else R.string.check_question_text, from),
             Palette.LILAC_INK,
             listOf(
                 action(R.string.check_me, CHECK_ME, check.id, from),
@@ -76,6 +76,13 @@ class FamilyNotes(context: Context, private val pears: () -> PearClient, private
                 context.getString(R.string.family_breach_text),
                 Palette.CORAL_INK,
                 listOfNotNull(callAction(pear.name)),
+            )
+            // Never "call them" here: their number may be in a scammer's SIM now.
+            pear.kind == "sim" -> notify(
+                ALERT_ID,
+                context.getString(R.string.family_sim_title, pear.name),
+                context.getString(R.string.family_sim_text),
+                Palette.CORAL_INK,
             )
             pear.kind == "call" -> notify(
                 ALERT_ID,

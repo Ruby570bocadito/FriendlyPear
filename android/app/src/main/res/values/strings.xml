@@ -336,6 +336,11 @@
     <string name="after_no_app">I can\'t open that on this phone. Ask someone in the family to help you with this step.</string>
     <string name="after_family_told">Done: your family can now see on their phones that you need a hand. Meanwhile, keep going with the steps.</string>
     <string name="after_call_someone">Call someone you trust and tell them what happened: it\'s easier with company.</string>
+    <string name="line_new_title">A different SIM in your phone</string>
+    <string name="line_new_says">This phone has a different SIM card. If you didn\'t change it, someone may be taking over your number to get your bank\'s codes: call your bank and your phone company now, from another phone. I\'m asking your family.</string>
+    <string name="line_lost_title">Your phone lost its line</string>
+    <string name="line_lost_says">Your phone has lost its mobile line, but the internet still works. If you didn\'t change anything, someone may have taken your number to get your bank\'s codes: call your bank and your phone company now, from another phone. I\'m asking your family.</string>
+    <string name="line_back_says">Your mobile line is back. If your bank or your phone company tells you about anything you didn\'t do, tell your family.</string>
     <string name="after_reminder_title">A look at your bank today</string>
     <string name="after_reminder_text">After yesterday\'s scam, look at your bank\'s movements: a charge sometimes shows up a day later. If you see one that isn\'t yours, call your bank.</string>
     <string name="family_breach_title">%1$s needs a hand after a scam</string>
@@ -572,6 +577,8 @@
     <string name="diary_blocked_text">I silenced a message from a sender you blocked</string>
     <string name="diary_family_blocked_call">I turned away a call from a number your family blocked</string>
     <string name="diary_family_blocked_text">I silenced a message from a sender your family blocked</string>
+    <string name="diary_line_new">I warned you about a different SIM in your phone</string>
+    <string name="diary_line_lost">I warned you your phone had lost its line</string>
     <string name="learn_title">Learn with Peri</string>
     <string name="learn_traps_title">Traps I know</string>
     <string name="learn_tips_title">My golden rules</string>
@@ -977,6 +984,9 @@
     <string name="family_call_button">Hang up their call</string>
     <string name="family_call_says">%1$s is on a call with a number they don\'t know. If you think it\'s a scam, I can ask their Peri to hang up.</string>
     <string name="family_breach_says">%1$s needs a hand after a scam. Give them a call and help with the steps.</string>
+    <string name="family_sim_title">%1$s\'s number may have been taken</string>
+    <string name="family_sim_text">Their phone has a different SIM or lost its line. If nobody in the family changed it, someone may have their number: go and see them or call a landline, and help them call the bank.</string>
+    <string name="family_sim_says">Important: %1$s\'s phone has a different SIM or lost its line. If nobody in the family changed it, someone may have their number. Go and see them, or call a landline.</string>
     <string name="family_call_sent">Done: I asked %1$s\'s Peri to hang up.</string>
     <string name="family_call_failed">I couldn\'t reach %1$s\'s Peri. Better call them now.</string>
     <string name="family_alert_says">Heads up: %1$s\'s Peri is on alert. Someone may be trying to trick them. Give them a call.</string>
@@ -1007,5 +1017,14 @@
     <string name="campaign_says">Heads up: the same trap is reaching several people in your family. If it reaches you, don\'t touch anything.</string>
     <string name="diary_family_checked">I asked your family whether a new number was really one of them</string>
     <string name="check_result_named">%1$s says it wasn\'t them. It\'s a trap, so don\'t answer it.</string>
+    <string name="check_result_named_many">%1$s say it wasn\'t them. It\'s a trap, so don\'t answer it.</string>
     <string name="check_result_silence">Your family hasn\'t answered yet. Better call them on their usual number before you do anything.</string>
+    <string name="check_sim_title">%1$s\'s phone line changed</string>
+    <string name="check_sim_text">%1$s\'s phone has a different SIM or lost its line. Did you help change their SIM or phone company?</string>
+    <string name="check_sim_says">Important: %1$s\'s phone has a different SIM or lost its line. Did you help change it? If not, someone may be taking over their number.</string>
+    <string name="check_sim_me">%1$s says they helped change your SIM or phone line. Good. Even so, if your bank tells you about anything you didn\'t do, call them.</string>
+    <string name="check_sim_none">I asked your family: nobody changed your SIM. Call your bank and your phone company now, from another phone: someone may be taking over your number.</string>
+    <string name="check_sim_named">%1$s says they didn\'t change it. Call your bank and your phone company now, from another phone.</string>
+    <string name="check_sim_named_many">%1$s say they didn\'t change it. Call your bank and your phone company now, from another phone.</string>
+    <string name="check_sim_silence">Your family hasn\'t answered yet. To be safe, call your phone company and your bank from another phone.</string>
 </resources>

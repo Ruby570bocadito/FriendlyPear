@@ -335,6 +335,11 @@
     <string name="after_no_app">No puedo abrir eso en este móvil. Pide a alguien de tu familia que te ayude con este paso.</string>
     <string name="after_family_told">Hecho: tu familia ya ve en su móvil que necesitas una mano. Mientras, sigue con los pasos.</string>
     <string name="after_call_someone">Llama a alguien de confianza y cuéntale lo que ha pasado: con compañía es más fácil.</string>
+    <string name="line_new_title">Otra SIM en tu móvil</string>
+    <string name="line_new_says">Este móvil tiene otra tarjeta SIM. Si no la has cambiado tú, alguien podría estar quedándose con tu número para recibir los códigos del banco: llama ya a tu banco y a tu compañía desde otro teléfono. Se lo pregunto a tu familia.</string>
+    <string name="line_lost_title">Tu móvil se ha quedado sin línea</string>
+    <string name="line_lost_says">Tu móvil se ha quedado sin línea, pero internet sí funciona. Si no has cambiado nada, alguien podría haberse quedado con tu número para recibir los códigos del banco: llama ya a tu banco y a tu compañía desde otro teléfono. Se lo pregunto a tu familia.</string>
+    <string name="line_back_says">Ya vuelve a haber línea en tu móvil. Si tu banco o tu compañía te avisan de algo que no has hecho, cuéntaselo a tu familia.</string>
     <string name="after_reminder_title">Un vistazo a tu banco hoy</string>
     <string name="after_reminder_text">Después del timo de ayer, mira los movimientos de tu banco: a veces un cargo aparece un día más tarde. Si ves uno que no es tuyo, llama a tu banco.</string>
     <string name="family_breach_title">%1$s necesita una mano tras un timo</string>
@@ -573,6 +578,8 @@
     <string name="diary_blocked_text">Silencié un mensaje de un remitente que bloqueaste</string>
     <string name="diary_family_blocked_call">Rechacé una llamada de un número que bloqueó tu familia</string>
     <string name="diary_family_blocked_text">Silencié un mensaje de un remitente que bloqueó tu familia</string>
+    <string name="diary_line_new">Te avisé de que había otra SIM en tu móvil</string>
+    <string name="diary_line_lost">Te avisé de que tu móvil se había quedado sin línea</string>
     <string name="learn_title">Aprende con Peri</string>
     <string name="learn_traps_title">Trampas que conozco</string>
     <string name="learn_tips_title">Mis reglas de oro</string>
@@ -946,6 +953,9 @@
     <string name="family_call_button">Colgar su llamada</string>
     <string name="family_call_says">%1$s está en una llamada con un número que no conoce. Si crees que es un timo, puedo pedirle a su Peri que cuelgue.</string>
     <string name="family_breach_says">%1$s necesita una mano tras un timo. Llámale y ayúdale con los pasos.</string>
+    <string name="family_sim_title">Puede que a %1$s le hayan quitado el número</string>
+    <string name="family_sim_text">Su móvil tiene otra SIM o se ha quedado sin línea. Si nadie de la familia lo ha cambiado, alguien podría tener su número: ve a verle o llámale a un fijo, y ayúdale a llamar al banco.</string>
+    <string name="family_sim_says">Importante: el móvil de %1$s tiene otra SIM o se ha quedado sin línea. Si nadie de la familia lo ha cambiado, alguien podría tener su número. Ve a verle o llámale a un fijo.</string>
     <string name="family_call_sent">Hecho: le he pedido a la Peri de %1$s que cuelgue.</string>
     <string name="family_call_failed">No he podido llegar a la Peri de %1$s. Mejor llámale ahora.</string>
     <string name="family_alert_says">Ojo: el Peri de %1$s está en alerta. Puede que alguien le esté intentando engañar. Llámale.</string>
@@ -976,5 +986,14 @@
     <string name="campaign_says">Ojo: la misma trampa está llegando a varias personas de tu familia. Si te llega, no toques nada.</string>
     <string name="diary_family_checked">Pregunté a tu familia si un número nuevo era de verdad suyo</string>
     <string name="check_result_named">%1$s dice que no te ha escrito desde un número nuevo. Es una trampa: no contestes.</string>
+    <string name="check_result_named_many">%1$s dicen que no te han escrito desde un número nuevo. Es una trampa: no contestes.</string>
     <string name="check_result_silence">Tu familia aún no ha contestado. Mejor llama a su número de siempre antes de hacer nada.</string>
+    <string name="check_sim_title">La línea de %1$s ha cambiado</string>
+    <string name="check_sim_text">El móvil de %1$s tiene otra SIM o se ha quedado sin línea. ¿Le has ayudado tú a cambiar la SIM o la compañía?</string>
+    <string name="check_sim_says">Importante: el móvil de %1$s tiene otra SIM o se ha quedado sin línea. ¿Le has ayudado tú a cambiarla? Si no, alguien podría estar quedándose con su número.</string>
+    <string name="check_sim_me">%1$s dice que te ayudó a cambiar la SIM o la línea. Bien. Aun así, si tu banco te avisa de algo que no has hecho, llámales.</string>
+    <string name="check_sim_none">He preguntado a tu familia: nadie te ha cambiado la SIM. Llama ya a tu banco y a tu compañía desde otro teléfono: alguien podría estar quedándose con tu número.</string>
+    <string name="check_sim_named">%1$s dice que no lo ha cambiado. Llama ya a tu banco y a tu compañía desde otro teléfono.</string>
+    <string name="check_sim_named_many">%1$s dicen que no lo han cambiado. Llama ya a tu banco y a tu compañía desde otro teléfono.</string>
+    <string name="check_sim_silence">Tu familia aún no ha contestado. Por si acaso, llama a tu compañía y a tu banco desde otro teléfono.</string>
 </resources>
