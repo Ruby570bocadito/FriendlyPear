@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 import { loadConfig } from "../../src/config";
 import { DeviceStore } from "../../src/devices/store";
 import { RateLimiter } from "../../src/limits";
+import { outfitWords, pearFigure } from "../../src/pears/look";
 import { ATTENTION_TTL_MS, CAMPAIGN_WINDOW_MS, PearStore, readPear } from "../../src/pears/store";
 import { createHandler } from "../../src/server";
 
@@ -104,4 +105,11 @@ test("the same trap reaching two family phones within half an hour is a campaign
   expect(await campaignNow()).toBe("parcel");
   advance(CAMPAIGN_WINDOW_MS + 1);
   expect(await campaignNow()).toBeNull();
+});
+
+test("a pear is drawn only with the accessories the app has, whatever its outfit says", () => {
+  expect(pearFigure("constructor,toString,__proto__")).not.toContain("/w/");
+  expect(pearFigure("STRAW,,BOWTIE")).toContain('src="/w/straw.webp"');
+  expect(outfitWords("STRAW,HEARTS,TIE", "en")).toBe("a straw hat, heart glasses and a tie");
+  expect(outfitWords(",,", "es")).toBe("");
 });

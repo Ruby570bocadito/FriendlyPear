@@ -26,8 +26,9 @@ export const WEAR_NAMES = Object.keys(WEAR).map((k) => k.toLowerCase());
 /** The calm Peri's eyes in her 1024 px picture (PeriAnchors.kt). */
 const EYES = [408, 465, 603, 471];
 
+/** Only this table's own accessories: never a name from somewhere else ("constructor" is "in" every object). */
 function items(outfit: string): string[] {
-  return outfit.split(",").filter((k) => k in WEAR);
+  return outfit.split(",").filter((k) => Object.hasOwn(WEAR, k));
 }
 
 /** The pear, 1:1, as an HTML figure: Peri and each accessory placed in percentages of her picture. */
