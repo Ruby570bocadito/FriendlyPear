@@ -78,6 +78,16 @@ Por orden: primero lo que corta un timo en curso o impide que el propio Peri se 
 - [ ] (IMP-1) r2s-qr-trampa — [S] «mira esta imagen» detecta QR que llevan a webs falsas (SAM 3.1 + Muse Spark), sin abrirlos — backend/src/models/
 - [ ] (SEG) r2s-servidor-duro — [M] peticiones y preguntas persistidas cifradas, rotación de claves de móvil y del token de admin, registros sin datos personales revisados — backend/
 - [ ] (SEG) r2s-integridad — [L] (después) comprobar que la app que habla con el servidor es la nuestra (Play Integrity) y Safe Browsing para los enlaces — necesita Google Play
+### G · Lo que pide la persona (28 oct, tarde)
+
+- [ ] (IMP-1) r3-paraguas-manos — [S] la pose del paraguas tenía tres manos en un gesto (y el paraguas flotando en otro): gestos propios para las poses con las dos manos ocupadas — assets/peri/, android/.../res/drawable-nodpi/
+- [ ] (IMP-1) r3-permisos-negados — [S] si se niegan todos los permisos el chat se queda colgado: sin micrófono «Hablar con Peri» no hace nada y el aviso promete una pantalla que no se abre — android/.../ui/peri/PeriActivity.kt
+- [ ] (IMP-1) r3-chat-seguro — [M] «Pregúntale a Peri»: chat escrito con consejos revisados sobre situaciones de seguridad (banco, códigos, enlaces, familia, apps, SIM...), sin mezclar nunca el chat con mensajes ni notificaciones — core/agent/, android/.../ui/peri/
+- [ ] (IMP-1) r3-bienvenida-pro — [M] la bienvenida más profesional y menos vacía — android/.../ui/peri/WelcomeActivity.kt
+- [ ] (IMP-1) r3-peri-viva — [M] más vida en reposo: poses nuevas con Muse Image y más movimientos — assets/peri/, android/.../ui/peri/PeriFace.kt
+- [ ] (IMP-1) r3-revision-seguridad — [M] más actuaciones de seguridad: revisión del móvil (bloqueo de pantalla, actualizaciones, depuración USB, apps con accesibilidad...) con el arreglo de cada una — android/
+- [ ] (IMP-1) r3-apk-prueba — [S] un APK para probar en el móvil de la persona — android/
+
 ### Se llevan de antes
 - Con la persona: pruebas-mayores, voice-transcribe (voces reales), bases-y-dudas, peri-referencia-video y la entrega.
 - TEST y PUL: metricas, readme-resultados.
