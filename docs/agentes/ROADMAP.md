@@ -76,7 +76,7 @@ Por orden: primero lo que corta un timo en curso o impide que el propio Peri se 
 - [x] (TEST) r2s-e2e-familia — [M] las pruebas de dos móviles en un script repetible (¿has sido tú?, colgar, aprobación, notificaciones con la app cerrada) con informe — eval/ · hecho 2026-10-28: `eval/family4.py` con cuatro móviles (llamada de un desconocido colgada desde la notificación de Papá, «número nuevo» con respuesta de Pablo, email de phishing a Ana y la misma trampa por SMS a Pablo: aviso de campaña); sin cierres
 - [ ] (IMP-1) r2s-meta-rojo — [M] Muse Spark escribe cada semana variantes nuevas de timos para probar el escudo (equipo rojo) y Muse Image las viñetas; los fallos van al informe — training/, eval/
 - [ ] (IMP-1) r2s-qr-trampa — [S] «mira esta imagen» detecta QR que llevan a webs falsas (SAM 3.1 + Muse Spark), sin abrirlos — backend/src/models/
-- [ ] (SEG) r2s-servidor-duro — [M] peticiones y preguntas persistidas cifradas, rotación de claves de móvil y del token de admin, registros sin datos personales revisados — backend/
+- [x] (SEG) r2s-servidor-duro — [M] peticiones y preguntas persistidas cifradas, rotación de claves de móvil y del token de admin, registros sin datos personales revisados — backend/ · hecho 2026-10-28: `vault.ts` (AES-256-GCM, clave aparte de los datos) en todos los almacenes, aprobaciones y preguntas guardadas, `POST /v1/devices/self/key` y rotación mensual en el móvil, `bun rotate` con un día de solape, registro sin datos personales (con test)
 - [ ] (SEG) r2s-integridad — [L] (después) comprobar que la app que habla con el servidor es la nuestra (Play Integrity) y Safe Browsing para los enlaces — necesita Google Play
 ### G · Lo que pide la persona (28 oct, tarde)
 
@@ -87,6 +87,9 @@ Por orden: primero lo que corta un timo en curso o impide que el propio Peri se 
 - [x] (IMP-1) r3-peri-viva — [M] más vida en reposo: poses nuevas con Muse Image y más movimientos — assets/peri/, android/.../ui/peri/PeriFace.kt · hecho 2026-10-28: cinco momentos de calma de Muse Image (`CALM_MOMENTS`) entre sus gestos
 - [x] (IMP-1) r3-revision-seguridad — [M] más actuaciones de seguridad: revisión del móvil (bloqueo de pantalla, actualizaciones, depuración USB, apps con accesibilidad...) con el arreglo de cada una — android/ · hecho 2026-10-28: `CheckupActivity` (siete comprobaciones con su arreglo), desde Aprende y Ajustes
 - [x] (IMP-1) r3-apk-prueba — [S] un APK para probar en el móvil de la persona — android/ · hecho 2026-10-28: APK de depuración apuntando al servidor del PC en la red local (192.168.1.131:8711), enviado a la persona, nunca subido
+- [x] (IMP-1) r3-escena-estable — [S] con mucho texto el fondo se acercaba y alejaba de golpe — android/.../ui/peri/ · hecho 2026-10-28: bocadillo de una sola altura (letra grande si es corto) y Peri que se desliza a su nuevo tamaño desde los pies
+- [x] (IMP-1) r3-animacion-fluida — [M] más fotogramas y más fluidez — assets/peri/, PeriFace.kt · hecho 2026-10-28: fundido corto entre fotogramas del cuerpo y medios pasos de Muse Image en siete estados de ánimo (pasos en cuatro fases)
+- [x] (IMP-1) r3-ui-pulida — [S] cuidar la UI entera — android/.../ui/peri/ · hecho 2026-10-28: «Las herramientas de Peri» en Aprende como tarjeta con iconos, revisión de las pantallas principales
 
 ### Se llevan de antes
 - Con la persona: pruebas-mayores, voice-transcribe (voces reales), bases-y-dudas, peri-referencia-video y la entrega.

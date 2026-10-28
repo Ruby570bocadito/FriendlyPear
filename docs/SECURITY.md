@@ -42,6 +42,9 @@ in the code and covered by tests or by the two-phone tests of Oct 27 and 28.
 | 6 | A stolen key, or a family on one wifi | Limits per paired phone (120 requests a minute) as well as per IP, so a key used from many places still counts as one phone and one phone can't hold up the rest of the family; "hang up their call" at most 5 times in 10 minutes per phone | ✅ |
 | 6 | Odd requests | A request whose address can't be read gets a 400, not a crash; ids are checked against their exact format before any lookup | ✅ |
 | 6 | Backups leaking keys or family setup | `allowBackup="false"` and data-extraction rules exclude everything from cloud backups and device transfers | ✅ |
+| 6 | Someone copies the server's files | Everything the server keeps on disk is sealed with AES-256-GCM under a key kept apart from the data (`DATA_KEY`, or a key file outside the data folder made on the first start): the phones' key hashes, the pears, the guardians' links and news, the blocked fingerprints, and the pending approvals and "was it you?" questions, which now survive a restart. A changed byte makes a file fail to open, and its store starts empty rather than trust it | ✅ |
+| 6 | Old keys and tokens | Each phone changes its own key with the server once a month, and the old one stops working at once; `bun rotate` changes the admin token, with the old one accepted for one more day so nothing stops | ✅ |
+| 6 | What the server writes down | Its log carries no names, numbers, messages, link tokens or browser details: a test drives a family request end to end and checks every line | ✅ |
 | 6 | Someone copies the app's files | What Peri keeps about scams and people (the last scam's message and sender, the numbers blocked, who Peri called or texted, the diary, the investigator's notes, the family setup, a junk website's address) is sealed with AES-256-GCM under a key that never leaves Android's keystore: a copy of the files can't be read, and a changed byte makes a file fail to open instead of feeding Peri something false. What was given away after a scam is never stored, not even on the phone | ✅ |
 | 6 | Floods and guessing | Per-IP limits on links, the API, pictures, voice and pairing (10 codes tried per 15 minutes); behind the tunnel the client IP is the one the proxy adds, so a forged header can't dodge them; an IP sending wrong device tokens is locked out for 15 minutes; body size limits; timing-safe token check | ✅ |
 
@@ -105,7 +108,7 @@ are gone after 15 minutes or when that phone is disconnected.
   the on-phone rules, which still warn).
 - **SMS is not encrypted.** The link travels by SMS, so it is short-lived, single-use and guarded by the "are you
   sure?" step and the phone lock. A spoofed sender number alone is not enough: the request must exist on the server.
-- **Pending requests and "was it you?" questions live in memory** and are lost if the server restarts (a request then
-  simply expires: nothing is ever approved by itself, and Peri's warning stands).
+- **The server's data key** must be backed up apart from the data: without it, the sealed files can't be opened and the
+  family pairs its phones again (nothing is ever approved by itself meanwhile, and Peri's warnings stand).
 - A public HTTPS address (a tunnel or a host) is needed for phones outside the developer's network.
 - **A blocked number's fingerprint can be reversed by trying every phone number**, by someone who has the server's files (the family's salt is kept there too). The server never receives a number and its files hold none, but a fingerprint isn't secret from whoever runs the server.
