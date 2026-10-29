@@ -1,5 +1,7 @@
 # La historia de Peri (borrador para decidir juntos)
 
+> **29 oct:** decidido con la persona; el guion de la demo está en [`GUION.md`](GUION.md).
+
 > Propuesta del 28 oct, noche, para el vídeo de demo (`r2-guion`) y el anuncio. Arte: el mundo de plastilina de los fondos de Muse Image; Peri con sus propios fotogramas de la app; lo que hace la app, **siempre grabación real**. Teaser del primer minuto: `cd video && npx remotion render StoryTeaser out/story-teaser.mp4`.
 
 ## Idea

@@ -84,7 +84,7 @@ lleva su nombre viejo entre paréntesis.
 ## P1 · Vídeo y entrega
 
 - [x] (IMG) r5-imagenes — [L] las imágenes de [`docs/IMAGENES_VIDEO_UI.md`](../IMAGENES_VIDEO_UI.md) (lotes 8 a 15: familia, lugares, timos sin miedo, efectos, rótulos, Peri para la historia, UI e icono) con Muse Image, lote a lote — video/public/, assets/ui/ · hecho 2026-10-29
-- [ ] (DIR) r5-guion — [S] (r2-guion) el guion juntos, con las cuatro decisiones de `docs/HISTORIA.md` (formato, Carmen, voz, idioma) — docs/HISTORIA.md, docs/VIDEO.md
+- [x] (DIR) r5-guion — [S] (r2-guion) el guion juntos, con las cuatro decisiones de `docs/HISTORIA.md` (formato, Carmen, voz, idioma) — docs/HISTORIA.md, docs/VIDEO.md · hecho 2026-10-29: decidido con la persona (horizontal 16:9, Carmen de plastilina, voz sintética para el borrador y la suya al final, solo en inglés) y escrito en [`docs/GUION.md`](../GUION.md): 8 escenas en 3:00 con su lugar, sus fotogramas, la grabación real de cada una y la voz
 - [ ] (DIR) r5-historia — [M] (r3-historia) la historia de Peri en Remotion con el arte nuevo, sin lag — video/
 - [ ] (DIR) r5-grabaciones — [M] (r2-grabaciones) regrabar los clips de la app con la Peri por capas y la UI nueva — video/public/clips/
 - [ ] (DIR) r5-video — [M] (video-3-min) montaje de la demo de 3 min — video/
