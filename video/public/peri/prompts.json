@@ -58,5 +58,75 @@
     "prompt": "Same character, same style. Change: Peri hugs a big coral heart, with three smaller pear friends around her (one with a flat cap, one with a coral bow, one with a beanie). Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
     "from": "assets/peri/peri_calm",
     "size": "1024x1024"
+  },
+  "story_phone_out_01": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 1 of 4 of Peri coming out of a phone lying flat on a wooden table. Change: a big clay smartphone lies flat on a small wooden table; only Peri's leaf pokes out of its blank screen. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1536"
+  },
+  "story_phone_out_02": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 2 of 4 of Peri coming out of a phone lying flat on a wooden table. Change: Peri's head pokes out of the blank screen of the big clay smartphone lying on the table. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1536"
+  },
+  "story_phone_out_03": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 3 of 4 of Peri coming out of a phone lying flat on a wooden table. Change: half of Peri's body is out of the phone's blank screen, her arms pushing on its edges. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1536"
+  },
+  "story_phone_out_04": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 4 of 4 of Peri coming out of a phone lying flat on a wooden table. Change: Peri jumps out and lands on the table next to the big clay smartphone, arms up, happy. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1536"
+  },
+  "story_shield_01": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 1 of 3 of Peri protecting from a clay fishing hook. Change: a clay fishing hook on a line comes down from the top of the image; Peri looks up at it, her closed coral umbrella in her hand. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1536"
+  },
+  "story_shield_02": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 2 of 3 of Peri protecting from a clay fishing hook. Change: Peri opens her coral umbrella halfway above her, the fishing hook coming closer from above. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1536"
+  },
+  "story_shield_03": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 3 of 3 of Peri protecting from a clay fishing hook. Change: Peri's coral umbrella is fully open above her and the fishing hook bounces off it, brave face. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1536"
+  },
+  "story_detective_01": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 1 of 2 of Peri the detective with a small brown detective hat. Change: crouching with a big magnifying glass in front of a square sticker on a grey clay parking meter. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1536"
+  },
+  "story_detective_02": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 2 of 2 of Peri the detective with a small brown detective hat. Change: jumping back from the parking meter, pointing at the sticker, surprised. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1536"
+  },
+  "story_run_01": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 1 of 2 of Peri running seen from the side towards the right side of the image. Change: one leg stretched forward, the other pushing behind, arms pumping, eager face. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/sprites/turn_side_right",
+    "size": "1024x1536"
+  },
+  "story_run_02": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 2 of 2 of Peri running seen from the side towards the right side of the image. Change: both feet off the ground, legs apart the other way, arms pumping. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/sprites/turn_side_right",
+    "size": "1024x1536"
+  },
+  "story_wave_01": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 1 of 3 of Peri waving goodbye at sunset with a warm orange light on her. Change: her hand raised low beside her, a gentle smile. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1536"
+  },
+  "story_wave_02": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 2 of 3 of Peri waving goodbye at sunset with a warm orange light on her. Change: her hand raised to her shoulder, waving. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1536"
+  },
+  "story_wave_03": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 3 of 3 of Peri waving goodbye at sunset with a warm orange light on her. Change: her hand raised high above her head, waving, big smile. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1536"
   }
 }

@@ -38,5 +38,55 @@
     "prompt": "A pink piggy bank with a padlock on its front; seen from a slight angle, its back is open with an empty hole. Friendly and playful, not scary. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
     "from": null,
     "size": "1024x1024"
+  },
+  "hook_drop_01": {
+    "prompt": "A shiny clay fishing hook on a thin line with a little coral clay envelope hanging on it as bait, coming down from the top edge of the image and hanging high, in the upper part of the image. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "hook_drop_02": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the line is longer: the hook and the envelope hang in the middle of the image. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/props/hook_drop_01",
+    "size": "1024x1024"
+  },
+  "hook_drop_03": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the line is much longer: the hook and the envelope hang near the bottom of the image. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/props/hook_drop_01",
+    "size": "1024x1024"
+  },
+  "hook_away": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the hook is pulled back up near the top edge, empty: the envelope bait is gone. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/props/hook_drop_01",
+    "size": "1024x1024"
+  },
+  "mask_fall_01": {
+    "prompt": "A folded cream paper envelope made of clay, lying flat, with a cheerful clay carnival mask on its front, the mask slipping a little to one side. The envelope is blank: no writing, no symbols. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "mask_fall_02": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the mask has fallen off and lies below the envelope, and a plain shiny fishing hook is now visible on the envelope where the mask was. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/props/mask_fall_01",
+    "size": "1024x1024"
+  },
+  "qr_peel_01": {
+    "prompt": "A grey and blue clay parking meter on a post; on its front, a square white sticker with a blocky black code pattern, one corner peeling. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "qr_peel_02": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the fake sticker has peeled off and hangs from one corner, and under it there is another, clean square code sticker on the meter. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/props/qr_peel_01",
+    "size": "1024x1024"
+  },
+  "phone_ring_01": {
+    "prompt": "A sky blue clay smartphone with a blank screen, tilted to the left, ringing, short curved coral vibration lines around it. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "phone_ring_02": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the phone is now tilted to the right, the curved vibration lines on the other sides. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/props/phone_ring_01",
+    "size": "1024x1024"
   }
 }

@@ -48,5 +48,65 @@
     "prompt": "A cheerful clay background: soft green hills at the bottom, a sunny sky with puffy clouds, little leaves and hearts floating around the edges, calm empty space in the middle. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
     "from": null,
     "size": "1024x1536"
+  },
+  "end_pears_01": {
+    "prompt": "Exactly the same image: same sunset, same hill, same framing and style. Change: only the big green pear with a leaf stands on the hilltop; the three smaller pears are not there. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/cards/card_end_bg",
+    "size": "1024x1536"
+  },
+  "end_pears_02": {
+    "prompt": "Exactly the same image: same sunset, same hill, same framing and style. Change: the big pear and the smaller pear with the flat cap stand on the hilltop; the other two are not there. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/cards/card_end_bg",
+    "size": "1024x1536"
+  },
+  "end_pears_03": {
+    "prompt": "Exactly the same image: same sunset, same hill, same framing and style. Change: the big pear, the pear with the flat cap and the pear with the bow stand on the hilltop; the one with the beanie is not there. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/cards/card_end_bg",
+    "size": "1024x1536"
+  },
+  "end_pears_04": {
+    "prompt": "Exactly the same image: same sunset, same hill, same framing and style. Change: all four pears stand together on the hilltop, as in the original. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/cards/card_end_bg",
+    "size": "1024x1536"
+  },
+  "end_logo_bg": {
+    "prompt": "A soft clay sky at sunset over one gentle green hill, a large calm empty space in the middle for a logo. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "ad_hook": {
+    "prompt": "A big shiny clay fishing hook on a line with a white chat message bubble hanging on it as bait. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat light sky blue background (#BFE3F7), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "ad_peri_hero": {
+    "prompt": "Same character, same style. Change: Peri jumps towards the viewer with her coral umbrella open above her, dynamic, joyful, seen slightly from below; a soft sky blue background with clouds instead of cream. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1536"
+  },
+  "ad_split": {
+    "prompt": "A smooth clay surface filling the entire image edge to edge, split vertically into two halves: the left half warm peach orange clay, the right half cool sky blue clay, a soft wavy line between them; nothing else, no frame, no border. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "social_square_peri": {
+    "prompt": "Same character, same style. Change: Peri waves in the middle of a cheerful clay background of green hills, a sunny sky and puffy clouds, instead of cream. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "social_vertical_peri": {
+    "prompt": "Same character, same style. Change: Peri waves in the middle of a cheerful clay background of green hills, a sunny sky and puffy clouds, instead of cream. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1536"
+  },
+  "thumbnail_bg": {
+    "prompt": "A bright cheerful clay background: a clear sky blue sky with a few small puffy clouds and low green hills only along the bottom edge; the left half and the right half of the image are both calm and empty above the hills. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": null,
+    "size": "1536x1024"
+  },
+  "qr_frame": {
+    "prompt": "A chunky green clay frame with rounded corners around an empty plain white square in the middle, small leaves on the corners. plain flat warm cream background (#FFF8EC), no floor shadow. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": null,
+    "size": "1024x1024"
   }
 }

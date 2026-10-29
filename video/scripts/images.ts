@@ -180,6 +180,198 @@ LOTES["15"] = [
   peri("store_banner", ui, "stands waving in the middle of her world: soft green clay hills, a little village, a sunny sky with puffy clouds and floating leaves; a wide landscape scene.", "assets/peri/peri_calm", WIDE),
 ];
 
+// Round 6 (docs/IMAGENES_RONDA6.md). The palette made every object sprinkled with dots, so objects say "smooth" now;
+// anything white or very light goes on a sky blue background, which cutout.py can take away (cream can't).
+const SKY = "plain flat light sky blue background (#BFE3F7), no floor shadow";
+const THING = (bg = CREAM) =>
+  `Soft 3D clay render of one single object, isolated and centered, straight front view, no character, ${NO_TEXT}, ` +
+  `smooth clean clay surfaces without sprinkles or dots, ${bg}, tactile matte plasticine material, gentle studio lighting.`;
+const thing = (name: string, dir: string, what: string, bg = CREAM, size?: string) => ({ name, dir, size, prompt: `${what} ${THING(bg)}` });
+// A move as frames of one picture, as for Peri's frames in sprites.ts.
+const moving = (name: string, dir: string, from: string, n: number, of: number, move: string, change: string, size?: string, style = PERI) =>
+  ({ name, dir, from, size, prompt: `Exactly the same character and style, same size in the frame, same framing and same camera. This is frame ${n} of ${of} of ${move}. Change: ${change} ${style}` });
+const frames = (group: string, dir: string, from: string, move: string, changes: string[], size?: string, style = PERI) =>
+  changes.map((c, i) => moving(`${group}_${String(i + 1).padStart(2, "0")}`, dir, from, i + 1, changes.length, move, c, size, style));
+
+LOTES["27"] = [
+  thing("icon_tool_picture", ui, "A clay magnifying glass with a coral handle held over a small square photo of a green hill and a sun."),
+  thing("icon_tool_checkup", ui, "A sky blue clay phone with a small green shield on its blank screen and a grey stethoscope curled around it."),
+  thing("icon_tool_traps", ui, "A shiny clay fishing hook with a little coral paper envelope hanging on it as bait."),
+  thing("icon_tool_chat", ui, "A white clay speech bubble with three green dots in a row inside it.", SKY),
+  thing("icon_tool_mini", ui, "A tiny green clay pear with a leaf floating inside a small round sky blue window frame."),
+  thing("icon_tool_wardrobe", ui, "A wooden clay coat hanger with a small red bow tie hanging on it."),
+  thing("icon_tab_peri", ui, "A small round green clay pear with one leaf on its stem."),
+  thing("icon_tab_diary", ui, "An open coral clay diary with blank cream pages and a ribbon bookmark."),
+  thing("icon_tab_learn", ui, "A glowing sunny yellow clay light bulb."),
+  thing("icon_tab_family", ui, "Two chubby clay hearts, one coral and one pink, side by side holding little hands."),
+  { name: "notif_peri_alert", dir: ui, from: "assets/peri/peri_icon", prompt: `Same character, same style. Change: Peri's head under a small open coral umbrella, alert but kind. ${PERI}` },
+  { name: "notif_peri_happy", dir: ui, from: "assets/peri/peri_icon", prompt: `Same character, same style. Change: Peri's head with a big happy smile and eyes curved with joy. ${PERI}` },
+  { name: "notif_peri_family", dir: ui, from: "assets/peri/peri_icon", prompt: `Same character, same style. Change: Peri's head with a small coral heart floating beside it, a warm smile. ${PERI}` },
+  peri("widget_small", ui, "sits happily on a small wooden clay shelf, legs dangling, waving."),
+  peri("widget_wide", ui, "sits happily on the left end of a long wooden clay shelf that spans the image, legs dangling, waving; a small plant pot on the right end.", "assets/peri/peri_calm", WIDE),
+];
+
+LOTES["28"] = [
+  peri("ui_report_sent", ui, "posts a white clay envelope into a small red mailbox, happy."),
+  peri("ui_family_yes", ui, "gives a thumbs up, three small coral hearts floating above her."),
+  peri("ui_family_waiting", ui, "sits patiently beside a big lilac clay clock with no numbers."),
+  peri("ui_family_no", ui, "holds up one open hand like a gentle \"stop\", a kind face."),
+  peri("ui_server_down", ui, "fixes a big thick clay cable with a small wrench, a little light blue drop of sweat beside her head, determined."),
+  peri("ui_update", ui, "opens a coral clay gift box tied with a green ribbon, delighted."),
+  peri("ui_quiz_right", ui, "cheers with both arms up, a big chunky green clay check mark beside her."),
+  peri("ui_quiz_wrong", ui, "gives a gentle shrug with a kind smile, a small glowing yellow light bulb above her head."),
+  peri("ui_streak_3", ui, "waters a tiny green sprout in a small pot with a little watering can."),
+  peri("ui_streak_7", ui, "waters a small flowering plant with pink flowers in a pot with a little watering can."),
+  peri("ui_streak_30", ui, "stands proudly beside a little clay tree with small green pears on it."),
+  peri("ui_shield_first", ui, "proudly holds up her first small green clay shield with a white leaf on it."),
+  peri("ui_shield_10", ui, "stands beside a tower of ten small green clay shields stacked on top of each other, proud."),
+  peri("ui_shield_100", ui, "stands on a small clay podium holding up a golden trophy, colourful confetti around."),
+  peri("ui_goodbye", ui, "waves goodbye holding a small coral suitcase, a gentle smile."),
+];
+
+LOTES["29"] = [
+  peri("check_lock", ui, "holds a big sky blue clay padlock in both hands."),
+  peri("check_update", ui, "spins a big green clay circular arrow beside her."),
+  peri("check_adb", ui, "unplugs a clay cable from a small clay phone, the plug in her hand."),
+  peri("check_alerts", ui, "rings a small golden clay bell."),
+  peri("check_calls", ui, "answers a sky blue clay phone handset that has a small green shield on it."),
+  peri("check_dns", ui, "holds a clay globe with a small green shield in front of it."),
+  peri("check_screen", ui, "covers the blank screen of a small clay phone with her hand, a wink."),
+  peri("ui_perm_contacts", ui, "holds a small coral clay address book with little hearts on its cover."),
+  { name: "ui_perm_overlay", dir: ui, from: "assets/peri/sprites/mini_noface", prompt: `Same character, same style. Change: this small round pear head with a smile floats over the blank screen of a big sky blue clay phone. ${PERI}` },
+  peri("ui_perm_usage", ui, "looks at a clay phone whose screen shows colourful blank app tiles, a magnifying glass in her other hand."),
+  peri("ui_perm_mic", ui, "leans towards a small grey clay microphone on a stand, listening."),
+  peri("ui_perm_location", ui, "holds a coral clay map pin, a small heart beside it."),
+  peri("ui_perm_files", ui, "holds a small clay photo of a green hill and a sun."),
+  peri("ui_unlock_guide", ui, "opens a small wooden clay door with a big golden key."),
+  peri("ui_install_usb", ui, "plugs a small clay phone into a little clay laptop with a cable, focused."),
+];
+
+// Three panels per trap, as the ones in generate.ts: how it starts, the trick, how it stops; friendly objects, no fear.
+const panel = (name: string, scene: string) =>
+  ({ name, dir: ui, from: "assets/peri/peri_calm", prompt: `Same character as in the image, same style, same colours and proportions. A simple, friendly comic panel: ${scene} Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, ${NO_TEXT}, ${CREAM}.` });
+LOTES["30"] = [
+  panel("peri_trap_invest_1", "A clay smartphone whose screen shows a green graph line shooting up with golden coins around it; Peri looks at it, impressed."),
+  panel("peri_trap_invest_2", "A shiny fishing hook hidden in a pile of golden clay coins. Peri watches with wide, surprised eyes."),
+  panel("peri_trap_invest_3", "Peri closes the cover of a clay smartphone with a green shield beside her, calm and smiling."),
+  panel("peri_trap_police_1", "A cream clay envelope with a big round red wax seal; Peri looks at it, a little worried."),
+  panel("peri_trap_police_2", "A cardboard mask falls off the big red wax seal of a clay envelope, showing a fishing hook underneath. Peri watches, surprised."),
+  panel("peri_trap_police_3", "Peri holds a phone to her ear and reads a small plain card in her other hand, confident."),
+  panel("peri_trap_job_1", "A clay smartphone with a small brown briefcase full of golden coins coming out of its screen; Peri looks curious."),
+  panel("peri_trap_job_2", "The brown briefcase of coins hangs from a fishing line and hook. Peri watches with wide, surprised eyes."),
+  panel("peri_trap_job_3", "Peri holds up one open clay hand in a firm, kind \"no\", a green check mark beside her."),
+  panel("peri_trap_voice_1", "A clay smartphone with soft sound waves and a coral heart coming out of it; Peri looks moved."),
+  panel("peri_trap_voice_2", "The coral heart turns out to be a cardboard mask held up in front of a small grey microphone. Peri watches, surprised."),
+  panel("peri_trap_voice_3", "Peri holds a phone to her ear and a small empty speech bubble with a padlock floats beside her: she asks the family's secret word."),
+  panel("peri_trap_popup_1", "A clay smartphone with a big red warning triangle popping out of its screen; Peri looks alarmed."),
+  panel("peri_trap_popup_2", "A big red triangle sign lifts up like a flap, and a small shiny fishing hook peeks out from behind it. Peri leans back, curious."),
+  panel("peri_trap_popup_3", "Peri pushes the red warning away with one hand; the phone's blank screen glows green, safe, and she smiles."),
+];
+
+const story6 = (group: string, move: string, changes: string[]) => frames(group, v("peri"), "assets/peri/peri_calm", move, changes, TALL);
+LOTES["31"] = [
+  ...story6("story_phone_out", "Peri coming out of a phone lying flat on a wooden table", [
+    "a big clay smartphone lies flat on a small wooden table; only Peri's leaf pokes out of its blank screen.",
+    "Peri's head pokes out of the blank screen of the big clay smartphone lying on the table.",
+    "half of Peri's body is out of the phone's blank screen, her arms pushing on its edges.",
+    "Peri jumps out and lands on the table next to the big clay smartphone, arms up, happy.",
+  ]),
+  ...story6("story_shield", "Peri protecting from a clay fishing hook", [
+    "a clay fishing hook on a line comes down from the top of the image; Peri looks up at it, her closed coral umbrella in her hand.",
+    "Peri opens her coral umbrella halfway above her, the fishing hook coming closer from above.",
+    "Peri's coral umbrella is fully open above her and the fishing hook bounces off it, brave face.",
+  ]),
+  ...story6("story_detective", "Peri the detective with a small brown detective hat", [
+    "crouching with a big magnifying glass in front of a square sticker on a grey clay parking meter.",
+    "jumping back from the parking meter, pointing at the sticker, surprised.",
+  ]),
+  ...frames("story_run", v("peri"), "assets/peri/sprites/turn_side_right", "Peri running seen from the side towards the right side of the image", [
+    "one leg stretched forward, the other pushing behind, arms pumping, eager face.",
+    "both feet off the ground, legs apart the other way, arms pumping.",
+  ], TALL),
+  ...story6("story_wave", "Peri waving goodbye at sunset with a warm orange light on her", [
+    "her hand raised low beside her, a gentle smile.",
+    "her hand raised to her shoulder, waving.",
+    "her hand raised high above her head, waving, big smile.",
+  ]),
+  moving("story_bow", v("peri"), "assets/peri/peri_calm", 1, 1, "a final bow on a little stage", "she bows deeply on a small wooden clay stage with a little red velvet curtain behind her.", TALL),
+];
+
+const walking = frames("carmen_walk", v("characters"), `${v("characters")}/carmen`, "Carmen walking towards the right side of the image, seen from the side, holding her phone", [
+  "contact: her front foot stretched forward, heel on the ground, the back foot on its toes.",
+  "down: her weight on the front foot, knees a little bent.",
+  "passing: the back leg swings forward under her body.",
+  "up: up on the standing leg, the other leg reaching forward.",
+], TALL, PERSON);
+LOTES["32"] = [
+  ...walking,
+  carmen("carmen_answer_01", "she lifts her phone towards her ear to answer a call."),
+  carmen("carmen_answer_02", "her phone is at her ear and she listens attentively."),
+  carmen("carmen_gasp", "one hand on her chest, surprised, eyebrows up, mouth open."),
+  carmen("carmen_hangup", "she firmly taps the red button on her phone's screen with one finger, proud."),
+  carmen("carmen_laugh_peri", "she laughs, looking down at a small empty spot on the ground beside her on the right side of the image."),
+  carmen("carmen_hug_ana", "she hugs her daughter Ana, a woman around forty with shoulder-length dark brown hair, a teal jumper over a white shirt and dark trousers; both smile."),
+  carmen("carmen_doze", "she dozes on a small round coral clay sofa, a knitted blanket over her knees, eyes closed, a little smile."),
+  pose("ana_run", "ana_base", "she hurries, mid-step, her phone in her hand, worried but focused."),
+  pose("ana_relief", "ana_base", "her phone at her ear, she closes her eyes with relief, a hand on her chest."),
+  pose("pablo_wave", "pablo_base", "he waves with a big smile."),
+  pose("papa_thumbs", "papa_base", "he gives a thumbs up with a warm smile."),
+];
+
+const after = (name: string, dir: string, from: string, change: string, bg = CREAM, size?: string) =>
+  ({ name, dir, size, from: `${dir}/${from}`, prompt: `Exactly the same objects, same style, same size, same framing. Change: ${change} ${THING(bg)}` });
+LOTES["33"] = [
+  thing("hook_drop_01", v("props"), "A shiny clay fishing hook on a thin line with a little coral clay envelope hanging on it as bait, coming down from the top edge of the image and hanging high, in the upper part of the image."),
+  after("hook_drop_02", v("props"), "hook_drop_01", "the line is longer: the hook and the envelope hang in the middle of the image."),
+  after("hook_drop_03", v("props"), "hook_drop_01", "the line is much longer: the hook and the envelope hang near the bottom of the image."),
+  after("hook_away", v("props"), "hook_drop_01", "the hook is pulled back up near the top edge, empty: the envelope bait is gone."),
+  thing("mask_fall_01", v("props"), "A folded cream paper envelope made of clay, lying flat, with a cheerful clay carnival mask on its front, the mask slipping a little to one side. The envelope is blank: no writing, no symbols."),
+  after("mask_fall_02", v("props"), "mask_fall_01", "the mask has fallen off and lies below the envelope, and a plain shiny fishing hook is now visible on the envelope where the mask was."),
+  thing("qr_peel_01", v("props"), "A grey and blue clay parking meter on a post; on its front, a square white sticker with a blocky black code pattern, one corner peeling."),
+  after("qr_peel_02", v("props"), "qr_peel_01", "the fake sticker has peeled off and hangs from one corner, and under it there is another, clean square code sticker on the meter."),
+  thing("phone_ring_01", v("props"), "A sky blue clay smartphone with a blank screen, tilted to the left, ringing, short curved coral vibration lines around it."),
+  after("phone_ring_02", v("props"), "phone_ring_01", "the phone is now tilted to the right, the curved vibration lines on the other sides."),
+];
+
+LOTES["34"] = [
+  ...["entering from the left edge: only its tip shows on the left side of the image.", "covering the left third of the image.", "covering most of the image.", "leaving across the right edge: only its stem end shows on the right side of the image."]
+    .map((c, i) => after(`wipe_leaf_0${i + 1}`, v("fx"), "fx_leaf_wipe", `the big pear leaf is sweeping across the frame from left to right, ${c}`, CREAM, TALL)),
+  thing("wipe_pear_01", v("fx"), "A big smooth green clay pear with a leaf, rolling across the frame: it is entering from the left edge, lying on its side.", CREAM, TALL),
+  ...["in the left third of the image, turned upside down as it rolls.", "in the right third of the image, on its other side as it rolls.", "leaving across the right edge, half of it visible, upright."]
+    .map((c, i) => after(`wipe_pear_0${i + 2}`, v("fx"), "wipe_pear_01", `the same pear has rolled further: ${c}`, CREAM, TALL)),
+  ...["a small burst of a few pieces close to the centre.", "a medium burst spreading out.", "spread wide across the whole image."]
+    .map((c, i) => after(`burst_confetti_0${i + 1}`, v("fx"), "fx_confetti_big", `the clay confetti bursting from the centre is ${c}`)),
+  thing("trail_sparkle_01", v("fx"), "A short trail of small white clay four-pointed sparkles curving from the bottom left, just starting.", SKY, TALL),
+  after("trail_sparkle_02", v("fx"), "trail_sparkle_01", "the trail of white sparkles is finished, curving all the way across to the top right of the image.", SKY, TALL),
+  thing("pop_heart_01", v("fx"), "A big chubby coral clay heart, swelling up, shiny and round."),
+  after("pop_heart_02", v("fx"), "pop_heart_01", "the heart has popped into many small coral and pink clay hearts flying outwards."),
+];
+
+const PLACE_WIDE = PLACE.replace("tall vertical composition", "wide landscape composition");
+const widen = (name: string, from: string) =>
+  ({ name, dir: v("backdrops"), from: `${v("backdrops")}/${from}`, size: WIDE, prompt: `Exactly the same place, same objects, same colours, same light and same style, now as a wide landscape image. ${PLACE_WIDE}` });
+const wideplace = (name: string, scene: string) => ({ name, dir: v("backdrops"), size: WIDE, prompt: `${scene} ${PLACE_WIDE}` });
+LOTES["35"] = [
+  ...["village_sunset", "living_day", "living_evening", "kitchen", "street_parking", "ana_home", "peri_workshop", "plaza"].map((n) => widen(`${n}_wide`, n)),
+  wideplace("bus_stop_wide", "A clay bus stop with a little roof and a wooden bench on the pavement of a small Spanish town, houses with balconies behind."),
+  wideplace("pharmacy_wide", "The front of a small-town pharmacy made of clay, a glowing green cross sign above the door, plants by the window."),
+  wideplace("bank_front_wide", "The front of a generic small bank made of clay, columns and a big wooden door, a window, plain walls."),
+  wideplace("park_bench_wide", "A wooden park bench under a big tree with orange and yellow autumn leaves, leaves on the grass, a path."),
+];
+
+LOTES["36"] = [
+  ...["only the big green pear with a leaf stands on the hilltop; the three smaller pears are not there.", "the big pear and the smaller pear with the flat cap stand on the hilltop; the other two are not there.", "the big pear, the pear with the flat cap and the pear with the bow stand on the hilltop; the one with the beanie is not there.", "all four pears stand together on the hilltop, as in the original."]
+    .map((c, i) => ({ name: `end_pears_0${i + 1}`, dir: v("cards"), from: `${v("cards")}/card_end_bg`, size: TALL, prompt: `Exactly the same image: same sunset, same hill, same framing and style. Change: ${c} ${CARD}` })),
+  card("end_logo_bg", "A soft clay sky at sunset over one gentle green hill, a large calm empty space in the middle for a logo."),
+  thing("ad_hook", v("cards"), "A big shiny clay fishing hook on a line with a white chat message bubble hanging on it as bait.", SKY),
+  peri("ad_peri_hero", v("cards"), "jumps towards the viewer with her coral umbrella open above her, dynamic, joyful, seen slightly from below; a soft sky blue background with clouds instead of cream.", "assets/peri/peri_calm", TALL),
+  card("ad_split", "A smooth clay surface filling the entire image edge to edge, split vertically into two halves: the left half warm peach orange clay, the right half cool sky blue clay, a soft wavy line between them; nothing else, no frame, no border."),
+  peri("social_square_peri", v("cards"), "waves in the middle of a cheerful clay background of green hills, a sunny sky and puffy clouds, instead of cream."),
+  peri("social_vertical_peri", v("cards"), "waves in the middle of a cheerful clay background of green hills, a sunny sky and puffy clouds, instead of cream.", "assets/peri/peri_calm", TALL),
+  card("thumbnail_bg", "A bright cheerful clay background: a clear sky blue sky with a few small puffy clouds and low green hills only along the bottom edge; the left half and the right half of the image are both calm and empty above the hills.", WIDE),
+  card("qr_frame", `A chunky green clay frame with rounded corners around an empty plain white square in the middle, small leaves on the corners. ${CREAM}.`, "1024x1024"),
+];
+
 async function call(path: string, body: unknown): Promise<Buffer> {
   const res = await fetch(`${base}${path}`, {
     method: "POST",

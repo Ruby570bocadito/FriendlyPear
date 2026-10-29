@@ -73,5 +73,80 @@
     "prompt": "Two groups of three short curved coral clay lines, one group on the left and one on the right, like the vibration marks drawn beside a ringing phone; the middle of the image between them is completely empty. Plain, no dots. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
     "from": null,
     "size": "1024x1024"
+  },
+  "wipe_leaf_01": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the big pear leaf is sweeping across the frame from left to right, entering from the left edge: only its tip shows on the left side of the image. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/fx/fx_leaf_wipe",
+    "size": "1024x1536"
+  },
+  "wipe_leaf_02": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the big pear leaf is sweeping across the frame from left to right, covering the left third of the image. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/fx/fx_leaf_wipe",
+    "size": "1024x1536"
+  },
+  "wipe_leaf_03": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the big pear leaf is sweeping across the frame from left to right, covering most of the image. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/fx/fx_leaf_wipe",
+    "size": "1024x1536"
+  },
+  "wipe_leaf_04": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the big pear leaf is sweeping across the frame from left to right, leaving across the right edge: only its stem end shows on the right side of the image. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/fx/fx_leaf_wipe",
+    "size": "1024x1536"
+  },
+  "wipe_pear_01": {
+    "prompt": "A big smooth green clay pear with a leaf, rolling across the frame: it is entering from the left edge, lying on its side. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "wipe_pear_02": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the same pear has rolled further: in the left third of the image, turned upside down as it rolls. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/fx/wipe_pear_01",
+    "size": "1024x1536"
+  },
+  "wipe_pear_03": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the same pear has rolled further: in the right third of the image, on its other side as it rolls. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/fx/wipe_pear_01",
+    "size": "1024x1536"
+  },
+  "wipe_pear_04": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the same pear has rolled further: leaving across the right edge, half of it visible, upright. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/fx/wipe_pear_01",
+    "size": "1024x1536"
+  },
+  "burst_confetti_01": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the clay confetti bursting from the centre is a small burst of a few pieces close to the centre. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/fx/fx_confetti_big",
+    "size": "1024x1024"
+  },
+  "burst_confetti_02": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the clay confetti bursting from the centre is a medium burst spreading out. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/fx/fx_confetti_big",
+    "size": "1024x1024"
+  },
+  "burst_confetti_03": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the clay confetti bursting from the centre is spread wide across the whole image. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/fx/fx_confetti_big",
+    "size": "1024x1024"
+  },
+  "trail_sparkle_01": {
+    "prompt": "A short trail of small white clay four-pointed sparkles curving from the bottom left, just starting. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat light sky blue background (#BFE3F7), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "trail_sparkle_02": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the trail of white sparkles is finished, curving all the way across to the top right of the image. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat light sky blue background (#BFE3F7), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/fx/trail_sparkle_01",
+    "size": "1024x1536"
+  },
+  "pop_heart_01": {
+    "prompt": "A big chubby coral clay heart, swelling up, shiny and round. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "pop_heart_02": {
+    "prompt": "Exactly the same objects, same style, same size, same framing. Change: the heart has popped into many small coral and pink clay hearts flying outwards. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no text, no letters, no numbers, no logos, no brands, smooth clean clay surfaces without sprinkles or dots, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting.",
+    "from": "video/public/fx/pop_heart_01",
+    "size": "1024x1024"
   }
 }

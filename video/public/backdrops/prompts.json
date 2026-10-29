@@ -58,5 +58,65 @@
     "prompt": "Exactly the same place, same composition, same objects, same style. Change: a large smartphone, clearly visible, lies face up on the small coffee table, which is now big and in the front centre of the image; the phone's screen is plain flat white and blank. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
     "from": "video/public/backdrops/living_day",
     "size": "1024x1536"
+  },
+  "village_sunset_wide": {
+    "prompt": "Exactly the same place, same objects, same colours, same light and same style, now as a wide landscape image. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, wide landscape composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": "video/public/backdrops/village_sunset",
+    "size": "1536x1024"
+  },
+  "living_day_wide": {
+    "prompt": "Exactly the same place, same objects, same colours, same light and same style, now as a wide landscape image. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, wide landscape composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": "video/public/backdrops/living_day",
+    "size": "1536x1024"
+  },
+  "living_evening_wide": {
+    "prompt": "Exactly the same place, same objects, same colours, same light and same style, now as a wide landscape image. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, wide landscape composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": "video/public/backdrops/living_evening",
+    "size": "1536x1024"
+  },
+  "kitchen_wide": {
+    "prompt": "Exactly the same place, same objects, same colours, same light and same style, now as a wide landscape image. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, wide landscape composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": "video/public/backdrops/kitchen",
+    "size": "1536x1024"
+  },
+  "street_parking_wide": {
+    "prompt": "Exactly the same place, same objects, same colours, same light and same style, now as a wide landscape image. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, wide landscape composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": "video/public/backdrops/street_parking",
+    "size": "1536x1024"
+  },
+  "ana_home_wide": {
+    "prompt": "Exactly the same place, same objects, same colours, same light and same style, now as a wide landscape image. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, wide landscape composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": "video/public/backdrops/ana_home",
+    "size": "1536x1024"
+  },
+  "peri_workshop_wide": {
+    "prompt": "Exactly the same place, same objects, same colours, same light and same style, now as a wide landscape image. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, wide landscape composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": "video/public/backdrops/peri_workshop",
+    "size": "1536x1024"
+  },
+  "plaza_wide": {
+    "prompt": "Exactly the same place, same objects, same colours, same light and same style, now as a wide landscape image. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, wide landscape composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": "video/public/backdrops/plaza",
+    "size": "1536x1024"
+  },
+  "bus_stop_wide": {
+    "prompt": "A clay bus stop with a little roof and a wooden bench on the pavement of a small Spanish town, houses with balconies behind. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, wide landscape composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": null,
+    "size": "1536x1024"
+  },
+  "pharmacy_wide": {
+    "prompt": "The front of a small-town pharmacy made of clay, a glowing green cross sign above the door, plants by the window. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, wide landscape composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": null,
+    "size": "1536x1024"
+  },
+  "bank_front_wide": {
+    "prompt": "The front of a generic small bank made of clay, columns and a big wooden door, a window, plain walls. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, wide landscape composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": null,
+    "size": "1536x1024"
+  },
+  "park_bench_wide": {
+    "prompt": "A wooden park bench under a big tree with orange and yellow autumn leaves, leaves on the grass, a path. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, wide landscape composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": null,
+    "size": "1536x1024"
   }
 }

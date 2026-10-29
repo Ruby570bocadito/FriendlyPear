@@ -73,5 +73,80 @@
     "prompt": "Papá, a kind Spanish grandfather in his late seventies, white moustache, a flat cap, a green knitted waistcoat over a checked shirt, brown trousers, a warm smile, hands behind his back. Front three-quarter view, fictional person. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
     "from": null,
     "size": "1024x1536"
+  },
+  "carmen_walk_01": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 1 of 4 of Carmen walking towards the right side of the image, seen from the side, holding her phone. Change: contact: her front foot stretched forward, heel on the ground, the back foot on its toes. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/carmen",
+    "size": "1024x1536"
+  },
+  "carmen_walk_02": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 2 of 4 of Carmen walking towards the right side of the image, seen from the side, holding her phone. Change: down: her weight on the front foot, knees a little bent. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/carmen",
+    "size": "1024x1536"
+  },
+  "carmen_walk_03": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 3 of 4 of Carmen walking towards the right side of the image, seen from the side, holding her phone. Change: passing: the back leg swings forward under her body. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/carmen",
+    "size": "1024x1536"
+  },
+  "carmen_walk_04": {
+    "prompt": "Exactly the same character and style, same size in the frame, same framing and same camera. This is frame 4 of 4 of Carmen walking towards the right side of the image, seen from the side, holding her phone. Change: up: up on the standing leg, the other leg reaching forward. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/carmen",
+    "size": "1024x1536"
+  },
+  "carmen_answer_01": {
+    "prompt": "The same person: same face, same short wavy grey hair, same round glasses, same lilac cardigan, flowered blouse, grey skirt and shoes, same style. Change: she lifts her phone towards her ear to answer a call. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/carmen",
+    "size": "1024x1536"
+  },
+  "carmen_answer_02": {
+    "prompt": "The same person: same face, same short wavy grey hair, same round glasses, same lilac cardigan, flowered blouse, grey skirt and shoes, same style. Change: her phone is at her ear and she listens attentively. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/carmen",
+    "size": "1024x1536"
+  },
+  "carmen_gasp": {
+    "prompt": "The same person: same face, same short wavy grey hair, same round glasses, same lilac cardigan, flowered blouse, grey skirt and shoes, same style. Change: one hand on her chest, surprised, eyebrows up, mouth open. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/carmen",
+    "size": "1024x1536"
+  },
+  "carmen_hangup": {
+    "prompt": "The same person: same face, same short wavy grey hair, same round glasses, same lilac cardigan, flowered blouse, grey skirt and shoes, same style. Change: she firmly taps the red button on her phone's screen with one finger, proud. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/carmen",
+    "size": "1024x1536"
+  },
+  "carmen_laugh_peri": {
+    "prompt": "The same person: same face, same short wavy grey hair, same round glasses, same lilac cardigan, flowered blouse, grey skirt and shoes, same style. Change: she laughs, looking down at a small empty spot on the ground beside her on the right side of the image. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/carmen",
+    "size": "1024x1536"
+  },
+  "carmen_hug_ana": {
+    "prompt": "The same person: same face, same short wavy grey hair, same round glasses, same lilac cardigan, flowered blouse, grey skirt and shoes, same style. Change: she hugs her daughter Ana, a woman around forty with shoulder-length dark brown hair, a teal jumper over a white shirt and dark trousers; both smile. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/carmen",
+    "size": "1024x1536"
+  },
+  "carmen_doze": {
+    "prompt": "The same person: same face, same short wavy grey hair, same round glasses, same lilac cardigan, flowered blouse, grey skirt and shoes, same style. Change: she dozes on a small round coral clay sofa, a knitted blanket over her knees, eyes closed, a little smile. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/carmen",
+    "size": "1024x1536"
+  },
+  "ana_run": {
+    "prompt": "The same person: same face, same hair, same clothes, same style. Change: she hurries, mid-step, her phone in her hand, worried but focused. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/ana_base",
+    "size": "1024x1536"
+  },
+  "ana_relief": {
+    "prompt": "The same person: same face, same hair, same clothes, same style. Change: her phone at her ear, she closes her eyes with relief, a hand on her chest. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/ana_base",
+    "size": "1024x1536"
+  },
+  "pablo_wave": {
+    "prompt": "The same person: same face, same hair, same clothes, same style. Change: he waves with a big smile. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/pablo_base",
+    "size": "1024x1536"
+  },
+  "papa_thumbs": {
+    "prompt": "The same person: same face, same hair, same clothes, same style. Change: he gives a thumbs up with a warm smile. Soft 3D clay character like a stop-motion film, matte plasticine texture, rounded friendly shapes, warm pastel colours, gentle studio light. Full body, centred, the whole figure inside the frame. plain flat warm cream background (#FFF8EC), no floor shadow, no floor, no text, no letters, no numbers, no logos, no brands.",
+    "from": "video/public/characters/papa_base",
+    "size": "1024x1536"
   }
 }
