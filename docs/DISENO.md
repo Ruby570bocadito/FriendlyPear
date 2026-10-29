@@ -66,7 +66,8 @@ El texto sobre coral fuerte es siempre tinta oscura (con blanco solo llega a 4,4
 - **Cabecera de apartado:** título grande en Fredoka, una línea de Peri y su pegatina (una pose suya) al lado; alrededor de Peri flotan corazones (Diario), estrellas de plastilina (Aprende) o corazones lila (Familia) que suben y se apagan (`Floaties`), nunca sobre el texto.
 - **El nombre como logotipo** (ronda 4): letras redondas en dos verdes de pera con borde de plastilina, brillo y sombra, y una hoja por punto de la «i»; caen rebotando al abrir, de vez en cuando pasa una ola y saltan al tocarlas; de noche, un brillo claro en vez de sombra; sin olas mientras Peri avisa (`Wordmark`).
 - **El bocadillo** (ronda 4): las palabras aparecen una a una con un fundido, un poco por delante de su voz, y le mueven la boca aunque la voz esté apagada; el bocadillo se infla un poco con cada frase nueva.
-- **Botones de Peri:** «Hablar con Peri» verde bosque; «Mira una imagen» y «Mini Peri» en el color de su apartado (cielo y lila).
+- **Botones de Peri:** «Hablar con Peri» verde bosque; debajo, sus herramientas (ronda 5) en una fila de losetas de plastilina, cada una con la pose de Peri que le va y el color de su apartado: Mira una imagen (cielo), Revisa tu móvil (verde), ¿Timo o no? (sol), Las trampas (coral), Mini Peri (lila); si no caben, la siguiente asoma.
+- **El diario corto** (ronda 5): hoy entero hasta cinco momentos y «Ver N más»; los días anteriores, una línea plegada con el nombre del día, cuántas cosas hizo Peri y sus insignias de colores, que se abre al tocarla; solo la última semana.
 - **Chips:** píldoras con tinte del color de su apartado.
 - **Entradas:** cada pieza sube y aparece una tras otra (340 ms, 70 ms entre piezas). Cambio de apartado: 220 ms.
 - Nada parpadea más de 3 veces por segundo (seguro para fotosensibilidad).
