@@ -1,0 +1,52 @@
+{
+  "logo_mark": {
+    "prompt": "A simple app symbol made from this character: a round green clay pear with a leaf on top and a small green shield with a white leaf in front of it, friendly and clean, no face details beyond a tiny smile. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": "assets/peri/peri_icon",
+    "size": "1024x1024"
+  },
+  "card_title_bg": {
+    "prompt": "A sky made of clay with puffy white clouds around the edges and a large calm empty light blue space in the centre, for a title. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "card_end_bg": {
+    "prompt": "A sunset over a gentle green clay hill; on the hilltop in the lower part, four little pear characters stand together: a big green pear with a leaf and three smaller pears, one with a flat cap, one with a bow, one with a beanie. Large empty sky at the top. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "card_ribbon": {
+    "prompt": "An empty horizontal coral clay ribbon banner with folded ends, nothing written on it. plain flat warm cream background (#FFF8EC), no floor shadow. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "card_badge": {
+    "prompt": "An empty round sunny yellow clay disc with a raised rim, nothing on it. plain flat warm cream background (#FFF8EC), no floor shadow. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "card_stage": {
+    "prompt": "Six empty podium pedestals in a row, each a wide short round platform with a flat top, wider than tall, like a winners podium, in pear green, coral, sky blue, lilac, sunny yellow and mint, slightly different heights. plain flat warm cream background (#FFF8EC), no floor shadow. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": null,
+    "size": "1536x1024"
+  },
+  "card_board": {
+    "prompt": "An empty dark green clay chalkboard with a rounded wooden frame, nothing written on it, filling most of the image, on a cream wall. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "card_split": {
+    "prompt": "A background split vertically into two halves: soft pear green clay on the left and soft coral clay on the right, with a gentle wavy edge between them, nothing else. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "social_square_bg": {
+    "prompt": "A cheerful clay background: soft green hills, a sunny sky with puffy clouds, little leaves and hearts floating around the edges, calm empty space in the centre. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "social_vertical_bg": {
+    "prompt": "A cheerful clay background: soft green hills at the bottom, a sunny sky with puffy clouds, little leaves and hearts floating around the edges, calm empty space in the middle. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands.",
+    "from": null,
+    "size": "1024x1536"
+  }
+}
