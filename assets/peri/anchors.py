@@ -36,7 +36,11 @@ POSES = ["calm_wave1", "calm_wave2", "calm_idea", "calm_sorry", "calm_thumbsup",
          "move_dance1", "move_dance2", "move_dance3", "move_dance4", "move_hips",
          "move_bow1", "move_bow2", "move_stretch_up"] + [
          # Her jump and her entrance from the sky, frame by frame (lote 16).
-         f"anim_jump_{i:02d}" for i in range(1, 10)] + [f"anim_drop_{i:02d}" for i in range(1, 7)]
+         f"anim_jump_{i:02d}" for i in range(1, 10)] + [f"anim_drop_{i:02d}" for i in range(1, 7)] + [
+         # More jumps and entrances (lote 17); in the air from the side or behind, or still under the ground, she
+         # goes without her outfit, so those have no eyes to find.
+         f"anim_{n}" for n in ["cheer_01", "cheer_02", "cheer_03", "cheer_04", "spin_01", "spin_04", "star_01",
+                               "sprout_02", "sprout_03", "float_01", "float_02", "float_03"]]
 FRAMES = ["_blink", "_blinkhalf", "_talk", "_talkwide", "_talko", "_glanceleft", "_glanceright", "_stepleft", "_stepright",
           "_gesturea", "_gestureb", "_wink", "_steplefthalf", "_steprighthalf"]
 # Frames where her face turns away from her head: their own eyes place her face.

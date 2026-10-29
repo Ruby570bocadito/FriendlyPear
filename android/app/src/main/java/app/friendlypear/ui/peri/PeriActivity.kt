@@ -1561,9 +1561,12 @@ class PeriActivity : Activity() {
             // medal and stars would sound like a joke over "careful" (and held her umbrella back for two seconds).
             val warning = hub.mood == Mood.PROTECTIVE || hub.mood == Mood.WORRIED
             showShieldCount(total, pop = !warning)
-            // A shield earned is worth a burst of stars, and a milestone its badge once she's quiet again.
-            if (!warning) face.stars()
-            if (!warning) face.postDelayed({ if (!isFinishing) celebrate() }, CONGRATULATE_DELAY_MS)
+            // A shield earned is worth a burst of stars and her jump for joy, and a milestone its badge once she's quiet.
+            if (!warning) {
+                face.stars()
+                face.cheer()
+                face.postDelayed({ if (!isFinishing) celebrate() }, CONGRATULATE_DELAY_MS)
+            }
         }
 
         override fun scamToReport() = showSetup()

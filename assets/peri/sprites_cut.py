@@ -45,8 +45,12 @@ SCENES = ["diary", "learn", "family", "settings", "checkup", "trophy", "cheer", 
 MOVES = ["dance1", "dance2", "dance3", "dance4", "hips", "bow1", "bow2", "stretch_up"]
 # Her jump and her entrance frame by frame (lote 16), on the ground line by ground.py; the ones in the air are drawn
 # higher by PeriFace (sprites/anim_offsets.json), since Muse keeps her in the middle.
-ANIMS = [f"jump_{i:02d}" for i in range(1, 10)] + [f"drop_{i:02d}" for i in range(1, 7)]
-TURNS = ["side_left", "back", "side_right"]
+# More jumps and entrances (lote 17): to celebrate, with a turn, a star; out of the ground, down with her umbrella.
+ANIMS = ([f"jump_{i:02d}" for i in range(1, 10)] + [f"drop_{i:02d}" for i in range(1, 7)]
+         + [f"cheer_{i:02d}" for i in range(1, 5)] + [f"spin_{i:02d}" for i in range(1, 5)] + ["star_01"]
+         + [f"sprout_{i:02d}" for i in range(1, 4)] + [f"float_{i:02d}" for i in range(1, 4)])
+# A turn in 8 views (lotes 4 and 20): her face away, her outfit can't follow, so she turns without it.
+TURNS = ["side_left", "back", "side_right", "threequarter_right", "threequarter_back_right", "threequarter_back_left", "threequarter_left"]
 # Peeking from behind a wall, her cheeks barely show, so her face can't be placed: not used.
 MINIS = ["noface", "leaf_left", "leaf_right", "wave", "umbrella", "sleep"]
 # The interface pictures (lotes 14 and 15). The question mark is white on cream: Peri's own bubble says it instead.
