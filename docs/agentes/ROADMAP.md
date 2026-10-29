@@ -27,6 +27,8 @@ lleva su nombre viejo entre paréntesis.
     manos, la lupa): cuidarlo en todos, no solo en esos.
 14. (29 oct, tarde) «Me encanta cuando entro en el inicio y la pera salta»: una lista extensa de imágenes con muchos
     más fotogramas para todo (Peri, la app y el vídeo).
+15. (29 oct, mediodía) El salto va muy rápido y se ve mal (arreglado: ~1,3 s, cada pose a la vista y un arco de verdad).
+    Un plan para mejorar la seguridad, el pulido y la app: «Ronda 7» abajo.
 
 ## P0 · En un móvil de verdad
 
@@ -90,6 +92,40 @@ lleva su nombre viejo entre paréntesis.
 - [ ] (DIR) r5-post — [S] (post-x) post con el anuncio para Most Viral — docs/demo/
 - [x] (PUL) r5-readme — [S] (readme-resultados) resultados, límites, cómo instalar, qué se hizo en el hackathon, capturas y GIF nuevos — README.md · hecho 2026-10-29: icono, banner y cuatro pantallas nuevas, un GIF de cómo se abre, «Try it» (USB y por qué, «Check my phone»), «Limits» y «Built during the hackathon»; INSTALL con los obstáculos de Android
 - [ ] (DIR) r5-entrega — [S] (entrega) entregar antes de las 18:00 ET: repo público, vídeo y post accesibles — /
+
+## Ronda 7 · Seguridad, pulido y la app (plan del 29 oct)
+
+Lo que falta para que FriendlyPear sea de fiar en el móvil de alguien de verdad y se vea terminado. En cada bloque, lo
+primero es lo que más protege o lo que más se nota. Ya estaban y suben de prioridad: r5-movil-real, r5-instalar,
+r5-servidor-publico, r5-https-pin y r5-revision.
+
+### Seguridad
+
+- [ ] (SEG) r7-pantalla-segura — [S] `FLAG_SECURE` en las pantallas con datos que un timador querría ver: el código de emparejar, la petición y la aprobación de la familia, el informe para la policía, «Lo que Peri puede hacer» con su registro y la configuración de la familia. Una app de control remoto (lo que hacen instalar los timadores) no puede verlas ni grabarlas; en Android 14 y después, Peri explica por qué si alguien intenta una captura — ui/peri/
+- [ ] (SEG) r7-toques-tapados — [S] que nadie toque por la persona: los botones que deciden (el sí de la familia, permitir, emparejar, bloquear, «ya lo había contestado») ignoran los toques si otra app pinta encima (`filterTouchesWhenObscured`), y Peri avisa de que hay algo tapando la pantalla — ui/peri/
+- [ ] (SEG) r7-verificacion-dev — [S] registrar el paquete y la clave de release en la verificación de desarrolladores de Android (obligatoria en Brasil, Indonesia, Singapur y Tailandia desde septiembre de 2026, después en todas partes): sin eso, el APK dejará de instalarse en los móviles certificados — docs/INSTALL.md (con la persona: su cuenta de Google)
+- [ ] (SEG) r7-componentes — [S] los 7 componentes exportados, uno a uno: cada uno con su permiso o su comprobación (la foto compartida, el enlace de emparejar, que ya rechaza servidores ajenos), y una prueba con intents maliciosos por `adb shell am start` — AndroidManifest.xml, ui/peri/
+- [ ] (SEG) r7-release-limpio — [S] el APK de release sin registros (R8 quita `Log`), el informe copiado al portapapeles marcado como sensible (Android 13+ no lo enseña) y `eval/release_check.py` comprobando las dos cosas — android/app/proguard-rules.pro, ReportActivity.kt, eval/
+- [ ] (SEG) r7-copia-clave — [S] la clave de datos del servidor guardada aparte de los datos, con un ensayo de restaurar desde cero (en «Still open» de SECURITY.md) — backend/, docs/SECURITY.md
+- [ ] (TEST) r7-red-team-semanal — [M] el equipo rojo de cada semana, solo: un lote de Spark contributor, su informe y los timos que se escapan a una lista para leer a mano (nunca entrenan solos) — eval/redteam/
+- [ ] (SEG) r7-dependencias — [S] dependencias fijadas y auditadas (Gradle y Bun), sin nada nuevo sin leerlo — android/, backend/
+- [ ] (IMP-2) r7-borrar-todo — [S] «Borrar lo que Peri sabe» en Ajustes, con el bloqueo del móvil: diario, último timo, números bloqueados, familia y claves, y desemparejar el móvil del servidor — ui/peri/SettingsActivity.kt, config/
+
+### Pulido
+
+- [ ] (IMP-2) r7-entrada-al-momento — [S] Peri entra sin esperar: sus fotogramas de entrada se decodifican mientras dura la pantalla de arranque, no después (hoy tarda ~0,6 s en el emulador) — ui/peri/PeriFace.kt
+- [ ] (IMP-2) r7-rendimiento — [M] fluidez y memoria en un móvil modesto (perfil de 2 GB de RAM): fotogramas por segundo y memoria con todos los movimientos nuevos; los de movimiento a 768 px si hace falta, y un APK más ligero (hoy 24 MB) — ui/peri/, assets/peri/sprites_cut.py
+- [ ] (IMP-2) r7-accesible-2 — [M] TalkBack de punta a punta (bienvenida, avisos, familia, revisión del móvil, medallas), contraste de los textos sobre los dibujos nuevos y «quitar animaciones» en todo lo nuevo — ui/peri/
+- [ ] (IMP-2) r7-textos — [S] todos los textos nuevos en los dos idiomas leídos en voz alta con la skill de Peri (medallas, revisión, obstáculos, celebraciones) — res/values*/
+- [ ] (IMP-2) r7-ajustes — [S] Ajustes en tres bloques claros (Peri, protección, familia), con la revisión del móvil y «Lo que Peri puede hacer» a mano — ui/peri/SettingsActivity.kt
+- Ya en el roadmap: r6-fotogramas (andar y correr, emociones, estados, caras, Mini Peri), r6-ui-resto, r5-barra-volver y r5-taste.
+
+### La app
+
+- [ ] (IMP-2) r7-notificaciones — [S] las notificaciones con la cara de Peri (alerta, familia, contenta; lote 27), para que se reconozcan entre las demás — services/, res/
+- [ ] (IMP-2) r7-widget — [M] el widget de Peri en la pantalla de inicio (pequeño y ancho, lote 27): cómo está y un toque para hablarle — ui/, res/xml/
+- [ ] (IMP-2) r7-trampas-nuevas — [M] las cinco trampas nuevas en viñetas (inversión, policía, trabajo, voz, aviso de virus; lote 30) en «Aprende» y en «¿Timo o no?», con sus preguntas — ui/peri/TrapActivity.kt, QuizActivity.kt
+- Ya en el roadmap: r5-movil-real (lo primero: una tarde con el móvil de la persona), r5-instalar, r5-familia-e2e, r5-escenarios y r5-meta-seguridad.
 
 ## Con la persona
 
