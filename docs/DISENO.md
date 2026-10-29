@@ -71,6 +71,8 @@ El texto sobre coral fuerte es siempre tinta oscura (con blanco solo llega a 4,4
 - **Movimientos** (ronda 5): en calma o contenta, salto de verdad, baile de cuatro pasos, vuelta entera vista de lado y de espaldas, estiramiento y reverencia (lote 4); nunca dos imágenes a la vez.
 - **Ilustraciones de los apartados** (ronda 5): Peri escribiendo su diario (con su té por la mañana y su lámpara de noche), con birrete en Aprende, abrazando un corazón en Familia, con llave inglesa en Ajustes, de doctora en la revisión y con su trofeo al ganar (lote 7).
 - **Mini Peri como cabeza** (ronda 5): solo su cabeza (lote 5), con los ojos y la boca de Peri puestos por sus mejillas; se lee aunque sea pequeña. Hoja al viento, saludo al aparecer, paraguas al proteger, gorro al dormir.
+- **Icono y arranque** (ronda 5): Peri con su escudo sobre su verde, encuadrada por su círculo mínimo para que ninguna máscara del lanzador la corte; al abrir, Peri con los brazos en alto sobre la crema de la app.
+- **Hitos con medalla** (ronda 5): bronce, plata y oro para escudos (1, 5, 20) y días tranquilos (3, 7, 30); los días se dibujan como una planta que crece (brote, flores, peral). Se celebra uno cada vez, tras el saludo, y sin colores hasta conseguirlo (gris y suave en la tarjeta).
 - **El diario corto** (ronda 5): hoy entero hasta cinco momentos y «Ver N más»; los días anteriores, una línea plegada con el nombre del día, cuántas cosas hizo Peri y sus insignias de colores, que se abre al tocarla; solo la última semana.
 - **Chips:** píldoras con tinte del color de su apartado.
 - **Entradas:** cada pieza sube y aparece una tras otra (340 ms, 70 ms entre piezas). Cambio de apartado: 220 ms.
