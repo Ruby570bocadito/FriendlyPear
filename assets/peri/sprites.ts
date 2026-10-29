@@ -170,6 +170,36 @@ const SCENES: Record<string, string> = {
 };
 LOTES["7"] = Object.entries(SCENES).map(([n, c]) => ({ name: `scene_${n}`, from: "peri_calm", prompt: `${SCENE}${c} ${STYLE}` }));
 
+// Round 6 (docs/IMAGENES_RONDA6.md): every frame of a move is an edit of the same picture, never of another frame, and
+// her feet stay on the ground line of peri_calm unless the frame says how high she is, so the app only swaps pictures.
+const GROUND = "Her feet rest on the ground at exactly the same height in the image as in the original picture.";
+const frame = (name: string, from: string, n: number, of: number, move: string, change: string) =>
+  ({ name, from, prompt: `Exactly the same character, same size in the frame, same framing and same camera. This is frame ${n} of ${of} of ${move}. Change: ${change}${/above where they usually are/.test(change) ? "" : ` ${GROUND}`} ${STYLE}` });
+const seq = (group: string, from: string, move: string, changes: string[]) =>
+  changes.map((c, i) => frame(`anim_${group}_${String(i + 1).padStart(2, "0")}`, from, i + 1, changes.length, move, c));
+
+LOTES["16"] = [
+  ...seq("jump", "peri_calm", "a jump animation", [
+    "anticipation. Knees bent deep, body squashed wide and low like soft clay, both arms swung back, eyes eager.",
+    "the push. Legs straightening fast, body stretching upward, arms swinging forward and up. Feet still on the ground.",
+    "take-off. Toes just leaving the ground, body very stretched tall and thin, arms straight up. Her feet a tenth of the image above where they usually are.",
+    "rising. In the air, legs tucked under her, arms up, a big happy open smile. Her feet a fifth of the image above where they usually are.",
+    "the top. Body round and relaxed, arms and legs spread out like a happy star, eyes happily closed in two curves. Her feet a quarter of the image above where they usually are.",
+    "falling. Legs reaching down, body a little stretched downward, arms up, her leaf still firmly attached to the top of her stem but bent upward by the wind. Her feet a sixth of the image above where they usually are.",
+    "impact. Feet on the ground, body squashed very wide and low like clay, knees bent, arms out, eyes squeezed for a moment.",
+    "rebound. A small bounce: body slightly stretched up, arms out for balance, feet just on the ground.",
+    "settle. Standing, a tiny happy wobble to one side, arms relaxed, big smile.",
+  ]),
+  ...seq("drop", "peri_calm", "an entrance from the sky", [
+    "falling, body stretched long and thin, arms up, her leaf still firmly attached to the top of her stem but bent upward by the wind, surprised happy face. Her feet a third of the image above where they usually are.",
+    "about to touch the ground, very stretched, legs reaching down. Her feet a tenth of the image above where they usually are.",
+    "impact. Squashed flat and wide like a pancake of clay, eyes squeezed shut, arms flat out to the sides.",
+    "bouncing back up, stretched tall, arms up, a little in the air. Her feet a tenth of the image above where they usually are.",
+    "second small landing, slightly squashed, knees bent, arms out.",
+    "\"ta-da!\": standing proud, both arms open wide to the sides, huge smile.",
+  ]),
+];
+
 async function call(path: string, body: unknown): Promise<Buffer> {
   const res = await fetch(`${base}${path}`, {
     method: "POST",
