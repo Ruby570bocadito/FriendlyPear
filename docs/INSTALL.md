@@ -42,6 +42,20 @@ Installing over USB with `adb` is exempt from all three. It is the way we recomm
 3. If notification access is greyed out with **"Restricted setting"**, Peri's unlock guide opens the right screens:
    **App info › ⋮ › Allow restricted settings**, then turn it on.
 
+## After installing: Check my phone
+
+On a real phone Android puts a few things in Peri's way. Open **Check my phone** on Peri's home: it finds each one and
+opens the right screen, with one clear step.
+
+- **Battery saving** can put her to sleep, and the family's alerts arrive late: Android's own one-tap question lets
+  her run (if her battery was set to *Restricted*, the app's page opens instead).
+- **Showing the pause over other apps**: during a suspicious call she puts a pause in front of a bank app, and Mini
+  Peri floats over the others. Android asks first.
+- **The call filter**: to warn before you pick up a number you don't know, on phones that offer it.
+- **Codes hidden on Android 15**: codes in notifications are hidden from apps like Peri; with texts allowed she sees
+  a code arriving by SMS during a call.
+- **Restricted settings** for apps installed from a file: the unlock guide walks through Android's own three steps.
+
 ## What works where
 
 | | On the phone alone | With Peri's server |

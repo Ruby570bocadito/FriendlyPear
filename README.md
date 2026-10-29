@@ -1,10 +1,10 @@
-<p align="center"><img src="docs/media/icon.png" width="120" alt="FriendlyPear's icon: Peri's smiling clay face"></p>
+<p align="center"><img src="docs/media/icon.png" width="120" alt="FriendlyPear's icon: Peri, a smiling clay pear with a little green shield, on soft green"></p>
 
 <h1 align="center">FriendlyPear</h1>
 
 <p align="center"><b>An AI voice agent that protects anyone — and especially older adults — from scams, and keeps their family in the loop.</b></p>
 
-<p align="center"><img src="docs/media/peri.gif" width="240" alt="Peri, a clay pear, blinking, talking with her hands, winking and stepping on the spot"></p>
+<p align="center"><img src="docs/media/banner.jpg" width="860" alt="Peri, a clay pear, waving on a green hill among little clay houses, trees and clouds"></p>
 
 Peri, a friendly pear that lives in your phone, reads your messages aloud, calls whoever you ask, and when something smells like a scam it checks with the real person or with your family before you lose a cent.
 
@@ -13,7 +13,7 @@ Built for the **Meta Global AI Developer Hackathon** · Indie track · *Build fo
 > All product code was written Oct 27 – Nov 4, 2026. Concept and design documents were drafted before the building period.
 > The app is bilingual (English and Spanish): it follows the phone's language, or the one chosen in Settings. Internal planning docs under `docs/` are in Spanish.
 
-<p align="center"><img src="docs/media/screens.png" width="860" alt="Four screens: Peri's home, Peri warning about a fake Correos text, the family setup, and Mini Peri with her speech bubble floating over the home screen"></p>
+<p align="center"><img src="docs/media/screens.png" width="860" alt="Four screens: Peri's home in her meadow; Peri under her umbrella warning about a fake BBVA text, with buttons to see the trap, report it or block the number; the security checkup with a picture of Peri for each item; and a new badge for five shields"></p>
 
 ## At a glance
 
@@ -21,7 +21,15 @@ Built for the **Meta Global AI Developer Hackathon** · Indie track · *Build fo
 - **Six Meta models, each with one job**: Muse Spark Open (second opinion), Muse Spark (investigator with tools, "look at this picture" with SAM 3.1, and the police report in one tap), Muse Voice Transcribe (Peri's ears), Muse Image (every picture of Peri, and the comics that show how each trap works), Muse Spark contributor (training data and the red team) and Muse Wonder (proposed Peri's new lines, every one reviewed by hand).
 - **Family double-check, not surveillance**: risky actions wait for a guardian's one-time link ("No" / "Call me first" / "Yes"), flagged **URGENT** if a stranger just called. If the guardian has FriendlyPear too, it opens **Peri to Peri** in their own app. Tested with two phones.
 - **Built to be hard to abuse**: hard rules no model can override, fake "Peri" texts caught, a yes needs the phone's own lock, every phone paired in person with its own key (QR), QR codes in pictures judged on the phone without opening them, no backups of secrets, and a **"What Peri can do"** screen with every permission, how to switch it off and a log of everything Peri did ([`docs/SECURITY.md`](docs/SECURITY.md)).
-- **A friend people want to keep**: Peri, a clay pear with 9 moods and about 135 animation frames, introduces herself before asking for anything, reads aloud, calls on a spoken "yes", giggles when you hold her, bounces home when you drag her, and floats as Mini Peri over other apps. She lives in her own world: the sky follows the hour and her mood, the place changes every day with the season, and four sections (Peri, Diary, Learn, Family) sit one tap away. Big type in Fredoka and Atkinson Hyperlegible (made for low vision), 7:1 contrast. English and Spanish.
+- **A friend people want to keep**: Peri, a clay pear with 9 moods, drawn by layers (her face over every pose) with her own moves, introduces herself before asking for anything, reads aloud, calls on a spoken "yes", giggles when you hold her, bounces home when you drag her, and floats as Mini Peri over other apps. Badges for her milestones (the first shield, five, twenty; three calm days, a week, a month). She lives in her own world: the sky follows the hour and her mood, the place changes every day with the season, and four sections (Peri, Diary, Learn, Family) sit one tap away. Big type in Fredoka and Atkinson Hyperlegible (made for low vision), 7:1 contrast. English and Spanish.
+
+## Try it
+
+<p align="center"><img src="docs/media/opening.gif" width="260" alt="Opening FriendlyPear: Peri with her arms up on the launch screen, then her hello in her meadow, a thumbs up and a wave"></p>
+
+- **On an Android phone (12 or later)**: install the release APK over USB, `adb install -r FriendlyPear.apk`. Android blocks scam guards installed from a browser, because they read texts and notifications like the malware they fight; USB is exempt. [`docs/INSTALL.md`](docs/INSTALL.md) has the five-minute steps, and what to do without a computer.
+- **The first minutes**: Peri introduces herself and asks for each permission when it's needed, one step at a time. Then **Check my phone** finds what Android puts in her way on a real phone (battery saving that puts her to sleep, no permission to pause other apps during a call, the call filter, codes hidden on Android 15, settings locked for apps from a file) and opens the right screen for each.
+- **To see her catch a scam** on the emulator, send it a text ([Build and test](#build-and-test)). Without Peri's server she still protects with the rules on the phone; the family, the second opinion and "look at a picture" need it ([what works where](docs/INSTALL.md#what-works-where)).
 
 ## A companion, not a watchdog
 
@@ -119,6 +127,8 @@ Not built yet: iOS needs a Mac to build, and it doesn't let apps read other apps
 
 Nine moods in soft 3D clay, every one made with Muse Image from one base so she's always the same character, each with 13 frames (blinks, mouth shapes, glances, steps, hand gestures, a wink):
 
+<p align="center"><img src="docs/media/peri.gif" width="240" alt="Peri, a clay pear, blinking, talking with her hands, winking and stepping on the spot"></p>
+
 <p align="center"><img src="docs/media/moods.png" width="860" alt="Peri's nine moods: calm, listening, thinking, worried, protective, calling, waiting for family, happy and sleeping"></p>
 
 Tap her and she answers where you touched: her leaf, her tummy (a tip, a joke she laughs at, a fact, or a kind word with floating hearts, in turn) or her feet; three quick taps make her spin and stand there with spiral eyes, five and she gives up laughing and dances. Hold her for the giggles, drag her around, rub her leaf or shake the phone: each has its own pose and its own lines.
@@ -165,6 +175,26 @@ Measured on **200 hand-written messages** the rules were never tuned on (`eval/r
 Up from 83 % and 53 % after two more rounds of rules. First, error analysis on the *training* set only: secrecy ("don't tell dad"), scareware ("your PC has a virus, call the technician"), romance bait, and new ways of saying "new number" and "forward me the code". Then a **red team**: Muse Spark wrote 374 scams made to slip past the rules (no link, a number to call, a casual tone, spelling tricks) and a person read every one that got through. Judged before anyone read it, the last batch was 80 % warned (40 % with the previous day's rules). It taught five new signals (a number to call written in the message, a company writing from a personal mobile or a Gmail address, money "sent by mistake", a buyer's fake "safe payment", moving the chat to Telegram), and that `.co.uk` links weren't seen as links. False alarms didn't move.
 
 Doubtful messages then go to Muse Spark Open and the investigator. Weights learned by logistic regression on 1,306 synthetic messages rank scams better (AUC 0.972 vs 0.964) and make no firm false alarm, but stay silent on more scams (83 % vs 88 %), so the shield keeps the hand-set weights: a missed scam costs more than a doubt the model can still calm. Full method, numbers and reasoning: [`eval/REPORT.md`](eval/REPORT.md).
+
+## Limits
+
+- **Android only.** On iPhone, apps can't read texts or other apps' notifications ([iPhone](#iphone)).
+- **Peri never hears a call.** She knows a call is on, who is calling and what happens during it (a code arriving, a bank or remote-control app opened), not what is said. A scammer who asks for nothing she can see is caught by her question after the call, not during it.
+- **From Android 15, codes in notifications are hidden from Peri.** With texts allowed she still sees the ones sent by SMS; Check my phone says when they aren't.
+- **Installing from a file keeps getting harder**: Play Protect's fraud protection, restricted settings, and developer verification from September 2026 in four countries ([why](docs/INSTALL.md#why-the-phone-may-block-it)). USB works today; a store listing is the lasting answer.
+- **Some phone makers stop background apps** beyond Android's own battery saving. Peri asks for Android's exemption; a maker's extra switch still has to be found by hand.
+- **The numbers come from hand-written and synthetic messages**, not from real people's phones: 91 % on 200 unseen messages measures the rules, it doesn't promise them.
+- **The family features need Peri's server**, on a computer during the hackathon: phones reach it on the same Wi-Fi, or anywhere once it has a public HTTPS address.
+
+## Built during the hackathon
+
+Every line of product code, from the first commit on Oct 27 (421 commits by Oct 29, 262 tests in `core/` alone):
+
+- **The shield**: signals and hard rules on the phone, weights and their evaluation on 200 unseen messages, the red team with Muse Spark, a code during a call, strangers' calls before pickup, the pause over a bank app, QR codes judged without opening them.
+- **The models**: Muse Spark Open as second opinion, the Muse Spark investigator with tools, "look at a picture" with SAM 3.1, the police report in one tap, Muse Voice Transcribe, Muse Image for every picture of Peri and the trap comics.
+- **The family**: guardian approvals with one-time links, URGENT after a stranger's call, Peri to Peri between two phones, pairing each phone in person with its own key.
+- **Peri**: over 400 clay pictures in the app, drawn by layers so her face moves over every pose; her moves, moods and moments, Mini Peri as her head over other apps, a chat that understands what people really write, her diary, milestones with badges, and her world with its seasons.
+- **A real phone**: the signed release APK without test secrets, text at 200 %, TalkBack headings, and Android's obstacles found and guided one by one.
 
 ## Layout
 
