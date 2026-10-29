@@ -1,0 +1,62 @@
+{
+  "story_suitcase": {
+    "prompt": "Same character, same style. Change: Peri arrives pulling a small coral suitcase on wheels, cheerful, as if moving in. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "story_from_phone": {
+    "prompt": "Same character, same style. Change: Peri climbs out of the plain blank screen of a big clay smartphone, waving. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "story_point_screen": {
+    "prompt": "Same character, same style. Change: Peri points to the right side of the image with one arm, as if presenting a screen there, friendly. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "story_present": {
+    "prompt": "Same character, same style. Change: Peri opens both arms wide, presenting something big, delighted. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "story_hook_magnifier": {
+    "prompt": "Same character, same style. Change: Peri looks closely through a big magnifying glass at a small shiny fishing hook floating beside her, curious. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "story_hold_phone": {
+    "prompt": "Same character, same style. Change: Peri holds a big clay smartphone with a plain blank screen in both hands in front of her, smiling. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "story_shield_up": {
+    "prompt": "Same character, same style. Change: Peri raises a green shield with a white leaf on it, brave and kind. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "story_family_pears": {
+    "prompt": "Same character, same style. Change: Peri stands with three smaller pear friends beside her, the same clay style: one with a flat cap, one with a coral bow, one with a beanie; all smiling together. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "story_bow": {
+    "prompt": "Same character, same style. Change: Peri makes a polite goodbye bow, one hand on her tummy. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "story_sleep_moon": {
+    "prompt": "Same character, same style. Change: Peri sleeps curled up on a yellow clay crescent moon, eyes closed, a tiny night cap. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "story_run_message": {
+    "prompt": "Same character, same style. Change: Peri runs happily holding a white envelope up in one hand. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "story_heart_family": {
+    "prompt": "Same character, same style. Change: Peri hugs a big coral heart, with three smaller pear friends around her (one with a flat cap, one with a coral bow, one with a beanie). Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  }
+}
