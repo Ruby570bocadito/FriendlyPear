@@ -52,7 +52,7 @@ class AccessActivity : Activity() {
         list.addView(LinearLayout(this).apply {
             gravity = Gravity.CENTER_VERTICAL
             addView(ImageView(this@AccessActivity).apply {
-                setImageResource(R.drawable.peri_shield)
+                setImageResource(R.drawable.peri_ui_welcome_shield)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 alive()
             }, LinearLayout.LayoutParams(dp(96), dp(96)))

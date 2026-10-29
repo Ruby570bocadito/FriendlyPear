@@ -48,7 +48,7 @@ class UnlockActivity : Activity() {
         list.addView(LinearLayout(this).apply {
             gravity = Gravity.CENTER_VERTICAL
             addView(ImageView(this@UnlockActivity).apply {
-                setImageResource(R.drawable.peri_shield)
+                setImageResource(R.drawable.peri_ui_unlock_guide)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
             }, LinearLayout.LayoutParams(dp(96), dp(96)))
             addView(heading(getString(R.string.unlock_title)).apply { setPadding(dp(12), 0, 0, 0) })

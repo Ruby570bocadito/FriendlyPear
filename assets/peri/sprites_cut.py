@@ -11,8 +11,8 @@ move   her movements (a jump, dance steps, a bow, a stretch, a turn...): 1024 px
        pictures, so they swap with them in PeriFace                          → peri_move_<name>.webp, peri_turn_<name>.webp
 mini   Mini Peri, only her head (her leaf in the wind, waving, under her umbrella, asleep): 512 px, and where Peri's
        face goes on each, found by her cheeks          → peri_mini_<name>.webp, android/.../ui/peri/MiniHeadData.kt
-ui     the interface pictures (assets/ui/): Peri for each setup step, the empty family, no connection, the milestone
-       badges and the quiz, 512 px                                           → peri_ui_<name>.webp
+ui     the interface pictures (assets/ui/): Peri for each setup step, the empty family, no connection, the milestones
+       and their badges, the quiz, 512 px, and the checkup's, 256 px          → peri_ui_<name>.webp, peri_check_<name>.webp
        and the launcher icon and the launch screen, framed so no mask cuts them → peri_launcher(_bg).webp, peri_splash.webp
 
 The heads have no face: Peri's eye and mouth pieces (layers.py) go on them. The blush on her cheeks is on the calm Peri and
@@ -46,12 +46,18 @@ TURNS = ["side_left", "back", "side_right"]
 # Peeking from behind a wall, her cheeks barely show, so her face can't be placed: not used.
 MINIS = ["noface", "leaf_left", "leaf_right", "wave", "umbrella", "sleep"]
 # The interface pictures (lotes 14 and 15). The question mark is white on cream: Peri's own bubble says it instead.
-UI = ["perm_sms", "perm_calls", "perm_notifications", "perm_battery", "empty_diary", "empty_family", "offline",
-      "badge_bronze", "badge_silver", "badge_gold", "tool_game", "welcome_shield"]
+UI = ["perm_sms", "perm_calls", "perm_notifications", "perm_battery", "perm_usage", "perm_location", "perm_overlay",
+      "empty_diary", "empty_family", "offline", "unlock_guide", "badge_bronze", "badge_silver", "badge_gold", "tool_game",
+      "welcome_shield", "shield_first", "shield_10", "shield_100", "streak_3", "streak_7", "streak_30"]
+# The checkup's pictures (lote 29), small beside each check.
+CHECKS = ["lock", "update", "adb", "screen", "dns", "alerts", "calls"]
+CHECK_SIZE = 256
 # Things nearly as light as the cream (a silver badge, the quiz's cards), cut out whole.
 UI_SOLID = {"badge_bronze", "badge_silver", "badge_gold", "tool_game"}
 # A white cloud and a white envelope beside Peri: only what's almost exactly the cream goes.
 UI_WHITE = {"offline", "welcome_shield"}
+# Peri on a green base with her trophy: the base isn't a floor shadow, it stays.
+UI_STANDING = {"shield_100"}
 WHITE_THRESHOLD = 22
 UI_DIR = os.path.join(HERE, "..", "ui")
 FX_MAX = 256
@@ -181,13 +187,18 @@ def main() -> None:
     if "ui" in groups:
         for name in UI:
             path = os.path.join(UI_DIR, f"ui_{name}.webp")
-            piece = solid(path) if name in UI_SOLID else cut(path, threshold=WHITE_THRESHOLD) if name in UI_WHITE else cut(path)
+            piece = (solid(path) if name in UI_SOLID
+                     else cut(path, remove_floor=False, threshold=WHITE_THRESHOLD) if name in UI_STANDING
+                     else cut(path, threshold=WHITE_THRESHOLD) if name in UI_WHITE
+                     else cut(path))
             save(piece.resize((UI_SIZE, UI_SIZE), Image.LANCZOS), f"peri_ui_{name}.webp")
+        for name in CHECKS:
+            save(cut(os.path.join(UI_DIR, f"check_{name}.webp")).resize((CHECK_SIZE, CHECK_SIZE), Image.LANCZOS), f"peri_check_{name}.webp")
         save(framed(cut(os.path.join(UI_DIR, "icon_peri_shield.webp")), LAUNCHER_SIZE, LAUNCHER_REACH), "peri_launcher.webp")
         Image.open(os.path.join(UI_DIR, "icon_bg.webp")).convert("RGB").resize((LAUNCHER_SIZE, LAUNCHER_SIZE), Image.LANCZOS).save(
             os.path.join(OUT, "peri_launcher_bg.webp"), "WEBP", quality=90, method=6)
         save(framed(cut(os.path.join(UI_DIR, "splash_peri.webp")), SPLASH_SIZE, SPLASH_REACH), "peri_splash.webp")
-        print(f"ui: {len(UI) + 3}")
+        print(f"ui: {len(UI) + len(CHECKS) + 3}")
 
 
 if __name__ == "__main__":

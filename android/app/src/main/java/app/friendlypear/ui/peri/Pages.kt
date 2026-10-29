@@ -286,7 +286,7 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
             list.addView(c.whiteCard().apply {
                 gravity = Gravity.CENTER_HORIZONTAL
                 addView(ImageView(c).apply {
-                    setImageDrawable(c.sized(R.drawable.peri_scene_relax, c.dp(120)))
+                    setImageDrawable(c.sized(R.drawable.peri_ui_empty_diary, c.dp(120)))
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                     alive()
                 }, LinearLayout.LayoutParams(c.dp(120), c.dp(120)))
@@ -502,7 +502,7 @@ internal class LearnPage(context: Context, private val hub: PeriHub, private val
                     })
                 }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
                 addView(ImageView(c).apply {
-                    setImageDrawable(c.sized(R.drawable.peri_scene_cheer, c.dp(96)))
+                    setImageDrawable(c.sized(R.drawable.peri_ui_tool_game, c.dp(96)))
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                     alive()
                 }, LinearLayout.LayoutParams(c.dp(96), c.dp(96)))
@@ -668,21 +668,26 @@ internal class FamilyPage(context: Context, private val hub: PeriHub, private va
             }, c.below(12))
             return box
         }
-        val note = c.body("", 16f).apply { visibility = View.GONE }
+        // No connection, or nobody else yet: Peri with an unplugged cable, or with a heart and a phone.
+        val noteArt = ImageView(c).apply { importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO }
+        val noteText = c.body("", 16f).apply { setPadding(c.dp(10), 0, 0, 0) }
+        val note = LinearLayout(c).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            visibility = View.GONE
+            addView(noteArt, LinearLayout.LayoutParams(c.dp(88), c.dp(88)))
+            addView(noteText, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+        }
         box.addView(note, c.below(8))
+        fun show(text: Int, art: Int) {
+            noteText.text = c.getString(text)
+            noteArt.setImageDrawable(c.sized(art, c.dp(88)))
+            note.visibility = View.VISIBLE
+        }
         hub.familyPears { family ->
-            val pears = family?.pears
-            if (pears == null) {
-                note.text = c.getString(R.string.family_pears_error)
-                note.visibility = View.VISIBLE
-                return@familyPears
-            }
+            val pears = family?.pears ?: return@familyPears show(R.string.family_pears_error, R.drawable.peri_ui_offline)
             val others = pears.filter { !it.self }
             showPears(grid, others)
-            if (others.isEmpty()) {
-                note.text = c.getString(R.string.family_pears_alone)
-                note.visibility = View.VISIBLE
-            }
+            if (others.isEmpty()) show(R.string.family_pears_alone, R.drawable.peri_ui_empty_family)
         }
         return box
     }
