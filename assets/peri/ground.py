@@ -30,7 +30,7 @@ ground = feet(Image.open(os.path.join(HERE, "peri_calm.webp")))
 log = os.path.join(SPRITES, "anim_offsets.json")
 offsets = json.load(open(log)) if os.path.exists(log) else {}
 for prefix in sys.argv[1:]:
-    for name in sorted(n for n in PROMPTS if n.startswith(prefix + "_") and not n.endswith("_noface")):
+    for name in sorted(n for n in PROMPTS if (n == prefix or n.startswith(prefix + "_")) and not n.endswith("_noface")):
         path = os.path.join(SPRITES, f"{name}.webp")
         im = Image.open(path).convert("RGB")
         lift = re.search(r"a (\w+) of the image above where they usually are", PROMPTS[name])

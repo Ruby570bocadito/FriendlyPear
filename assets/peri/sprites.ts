@@ -200,6 +200,226 @@ LOTES["16"] = [
   ]),
 ];
 
+/** One picture of a move that has no sequence of its own. */
+const still = (name: string, from: string, change: string) =>
+  ({ name, from, prompt: `Exactly the same character, same size in the frame, same framing and same camera. Change: ${change}${/above where they usually are/.test(change) ? "" : ` ${GROUND}`} ${STYLE}` });
+
+LOTES["17"] = [
+  ...seq("cheer", "peri_calm", "a celebration jump", [
+    "crouched, both fists clenched at her chest, excited.",
+    "jumping up with both fists high in the air, mouth open in a cheer. Her feet a fifth of the image above where they usually are.",
+    "at the top, one fist up, the other arm pumping down, eyes closed happily. Her feet a quarter of the image above where they usually are.",
+    "landed, knees bent, both fists still up, laughing.",
+  ]),
+  frame("anim_spin_01", "peri_calm", 1, 4, "a spinning jump", "crouched, turning a little towards the right side of the image."),
+  frame("anim_spin_02", "sprites/turn_side_right", 2, 4, "a spinning jump", "in the air seen from the side, arms tucked in. Her feet a fifth of the image above where they usually are."),
+  frame("anim_spin_03", "sprites/turn_back", 3, 4, "a spinning jump", "in the air seen from behind, arms out. Her feet a fifth of the image above where they usually are."),
+  frame("anim_spin_04", "peri_calm", 4, 4, "a spinning jump", "landing facing the viewer, arms open, a little dizzy smile."),
+  ...seq("sprout", "peri_calm", "an entrance from the ground", [
+    "only her leaf and the top of her head show above the bottom edge of the image, as if coming out of the soil; the rest of her is hidden below the bottom edge.",
+    "half of her body is out above the bottom edge of the image, the rest still hidden below it, eyes open, curious.",
+    "jumping fully out, in the air, arms up. Her feet a fifth of the image above where they usually are.",
+  ]).map((j) => ({ ...j, prompt: j.prompt.replace(` ${GROUND}`, "") })), // she comes up through the ground line
+  ...seq("float", "peri_calm", "an entrance floating down", [
+    "she floats down holding her small coral umbrella open above her head with one hand, legs dangling. Her feet a third of the image above where they usually are.",
+    "lower, still holding the open coral umbrella above her, swaying to the left side of the image. Her feet a sixth of the image above where they usually are.",
+    "landed softly on tiptoe, closing the coral umbrella, smiling.",
+  ]),
+  still("anim_star_01", "peri_calm", "a star jump: in the air with arms and legs spread wide, huge smile. Her feet a fifth of the image above where they usually are."),
+];
+
+LOTES["18"] = [
+  ...seq("walk", "peri_calm", "a walk cycle in place, facing the viewer, arms swinging opposite to the feet", [
+    "the foot on the left side of the image is forward, its heel touching the ground; the other foot behind.",
+    "her weight comes down on the foot on the left side of the image, body a little lower, knee slightly bent.",
+    "the foot on the right side of the image passes, lifted a little off the ground; the other foot flat.",
+    "up on the foot on the left side of the image, body a little higher, the other foot lifted behind.",
+    "the foot on the right side of the image is forward, its heel touching the ground; the other foot behind.",
+    "her weight comes down on the foot on the right side of the image, body a little lower, knee slightly bent.",
+    "the foot on the left side of the image passes, lifted a little off the ground; the other foot flat.",
+    "up on the foot on the right side of the image, body a little higher, the other foot lifted behind.",
+  ]),
+  ...seq("run", "peri_calm", "a happy run in place, facing the viewer, arms pumping, big smile", [
+    "the foot on the left side of the image pushes off the ground, the knee on the right side of the image raised high.",
+    "both feet off the ground, legs apart mid-stride. Her feet a tenth of the image above where they usually are.",
+    "the foot on the right side of the image lands on the ground.",
+    "the foot on the right side of the image pushes off the ground, the knee on the left side of the image raised high.",
+    "both feet off the ground, legs apart mid-stride the other way. Her feet a tenth of the image above where they usually are.",
+    "the foot on the left side of the image lands on the ground.",
+  ]),
+  still("anim_skip_01", "peri_calm", "a happy skip: one knee up, the other foot on tiptoe, arms swinging, eyes closed happily."),
+];
+
+LOTES["19"] = [
+  ...seq("sidewalk", "sprites/turn_side_right", "a walk cycle seen from the side, walking towards the right side of the image, arms swinging, a friendly smile", [
+    "contact: the front leg stretched forward with its heel touching the ground, the back leg behind on its toes.",
+    "down: her weight on the front leg, knee bent, body a little lower, the back foot lifting.",
+    "passing: the back leg swings forward, lifted, passing under her body; the other foot flat.",
+    "up: up on the standing leg, body a little higher, the swinging leg reaching forward.",
+    "contact with the other foot: the other leg now stretched forward with its heel touching the ground.",
+    "down on the other foot: weight on it, knee bent, body a little lower.",
+    "passing the other way: the first leg swings forward, lifted, under her body.",
+    "up on the other leg, body a little higher, the swinging leg reaching forward.",
+  ]),
+  ...seq("siderun", "sprites/turn_side_right", "a run seen from the side, running towards the right side of the image, arms pumping", [
+    "one foot pushes off the ground behind her, the other knee high in front.",
+    "both feet off the ground, legs stretched apart. Her feet a tenth of the image above where they usually are.",
+    "the front foot lands on the ground, knee bent.",
+    "the other foot pushes off behind her, the first knee high in front.",
+    "both feet off the ground, legs stretched apart the other way. Her feet a tenth of the image above where they usually are.",
+    "the other front foot lands on the ground, knee bent.",
+  ]),
+  still("anim_sidejump_01", "sprites/turn_side_right", "a jump forward seen from the side, towards the right side of the image, both legs stretched out in front, arms back. Her feet a fifth of the image above where they usually are."),
+];
+
+LOTES["20"] = [
+  still("turn_threequarter_right", "peri_calm", "she is turned three quarters towards the right side of the image: one eye and one cheek clearly visible, the other almost hidden."),
+  still("turn_threequarter_back_right", "sprites/turn_back", "she is turned three quarters away from the viewer, towards the back and the right side of the image: only the edge of one cheek visible."),
+  still("turn_threequarter_back_left", "sprites/turn_back", "she is turned three quarters away from the viewer, towards the back and the left side of the image: only the edge of one cheek visible."),
+  still("turn_threequarter_left", "peri_calm", "she is turned three quarters towards the left side of the image: one eye and one cheek clearly visible, the other almost hidden."),
+  ...seq("nod", "peri_calm", "a nod \"yes\"", [
+    "her head and upper body tilted forward a little, eyes half closed.",
+    "back up straight, smiling.",
+    "tilted forward again, smiling.",
+  ]),
+  ...seq("shake", "peri_calm", "a gentle \"no\" shake, kind and a little serious", [
+    "her body turned a little towards the left side of the image.",
+    "her body turned a little towards the right side of the image.",
+    "her body turned a little towards the left side of the image again.",
+  ]),
+  still("anim_tilt_left", "peri_calm", "a curious head tilt: the top of her body leans towards the left side of the image."),
+  still("anim_tilt_right", "peri_calm", "a curious head tilt: the top of her body leans towards the right side of the image."),
+  still("anim_lookup_body", "peri_calm", "she leans back a little to look up at the sky, hands behind her back."),
+  still("anim_lookdown_body", "peri_calm", "she leans forward a little to look down at her feet, curious."),
+  still("anim_shrug", "peri_calm", "shrugging: both hands up with open palms, shoulders up, \"I don't know\" with a smile."),
+];
+
+LOTES["21"] = [
+  ...seq("laugh", "peri_calm", "a belly laugh", [
+    "both hands on her tummy, eyes squeezed shut, mouth wide open.",
+    "leaning back laughing, eyes shut, mouth wide open.",
+    "wiping a happy tear with one hand, still smiling widely.",
+  ]),
+  ...seq("cry", "peri_calm", "a sad moment", [
+    "sad, big shiny eyes about to cry, hands together.",
+    "wiping a tear with the back of one hand.",
+  ]),
+  still("anim_startle", "peri_calm", "startled: a small jump back, both arms up, eyes wide, mouth a small \"o\". Her feet a tenth of the image above where they usually are."),
+  still("anim_determined", "peri_calm", "determined: fists on her hips, chest out, eyebrows firm, a brave little smile."),
+  ...seq("shy", "peri_calm", "a shy moment", [
+    "hands together in front of her, cheeks extra rosy, eyes looking down.",
+    "swaying to the left side of the image, hands together, cheeks extra rosy, eyes down.",
+  ]),
+  still("anim_relieved", "peri_calm", "relieved: one hand on her chest, breathing out, eyes closed, soft smile."),
+  ...seq("dizzy", "peri_calm", "a dizzy wobble", [
+    "spiral eyes, wobbling towards the left side of the image, arms out.",
+    "spiral eyes, wobbling towards the right side of the image, arms out.",
+  ]),
+  ...seq("sneeze", "peri_calm", "a sneeze", [
+    "about to sneeze: head back, eyes squeezed, mouth open.",
+    "\"achoo!\": head forward, eyes shut, her leaf shaking (still attached to her stem).",
+  ]),
+  still("anim_oops", "peri_calm", "tripping a little: one foot caught behind, arms flailing, surprised face, still smiling."),
+];
+
+LOTES["22"] = [
+  ...seq("listen", "peri_listening", "listening", [
+    "leaning towards the viewer, one hand cupped beside her head.",
+    "nodding slightly, eyes attentive.",
+  ]),
+  ...seq("think", "peri_thinking", "thinking", [
+    "tapping her chin with one finger, eyes looking up.",
+    "the finger away from her chin, eyes looking to the side.",
+  ]),
+  ...seq("fidget", "peri_worried", "worried fidgeting", [
+    "wringing her hands together.",
+    "both hands at her mouth, eyebrows up.",
+  ]),
+  ...seq("umbrella_open", "peri_protective", "opening her umbrella to protect", [
+    "the coral umbrella is closed, held down beside her.",
+    "lifting the closed coral umbrella up.",
+    "the coral umbrella half open above her head.",
+    "the coral umbrella fully open above her, brave face.",
+  ]),
+  ...seq("umbrella_close", "peri_protective", "closing her umbrella when the danger is over", [
+    "lowering the coral umbrella, half closed, relieved.",
+    "the coral umbrella closed, held down beside her, smiling.",
+  ]),
+  still("anim_dial_01", "peri_calling", "tapping on her small phone with one finger, concentrating."),
+  ...seq("watch", "peri_waiting", "waiting", [
+    "looking at a small watch on her wrist.",
+    "tapping one foot, looking up patiently.",
+  ]),
+];
+
+LOTES["23"] = [
+  ...seq("doze", "peri_calm", "falling asleep standing", [
+    "eyes half closed, head nodding forward.",
+    "eyes closed, head down, a tiny smile.",
+  ]),
+  ...seq("sleep", "peri_sleeping", "sleeping", [
+    "breathing in: her body a little taller, peaceful.",
+    "breathing out: her body a little lower, peaceful.",
+  ]),
+  ...seq("yawn", "peri_calm", "a yawn", [
+    "mouth starting to open, eyes closing.",
+    "a big yawn, both arms stretched up.",
+    "rubbing one eye with a hand.",
+  ]),
+  ...seq("wake", "peri_sleeping", "waking up", [
+    "one eye opening.",
+    "stretching with both arms up.",
+    "waving good morning with a big smile.",
+  ]),
+];
+
+// Muse's filter turned these down with both wordings; a third one avoids the words it seems to dislike.
+const ERASE = "the front of the pear is smoothed over with the same green clay and the same soft shading as the rest of her body, a plain blank front like an unfinished clay toy. Keep the two rosy cheeks exactly where they are.";
+LOTES["24"] = [
+  ...["calm_stepleft", "worried", "worried_stepright", "worried_steprighthalf", "happy", "happy_gesturea", "happy_gestureb", "happy_steplefthalf"]
+    .map((f) => edit(`body_${f}_noface`, `peri_${f}`, ERASE)),
+  ...["listen_01", "think_01", "fidget_01", "umbrella_open_04", "watch_01", "shy_01", "relieved"]
+    .map((f) => edit(`anim_${f}_noface`, `sprites/anim_${f}`, NOFACE)),
+];
+
+LOTES["25"] = [
+  mouth("a", "the mouth wide open in an \"ah\", tongue visible at the bottom."),
+  mouth("i", "a narrow smile with the teeth just showing, as when saying \"i\"."),
+  mouth("w", "the lips small, round and pushed forward, as when saying \"w\"."),
+  mouth("rest", "the mouth relaxed and closed, a soft neutral line."),
+  eyes("left", "both eyes keep the same round shape and size, with no eyelid line; the dark eyes and their white highlights shift clearly towards the left side of each eye socket, as if she looks at something on the left side of the image."),
+  eyes("right", "both eyes keep the same round shape and size, with no eyelid line; the dark eyes and their white highlights shift clearly towards the right side of each eye socket, as if she looks at something on the right side of the image."),
+  eyes("upleft", "both eyes keep the same round shape and size, with no eyelid line; the dark eyes and their white highlights shift clearly towards the top left of each eye socket, as if she looks up at something at the top left of the image."),
+  eyes("upright", "both eyes keep the same round shape and size, with no eyelid line; the dark eyes and their white highlights shift clearly towards the top right of each eye socket, as if she looks up at something at the top right of the image."),
+  eyes("downleft", "both eyes keep the same round shape and size, with no eyelid line; the dark eyes and their white highlights shift clearly towards the bottom left of each eye socket, as if she looks down at something at the bottom left of the image."),
+  eyes("downright", "both eyes keep the same round shape and size, with no eyelid line; the dark eyes and their white highlights shift clearly towards the bottom right of each eye socket, as if she looks down at something at the bottom right of the image."),
+  eyes("squint", "the eyes narrowed, a little suspicious, like a detective."),
+  eyes("dizzy", "each eye is a small dark spiral."),
+  eyes("cry", "big shiny eyes with tears running down below them."),
+  eyes("sparkle", "the eyes have extra white sparkles in them, delighted."),
+  eyes("quarter", "the eyelids are a quarter closed: between fully open and half closed, as in the start of a blink."),
+];
+
+const minihead = (name: string, change: string) =>
+  ({ name, from: "sprites/mini_noface", prompt: `Same character, same style, same size. Change: ${change} No eyes, no eyebrows and no mouth; both rosy cheeks stay clearly visible. ${STYLE}` });
+LOTES["26"] = [
+  minihead("mini_tilt_left", "the head is tilted towards the left side of the image, curious."),
+  minihead("mini_tilt_right", "the head is tilted towards the right side of the image, curious."),
+  minihead("mini_nod", "the head is tilted forward a little, as in a nod."),
+  minihead("mini_lookup", "the head is tilted back a little, as when looking up."),
+  minihead("mini_peek_left", "only one single pear, no second one: the pear is moved to the left so that its left quarter is cut off by the left edge of the picture, as if peeking in."),
+  minihead("mini_peek_right", "only one single pear, no second one: the pear is moved to the right so that its right quarter is cut off by the right edge of the picture, as if peeking in."),
+  minihead("mini_peek_bottom", "the pear is lower in the image, as if rising up from below: its lower third is cut off by the bottom edge of the picture."),
+  minihead("mini_umbrella_01", "a small closed coral umbrella is held up beside the head by one small green hand."),
+  minihead("mini_umbrella_02", "a small coral umbrella, half open, is held above the head by one small green hand."),
+  minihead("mini_umbrella_03", "a small coral umbrella, fully open, is held above the head by one small green hand."),
+  minihead("mini_wave_02", "a small green hand is raised high beside the pear, saying hello."),
+  minihead("mini_wave_03", "one small green hand waves beside the head, tilted the other way, palm open."),
+  minihead("mini_leaf_up", "the leaf on top is blown straight up by the wind, still attached to the stem."),
+  minihead("mini_sleep_02", "a small knitted night cap sits on the head, slipping to one side, sleepy."),
+  minihead("mini_party", "a tiny striped party hat sits on top of the head."),
+];
+
 async function call(path: string, body: unknown): Promise<Buffer> {
   const res = await fetch(`${base}${path}`, {
     method: "POST",

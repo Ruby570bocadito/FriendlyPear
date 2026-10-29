@@ -5,5 +5,18 @@
   "anim_jump_06": 0.177,
   "anim_drop_01": 0.321,
   "anim_drop_02": 0.11,
-  "anim_drop_04": 0.065
+  "anim_drop_04": 0.065,
+  "anim_cheer_02": 0.168,
+  "anim_cheer_03": 0.218,
+  "anim_spin_02": 0.135,
+  "anim_spin_03": 0.16,
+  "anim_float_01": 0.298,
+  "anim_float_02": 0.164,
+  "anim_star_01": 0.133,
+  "anim_run_02": 0.055,
+  "anim_run_05": 0.045,
+  "anim_siderun_02": 0.045,
+  "anim_siderun_05": 0.017,
+  "anim_sidejump_01": 0.107,
+  "anim_startle": 0.083
 }
