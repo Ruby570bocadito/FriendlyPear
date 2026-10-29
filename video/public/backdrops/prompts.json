@@ -1,0 +1,62 @@
+{
+  "village_sunset": {
+    "prompt": "Carmen's Spanish village at sunset: little white clay houses with terracotta roofs, a church bell tower, rolling green hills, a peach and pink sky, warm lit windows. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "village_morning": {
+    "prompt": "Exactly the same place, same composition, same objects, same style. Change: it is a fresh sunny morning: a clear light blue sky with a few white clouds, the windows unlit, bright soft light. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": "video/public/backdrops/village_sunset",
+    "size": "1024x1536"
+  },
+  "living_day": {
+    "prompt": "Exactly the same place, same composition, same objects, same style. Change: it is a bright day, a cosy coral sofa with cushions now stands in the room, a small coffee table with a fruit bowl, a plant and a window with sunlight. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": "video/public/backdrops/home",
+    "size": "1024x1536"
+  },
+  "living_evening": {
+    "prompt": "Exactly the same place, same composition, same objects, same style. Change: it is evening: the window shows a deep blue dusk, the standing lamp is lit with a warm golden glow, the room is cosy and warmly lit. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": "video/public/backdrops/living_day",
+    "size": "1024x1536"
+  },
+  "kitchen": {
+    "prompt": "Carmen's cosy kitchen: a small old-fashioned clay radio on the counter, a fruit bowl with pears and oranges, tiled walls, a window with plants, hanging pans. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "street_parking": {
+    "prompt": "A quiet sunny street in a Spanish town with a big, clearly visible grey and blue clay parking meter on a post standing on the pavement in the front left of the image, small parked cars, balconies with flowers, a tree. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "ana_home": {
+    "prompt": "Ana's modern city flat living room: a grey sofa with teal cushions, a big window with city buildings outside, a shelf with books and plants, a laptop on a desk. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "peri_workshop": {
+    "prompt": "Peri's magical workshop: chunky clay gears, curvy pipes, round blank screens glowing softly, little lamps, warm golden light, cosy and inventive. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "plaza": {
+    "prompt": "The village square: a round stone fountain with water, a wooden bench under a tree, little houses around, bunting between balconies, sunny day. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "night_window": {
+    "prompt": "Carmen's window at night seen from inside: a big round moon and stars outside, a plant on the window sill, soft blue moonlight and a warm curtain. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "phone_hands": {
+    "prompt": "Two friendly clay hands of an older woman, with a lilac cardigan cuff on each wrist, holding a smartphone straight towards the viewer; the phone fills most of the image and its screen is perfectly plain flat white and blank. Soft 3D clay, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, no text, no letters, no numbers, no logos, no brands. plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": null,
+    "size": "1024x1536"
+  },
+  "phone_table": {
+    "prompt": "Exactly the same place, same composition, same objects, same style. Change: a large smartphone, clearly visible, lies face up on the small coffee table, which is now big and in the front centre of the image; the phone's screen is plain flat white and blank. Soft 3D clay diorama, matte plasticine texture, rounded shapes, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow, gentle warm light, slightly blurred like a shallow depth of field, tall vertical composition with calm empty space at the bottom in the middle for two characters to stand. No people, no animals, no characters, no text, no letters, no numbers, no logos, no brands; any screen is plain and blank.",
+    "from": "video/public/backdrops/living_day",
+    "size": "1024x1536"
+  }
+}
