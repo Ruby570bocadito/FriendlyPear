@@ -86,6 +86,17 @@ are gone after 15 minutes or when that phone is disconnected.
   is asked and their answer, the report for the police, "What Peri can do" with its log, and the family setup
   (`FLAG_SECURE`, `Guard.kt`; release builds always, debug builds only when asked, so tests and the video can record).
   A remote-control app installed during a call sees a black screen there.
+- **No log in the release build**: R8 drops every log call and the text built for it, so what Peri does (a call, a
+  shield, the family's state) never reaches the phone's log, which a computer on USB can read. The report copied for
+  the police is marked sensitive, so Android 13 and later keep it out of the clipboard preview.
+  `eval/release_check.py` fails the release APK if a log line, the shared token or an unmarked report is in it, or if
+  its sensitive screens could be captured.
+- **What other apps can reach, checked one by one**: of the seven parts of the app other apps can call, four answer
+  only to Android itself (notification access, call screening, incoming texts, the family's background check), one is
+  the app's own icon, and two take something in: a shared picture (an address borrowed from contacts, messages or
+  Peri herself is refused, and so is a file path) and the pairing link (a server that isn't ours is refused). Tried
+  with `adb`: a fake incoming text, a pairing link to another server, a contact's photo passed as a picture, a screen
+  that isn't exported and the notification listener are all turned away.
 - **Nobody can press "yes" for the person through another app**: the buttons that decide (a guardian's "Yes, I
   approve" and its confirmation, "Yes, it was me", "Connect" when pairing) ignore a touch that comes through another app's
   window drawn over them, and Peri says why. Android 12 and later already block most such touches; this catches the

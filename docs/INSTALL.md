@@ -11,8 +11,9 @@ needs the same access for the opposite reason, so the phone may block it. This p
   asks for the first two (to read scam texts and WhatsApp notifications), so the install can be refused outright.
 - **Restricted settings (Android 13 and later).** An app installed from a file can't turn on notification access or
   accessibility until you allow it in its App info.
-- **Developer verification (from 30 September 2026 in Brazil, Indonesia, Singapore and Thailand; worldwide later).**
-  Apps from developers Google hasn't verified can't be installed from a file on certified phones in those countries.
+- **Developer verification (from 30 September 2026 in Brazil, Indonesia, Singapore and Thailand; worldwide in 2027).**
+  An app whose developer hasn't registered it with Google then installs only over USB or through Android's slower
+  "advanced flow" (developer options and a one-day wait). FriendlyPear is getting registered: see below.
 
 Installing over USB with `adb` is exempt from all three. It is the way we recommend for the hackathon.
 
@@ -76,3 +77,21 @@ once it has a public HTTPS address.
 `./gradlew :app:assembleRelease` builds it: signed with our own key (kept outside the repository), shrunk by R8, and
 without the shared test token, so it talks to Peri's server only once the phone is paired in person. The debug build
 carries that token for testing and is never published.
+
+## Registering FriendlyPear with Android
+
+So the release APK keeps installing normally once developer verification reaches every country, FriendlyPear is
+registered in Google's Android Developer Console:
+
+1. A **limited distribution account** is enough to begin: free, only an email, for up to 20 devices (made for
+   students, hobbyists and, here, a family). Handing it out widely needs a full account, with the developer's identity
+   checked.
+2. Register the package **`app.friendlypear`** with the certificate the release APK is signed with, SHA-256
+   `28:56:88:7A:36:D2:38:CD:7E:B7:06:D3:86:2D:DC:D7:7A:98:71:9B:3E:B7:B0:AE:CA:DD:24:38:6F:B3:CC:BF`. It's public: anyone can read it from the APK with
+   `apksigner verify --print-certs FriendlyPear.apk`. The key itself never leaves the developer's computer.
+3. From then on, Android Studio shows the registration status each time it builds a signed APK.
+
+Until 2027 nothing changes for installs in Spain, and installing over USB with `adb` never needs a registration.
+Sources: the Android Developers Blog,
+[March 2026](https://android-developers.googleblog.com/2026/03/android-developer-verification-rolling-out-to-all-developers.html)
+and [June 2026](https://android-developers.googleblog.com/2026/06/android-developer-verification.html).
