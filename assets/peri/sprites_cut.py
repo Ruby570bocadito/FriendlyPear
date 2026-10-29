@@ -7,8 +7,9 @@ drawn at:
 fx     clay effects (hearts, notes, a drop, ?, !, a bulb, confetti, a puff of dust...): trimmed to the object, 256 px at
        most, for Sparkles                                                   → peri_fx_<name>.webp
 scene  Peri's illustrations for the sections (diary, learn, family, settings...): 512 px  → peri_scene_<name>.webp
-move   her movements (a jump, dance steps, a bow, a stretch, a turn...): 1024 px squares framed like her other
-       pictures, so they swap with them in PeriFace                          → peri_move_<name>.webp, peri_turn_<name>.webp
+move   her movements (dance steps, a bow, a stretch, a turn; her jump in 9 frames and her entrance from the sky in 6):
+       1024 px squares framed like her other pictures, so they swap with them in PeriFace
+                                                    → peri_move_<name>.webp, peri_turn_<name>.webp, peri_anim_<name>.webp
 mini   Mini Peri, only her head (her leaf in the wind, waving, under her umbrella, asleep): 512 px, and where Peri's
        face goes on each, found by her cheeks          → peri_mini_<name>.webp, android/.../ui/peri/MiniHeadData.kt
 ui     the interface pictures (assets/ui/): Peri for each setup step, the empty family, no connection, the milestones
@@ -41,7 +42,10 @@ FX = ["heart_coral", "heart_pink", "heart_broken", "music_note", "sweat_drop", "
 SCENES = ["diary", "learn", "family", "settings", "checkup", "trophy", "cheer", "night", "morning"]
 # Her movements with her face on (they're short: no blinking or talking in them); only those she does, and the
 # section pictures and effects in use: the rest of the lotes wait for their place.
-MOVES = ["jump_crouch", "jump_air", "jump_land", "dance1", "dance2", "dance3", "dance4", "hips", "bow1", "bow2", "stretch_up"]
+MOVES = ["dance1", "dance2", "dance3", "dance4", "hips", "bow1", "bow2", "stretch_up"]
+# Her jump and her entrance frame by frame (lote 16), on the ground line by ground.py; the ones in the air are drawn
+# higher by PeriFace (sprites/anim_offsets.json), since Muse keeps her in the middle.
+ANIMS = [f"jump_{i:02d}" for i in range(1, 10)] + [f"drop_{i:02d}" for i in range(1, 7)]
 TURNS = ["side_left", "back", "side_right"]
 # Peeking from behind a wall, her cheeks barely show, so her face can't be placed: not used.
 MINIS = ["noface", "leaf_left", "leaf_right", "wave", "umbrella", "sleep"]
@@ -158,7 +162,9 @@ def main() -> None:
             save(cut(os.path.join(SPRITES, f"move_{name}.webp")), f"peri_move_{name}.webp")
         for name in TURNS:
             save(cut(os.path.join(SPRITES, f"turn_{name}.webp")), f"peri_turn_{name}.webp")
-        print(f"move: {len(MOVES) + len(TURNS)}")
+        for name in ANIMS:
+            save(cut(os.path.join(SPRITES, f"anim_{name}.webp")), f"peri_anim_{name}.webp")
+        print(f"move: {len(MOVES) + len(TURNS) + len(ANIMS)}")
     if "mini" in groups:
         calm = cheeks(np.asarray(Image.open(os.path.join(OUT, "peri_calm.webp")).convert("RGBA")))
         places = {}

@@ -32,9 +32,11 @@ MOODS = ["calm", "listening", "thinking", "worried", "protective", "calling", "w
 POSES = ["calm_wave1", "calm_wave2", "calm_idea", "calm_sorry", "calm_thumbsup", "calm_laugh", "calm_love", "calm_dizzy",
          "calm_yawn", "calm_letter", "calm_hero", "calm_medal", "calm_peekaboo", "calm_clap", "calm_detective",
          "calm_surprised", "calm_party", "calm_glasses", "calm_scarf", "calm_bye", "calm_hum", "calm_butterfly", "calm_tea", "calm_flower", "calm_phone",
-         # Her movements (lote 4): her outfit goes with her head as she jumps, dances, bows and stretches.
-         "move_jump_crouch", "move_jump_air", "move_jump_land", "move_dance1", "move_dance2", "move_dance3", "move_dance4", "move_hips",
-         "move_bow1", "move_bow2", "move_stretch_up"]
+         # Her movements (lote 4): her outfit goes with her head as she dances, bows and stretches.
+         "move_dance1", "move_dance2", "move_dance3", "move_dance4", "move_hips",
+         "move_bow1", "move_bow2", "move_stretch_up"] + [
+         # Her jump and her entrance from the sky, frame by frame (lote 16).
+         f"anim_jump_{i:02d}" for i in range(1, 10)] + [f"anim_drop_{i:02d}" for i in range(1, 7)]
 FRAMES = ["_blink", "_blinkhalf", "_talk", "_talkwide", "_talko", "_glanceleft", "_glanceright", "_stepleft", "_stepright",
           "_gesturea", "_gestureb", "_wink", "_steplefthalf", "_steprighthalf"]
 # Frames where her face turns away from her head: their own eyes place her face.

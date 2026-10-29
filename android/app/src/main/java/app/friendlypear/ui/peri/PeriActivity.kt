@@ -551,7 +551,10 @@ class PeriActivity : Activity() {
         // The screen says hello: Peri first, then her bubble and the buttons, one by one.
         listOf(said, setup, talk, write, secondary).forEachIndexed { i, v -> v.floatIn(80L + 70L * i) }
         tabs.floatIn(360)
-        if (savedInstanceState == null) face.post { face.enter() }
+        if (savedInstanceState == null) {
+            face.awaitEntrance()
+            face.post { face.enter() }
+        }
 
         // This screen shows Android's dialog whenever Peri needs a permission, now or later.
         hub.permissions.presenter = { need, done ->

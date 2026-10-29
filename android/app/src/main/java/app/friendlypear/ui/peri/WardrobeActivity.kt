@@ -114,7 +114,10 @@ class WardrobeActivity : Activity() {
         face.show(Mood.CALM)
         showChosen()
         sheet.floatIn(120)
-        if (savedInstanceState == null) face.post { face.enter() }
+        if (savedInstanceState == null) {
+            face.awaitEntrance()
+            face.post { face.enter() }
+        }
     }
 
     /** A round tile: the accessory on cream, or a cross for "nothing"; a green ring around the one she wears. */

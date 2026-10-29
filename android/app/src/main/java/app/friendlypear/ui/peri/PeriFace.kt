@@ -70,6 +70,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
     /** One moment of an action: how high (dp), squash (−) or stretch (+), extra tilt (°) and width (−1 is turned round). */
     private data class Shape(val lift: Float = 0f, val squash: Float = 0f, val tilt: Float = 0f, val width: Float = 1f)
 
+    /** A moment of a movement drawn frame by frame: when, the picture that comes on (or none), how high she is then. */
+    private data class Key(val at: Long, val res: Int?, val lift: Float, val fall: Boolean = false)
+
     /** How each mood moves: tilt in degrees and its period, bob in dp and its period, breathing depth. */
     private data class Motion(
         val tilt: Float,
@@ -114,6 +117,12 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private var posing = false
     /** The idle action going on (a hop, steps, a stretch) and when it started. */
     private var action: Idle? = null
+    /** The keys of the movement playing frame by frame, if it is one; her height comes from them. */
+    private var path: List<Key>? = null
+    /** The side of her square picture, in px: the frames' heights are shares of it. */
+    private var pictureSide = 0f
+    /** Out of sight, her entrance waits for its frames. */
+    private var entering = false
     private var actionStart = 0L
     /** Until then a blink or glance owns the frame, so running steps don't cut it short. */
     private var busyUntil = 0L
@@ -181,6 +190,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         val side = min(w, h).toFloat()
+        pictureSide = side
         val wasFeet = feetY
         feetY = (h - side) / 2 + side * FEET
         sparkles.feetY = feetY
@@ -514,7 +524,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
         val missing = res.filter { it !in loaded }
         if (missing.isEmpty()) return then()
         val side = decodedSide
-        DECODER.execute {
+        // On a thread of their own: a movement never waits behind a whole mood's frames being decoded.
+        MOVES_DECODER.execute {
             val ready = missing.mapNotNull { r -> runCatching { r to decode(r, side) }.getOrNull() }
             main.post {
                 if (side == decodedSide) ready.forEach { (r, d) -> loaded.putIfAbsent(r, d) }
@@ -526,12 +537,15 @@ class PeriFace(context: Context) : FrameLayout(context) {
     /** Once a movement is over, she lets go of its pictures: each is a full illustration. */
     private fun forgetMoves(after: Long) = main.postDelayed({ if (action == null) loaded.keys.removeAll(MOVE_FRAMES) }, after)
 
-    private fun act(idle: Idle) {
+    /** [idle] now; with [drawn] false, without its own pictures even if she has them (an entrance that couldn't wait). */
+    private fun act(idle: Idle, drawn: Boolean = true) {
         val now = SystemClock.uptimeMillis()
         // A movement with pictures of its own waits for them, decoded in the background, so it never stutters.
-        val pictures = if (canMove()) MOVES[idle].orEmpty() else emptyList()
+        val pictures = if (drawn && canMove()) MOVES[idle].orEmpty() else emptyList()
         if (pictures.any { it !in loaded }) return prepared(pictures) { if (!posing && action == null && canMove()) act(idle) }
         val real = pictures.isNotEmpty()
+        // Any new movement takes over from one drawn frame by frame.
+        path = null
         if (real) {
             forgetMoves(MOVE_HOLD_MS)
             movingUntil = now + (MOVE_MS[idle] ?: 0L)
@@ -540,14 +554,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
             Idle.HOP, Idle.STRETCH -> {
                 action = idle
                 actionStart = now
-                if (idle == Idle.HOP) main.postDelayed({ if (!sparkles.busy) sparkles.play(Sparkles.Effect.DUST) }, HOP_LAND_MS)
-                if (idle == Idle.HOP && real) {
-                    // Her own jump: she crouches, springs up with her arms high, and lands with her knees bent.
-                    put(R.drawable.peri_move_jump_crouch)
-                    main.postDelayed({ if (action == Idle.HOP) put(R.drawable.peri_move_jump_air) }, HOP_UP_MS)
-                    main.postDelayed({ if (action == Idle.HOP) put(R.drawable.peri_move_jump_land) }, HOP_LAND_MS)
-                    main.postDelayed({ if (!talking) put(frames.still) }, HOP_MS.toLong() - 40)
-                }
+                if (idle == Idle.HOP) main.postDelayed({ if (!sparkles.busy) sparkles.play(Sparkles.Effect.DUST) }, if (real) JUMP_LAND_MS else HOP_LAND_MS)
+                // Her own jump, frame by frame, at the heights each was drawn for.
+                if (idle == Idle.HOP && real) play(JUMP, idle)
                 // A stretch, her arms up, as if it felt good; without the picture, her eyes softly half closed.
                 if (idle == Idle.STRETCH) {
                     put(if (real) R.drawable.peri_move_stretch_up else frames.half)
@@ -593,6 +602,11 @@ class PeriFace(context: Context) : FrameLayout(context) {
                 action = idle
                 actionStart = now
                 turning = idle == Idle.SPIN && real
+                if (idle == Idle.DROP) {
+                    rig.alpha = 1f
+                    main.postDelayed({ sparkles.play(Sparkles.Effect.DUST) }, if (real) DROP_LAND_MS else DROP_MS.toLong())
+                    if (real) play(DROP, idle)
+                }
                 if (turning) {
                     // Round she goes, really: from the side, from behind, from the other side, and facing you again.
                     TURN_STEPS.forEachIndexed { i, res -> main.postDelayed({ if (action == Idle.SPIN) put(res) }, (SPIN_MS * (0.12f + i * 0.25f)).toLong()) }
@@ -619,11 +633,59 @@ class PeriFace(context: Context) : FrameLayout(context) {
         }
     }
 
-    /** Her entrance: she drops in from above and lands with a squash. */
+    /**
+     * Her entrance: she drops in from the sky and lands with a squash. Calm, frame by frame: stretched by the fall, a
+     * splat, a bounce, and her arms open. Her frames take a moment to decode: till then she isn't there yet, rather
+     * than standing and then flying off.
+     */
     fun enter() {
-        if (!moves) return
-        act(Idle.DROP)
-        main.postDelayed({ sparkles.play(Sparkles.Effect.DUST) }, DROP_MS.toLong())
+        if (!moves) {
+            rig.alpha = 1f
+            return
+        }
+        val pictures = MOVES.getValue(Idle.DROP)
+        if (!canMove() || pictures.all { it in loaded }) return act(Idle.DROP)
+        rig.alpha = 0f
+        entering = true
+        prepared(pictures) { if (entering) start(drawn = true) }
+        // If they're slow (or her size changed while they decoded), she falls in as she used to, in one picture.
+        main.postDelayed({ if (entering || rig.alpha == 0f) start(drawn = false) }, ENTER_WAIT_MS)
+    }
+
+    /** Out of sight from the very first picture until her entrance: she never stands there and then vanishes. */
+    fun awaitEntrance() {
+        if (moves) rig.alpha = 0f
+    }
+
+    private fun start(drawn: Boolean) {
+        entering = false
+        act(Idle.DROP, drawn)
+    }
+
+    /** A movement drawn frame by frame: each picture at its time, and her height between them ([along]). */
+    private fun play(keys: List<Key>, idle: Idle) {
+        path = keys
+        // The first picture at once: one frame of her plain self up in the air would show.
+        keys.forEach { key ->
+            val res = key.res ?: return@forEach
+            if (key.at == 0L) put(res) else main.postDelayed({ if (action == idle) put(res) }, key.at)
+        }
+        main.postDelayed({ if (!talking) put(frames.still) }, keys.last().at - 40)
+    }
+
+    /** Her height [e] ms into a movement drawn frame by frame: between its keys, faster and faster from a [Key.fall]. */
+    private fun along(keys: List<Key>, e: Float): Shape {
+        val i = keys.indexOfLast { it.at <= e }
+        if (i >= keys.lastIndex) {
+            path = null
+            action = null
+            return Shape()
+        }
+        val a = keys[i]
+        val b = keys[i + 1]
+        val f = ((e - a.at) / (b.at - a.at)).coerceIn(0f, 1f)
+        val share = a.lift + (b.lift - a.lift) * (if (a.fall) f * f else f)
+        return Shape(lift = share * pictureSide / resources.displayMetrics.density)
     }
 
     /**
@@ -711,6 +773,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private fun actionShape(t: Long): Shape {
         val e = (t - actionStart).toFloat()
         fun done(): Shape = Shape().also { action = null }
+        // Drawn frame by frame, the pictures have their own squash and stretch: only her height moves her.
+        path?.let { keys -> if (action == Idle.HOP || action == Idle.DROP) return along(keys, e) }
         return when (action) {
             Idle.HOP -> when {
                 e < 130 -> Shape(squash = -0.08f * sin(PI / 2 * e / 130).toFloat())
@@ -877,6 +941,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         const val POSE_TALK_MS = 1_000L
         /** One background thread for every Peri on screen: decoding is quick, and never on the main thread. */
         val DECODER = Executors.newSingleThreadExecutor { r -> Thread(r, "peri-frames").apply { isDaemon = true; priority = Thread.NORM_PRIORITY - 1 } }
+        val MOVES_DECODER = Executors.newSingleThreadExecutor { r -> Thread(r, "peri-moves").apply { isDaemon = true } }
         const val POP_MS = 420f
         const val IDLE_FIRST = 3_500L
         /** Growing or shrinking to new room: about as long as her hill takes to follow. */
@@ -887,9 +952,43 @@ class PeriFace(context: Context) : FrameLayout(context) {
         const val IDLE_MIN = 7_000L
         const val IDLE_MAX = 12_000L
         const val SPIN_MS = 720f
-        /** A hop's feet leave the ground; her movements' pictures are let go this long after one starts. */
-        const val HOP_UP_MS = 130L
+        /** Her movements' pictures are let go this long after one starts. */
         const val MOVE_HOLD_MS = 4_000L
+        /**
+         * Her jump frame by frame (lote 16): when each picture comes on, and how high she is then, as a share of her
+         * picture (sprites/anim_offsets.json: Muse keeps her in the middle, so the frames in the air are drawn higher).
+         * She crouches, springs, rises stretched, tucks, opens out at the top, falls, lands squashed and stands up.
+         */
+        val JUMP = listOf(
+            Key(0, R.drawable.peri_anim_jump_01, 0f),
+            Key(110, R.drawable.peri_anim_jump_02, 0f),
+            Key(170, R.drawable.peri_anim_jump_03, 0.073f),
+            Key(240, R.drawable.peri_anim_jump_04, 0.153f),
+            Key(320, R.drawable.peri_anim_jump_05, 0.198f),
+            Key(410, R.drawable.peri_anim_jump_06, 0.177f),
+            Key(490, R.drawable.peri_anim_jump_07, 0f),
+            Key(590, R.drawable.peri_anim_jump_08, 0f),
+            Key(670, R.drawable.peri_anim_jump_09, 0f),
+            Key(750, null, 0f),
+        )
+        /** Where her entrance starts: this far above the ground, as a share of her picture. */
+        const val ENTER_FROM = 0.8f
+        /** Her entrance frame by frame: she falls stretched, splats, bounces up a little and stands with her arms open. */
+        val DROP = listOf(
+            Key(0, R.drawable.peri_anim_drop_01, ENTER_FROM, fall = true),
+            Key(300, R.drawable.peri_anim_drop_02, 0.11f),
+            Key(360, R.drawable.peri_anim_drop_03, 0f),
+            Key(480, R.drawable.peri_anim_drop_04, 0f),
+            Key(545, null, 0.065f),
+            Key(610, R.drawable.peri_anim_drop_05, 0f),
+            Key(700, R.drawable.peri_anim_drop_06, 0f),
+            Key(1_050, null, 0f),
+        )
+        /** When her feet touch the ground: at the end of her jump, and splatting at the end of her fall. */
+        const val JUMP_LAND_MS = 490L
+        const val DROP_LAND_MS = 360L
+        /** The longest she stays out of sight waiting for her entrance's frames. */
+        const val ENTER_WAIT_MS = 1_800L
         val DANCE_FRAMES = listOf(R.drawable.peri_move_dance1, R.drawable.peri_move_dance2, R.drawable.peri_move_dance3, R.drawable.peri_move_dance4,
             R.drawable.peri_move_dance1, R.drawable.peri_move_dance2, R.drawable.peri_move_hips, R.drawable.peri_move_dance4)
         val TURN_STEPS = listOf(R.drawable.peri_turn_side_right, R.drawable.peri_turn_back, R.drawable.peri_turn_side_left)
@@ -898,7 +997,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
         val BOW_STEPS = listOf(R.drawable.peri_move_bow1 to 0L, R.drawable.peri_move_bow2 to 220L, R.drawable.peri_move_bow1 to 760L, null to 960L)
         /** Each movement's own pictures. */
         val MOVES: Map<Idle, List<Int>> = mapOf(
-            Idle.HOP to listOf(R.drawable.peri_move_jump_crouch, R.drawable.peri_move_jump_air, R.drawable.peri_move_jump_land),
+            Idle.HOP to JUMP.mapNotNull { it.res },
+            Idle.DROP to DROP.mapNotNull { it.res },
             Idle.DANCE to DANCE_FRAMES.distinct(),
             Idle.SPIN to TURN_STEPS,
             Idle.STRETCH to listOf(R.drawable.peri_move_stretch_up),
@@ -907,7 +1007,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
         val MOVE_FRAMES = MOVES.values.flatten().toSet()
         /** How long each movement owns the picture: up to just before she's herself again. */
         val MOVE_MS: Map<Idle, Long> = mapOf(
-            Idle.HOP to HOP_MS.toLong() - 60,
+            Idle.HOP to JUMP.last().at - 60,
+            Idle.DROP to DROP.last().at - 60,
             Idle.DANCE to DANCE_STEPS * DANCE_MS - 20,
             Idle.SPIN to (SPIN_MS * 0.87f).toLong() - 20,
             Idle.STRETCH to STRETCH_MS - 20,
