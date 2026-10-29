@@ -47,8 +47,18 @@ class PeriAgent(
 
     /** True while a guardian's answer is awaited; Android polls the backend until then. */
     val isAwaitingGuardian: Boolean get() = awaitingGuardian != null
-    private val p = Phrases.of(lang)
-    private val speech = SafeSpeech(p)
+    /** Peri's words: in the phone's language, or the chat's while answering it ([answerIn]). */
+    private var answering = lang
+    private var p = Phrases.of(lang)
+    private var speech = SafeSpeech(p)
+
+    /** From now on Peri answers in [lang]: a chat message written in it, or back to the phone's. */
+    fun answerIn(lang: Lang) {
+        if (lang == answering) return
+        answering = lang
+        p = Phrases.of(lang)
+        speech = SafeSpeech(p)
+    }
 
     private sealed interface Pending {
         data class Confirm(val action: Action, val question: String) : Pending
@@ -329,6 +339,15 @@ class PeriAgent(
         }
     }
 
+    /**
+     * A line written in the chat: as if heard, but "ayuda" alone is trouble to talk through, not an emergency; written,
+     * "emergencia" or "me he caído" still is one.
+     */
+    fun onWritten(utterance: String) {
+        if (pending == null && VoiceCommands.isShortCry(utterance)) return handle(Command.Advise(Topic.TROUBLE))
+        onHeard(utterance)
+    }
+
     fun onHeard(utterance: String) {
         val command = VoiceCommands.parse(utterance)
         if (command == Command.Emergency && pending != Pending.Emergency) {
@@ -486,7 +505,7 @@ class PeriAgent(
             // Reviewed advice for a question about staying safe: never a model's words.
             is Command.Advise -> {
                 pending = null
-                val calm = command.topic in setOf(Topic.WHATSAPP, Topic.PASSWORDS, Topic.WHAT_IS_A_SCAM, Topic.SHOPPING)
+                val calm = command.topic in setOf(Topic.WHATSAPP, Topic.PASSWORDS, Topic.WHAT_IS_A_SCAM, Topic.SHOPPING, Topic.TROUBLE)
                 say(p.advice(command.topic), if (calm) Mood.CALM else Mood.PROTECTIVE)
             }
             is Command.Gave -> {

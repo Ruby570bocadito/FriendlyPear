@@ -231,7 +231,7 @@ class ChatActivity : Activity() {
 
         fun intent(context: Context, noMic: Boolean = false): Intent = Intent(context, ChatActivity::class.java).putExtra(EXTRA_NO_MIC, noMic)
 
-        private val CALM = setOf(Topic.WHATSAPP, Topic.PASSWORDS, Topic.WHAT_IS_A_SCAM, Topic.SHOPPING)
+        private val CALM = setOf(Topic.WHATSAPP, Topic.PASSWORDS, Topic.WHAT_IS_A_SCAM, Topic.SHOPPING, Topic.TROUBLE)
 
         private val START = listOf(
             R.string.chat_s_bank, R.string.chat_s_joke, R.string.chat_s_code, R.string.chat_s_link, R.string.chat_s_who, R.string.chat_s_family,
@@ -249,6 +249,9 @@ class ChatActivity : Activity() {
             Topic.SIM_SWAP to listOf(R.string.chat_s_bank, R.string.chat_s_stolen),
             Topic.WHAT_IS_A_SCAM to listOf(R.string.chat_s_bank, R.string.chat_s_link, R.string.chat_s_police),
             Topic.PRIZE to listOf(R.string.chat_s_link, R.string.chat_s_gave),
+            // "Tengo un problema": what happened, as one tap each; an emergency is one of them.
+            Topic.TROUBLE to listOf(R.string.chat_s_called, R.string.chat_s_message, R.string.chat_s_gave, R.string.chat_s_emergency),
+            Topic.CHECK_MESSAGE to listOf(R.string.chat_s_gave, R.string.chat_s_scam),
         )
     }
 }

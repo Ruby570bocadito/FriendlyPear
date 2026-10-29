@@ -35,7 +35,8 @@ object VoiceCommands {
     )
     /** What follows the person in a call for help: "llama a mamá, que necesito ayuda" calls mamá. */
     private val helpTail = Regex(
-        "\\s+(?:que|para que|porque|for|because|i)\\s+(?:me ayude|me ayuden|necesito ayuda|me encuentro mal|help|need help|help me|i need help).*$" +
+        "\\s+(?:que|para que|porque|for|because|i)\\s+(?:me ayude|me ayuden|necesito ayuda|me encuentro mal|tengo un problema|es urgente|" +
+            "help|need help|help me|i need help|have a problem|it s urgent).*$" +
             "|\\s+(?:for help|to help me|please help)$",
     )
     private val trailingPlease = Regex("(?i)[,\\s]*(por favor|please)[.!\\s]*$")
@@ -72,6 +73,10 @@ object VoiceCommands {
 
     private const val SMALL_TALK_WORDS = 10
 
+    /** "Ayuda", "help": a cry for help said, or written, almost alone. */
+    fun isShortCry(utterance: String): Boolean =
+        fillers.replace(Text.fold(utterance), " ").replace(Regex("[^a-z0-9 ]"), " ").replace(Regex("\\s+"), " ").trim() in shortCry
+
     fun parse(utterance: String): Command {
         val folded = Text.fold(utterance)
         val clean = fillers.replace(folded, " ").replace(Regex("[^a-z0-9 ]"), " ").replace(Regex("\\s+"), " ").trim()
@@ -92,7 +97,9 @@ object VoiceCommands {
             if (gave != app.friendlypear.core.agent.Breach.SOMETHING || advice == null) return Command.Gave(gave)
         }
         // A question or a situation ("me llama el banco", "is this link safe?"), before orders: "me llama" isn't "llama".
-        advice?.let { return Command.Advise(it) }
+        // But an order said first is an order, whatever it mentions after: "llama a mi hija, que tengo un problema".
+        val orderFirst = callVerbs.find(clean)?.range?.first == 0 || send.find(clean)?.range?.first == 0
+        advice?.takeIf { !orderFirst && it !in app.friendlypear.core.agent.Advice.VAGUE }?.let { return Command.Advise(it) }
 
         sendMessage(utterance, folded)?.let { return it }
         askForHelp.find(clean)?.let { m ->
@@ -103,6 +110,8 @@ object VoiceCommands {
             val target = helpTail.replace(m.groupValues[2], "").trim()
             if (target.isNotEmpty()) return Command.Call(target)
         }
+        // Trouble with no topic yet ("tengo un problema"), after orders: "dile a Laura que tengo un problema" is a message.
+        advice?.let { return Command.Advise(it) }
         if (messageWords.containsMatchIn(clean) && (readVerbs.containsMatchIn(clean) || clean.split(" ").size <= 3)) {
             return Command.ReadMessages(onlyLast = lastWords.containsMatchIn(clean))
         }

@@ -240,6 +240,8 @@ internal object Spanish : Phrases {
         Topic.LINK -> "Ante la duda, no abras el enlace. Entra tú en la web o la app de siempre, escribiéndola a mano. Si quieres, hazle una foto al mensaje y la miro contigo."
         Topic.PASSWORDS -> "Usa una contraseña distinta para cada cuenta importante, sobre todo el correo y el banco. Una frase larga que recuerdes es mejor que una palabra rara. Y no se la digas a nadie, ni a mí."
         Topic.UNKNOWN_CALL -> "Si no conoces el número, no tienes por qué contestar. Si contestas y te piden datos, dinero o prisa, cuelga. Y si dicen ser alguien que conoces, cuelga y llámales tú a su número de siempre."
+        Topic.CHECK_MESSAGE -> "Cópialo y pégalo aquí, y lo miro con el mismo escudo que tus SMS, sin que salga del móvil. Mientras tanto, no toques sus enlaces ni contestes."
+        Topic.TROUBLE -> "Vamos a verlo con calma, paso a paso. ¿Qué ha pasado: te han llamado, te ha llegado un mensaje, o has dado algún dato o dinero? Si tienes el mensaje, pégalo aquí y lo miro."
         Topic.WHAT_IS_A_SCAM -> "Un timo es un engaño para que des tus datos o tu dinero: un mensaje o una llamada que se hace pasar por alguien de confianza y te mete prisa. La regla de oro: ante la prisa, para y pregunta."
     }
     override fun aftercare(what: Breach) = when (what) {
@@ -493,6 +495,8 @@ internal object English : Phrases {
         Topic.LINK -> "When in doubt, don't open the link. Go to the usual website or app yourself, typing it in. If you like, take a picture of the message and we'll look at it together."
         Topic.PASSWORDS -> "Use a different password for each important account, especially your email and your bank. A long phrase you remember is better than a strange word. And don't tell it to anyone, not even me."
         Topic.UNKNOWN_CALL -> "If you don't know the number, you don't have to answer. If you answer and they ask for details, money or hurry you, hang up. And if they say they're someone you know, hang up and call them on their usual number."
+        Topic.CHECK_MESSAGE -> "Copy it and paste it here, and I'll check it with the same shield as your texts, without it leaving your phone. Meanwhile, don't tap its links or reply."
+        Topic.TROUBLE -> "Let's look at it calmly, step by step. What happened: did someone call, did a message arrive, or did you give any details or money? If you have the message, paste it here and I'll check it."
         Topic.WHAT_IS_A_SCAM -> "A scam is a trick to get your details or your money: a message or a call pretending to be someone you trust, and rushing you. The golden rule: when you're rushed, stop and ask."
     }
     override fun aftercare(what: Breach) = when (what) {

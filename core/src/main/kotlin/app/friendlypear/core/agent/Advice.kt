@@ -6,6 +6,10 @@ import app.friendlypear.core.shield.Text
 enum class Topic {
     QR, WHATSAPP, SIM_SWAP, STOLEN_PHONE, REMOTE_APP, BANK_CALL, CODE, FAMILY_MONEY, BIZUM, PARCEL, PRIZE, ROMANCE,
     INVESTMENT, FAKE_AUTHORITY, SHOPPING, LINK, PASSWORDS, UNKNOWN_CALL, WHAT_IS_A_SCAM,
+    /** "I got a strange message": how to check it (paste it in the chat). */
+    CHECK_MESSAGE,
+    /** "Tengo un problema", "I think I've been scammed": what happened? */
+    TROUBLE,
 }
 
 /**
@@ -19,9 +23,13 @@ object Advice {
         "\\b(que hago|que debo|que puedo|que tengo que|como|es seguro|es segura|es normal|es verdad|es un timo|es fiable|es de fiar|" +
             "que es|por que|puedo|deberia|debo|me ha|me han|me llama|me llaman|me pide|me piden|me dice|me dicen|me escribe|me escriben|" +
             "me ofrece|me ofrecen|he recibido|he ganado|tengo un|tengo una|alguien|ayudame con|consejo|consejos|que pasa si|y si|" +
+            "me han liado|me han enganado|me han estafado|me han timado|creo que|no se que hacer|estoy preocupad[oa]|necesito ayuda|" +
+            "me llamo|me llamaron|me ha llamado|me han llamado|me escribio|me escribieron|me mandaron|me enviaron|me llego|me ha llegado|" +
+            "me han mandado|me han enviado|me han escrito|" +
             "what should|what do i|what can i|is it safe|is this|is that|how do i|how can i|how to|what is|what s|what are|" +
             "should i|can i|someone|somebody|i got|i ve got|i received|i ve received|i won|they asked|asks me|asked me|what if|" +
-            "called me|calling me|texted me|sent me|i have a|help with|advice|tips)\\b",
+            "called me|calling me|texted me|sent me|i have a|help with|advice|tips|i think|i ve been|i need help|i m worried|" +
+            "i don t know what to do|something)\\b",
     )
 
     private val topics: List<Pair<Topic, Regex>> = listOf(
@@ -57,7 +65,17 @@ object Advice {
             "number i don t know", "strange call", "spam call")),
         Topic.WHAT_IS_A_SCAM to Text.anyOf(listOf("phishing", "smishing", "vishing", "timo", "timos", "estafa", "estafas", "fraude", "scam", "scams",
             "fraud", "seguridad", "safe online", "security")),
+        // Last: a strange message, then trouble with no topic yet ("tengo un problema"), so anything more precise wins.
+        Topic.CHECK_MESSAGE to Text.anyOf(listOf("mensaje raro", "mensaje extrano", "sms raro", "correo raro", "mensaje sospechoso", "un mensaje",
+            "strange message", "weird message", "suspicious message", "strange text", "weird text", "a message", "a text")),
+        Topic.TROUBLE to Text.anyOf(listOf("problema", "problemas", "lio", "liado", "liada", "enganado", "enganada", "estafado", "estafada",
+            "timado", "timada", "algo raro", "no se que hacer", "preocupado", "preocupada", "necesito ayuda", "problem", "problems",
+            "trouble", "need help", "something weird", "something strange", "something wrong", "been scammed", "scammed", "worried",
+            "don t know what to do")),
     )
+
+    /** Topics that only say something is wrong: an order that mentions them ("dile a Laura que tengo un problema") is still an order. */
+    val VAGUE = setOf(Topic.CHECK_MESSAGE, Topic.TROUBLE)
 
     /** The topic of a question or a situation; null if it isn't one, or none fits. */
     fun of(clean: String): Topic? = if (asking.containsMatchIn(clean)) topicOnly(clean) else null

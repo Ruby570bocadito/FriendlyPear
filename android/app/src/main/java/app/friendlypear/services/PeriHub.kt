@@ -1047,24 +1047,49 @@ class PeriHub(context: Context) {
      * and what isn't understood gets the chat's own answer. [reply] gets her words and the topic, if it was a question.
      */
     fun ask(text: String, reply: (List<String>, app.friendlypear.core.agent.Topic?) -> Unit) = main.post {
+        // Peri answers in the language the person writes in, even on a phone set to the other one; when a line can't
+        // tell ("ok", a name), the chat keeps its language.
+        val language = app.friendlypear.core.agent.Language.of(text) ?: chatLang ?: lang
+        chatLang = language
+        val words = context.createConfigurationContext(Configuration(context.resources.configuration).apply { setLocale(speechLocale(language)) })
+        // A message pasted or retold: the same shield as for SMS looks at it, on the phone; nothing is sent anywhere.
+        app.friendlypear.core.agent.PastedMessage.find(text)?.let { pasted ->
+            val verdict = Shield(lang = language).evaluate(
+                IncomingMessage(Channel.SMS, "", pasted, System.currentTimeMillis()),
+                app.friendlypear.core.shield.ShieldContext(contacts.orEmpty(), callActive),
+            )
+            Log.i(TAG, "chat check level=${verdict.level} hardRule=${verdict.hardRule}")
+            return@post if (verdict.level == Level.OK) {
+                reply(listOf(words.getString(R.string.chat_check_safe)), null)
+            } else {
+                reply(listOf(verdict.explanation), app.friendlypear.core.agent.Topic.CHECK_MESSAGE)
+            }
+        }
         val command = VoiceCommands.parse(text)
         val waiting = agent.isWaitingForAnswer
-        if (!waiting && command is Command.ReadMessages) return@post reply(listOf(context.getString(R.string.chat_read_elsewhere)), null)
-        if (!waiting && command is Command.Unknown) return@post reply(listOf(context.getString(R.string.chat_unknown)), null)
+        val cry = !waiting && VoiceCommands.isShortCry(text)
+        if (!waiting && command is Command.ReadMessages) return@post reply(listOf(words.getString(R.string.chat_read_elsewhere)), null)
+        if (!waiting && command is Command.Unknown) return@post reply(listOf(words.getString(R.string.chat_unknown)), null)
         val lines = mutableListOf<String>()
         chatReplies = lines
+        agent.answerIn(language)
         try {
-            hear(text)
+            hear(text, written = true)
         } finally {
             chatReplies = null
+            agent.answerIn(lang)
         }
-        reply(lines.ifEmpty { listOf(context.getString(R.string.chat_on_it)) }, (command as? Command.Advise)?.topic)
+        val topic = if (cry) app.friendlypear.core.agent.Topic.TROUBLE else (command as? Command.Advise)?.topic
+        reply(lines.ifEmpty { listOf(words.getString(R.string.chat_on_it)) }, topic)
     }
 
-    private fun hear(utterance: String) {
+    /** The language the chat is in: the last line's that said, else the phone's. */
+    private var chatLang: app.friendlypear.core.model.Lang? = null
+
+    private fun hear(utterance: String, written: Boolean = false) {
         // "Read my messages": she holds up a letter while she reads.
         val reading = !agent.isWaitingForAnswer && VoiceCommands.parse(utterance) is Command.ReadMessages
-        agent.onHeard(utterance)
+        if (written) agent.onWritten(utterance) else agent.onHeard(utterance)
         if (reading) views.forEach { it.moment(PeriMoment.LETTER) }
         main.removeCallbacks(countdownEnd)
         if (agent.isCountingDown) main.postDelayed(countdownEnd, COUNTDOWN_MILLIS)
