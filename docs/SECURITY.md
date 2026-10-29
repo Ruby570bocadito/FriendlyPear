@@ -97,6 +97,15 @@ are gone after 15 minutes or when that phone is disconnected.
   Peri herself is refused, and so is a file path) and the pairing link (a server that isn't ours is refused). Tried
   with `adb`: a fake incoming text, a pairing link to another server, a contact's photo passed as a picture, a screen
   that isn't exported and the notification listener are all turned away.
+- **"Forget what Peri knows"** (Settings, behind the phone's lock): her diary, the last scam and what she looked into,
+  the log of what she did, the silenced websites, shields, badges and what was done after a scam, then a fresh start
+  in a new process. With no guardians, the family setup, the blocked numbers and the phone's key go too, and the
+  server forgets the phone. With guardians those stay: who protects the person is decided with the family, so this
+  can't be used to take them away.
+- **Every dependency pinned and checked**: the app uses one library (ZXing core 3.5.4) and the build its plugins, all at
+  exact versions. Gradle checks every artifact it downloads against its SHA-256 (`gradle/verification-metadata.xml`
+  in `android/` and `core/`; a changed byte stops the build, tried) and the Gradle download itself
+  (`distributionSha256Sum`). The server runs on Bun alone, with no packages.
 - **Nobody can press "yes" for the person through another app**: the buttons that decide (a guardian's "Yes, I
   approve" and its confirmation, "Yes, it was me", "Connect" when pairing) ignore a touch that comes through another app's
   window drawn over them, and Peri says why. Android 12 and later already block most such touches; this catches the
@@ -140,8 +149,11 @@ are gone after 15 minutes or when that phone is disconnected.
   the on-phone rules, which still warn).
 - **SMS is not encrypted.** The link travels by SMS, so it is short-lived, single-use and guarded by the "are you
   sure?" step and the phone lock. A spoofed sender number alone is not enough: the request must exist on the server.
-- **The server's data key** must be backed up apart from the data: without it, the sealed files can't be opened and the
+- **The server's data key** has to be kept apart from the data: without it, the sealed files can't be opened and the
   family pairs its phones again (nothing is ever approved by itself meanwhile, and Peri's warnings stand).
+  `bun keycopy <folder>` writes a copy (its owner only) once it has opened every sealed file, never printing the key, and
+  `bun keycopy --check <copy>` is the restore drill; a test loses the key and opens everything again from its copy.
+  Putting that copy somewhere safe, off the server, is still the server owner's job.
 - A public HTTPS address (a tunnel or a host) is needed for phones outside the developer's network.
 - **A QR code the phone can't read** (tiny, blurred or cut off in the picture) is left to the model, which can ring it
   but can't say where it leads; Peri then says not to scan it if the model saw it as a risk.
