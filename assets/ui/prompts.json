@@ -1,0 +1,102 @@
+{
+  "ui_empty_diary": {
+    "prompt": "Same character, same style. Change: Peri holds an open blank notebook and a pencil, ready to write, hopeful smile. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "ui_empty_family": {
+    "prompt": "Same character, same style. Change: Peri waits patiently holding a coral heart in one hand and a small phone with a blank screen in the other. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "ui_welcome_home": {
+    "prompt": "Same character, same style. Change: Peri arrives at a small cosy clay house shaped like a smartphone, with a little door and a window, waving. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "ui_welcome_shield": {
+    "prompt": "Same character, same style. Change: Peri holds a green shield with a white leaf in front of a white envelope, protective and friendly. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "ui_welcome_family": {
+    "prompt": "Same character, same style. Change: Peri stands with three smaller pear friends: one with a flat cap, one with a coral bow, one with a beanie. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "ui_perm_sms": {
+    "prompt": "Same character, same style. Change: Peri holds an open white envelope with a letter peeking out, kind smile. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "ui_perm_notifications": {
+    "prompt": "Same character, same style. Change: Peri holds up a small golden bell, ringing it gently. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "ui_perm_calls": {
+    "prompt": "Same character, same style. Change: Peri holds an old-style sky blue clay telephone handset, friendly. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "ui_perm_battery": {
+    "prompt": "Same character, same style. Change: Peri hugs a big upright battery, a clear cylinder battery with a small round terminal on top, its side showing four bright green bars stacked up to the top: full; happy. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "ui_offline": {
+    "prompt": "Same character, same style. Change: Peri calmly holds an unplugged cable with a plug in one hand, a relaxed smile, a tiny cloud beside her. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "ui_badge_bronze": {
+    "prompt": "A round bronze medal badge with a raised shield and a small pear leaf on it, shiny, nothing written. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "ui_badge_silver": {
+    "prompt": "A round silver medal badge with a raised shield and a small pear leaf on it, shiny, nothing written. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "ui_badge_gold": {
+    "prompt": "A round gold medal badge with a raised shield and a small pear leaf on it, shiny, nothing written. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "ui_tool_game": {
+    "prompt": "Two clay playing cards standing side by side, plain with rounded corners: one sky blue with a green check mark, one coral with a small fishing hook on it. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "ui_tool_ask": {
+    "prompt": "A puffy white speech bubble with a chunky green question mark on it. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "icon_peri": {
+    "prompt": "Same character, same style. Change: Peri's head only, smiling, straight front view, centred and filling most of the image, leaf on top. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_icon",
+    "size": "1024x1024"
+  },
+  "icon_peri_shield": {
+    "prompt": "Exactly the same image. Only change: a small green shield with a white leaf on it sits at the lower right of her face. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/ui/icon_peri",
+    "size": "1024x1024"
+  },
+  "icon_bg": {
+    "prompt": "A completely empty, smooth, plain light pear green clay surface filling the whole image, a soft lighter glow in the centre, one single colour, no objects, no shapes, no dots, no text, no letters, no numbers, no logos, no brands.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "splash_peri": {
+    "prompt": "Same character, same style. Change: Peri waves hello with both hands raised, a big warm smile. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1024x1024"
+  },
+  "store_banner": {
+    "prompt": "Same character, same style. Change: Peri stands waving in the middle of her world: soft green clay hills, a little village, a sunny sky with puffy clouds and floating leaves; a wide landscape scene. Soft 3D clay render, rounded shapes, gentle studio lighting, tactile matte plasticine material, no text, no letters, no numbers, no logos, no brands, centered character with space around it, plain flat warm cream background (#FFF8EC), no floor shadow.",
+    "from": "assets/peri/peri_calm",
+    "size": "1536x1024"
+  }
+}
