@@ -457,7 +457,8 @@ class PeriActivity : Activity() {
                     Tool(R.string.tools_traps, R.drawable.peri_calm_idea, Rubber.CORAL) { showTab(TAB_LEARN) },
                     Tool(R.string.mini_mode, R.drawable.peri_calm_wave1, Rubber.LILAC) { mini.performClick() },
                 ).forEachIndexed { i, tool ->
-                    addView(toolTile(tool), LinearLayout.LayoutParams(dp(TOOL_WIDTH_DP), dp(TOOL_HEIGHT_DP)).apply { if (i > 0) marginStart = dp(10) })
+                    // As tall as their names need: with big text a tile grows instead of cutting its name.
+                    addView(toolTile(tool), LinearLayout.LayoutParams(dp(TOOL_WIDTH_DP), LinearLayout.LayoutParams.WRAP_CONTENT).apply { if (i > 0) marginStart = dp(10) })
                 }
             })
         }
@@ -1517,6 +1518,7 @@ class PeriActivity : Activity() {
         isFocusable = true
         contentDescription = getString(tool.label)
         stateListAnimator = pressScale()
+        minimumHeight = dp(TOOL_HEIGHT_DP)
         setOnClickListener { tool.open() }
         addView(ImageView(this@PeriActivity).apply {
             setImageDrawable(sized(tool.pose, dp(TOOL_POSE_DP)))
@@ -1528,7 +1530,7 @@ class PeriActivity : Activity() {
             typeface = Fonts.display(600)
             setTextColor(tool.rubber.ink)
             gravity = Gravity.CENTER
-            maxLines = 2
+            maxLines = 3
             setLineSpacing(0f, 0.95f)
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(2) })

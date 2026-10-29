@@ -398,6 +398,8 @@ internal fun Context.heading(value: CharSequence, size: Float = TextSize.TITLE) 
     sizeSp(size)
     typeface = Fonts.display(600)
     setTextColor(Palette.INK)
+    // TalkBack can jump from title to title.
+    isAccessibilityHeading = true
 }
 
 internal fun Context.body(value: CharSequence, size: Float = TextSize.BODY) = TextView(this).apply {

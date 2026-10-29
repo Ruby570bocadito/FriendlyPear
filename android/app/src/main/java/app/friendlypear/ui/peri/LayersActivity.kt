@@ -77,7 +77,9 @@ class LayersActivity : Activity() {
         buttons.chunked(3).forEach { row ->
             sheet.addView(LinearLayout(this).apply {
                 row.forEach { (label, action) ->
-                    addView(chipButton(label) { action() }, LinearLayout.LayoutParams(0, dp(46), 1f).apply { setMargins(dp(4), dp(4), dp(4), dp(4)) })
+                    // As tall as their words need with big text, never less than a comfortable touch.
+                    addView(chipButton(label) { action() }.apply { minimumHeight = dp(46) },
+                        LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { setMargins(dp(4), dp(4), dp(4), dp(4)) })
                 }
             })
         }
