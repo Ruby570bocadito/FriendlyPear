@@ -41,7 +41,7 @@ class SettingsActivity : Activity() {
         list.addView(LinearLayout(this).apply {
             gravity = Gravity.CENTER_VERTICAL
             addView(ImageView(this@SettingsActivity).apply {
-                setImageResource(R.drawable.peri_calm_wave1)
+                setImageResource(R.drawable.peri_scene_settings)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 alive()
             }, LinearLayout.LayoutParams(dp(96), dp(96)))

@@ -279,14 +279,14 @@ internal abstract class Page(context: Context) : ScrollView(context) {
 internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(context) {
     override fun build() {
         val c = context
-        list.addView(c.heroCard(c.getString(R.string.diary_title), R.array.diary_hello, R.drawable.peri_calm_glasses, Palette.SUN_TINT, Palette.SUN_LIP, Palette.AMBER_INK, Floaties.Decor.DIARY))
+        list.addView(c.heroCard(c.getString(R.string.diary_title), R.array.diary_hello, diaryArt(), Palette.SUN_TINT, Palette.SUN_LIP, Palette.AMBER_INK, Floaties.Decor.DIARY))
         list.addView(stats(), c.below())
         val lines = lines()
         if (lines.isEmpty()) {
             list.addView(c.whiteCard().apply {
                 gravity = Gravity.CENTER_HORIZONTAL
                 addView(ImageView(c).apply {
-                    setImageDrawable(c.sized(R.drawable.peri_calm_thumbsup, c.dp(120)))
+                    setImageDrawable(c.sized(R.drawable.peri_scene_relax, c.dp(120)))
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                     alive()
                 }, LinearLayout.LayoutParams(c.dp(120), c.dp(120)))
@@ -403,6 +403,13 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
         }
     }
 
+    /** Peri on her diary's card, by the hour: her morning tea, writing in her diary, reading under her lamp at night. */
+    private fun diaryArt(): Int = when (java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)) {
+        in 6..11 -> R.drawable.peri_scene_morning
+        in 12..20 -> R.drawable.peri_scene_diary
+        else -> R.drawable.peri_scene_night
+    }
+
     private fun lines(): List<Moment> {
         val c = context
         val diary = hub.diary.all().mapNotNull { e ->
@@ -466,7 +473,7 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
 internal class LearnPage(context: Context, private val hub: PeriHub, private val open: (Intent) -> Unit) : Page(context) {
     override fun build() {
         val c = context
-        list.addView(c.heroCard(c.getString(R.string.learn_title), R.array.learn_hello, R.drawable.peri_calm_detective, Palette.SKY_TINT, 0xFFA9D5F2.toInt(), Palette.SKY_INK, Floaties.Decor.LEARN))
+        list.addView(c.heroCard(c.getString(R.string.learn_title), R.array.learn_hello, R.drawable.peri_scene_learn, Palette.SKY_TINT, 0xFFA9D5F2.toInt(), Palette.SKY_INK, Floaties.Decor.LEARN))
         list.addView(quiz(), c.below())
         list.addView(c.label(c.getString(R.string.learn_traps_title)), LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(20) })
         list.addView(traps(), c.below(10))
@@ -495,7 +502,7 @@ internal class LearnPage(context: Context, private val hub: PeriHub, private val
                     })
                 }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
                 addView(ImageView(c).apply {
-                    setImageDrawable(c.sized(R.drawable.peri_calm_idea, c.dp(96)))
+                    setImageDrawable(c.sized(R.drawable.peri_scene_cheer, c.dp(96)))
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                     alive()
                 }, LinearLayout.LayoutParams(c.dp(96), c.dp(96)))
@@ -619,7 +626,7 @@ internal class FamilyPage(context: Context, private val hub: PeriHub, private va
         val c = context
         val store = FamilyStore(c)
         val config = store.load()
-        list.addView(c.heroCard(c.getString(R.string.family_page_title), R.array.family_hello, R.drawable.peri_family, Palette.LILAC_TINT, 0xFFCDBEF5.toInt(), Palette.LILAC_INK, Floaties.Decor.FAMILY))
+        list.addView(c.heroCard(c.getString(R.string.family_page_title), R.array.family_hello, R.drawable.peri_scene_family, Palette.LILAC_TINT, 0xFFCDBEF5.toInt(), Palette.LILAC_INK, Floaties.Decor.FAMILY))
         list.addView(pears(), c.below())
         val guardians = c.whiteCard().apply {
             addView(c.heading(c.getString(R.string.family_guardians_title), TextSize.BODY))

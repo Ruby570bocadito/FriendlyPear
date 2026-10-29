@@ -269,6 +269,12 @@ class QuizActivity : Activity() {
         say(if (shield) line + " " + Lines.next(this, R.array.peri_medal) else line)
         val score = whiteCard().apply {
             gravity = Gravity.CENTER_HORIZONTAL
+            // A good round gets Peri with her trophy.
+            if (correct * 2 >= round.size) addView(ImageView(this@QuizActivity).apply {
+                setImageDrawable(sized(R.drawable.peri_scene_trophy, dp(TROPHY_DP)))
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                popIn(200)
+            }, LinearLayout.LayoutParams(dp(TROPHY_DP), dp(TROPHY_DP)))
             addView(TextView(this@QuizActivity).apply {
                 text = getString(R.string.quiz_score, correct, round.size)
                 sizeSp(30f)
@@ -360,6 +366,7 @@ class QuizActivity : Activity() {
     }
 
     companion object {
+        const val TROPHY_DP = 120
         private const val PREFS = "quiz"
         private const val BEST = "best"
         private const val BEST_OF = "best_of"

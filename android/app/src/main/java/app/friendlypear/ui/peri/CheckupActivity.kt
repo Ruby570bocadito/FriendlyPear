@@ -65,7 +65,7 @@ class CheckupActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
             addView(ImageView(this@CheckupActivity).apply {
-                setImageResource(if (ok == checks.size) R.drawable.peri_calm_thumbsup else R.drawable.peri_calm_detective)
+                setImageResource(if (ok == checks.size) R.drawable.peri_scene_cheer else R.drawable.peri_scene_checkup)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 alive()
             }, LinearLayout.LayoutParams(dp(130), dp(130)))
