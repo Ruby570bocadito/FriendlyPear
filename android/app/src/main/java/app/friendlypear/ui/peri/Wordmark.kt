@@ -45,6 +45,10 @@ internal class Wordmark(context: Context, private val name: String) : View(conte
     private val d = resources.displayMetrics.density
     private val split = name.indexOf("Pear").takeIf { it > 0 } ?: name.length
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { typeface = Fonts.display(700) }
+    private val probe = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        typeface = Fonts.display(700)
+        textSize = 100f
+    }
     private val edge = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         typeface = Fonts.display(700)
         style = Paint.Style.STROKE
@@ -72,6 +76,8 @@ internal class Wordmark(context: Context, private val name: String) : View(conte
         contentDescription = name
         importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
         isAccessibilityHeading = true
+        // No grey box behind the name when focus lands on it (a keyboard, a remote): it's a logo you can tap, not a field.
+        defaultFocusHighlightEnabled = false
         setOnClickListener {
             performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
             hopAt = SystemClock.uptimeMillis()
@@ -87,10 +93,11 @@ internal class Wordmark(context: Context, private val name: String) : View(conte
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val width = MeasureSpec.getSize(widthMeasureSpec)
         val title = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, TextSize.TITLE, resources.displayMetrics)
-        fill.textSize = 100f
-        val unit = fill.measureText(name) / 100f
-        // Room for the edge and the hops on both sides; never bigger than a title.
-        size = if (width > 0) min(title, (width - 8 * d) / unit) else title
+        // Measured with its own paint: measuring with the letters' own and leaving it at 100 px drew the letters bigger
+        // than their dark edge after any later layout, and the name looked like one text on top of another.
+        val unit = (probe.measureText(name) + (name.length - 1) * 100f * TRACKING) / 100f
+        // Room for the edge and the hops on both sides; a little smaller than a title, so it doesn't crowd the screen.
+        size = if (width > 0) min(title * SCALE, (width - 8 * d) / unit) else title * SCALE
         val height = (size * 1.55f + 10 * d).toInt()
         setMeasuredDimension(width, resolveSize(height, heightMeasureSpec))
     }
@@ -100,11 +107,12 @@ internal class Wordmark(context: Context, private val name: String) : View(conte
         fill.textSize = size
         edge.textSize = size
         edge.strokeWidth = size * EDGE_WIDTH
+        // A little air between the letters: with their thick clay edge, side by side they ran into each other.
         var at = 4 * d
         for (i in name.indices) {
             x[i] = at
             widths[i] = fill.measureText(name, i, i + 1)
-            at += widths[i]
+            at += widths[i] + size * TRACKING
         }
         val bounds = Rect()
         fill.getTextBounds("F", 0, 1, bounds)
@@ -263,6 +271,9 @@ internal class Wordmark(context: Context, private val name: String) : View(conte
 
     private companion object {
         const val MIN_SP = 17f
+        /** Its size against a title's, and the air between letters as a share of their size. */
+        const val SCALE = 0.82f
+        const val TRACKING = 0.07f
         const val INTRO_MS = 760L
         const val STAGGER_MS = 55L
         const val WAVE_MS = 900L
