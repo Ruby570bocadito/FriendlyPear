@@ -79,6 +79,27 @@
     <string name="checkup_codes_fix">Permitir SMS</string>
     <string name="setup_battery">Que Peri vigile con la pantalla apagada (opcional)</string>
     <string name="why_battery">Android te preguntará si puedo seguir funcionando. Toca Permitir: gasto muy poca batería y los avisos de tu familia llegan a tiempo.</string>
+    <string name="badge_new">¡Una medalla nueva!</string>
+    <string name="badges_title">Medallas</string>
+    <string name="badge_earned">%1$s, conseguida</string>
+    <string name="badge_not_yet">%1$s, todavía no</string>
+    <plurals name="calm_days_row">
+        <item quantity="one">%d día tranquilo seguido</item>
+        <item quantity="many">%d días tranquilos seguidos</item>
+        <item quantity="other">%d días tranquilos seguidos</item>
+    </plurals>
+    <string name="milestone_first_shield">Primer escudo</string>
+    <string name="milestone_five_shields">Cinco escudos</string>
+    <string name="milestone_twenty_shields">Veinte escudos</string>
+    <string name="milestone_calm_days">Tres días tranquilos</string>
+    <string name="milestone_calm_week">Una semana tranquila</string>
+    <string name="milestone_calm_month">Un mes tranquilo</string>
+    <string name="milestone_first_shield_say">¡Tu primer escudo! Cada uno es un truco que no ha funcionado contigo. Sigue enseñándome todo lo que te parezca raro.</string>
+    <string name="milestone_five_shields_say">¡Cinco escudos! Cada vez se te da mejor pillar los trucos. Sigue así, que aquí estoy.</string>
+    <string name="milestone_twenty_shields_say">Veinte escudos: una medalla de oro y veinte trucos que no llegaron a nada. ¿Seguimos?</string>
+    <string name="milestone_calm_days_say">Tres días tranquilos seguidos. Me gusta este ritmo. Yo vigilo; tú disfruta del día.</string>
+    <string name="milestone_calm_week_say">Una semana entera de calma. Los días tranquilos son mis favoritos. Sigo vigilando.</string>
+    <string name="milestone_calm_month_say">¡Un mes de calma! Treinta días sin sustos. Medalla de oro para todo el equipo.</string>
     <string name="checkup_allow">Permitir</string>
     <string name="learn_tools_title">Las herramientas de Peri</string>
     <string name="tool_checkup_line">Siete comprobaciones, cada una con su arreglo</string>

@@ -8,6 +8,8 @@ import android.app.role.RoleManager
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -18,17 +20,19 @@ import android.view.View
 import android.view.WindowInsets
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import java.util.Calendar
 import app.friendlypear.PeriApp
 import app.friendlypear.R
 import app.friendlypear.config.Need
+import app.friendlypear.core.agent.Milestone
 import app.friendlypear.core.agent.Mood
+import app.friendlypear.device.Obstacles
 import app.friendlypear.device.VoiceInput
 import app.friendlypear.services.MessageListener
 import app.friendlypear.services.PeriHub
 import app.friendlypear.services.PeriView
-import app.friendlypear.device.Obstacles
 
 /**
  * Peri's screen, in her world (a sky that follows the hour and her mood, and a place that changes every day), with
@@ -57,13 +61,13 @@ class PeriActivity : Activity() {
     private lateinit var usage: View
     private lateinit var basics: View
     private lateinit var location: View
+    private lateinit var battery: View
+    /** Peri showing what the step is about: a phone for calls, a bell for alerts, a letter for texts, a map pin... */
+    private lateinit var setupArt: ImageView
     private lateinit var sms: View
     private lateinit var world: PeriWorld
     private lateinit var tabs: TabBar
     private lateinit var home: LinearLayout
-    private lateinit var battery: View
-    /** Peri showing what the step is about: a phone for calls, a bell for alerts, a letter for texts, a map pin... */
-    private lateinit var setupArt: ImageView
     private lateinit var pages: android.widget.FrameLayout
     private lateinit var wordmark: Wordmark
     private var diary: DiaryPage? = null
@@ -199,15 +203,15 @@ class PeriActivity : Activity() {
             hub.show(getString(R.string.why_usage))
             startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
         }
-        setup = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            background = cardBackground()
-            setPadding(dp(16), dp(12), dp(12), dp(8))
         // Battery saving can put Peri to sleep and the family's alerts arrive late: Android's own question, optional.
         battery = setupRow(R.drawable.ic_shield, getString(R.string.setup_battery), dismissKey = DISMISS_BATTERY) {
             hub.show(getString(R.string.why_battery))
             runCatching { startActivity(Obstacles.freeIntent(this)) }.onFailure { startActivity(Obstacles.appInfo(this)) }
         }
+        setup = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = cardBackground()
+            setPadding(dp(16), dp(12), dp(12), dp(8))
             addView(LinearLayout(this@PeriActivity).apply {
                 gravity = Gravity.CENTER_VERTICAL
                 setupArt = ImageView(this@PeriActivity).apply {
@@ -222,11 +226,11 @@ class PeriActivity : Activity() {
             addView(access)
             addView(usage)
             addView(location)
+            addView(battery)
         }
 
         // After a scam: "Want to report it?", with a button to have it written up, and a cross to hide it.
         report = LinearLayout(this).apply {
-            addView(battery)
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
             setPadding(dp(16), dp(12), dp(8), dp(14))
@@ -708,6 +712,9 @@ class PeriActivity : Activity() {
 
     /** Words still appearing in her bubble: her mouth keeps moving even if her voice is off or already done. */
     private var revealing = false
+    /** The badge on screen, and whether one waits for Peri to finish what she's saying. */
+    private var badgeShown: android.app.AlertDialog? = null
+    private var badgeWhenQuiet = false
 
     /**
      * Reveals [text] word by word, each one fading in as if she were saying it. The words are all laid out from the
@@ -978,15 +985,104 @@ class PeriActivity : Activity() {
     /** "By the way, you've earned a new shield": only when all is calm, never right after a warning. */
     private fun shieldsLine(): String? {
         val n = hub.shields.unseen
-        if (n == 0 || hub.mood != Mood.CALM || hub.isWaitingForAnswer) return null
+        // A milestone on its way says it better, with its badge.
+        if (n == 0 || hub.mood != Mood.CALM || hub.isWaitingForAnswer || milestone() != null) return null
         hub.shields.seen()
         face.postDelayed({ face.moment(app.friendlypear.services.PeriMoment.THUMBS_UP) }, CONGRATULATE_DELAY_MS)
         return resources.getQuantityString(R.plurals.shields_new, n, n)
     }
 
     private fun congratulate() {
+        // A milestone comes with its badge once her hello is out, and says more than "a new shield".
+        if (milestone() != null) {
+            face.postDelayed({ if (resumed) celebrate() }, CONGRATULATE_DELAY_MS)
+            return
+        }
         if (hub.speaking) return
         shieldsLine()?.let { hub.say(it) }
+    }
+
+    /** The milestone to celebrate now, with the shields and calm days as they are. */
+    private fun milestone(): Milestone? {
+        val milestones = hub.milestones
+        milestones.update(hub.shields.total, milestones.calmDays(hub.diary))
+        return milestones.pending
+    }
+
+    /**
+     * A milestone reached (the first shield, five, twenty; three calm days, a week, a month): its badge, Peri's line
+     * and her medal. Only when all is calm, never over a warning, and one at a time.
+     */
+    private fun celebrate(): Boolean {
+        if (hub.mood != Mood.CALM || hub.isWaitingForAnswer || badgeShown != null) return false
+        val reached = milestone() ?: return false
+        // While she talks (her hello), the badge waits for her to finish.
+        if (hub.speaking) {
+            badgeWhenQuiet = true
+            return false
+        }
+        // The shields that brought it count as congratulated.
+        hub.shields.seen()
+        val (name, line) = MILESTONE_WORDS.getValue(reached)
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            setPadding(dp(24), dp(20), dp(24), dp(4))
+            addView(ImageView(this@PeriActivity).apply {
+                setImageResource(MILESTONE_ART.getValue(reached))
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                alive()
+            }, LinearLayout.LayoutParams(dp(170), dp(170)))
+            addView(heading(getString(R.string.badge_new)).apply { gravity = Gravity.CENTER })
+            addView(LinearLayout(this@PeriActivity).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                addView(ImageView(this@PeriActivity).apply {
+                    setImageResource(BADGE_ART.getValue(reached.badge))
+                    importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                }, LinearLayout.LayoutParams(dp(40), dp(40)))
+                addView(body(getString(name)).apply {
+                    setTextColor(Palette.INK)
+                    setPadding(dp(8), 0, 0, 0)
+                })
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(6) })
+        }
+        // Celebrated once it's been seen and closed: if the screen goes before that, it comes back next time.
+        badgeShown = android.app.AlertDialog.Builder(this)
+            .setView(ScrollView(this).apply { addView(content) })
+            .setPositiveButton(R.string.shields_close, null)
+            .setOnDismissListener {
+                badgeShown = null
+                hub.milestones.celebrated(reached)
+            }
+            .show()
+            .apply { friendly() }
+        face.moment(app.friendlypear.services.PeriMoment.MEDAL)
+        hub.say(getString(line))
+        return true
+    }
+
+    /** A badge in the shields card: in colour once earned, faint and grey until then, with its name under it. */
+    private fun badge(milestone: Milestone, earned: Boolean): View = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        gravity = Gravity.CENTER_HORIZONTAL
+        setPadding(dp(2), dp(6), dp(2), dp(6))
+        val name = getString(MILESTONE_WORDS.getValue(milestone).first)
+        contentDescription = getString(if (earned) R.string.badge_earned else R.string.badge_not_yet, name)
+        addView(ImageView(this@PeriActivity).apply {
+            setImageResource(BADGE_ART.getValue(milestone.badge))
+            if (!earned) {
+                colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) })
+                alpha = 0.4f
+            }
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, LinearLayout.LayoutParams(dp(56), dp(56)))
+        addView(TextView(this@PeriActivity).apply {
+            text = name
+            sizeSp(13f)
+            gravity = Gravity.CENTER
+            setTextColor(if (earned) Palette.INK else Palette.INK_SOFT)
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        })
     }
 
     private fun showShieldCount(total: Int, pop: Boolean) {
@@ -1031,9 +1127,25 @@ class PeriActivity : Activity() {
                     })
                 })
             }
+            // The badges: shields on one row, calm days on the other.
+            addView(heading(getString(R.string.badges_title), TextSize.BODY).apply { setPadding(0, dp(14), 0, dp(4)) })
+            val earned = hub.milestones.earned
+            Milestone.Track.entries.forEach { track ->
+                addView(LinearLayout(this@PeriActivity).apply {
+                    Milestone.entries.filter { it.track == track }.forEach { m ->
+                        addView(badge(m, m in earned), LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+                    }
+                })
+            }
+            // The streak so far, once there is one (right after a scare it starts again tomorrow).
+            val calm = hub.milestones.calmDays(hub.diary)
+            if (calm > 0) addView(body(resources.getQuantityString(R.plurals.calm_days_row, calm, calm), TextSize.SMALL).apply {
+                gravity = Gravity.CENTER
+                setPadding(0, dp(4), 0, dp(8))
+            })
         }
         android.app.AlertDialog.Builder(this)
-            .setView(content)
+            .setView(ScrollView(this).apply { addView(content) })
             .setPositiveButton(R.string.shields_close, null)
             .show()
             .friendly()
@@ -1334,10 +1446,20 @@ class PeriActivity : Activity() {
         val noBasics = BASICS.any { !hub.permissions.granted(it) }
         val noSms = !hub.permissions.granted(Need.READ_SMS) && !asked.getBoolean(DISMISS_SMS, false)
         val noLocation = !hub.permissions.granted(Need.LOCATION) && !asked.getBoolean(LOCATION_ASKED, false)
+        val noBattery = !Obstacles.runsFreely(this) && !asked.getBoolean(DISMISS_BATTERY, false)
         // One step at a time, the most important first: a card with every step would squeeze Peri off the screen.
         val steps = listOf(noBasics to basics, noAccess to access, noSms to sms, noUsage to usage, noLocation to location, noBattery to battery)
         val first = steps.firstOrNull { it.first }?.second
         steps.forEach { (_, row) -> row.visibility = if (row == first) View.VISIBLE else View.GONE }
+        setupArt.setImageResource(when (first) {
+            basics -> R.drawable.peri_ui_perm_calls
+            access -> R.drawable.peri_ui_perm_notifications
+            sms -> R.drawable.peri_ui_perm_sms
+            usage -> R.drawable.peri_ui_perm_usage
+            location -> R.drawable.peri_ui_perm_location
+            battery -> R.drawable.peri_ui_perm_battery
+            else -> R.drawable.peri_shield
+        })
         // A family question first, then family in trouble, then a website to silence, then a scam to report: one card
         // at a time, so Peri keeps her room.
         val asked = asking != null
@@ -1436,30 +1558,25 @@ class PeriActivity : Activity() {
             // medal and stars would sound like a joke over "careful" (and held her umbrella back for two seconds).
             val warning = hub.mood == Mood.PROTECTIVE || hub.mood == Mood.WORRIED
             showShieldCount(total, pop = !warning)
-            // A shield earned is worth a burst of stars.
+            // A shield earned is worth a burst of stars, and a milestone its badge once she's quiet again.
             if (!warning) face.stars()
+            if (!warning) face.postDelayed({ if (!isFinishing) celebrate() }, CONGRATULATE_DELAY_MS)
         }
 
         override fun scamToReport() = showSetup()
 
         override fun speaking(on: Boolean) {
             face.speaking(on || revealing)
+            if (!on && badgeWhenQuiet && resumed) {
+                badgeWhenQuiet = false
+                face.postDelayed({ if (resumed) celebrate() }, QUIET_MS)
+            }
             if (!on && resumed && hub.isWaitingForAnswer && voice.available && hub.permissions.granted(Need.MIC)) voice.listen()
         }
-        val noBattery = !Obstacles.runsFreely(this) && !asked.getBoolean(DISMISS_BATTERY, false)
     }
 
     /** While the microphone is open the button says so and breathes gently, so it's clear Peri is listening. */
     private fun showListening(on: Boolean) {
-        setupArt.setImageResource(when (first) {
-            basics -> R.drawable.peri_ui_perm_calls
-            access -> R.drawable.peri_ui_perm_notifications
-            sms -> R.drawable.peri_ui_perm_sms
-            usage -> R.drawable.peri_ui_perm_usage
-            location -> R.drawable.peri_ui_perm_location
-            battery -> R.drawable.peri_ui_perm_battery
-            else -> R.drawable.peri_shield
-        })
         talk.label = getString(if (on) R.string.listening else R.string.talk)
         pulse?.cancel()
         talk.scaleX = 1f
@@ -1571,6 +1688,32 @@ class PeriActivity : Activity() {
         const val SPIN_SETTLE_MS = 950L
         const val YAWN_DELAY_MS = 700L
         const val CONGRATULATE_DELAY_MS = 1_800L
+        /** A breath after Peri stops talking before her badge comes. */
+        const val QUIET_MS = 700L
+
+        /** Each milestone's name and Peri's line for it. */
+        val MILESTONE_WORDS = mapOf(
+            Milestone.FIRST_SHIELD to (R.string.milestone_first_shield to R.string.milestone_first_shield_say),
+            Milestone.FIVE_SHIELDS to (R.string.milestone_five_shields to R.string.milestone_five_shields_say),
+            Milestone.TWENTY_SHIELDS to (R.string.milestone_twenty_shields to R.string.milestone_twenty_shields_say),
+            Milestone.CALM_DAYS to (R.string.milestone_calm_days to R.string.milestone_calm_days_say),
+            Milestone.CALM_WEEK to (R.string.milestone_calm_week to R.string.milestone_calm_week_say),
+            Milestone.CALM_MONTH to (R.string.milestone_calm_month to R.string.milestone_calm_month_say),
+        )
+        /** Peri for each milestone: a shield held up, a stack of them, a trophy; a sprout, flowers, a pear tree. */
+        val MILESTONE_ART = mapOf(
+            Milestone.FIRST_SHIELD to R.drawable.peri_ui_shield_first,
+            Milestone.FIVE_SHIELDS to R.drawable.peri_ui_shield_10,
+            Milestone.TWENTY_SHIELDS to R.drawable.peri_ui_shield_100,
+            Milestone.CALM_DAYS to R.drawable.peri_ui_streak_3,
+            Milestone.CALM_WEEK to R.drawable.peri_ui_streak_7,
+            Milestone.CALM_MONTH to R.drawable.peri_ui_streak_30,
+        )
+        val BADGE_ART = mapOf(
+            Milestone.Badge.BRONZE to R.drawable.peri_ui_badge_bronze,
+            Milestone.Badge.SILVER to R.drawable.peri_ui_badge_silver,
+            Milestone.Badge.GOLD to R.drawable.peri_ui_badge_gold,
+        )
         /** A sentence's words appear over about this long, a word every 80 to 160 ms. */
         const val WORDS_MS = 3_600L
         /** Each word fades in over this long. */
@@ -1630,8 +1773,8 @@ class PeriActivity : Activity() {
         const val GROUND_LOW_DP = 92
         const val DISMISS_SMS = "dismiss_sms"
         const val DISMISS_USAGE = "dismiss_usage"
+        const val DISMISS_BATTERY = "dismiss_battery"
         /** What Peri can't protect without: who is family, and whether a call is going on. */
         val BASICS = listOf(Need.CONTACTS, Need.PHONE_STATE)
     }
 }
-        const val DISMISS_BATTERY = "dismiss_battery"

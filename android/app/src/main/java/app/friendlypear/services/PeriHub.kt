@@ -136,6 +136,9 @@ class PeriHub(context: Context) {
     /** What Peri did, for the "Diary" section: a word or two per entry, never a message's text or sender. */
     val diary = app.friendlypear.config.Diary(this.context)
 
+    /** The badges of Peri's milestones: shields earned and calm days in a row. */
+    val milestones = app.friendlypear.config.Milestones(this.context)
+
     /** A website's junk notice, to silence that site: [onWebNotice] keeps it until the verdict says it's junk. */
     val webNotices = WebNotice(this.context)
     private val pendingWeb = HashMap<String, WebNotice.Notice>()

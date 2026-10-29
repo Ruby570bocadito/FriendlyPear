@@ -80,6 +80,26 @@
     <string name="checkup_codes_fix">Allow texts</string>
     <string name="setup_battery">Let Peri keep watch with the screen off (optional)</string>
     <string name="why_battery">Android will ask if I can keep running. Tap Allow: I use very little battery, and your family\'s alerts arrive on time.</string>
+    <string name="badge_new">A new badge!</string>
+    <string name="badges_title">Badges</string>
+    <string name="badge_earned">%1$s, earned</string>
+    <string name="badge_not_yet">%1$s, not yet</string>
+    <plurals name="calm_days_row">
+        <item quantity="one">%d calm day in a row</item>
+        <item quantity="other">%d calm days in a row</item>
+    </plurals>
+    <string name="milestone_first_shield">First shield</string>
+    <string name="milestone_five_shields">Five shields</string>
+    <string name="milestone_twenty_shields">Twenty shields</string>
+    <string name="milestone_calm_days">Three calm days</string>
+    <string name="milestone_calm_week">A calm week</string>
+    <string name="milestone_calm_month">A calm month</string>
+    <string name="milestone_first_shield_say">Your first shield! Each one is a trick that didn\'t work on you. Keep showing me anything odd.</string>
+    <string name="milestone_five_shields_say">Five shields! You\'re getting very good at spotting tricks. Keep it up, I\'m right here.</string>
+    <string name="milestone_twenty_shields_say">Twenty shields: a gold badge, and twenty tricks that went nowhere. Shall we keep going?</string>
+    <string name="milestone_calm_days_say">Three calm days in a row. I like this pace. I\'ll keep watch; you enjoy your day.</string>
+    <string name="milestone_calm_week_say">A whole calm week together. Peaceful days are my favourite kind. I\'m still watching.</string>
+    <string name="milestone_calm_month_say">A calm month! Thirty days without a scare. A gold badge for the whole team.</string>
     <string name="checkup_allow">Allow</string>
     <string name="learn_tools_title">Peri\'s tools</string>
     <string name="tool_checkup_line">Seven checks, each with its fix</string>
