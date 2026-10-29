@@ -547,6 +547,8 @@ class MiniPeriService : Service(), PeriView {
     }
 
     override fun said(text: String) {
+        // The app in front says it in its own bubble: hers, a window of its own, covered it with the same words.
+        if (hub.appVisible) return
         bubbleRoot.visibility = View.VISIBLE
         bubble.text = text
         fitBubble()
@@ -572,6 +574,7 @@ class MiniPeriService : Service(), PeriView {
     override fun appShown(visible: Boolean) {
         val wasHidden = root.visibility != View.VISIBLE
         root.visibility = if (visible) View.GONE else View.VISIBLE
+        if (visible && ::bubbleRoot.isInitialized) bubbleRoot.visibility = View.GONE
         if (!visible && (wasHidden || holder.alpha < 1f)) popIn()
     }
 
