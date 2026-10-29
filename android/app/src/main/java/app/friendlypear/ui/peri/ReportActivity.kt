@@ -2,10 +2,13 @@ package app.friendlypear.ui.peri
 
 import android.app.Activity
 import android.content.ClipData
+import android.content.ClipDescription
 import android.content.ClipboardManager
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.view.Gravity
 import android.view.View
 import android.view.WindowInsets
@@ -161,7 +164,12 @@ class ReportActivity : Activity() {
         }, button(height = 68, top = 16))
         state.addView(Pill(this, getString(R.string.report_copy), R.drawable.ic_message, primary = false).apply {
             setOnClickListener {
-                getSystemService(ClipboardManager::class.java)?.setPrimaryClip(ClipData.newPlainText(report.title, text))
+                val clip = ClipData.newPlainText(report.title, text)
+                // The scam and what was lost: Android 13 and later keep it out of the preview of what was copied.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    clip.description.extras = PersistableBundle().apply { putBoolean(ClipDescription.EXTRA_IS_SENSITIVE, true) }
+                }
+                getSystemService(ClipboardManager::class.java)?.setPrimaryClip(clip)
                 Toast.makeText(this@ReportActivity, R.string.report_copied, Toast.LENGTH_LONG).show()
             }
         }, button())
