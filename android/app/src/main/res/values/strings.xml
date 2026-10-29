@@ -102,7 +102,7 @@
     <string name="milestone_calm_month_say">A calm month! Thirty days without a scare. A gold badge for the whole team.</string>
     <string name="checkup_allow">Allow</string>
     <string name="learn_tools_title">Peri\'s tools</string>
-    <string name="tool_checkup_line">Seven checks, each with its fix</string>
+    <string name="tool_checkup_line">What a scammer could use, and what Android puts in Peri\'s way, each with its fix</string>
     <string name="tool_chat_line">Bank, codes, links… in writing</string>
     <string name="tool_after_title">Already fell for a trap?</string>
     <string name="tool_after_line">What to do now, step by step</string>
@@ -1286,4 +1286,14 @@
     <string name="check_sim_named">%1$s says they didn\'t change it. Call your bank and your phone company now, from another phone.</string>
     <string name="check_sim_named_many">%1$s say they didn\'t change it. Call your bank and your phone company now, from another phone.</string>
     <string name="check_sim_silence">Your family hasn\'t answered yet. To be safe, call your phone company and your bank from another phone.</string>
+    <string name="settings_forget">Forget what Peri knows</string>
+    <string name="settings_forget_line">Her diary, the scams she stopped and what she noted down</string>
+    <string name="forget_title">Forget what Peri knows?</string>
+    <string name="forget_text">I\'ll forget my diary, the scams I stopped and what I looked into, what I did with your permissions, the websites I silenced, and your shields and badges. Your settings and my outfit stay.</string>
+    <string name="forget_family_too">Your family setup, the numbers you blocked and this phone\'s link to Peri\'s server go too.</string>
+    <string name="forget_family_stays">Your family and the numbers you blocked stay: who protects you is decided with your family, not from here.</string>
+    <string name="forget_yes">Forget it all</string>
+    <string name="forget_no">Keep it</string>
+    <string name="forget_identity">Only you can do this</string>
+    <string name="forget_done">Done: I\'ve forgotten it all. A fresh start!</string>
 </resources>

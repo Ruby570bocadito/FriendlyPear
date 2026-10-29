@@ -232,6 +232,7 @@ class SettingsActivity : Activity() {
             actionRow(R.drawable.ic_pear, getString(R.string.settings_welcome_again), getString(R.string.settings_welcome_line)) {
                 startActivity(android.content.Intent(this, WelcomeActivity::class.java))
             },
+            actionRow(R.drawable.ic_close, getString(R.string.settings_forget), getString(R.string.settings_forget_line)) { forget() },
         ), getString(R.string.settings_more)), LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(14) })
 
         val pad = dp(20)
@@ -295,6 +296,35 @@ class SettingsActivity : Activity() {
             }
             .show()
             .friendly()
+    }
+
+    /** "Forget what Peri knows": what goes and what stays first, then the phone's lock, then a fresh start. */
+    private fun forget() {
+        val guarded = app.friendlypear.config.Forget.guarded(this)
+        android.app.AlertDialog.Builder(this)
+            .setTitle(R.string.forget_title)
+            .setMessage(getString(R.string.forget_text) + " " + getString(if (guarded) R.string.forget_family_stays else R.string.forget_family_too))
+            .setNegativeButton(R.string.forget_no, null)
+            .setPositiveButton(R.string.forget_yes) { _, _ ->
+                confirmIdentity(getString(R.string.forget_title), getString(R.string.forget_identity), {
+                    java.util.concurrent.Executors.newSingleThreadExecutor().execute {
+                        app.friendlypear.config.Forget.everything(this)
+                        runOnUiThread { restart() }
+                    }
+                })
+            }
+            .show()
+            .friendly(risky = android.app.AlertDialog.BUTTON_POSITIVE, riskyColor = Palette.CORAL_INK)
+    }
+
+    /**
+     * Back to her home, in a new process: nothing she knew stays in memory either. The process ends at once, before
+     * the home opens in it, so Android opens it in a fresh one (the toast is Android's, it stays).
+     */
+    private fun restart() {
+        android.widget.Toast.makeText(this, R.string.forget_done, android.widget.Toast.LENGTH_LONG).show()
+        startActivity(android.content.Intent.makeRestartActivityTask(android.content.ComponentName(this, PeriActivity::class.java)))
+        Runtime.getRuntime().exit(0)
     }
 
     private fun unpair() {

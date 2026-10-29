@@ -102,7 +102,7 @@
     <string name="milestone_calm_month_say">¡Un mes de calma! Treinta días sin sustos. Medalla de oro para todo el equipo.</string>
     <string name="checkup_allow">Permitir</string>
     <string name="learn_tools_title">Las herramientas de Peri</string>
-    <string name="tool_checkup_line">Siete comprobaciones, cada una con su arreglo</string>
+    <string name="tool_checkup_line">Lo que un timador podría usar y lo que Android le pone a Peri, cada cosa con su arreglo</string>
     <string name="tool_chat_line">Banco, códigos, enlaces… por escrito</string>
     <string name="tool_after_title">¿Ya caíste en un timo?</string>
     <string name="tool_after_line">Qué hacer ahora, paso a paso</string>
@@ -1250,4 +1250,14 @@
     <string name="check_sim_named">%1$s dice que no lo ha cambiado. Llama ya a tu banco y a tu compañía desde otro teléfono.</string>
     <string name="check_sim_named_many">%1$s dicen que no lo han cambiado. Llama ya a tu banco y a tu compañía desde otro teléfono.</string>
     <string name="check_sim_silence">Tu familia aún no ha contestado. Por si acaso, llama a tu compañía y a tu banco desde otro teléfono.</string>
+    <string name="settings_forget">Borrar lo que Peri sabe</string>
+    <string name="settings_forget_line">Su diario, los timos que paró y lo que apuntó</string>
+    <string name="forget_title">¿Borrar lo que Peri sabe?</string>
+    <string name="forget_text">Olvidaré mi diario, los timos que paré y lo que investigué, lo que hice con tus permisos, las webs que silencié, y tus escudos y medallas. Tus ajustes y mi ropa se quedan.</string>
+    <string name="forget_family_too">También se van tu familia, los números que bloqueaste y la conexión de este móvil con el servidor de Peri.</string>
+    <string name="forget_family_stays">Tu familia y los números que bloqueaste se quedan: quién te protege se decide con tu familia, no desde aquí.</string>
+    <string name="forget_yes">Borrarlo todo</string>
+    <string name="forget_no">Mejor no</string>
+    <string name="forget_identity">Solo tú puedes hacerlo</string>
+    <string name="forget_done">Hecho: lo he olvidado todo. ¡Empezamos de nuevo!</string>
 </resources>
