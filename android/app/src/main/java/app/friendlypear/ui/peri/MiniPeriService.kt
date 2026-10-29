@@ -56,7 +56,7 @@ class MiniPeriService : Service(), PeriView {
     /** Peri and, behind her, the ring that pulses while she listens. */
     private lateinit var holder: FrameLayout
     private lateinit var ring: View
-    private lateinit var face: PeriFace
+    private lateinit var face: MiniHead
     private lateinit var bubble: TextView
     /**
      * The bubble's own window, above hers and just its size: next to her nothing is covered, so what's underneath
@@ -144,8 +144,8 @@ class MiniPeriService : Service(), PeriView {
     }
 
     private fun buildWindow() {
-        // Only the pear: her illustrations are cut out, and she brings her own soft shadow.
-        face = PeriFace(this)
+        // Only her head, with Peri's own eyes and mouth on it: small over other apps, a whole Peri's face was too small to read.
+        face = MiniHead(this)
         ring = View(this).apply {
             background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
