@@ -1,0 +1,42 @@
+{
+  "scam_hook_message": {
+    "prompt": "A white chat speech bubble hanging from a shiny clay fishing hook on a line. Friendly and playful, not scary. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "scam_mask_phone": {
+    "prompt": "An old-style clay telephone handset wearing a small black eye mask, like a masquerade mask. Friendly and playful, not scary. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "scam_qr_sticker": {
+    "prompt": "A square white paper sticker with a scannable black square code printed on it (three black corner squares and small random black blocks), one corner slightly peeling; a small shiny fishing hook peeks out from under the peeling corner. Friendly and playful, not scary. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "scam_parcel": {
+    "prompt": "A cardboard parcel box tied with string, with a big yellow question mark shape on top. Friendly and playful, not scary. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "scam_prize_box": {
+    "prompt": "A coral gift box with a big ribbon bow, with a fishing hook and line coming out of the bow. Friendly and playful, not scary. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "scam_heart_hook": {
+    "prompt": "A coral heart caught on a shiny clay fishing hook on a line. Friendly and playful, not scary. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "scam_remote_hand": {
+    "prompt": "A green clay hand reaching out of a plain blank tablet screen towards a small pile of golden coins. Friendly and playful, not scary. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "scam_safe_account": {
+    "prompt": "A pink piggy bank with a padlock on its front; seen from a slight angle, its back is open with an empty hole. Friendly and playful, not scary. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  }
+}

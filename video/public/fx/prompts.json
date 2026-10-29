@@ -1,0 +1,77 @@
+{
+  "fx_leaf_wipe": {
+    "prompt": "One huge green pear leaf filling most of the image, with a curved central vein. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "fx_clay_blob": {
+    "prompt": "A big round flat blob of smooth pear green clay, slightly irregular edge, one single colour, plain, no dots and no decorations. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "fx_confetti_big": {
+    "prompt": "A joyful burst of clay confetti pieces in many colours spreading out from the centre. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "fx_hearts_burst": {
+    "prompt": "A handful of chubby coral and pink clay hearts of different sizes, spread out. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "fx_sparkle_burst": {
+    "prompt": "A burst of shiny golden four-pointed and five-pointed clay stars, sparkling. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "fx_shield_glow": {
+    "prompt": "A green clay shield with a white pear leaf on it and a soft glow around it. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "fx_check_big": {
+    "prompt": "A big chunky rounded green check mark. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "fx_cross_big": {
+    "prompt": "A big chunky rounded cross like an X, all in one single coral colour, plain, no dots and no decorations. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "fx_arrow_curve": {
+    "prompt": "A chunky curved arrow in sunny yellow clay, bending from left to upper right. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "fx_bubble_empty": {
+    "prompt": "An empty white speech bubble with a small tail at the bottom left, rounded and puffy. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "fx_thought_empty": {
+    "prompt": "An empty white thought cloud with two small round puffs trailing below it. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "fx_magnifier": {
+    "prompt": "A magnifying glass with a brown handle and a shiny glass lens. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "fx_padlock": {
+    "prompt": "A closed sky blue padlock with a shiny silver shackle. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "fx_clock": {
+    "prompt": "A round lilac alarm clock with two bells on top, its face with only two hands and no numbers. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  },
+  "fx_vibrate": {
+    "prompt": "Two groups of three short curved coral clay lines, one group on the left and one on the right, like the vibration marks drawn beside a ringing phone; the middle of the image between them is completely empty. Plain, no dots. Soft 3D clay render of one single object, isolated and centered, straight front view, no character, no face, no text, no letters, no numbers, no logos, no brands, plain flat warm cream background (#FFF8EC), no floor shadow, tactile matte plasticine material, gentle studio lighting, bright cheerful colours from pear green, coral, sky blue, lilac and sunny yellow.",
+    "from": null,
+    "size": "1024x1024"
+  }
+}
