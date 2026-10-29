@@ -39,6 +39,10 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- A family member's request, when Peri isn't on screen. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Android's one-tap question so battery saving doesn't put Peri to sleep (Obstacles.kt). Not a store app. -->
+    <uses-permission
+        android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"
+        tools:ignore="BatteryLife" />
     <!-- The phone's own lock before approving a family request or changing the guardians. -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
 

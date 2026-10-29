@@ -1,10 +1,13 @@
 package app.friendlypear.ui.peri
 
+import android.Manifest
 import android.app.Activity
 import android.app.KeyguardManager
 import android.app.admin.DevicePolicyManager
 import android.app.role.RoleManager
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -18,17 +21,20 @@ import android.widget.ScrollView
 import android.widget.TextView
 import app.friendlypear.PeriApp
 import app.friendlypear.R
+import app.friendlypear.device.Obstacles
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 /**
  * A security checkup of the phone, whenever the person likes: what Peri can see from here that a scammer could use,
  * each with its fix one tap away. The screen lock, how old the last security update is, USB debugging, apps that can
- * control the screen, scam websites blocked for the whole phone, and Peri's own eyes on alerts and calls. Nothing
- * leaves the phone. Peri says how many are in order; coming back from a fix, the checkup looks again.
+ * control the screen, scam websites blocked for the whole phone, and Peri's own eyes on alerts and calls. And what
+ * Android puts in her way on a real phone: battery saving that puts her to sleep, no permission to show the pause
+ * over other apps, and from Android 15 the codes it hides from her unless texts are allowed. Nothing leaves the phone. Peri says how many are in order; coming back from a fix, the checkup looks again.
  */
 class CheckupActivity : Activity() {
-    private data class Check(val ok: Boolean, val title: String, val text: String, val fix: Int, val act: () -> Unit)
+    /** [art] is Peri showing what the check is about: a padlock, an update arrow, a cable, a bell... */
+    private data class Check(val art: Int, val ok: Boolean, val title: String, val text: String, val fix: Int, val act: () -> Unit)
 
     private val hub by lazy { PeriApp.hub(this) }
     private lateinit var list: LinearLayout
@@ -99,14 +105,19 @@ class CheckupActivity : Activity() {
         addView(LinearLayout(this@CheckupActivity).apply {
             gravity = Gravity.CENTER_VERTICAL
             addView(ImageView(this@CheckupActivity).apply {
+                setImageResource(check.art)
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }, LinearLayout.LayoutParams(dp(56), dp(56)))
+            addView(heading(check.title, TextSize.BODY).apply { setPadding(dp(10), 0, dp(8), 0) },
+                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            // In order or not, at a glance: a tick or a warning, at the end.
+            addView(ImageView(this@CheckupActivity).apply {
                 setImageResource(if (check.ok) R.drawable.ic_check else R.drawable.ic_warning)
                 setColorFilter(if (check.ok) Palette.GREEN_DARK else Palette.CORAL_INK)
                 background = rounded(if (check.ok) Palette.GREEN_TINT else Palette.CORAL_TINT, dp(18).toFloat())
                 setPadding(dp(8), dp(8), dp(8), dp(8))
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
             }, LinearLayout.LayoutParams(dp(36), dp(36)))
-            addView(heading(check.title, TextSize.BODY).apply { setPadding(dp(12), 0, 0, 0) },
-                LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
         })
         if (check.ok) return@apply
         addView(body(check.text, TextSize.SMALL).apply {
@@ -133,35 +144,64 @@ class CheckupActivity : Activity() {
         val alerts = UnlockActivity.hasNotificationAccess(this)
         val roles = getSystemService(RoleManager::class.java)
         val calls = roles?.isRoleHeld(RoleManager.ROLE_CALL_SCREENING) == true
-        return listOf(
-            Check(locked, getString(if (locked) R.string.checkup_lock_ok else R.string.checkup_lock_bad), getString(R.string.checkup_lock_text), R.string.checkup_lock_fix) {
+        // Some phones don't offer the call filter at all: nothing to fix there.
+        val filters = roles?.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING) == true
+        val free = Obstacles.runsFreely(this)
+        val over = Settings.canDrawOverlays(this)
+        val codes = !Obstacles.codesHidden(this)
+        return listOfNotNull(
+            Check(R.drawable.peri_check_lock, locked, getString(if (locked) R.string.checkup_lock_ok else R.string.checkup_lock_bad), getString(R.string.checkup_lock_text), R.string.checkup_lock_fix) {
                 open(DevicePolicyManager.ACTION_SET_NEW_PASSWORD, Settings.ACTION_SECURITY_SETTINGS)
             },
-            Check(months <= OLD_PATCH_MONTHS, getString(if (months <= OLD_PATCH_MONTHS) R.string.checkup_update_ok else R.string.checkup_update_bad),
+            Check(R.drawable.peri_check_update, months <= OLD_PATCH_MONTHS, getString(if (months <= OLD_PATCH_MONTHS) R.string.checkup_update_ok else R.string.checkup_update_bad),
                 getString(R.string.checkup_update_text), R.string.checkup_update_fix) {
                 open("android.settings.SYSTEM_UPDATE_SETTINGS", Settings.ACTION_DEVICE_INFO_SETTINGS)
             },
-            Check(!adb, getString(if (adb) R.string.checkup_adb_bad else R.string.checkup_adb_ok), getString(R.string.checkup_adb_text), R.string.checkup_adb_fix) {
+            Check(R.drawable.peri_check_adb, !adb, getString(if (adb) R.string.checkup_adb_bad else R.string.checkup_adb_ok), getString(R.string.checkup_adb_text), R.string.checkup_adb_fix) {
                 open(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
             },
-            Check(intruder == null, if (intruder == null) getString(R.string.checkup_screen_ok) else getString(R.string.checkup_screen_bad, intruder),
+            Check(R.drawable.peri_check_screen, intruder == null, if (intruder == null) getString(R.string.checkup_screen_ok) else getString(R.string.checkup_screen_bad, intruder),
                 getString(R.string.checkup_screen_text), R.string.checkup_screen_fix) {
                 open(Settings.ACTION_ACCESSIBILITY_SETTINGS)
             },
-            Check(dns, getString(if (dns) R.string.checkup_dns_ok else R.string.checkup_dns_bad), getString(R.string.checkup_dns_text), R.string.checkup_dns_fix) {
+            Check(R.drawable.peri_check_dns, dns, getString(if (dns) R.string.checkup_dns_ok else R.string.checkup_dns_bad), getString(R.string.checkup_dns_text), R.string.checkup_dns_fix) {
                 saferWeb()
             },
-            Check(alerts, getString(if (alerts) R.string.checkup_alerts_ok else R.string.checkup_alerts_bad), getString(R.string.checkup_alerts_text), R.string.checkup_allow) {
+            Check(R.drawable.peri_check_alerts, alerts, getString(if (alerts) R.string.checkup_alerts_ok else R.string.checkup_alerts_bad), getString(R.string.checkup_alerts_text), R.string.checkup_allow) {
                 if (UnlockActivity.restricted(this)) startActivity(Intent(this, UnlockActivity::class.java)) else open(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
             },
-            Check(calls, getString(if (calls) R.string.checkup_calls_ok else R.string.checkup_calls_bad), getString(R.string.checkup_calls_text), R.string.checkup_allow) {
+            if (filters) Check(R.drawable.peri_check_calls, calls, getString(if (calls) R.string.checkup_calls_ok else R.string.checkup_calls_bad), getString(R.string.checkup_calls_text), R.string.checkup_allow) {
                 roles?.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING)?.let { startActivity(it) }
+            } else null,
+            Check(R.drawable.peri_ui_perm_battery, free, getString(if (free) R.string.checkup_battery_ok else R.string.checkup_battery_bad), getString(R.string.checkup_battery_text), R.string.checkup_allow) {
+                runCatching { startActivity(Obstacles.freeIntent(this)) }.onFailure { startActivity(Obstacles.appInfo(this)) }
             },
+            Check(R.drawable.peri_ui_perm_overlay, over, getString(if (over) R.string.checkup_overlay_ok else R.string.checkup_overlay_bad), getString(R.string.checkup_overlay_text), R.string.checkup_allow) {
+                startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
+            },
+            // Only where Android hides them (15 and later).
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) Check(R.drawable.peri_ui_perm_sms, codes, getString(if (codes) R.string.checkup_codes_ok else R.string.checkup_codes_bad),
+                getString(R.string.checkup_codes_text), R.string.checkup_codes_fix) { allowTexts() } else null,
         )
+    }
+
+    /** Texts, so Peri sees a code arrive: the unlock guide if Android locked them, or Android's own question. */
+    private fun allowTexts() {
+        if (UnlockActivity.restricted(this)) return startActivity(Intent(this, UnlockActivity::class.java))
+        requestPermissions(arrayOf(Manifest.permission.RECEIVE_SMS), REQUEST_TEXTS)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != REQUEST_TEXTS) return
+        // Android won't ask again after two "no"s: the app's page, where texts can be allowed by hand.
+        val allowed = grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED
+        if (!allowed && !shouldShowRequestPermissionRationale(Manifest.permission.RECEIVE_SMS)) startActivity(Obstacles.appInfo(this))
     }
 
     private companion object {
         /** A phone without a security update for longer than this has known doors open. */
         const val OLD_PATCH_MONTHS = 6
+        const val REQUEST_TEXTS = 41
     }
 }

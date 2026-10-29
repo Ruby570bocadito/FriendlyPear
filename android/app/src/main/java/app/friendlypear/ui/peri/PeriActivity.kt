@@ -28,6 +28,7 @@ import app.friendlypear.device.VoiceInput
 import app.friendlypear.services.MessageListener
 import app.friendlypear.services.PeriHub
 import app.friendlypear.services.PeriView
+import app.friendlypear.device.Obstacles
 
 /**
  * Peri's screen, in her world (a sky that follows the hour and her mood, and a place that changes every day), with
@@ -60,6 +61,9 @@ class PeriActivity : Activity() {
     private lateinit var world: PeriWorld
     private lateinit var tabs: TabBar
     private lateinit var home: LinearLayout
+    private lateinit var battery: View
+    /** Peri showing what the step is about: a phone for calls, a bell for alerts, a letter for texts, a map pin... */
+    private lateinit var setupArt: ImageView
     private lateinit var pages: android.widget.FrameLayout
     private lateinit var wordmark: Wordmark
     private var diary: DiaryPage? = null
@@ -199,12 +203,18 @@ class PeriActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
             setPadding(dp(16), dp(12), dp(12), dp(8))
+        // Battery saving can put Peri to sleep and the family's alerts arrive late: Android's own question, optional.
+        battery = setupRow(R.drawable.ic_shield, getString(R.string.setup_battery), dismissKey = DISMISS_BATTERY) {
+            hub.show(getString(R.string.why_battery))
+            runCatching { startActivity(Obstacles.freeIntent(this)) }.onFailure { startActivity(Obstacles.appInfo(this)) }
+        }
             addView(LinearLayout(this@PeriActivity).apply {
                 gravity = Gravity.CENTER_VERTICAL
-                addView(ImageView(this@PeriActivity).apply {
+                setupArt = ImageView(this@PeriActivity).apply {
                     setImageResource(R.drawable.peri_shield)
                     importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                }, LinearLayout.LayoutParams(dp(40), dp(40)))
+                }
+                addView(setupArt, LinearLayout.LayoutParams(dp(60), dp(60)))
                 addView(heading(getString(R.string.setup_title), TextSize.SMALL).apply { setPadding(dp(8), 0, 0, 0) })
             })
             addView(basics)
@@ -216,6 +226,7 @@ class PeriActivity : Activity() {
 
         // After a scam: "Want to report it?", with a button to have it written up, and a cross to hide it.
         report = LinearLayout(this).apply {
+            addView(battery)
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
             setPadding(dp(16), dp(12), dp(8), dp(14))
@@ -1324,7 +1335,7 @@ class PeriActivity : Activity() {
         val noSms = !hub.permissions.granted(Need.READ_SMS) && !asked.getBoolean(DISMISS_SMS, false)
         val noLocation = !hub.permissions.granted(Need.LOCATION) && !asked.getBoolean(LOCATION_ASKED, false)
         // One step at a time, the most important first: a card with every step would squeeze Peri off the screen.
-        val steps = listOf(noBasics to basics, noAccess to access, noSms to sms, noUsage to usage, noLocation to location)
+        val steps = listOf(noBasics to basics, noAccess to access, noSms to sms, noUsage to usage, noLocation to location, noBattery to battery)
         val first = steps.firstOrNull { it.first }?.second
         steps.forEach { (_, row) -> row.visibility = if (row == first) View.VISIBLE else View.GONE }
         // A family question first, then family in trouble, then a website to silence, then a scam to report: one card
@@ -1435,10 +1446,20 @@ class PeriActivity : Activity() {
             face.speaking(on || revealing)
             if (!on && resumed && hub.isWaitingForAnswer && voice.available && hub.permissions.granted(Need.MIC)) voice.listen()
         }
+        val noBattery = !Obstacles.runsFreely(this) && !asked.getBoolean(DISMISS_BATTERY, false)
     }
 
     /** While the microphone is open the button says so and breathes gently, so it's clear Peri is listening. */
     private fun showListening(on: Boolean) {
+        setupArt.setImageResource(when (first) {
+            basics -> R.drawable.peri_ui_perm_calls
+            access -> R.drawable.peri_ui_perm_notifications
+            sms -> R.drawable.peri_ui_perm_sms
+            usage -> R.drawable.peri_ui_perm_usage
+            location -> R.drawable.peri_ui_perm_location
+            battery -> R.drawable.peri_ui_perm_battery
+            else -> R.drawable.peri_shield
+        })
         talk.label = getString(if (on) R.string.listening else R.string.talk)
         pulse?.cancel()
         talk.scaleX = 1f
@@ -1613,3 +1634,4 @@ class PeriActivity : Activity() {
         val BASICS = listOf(Need.CONTACTS, Need.PHONE_STATE)
     }
 }
+        const val DISMISS_BATTERY = "dismiss_battery"
