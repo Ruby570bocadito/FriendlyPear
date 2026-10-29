@@ -6,6 +6,9 @@
         <item name="android:colorPrimary">@color/green_dark</item>
         <item name="android:colorControlActivated">@color/green_dark</item>
         <item name="android:windowBackground">@color/cream</item>
+        <!-- The launch screen: Peri with her arms up, on the same cream (sprites_cut.py ui). -->
+        <item name="android:windowSplashScreenBackground">@color/cream</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/peri_splash</item>
         <!-- Atkinson Hyperlegible for everything you read; titles and buttons use Fredoka (Style.kt). -->
         <item name="android:fontFamily">@font/atkinson</item>
         <item name="android:statusBarColor">@android:color/transparent</item>

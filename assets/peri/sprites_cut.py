@@ -2,7 +2,7 @@
 The image agent's pictures (assets/peri/sprites/, docs/PERI_SPRITES.md) cut out for the app, each at the size it's
 drawn at:
 
-    python assets/peri/sprites_cut.py [fx] [scene] [move] [mini]     needs Pillow and numpy (cutout.py)
+    python assets/peri/sprites_cut.py [fx] [scene] [move] [mini] [ui]     needs Pillow and numpy (cutout.py)
 
 fx     clay effects (hearts, notes, a drop, ?, !, a bulb, confetti, a puff of dust...): trimmed to the object, 256 px at
        most, for Sparkles                                                   → peri_fx_<name>.webp
@@ -11,6 +11,9 @@ move   her movements (a jump, dance steps, a bow, a stretch, a turn...): 1024 px
        pictures, so they swap with them in PeriFace                          → peri_move_<name>.webp, peri_turn_<name>.webp
 mini   Mini Peri, only her head (her leaf in the wind, waving, under her umbrella, asleep): 512 px, and where Peri's
        face goes on each, found by her cheeks          → peri_mini_<name>.webp, android/.../ui/peri/MiniHeadData.kt
+ui     the interface pictures (assets/ui/): Peri for each setup step, the empty family, no connection, the milestone
+       badges and the quiz, 512 px                                           → peri_ui_<name>.webp
+       and the launcher icon and the launch screen, framed so no mask cuts them → peri_launcher(_bg).webp, peri_splash.webp
 
 The heads have no face: Peri's eye and mouth pieces (layers.py) go on them. The blush on her cheeks is on the calm Peri and
 on every head, so the two cheeks give the shift, turn and size from her calm face to each head's.
@@ -35,14 +38,30 @@ KOTLIN = os.path.join(HERE, "..", "..", "android", "app", "src", "main", "java",
 FX = ["heart_coral", "heart_pink", "heart_broken", "music_note", "sweat_drop", "tear", "question", "exclamation", "bulb",
       "confetti_strip", "confetti_dot"]
 # The soap bubble is see-through: its edge goes with the cream, so it isn't used.
-SCENES = ["diary", "learn", "family", "settings", "checkup", "trophy", "cheer", "relax", "night", "morning"]
+SCENES = ["diary", "learn", "family", "settings", "checkup", "trophy", "cheer", "night", "morning"]
 # Her movements with her face on (they're short: no blinking or talking in them); only those she does, and the
 # section pictures and effects in use: the rest of the lotes wait for their place.
 MOVES = ["jump_crouch", "jump_air", "jump_land", "dance1", "dance2", "dance3", "dance4", "hips", "bow1", "bow2", "stretch_up"]
 TURNS = ["side_left", "back", "side_right"]
 # Peeking from behind a wall, her cheeks barely show, so her face can't be placed: not used.
 MINIS = ["noface", "leaf_left", "leaf_right", "wave", "umbrella", "sleep"]
+# The interface pictures (lotes 14 and 15). The question mark is white on cream: Peri's own bubble says it instead.
+UI = ["perm_sms", "perm_calls", "perm_notifications", "perm_battery", "empty_diary", "empty_family", "offline",
+      "badge_bronze", "badge_silver", "badge_gold", "tool_game", "welcome_shield"]
+# Things nearly as light as the cream (a silver badge, the quiz's cards), cut out whole.
+UI_SOLID = {"badge_bronze", "badge_silver", "badge_gold", "tool_game"}
+# A white cloud and a white envelope beside Peri: only what's almost exactly the cream goes.
+UI_WHITE = {"offline", "welcome_shield"}
+WHITE_THRESHOLD = 22
+UI_DIR = os.path.join(HERE, "..", "ui")
 FX_MAX = 256
+UI_SIZE = 512
+# The adaptive icon is 108 dp, and every launcher's mask leaves at least a 66 dp circle; the launch screen shows its
+# icon in a 192 dp circle of 288 dp. The pictures are framed to fit those circles whole.
+LAUNCHER_SIZE = 432
+LAUNCHER_REACH = 32 / 108
+SPLASH_SIZE = 864
+SPLASH_REACH = 92 / 288
 LIGHT_THRESHOLD = 40
 SCENE_SIZE = 512
 MINI_SIZE = 512
@@ -104,8 +123,20 @@ def trimmed(image: Image.Image) -> Image.Image:
     return image.crop(box)
 
 
+def framed(image: Image.Image, size: int, reach: float) -> Image.Image:
+    """[image] on a [size] px square, its smallest enclosing circle in the middle with a radius of [reach] of the square."""
+    piece = trimmed(image)
+    ys, xs = np.nonzero(np.asarray(piece)[:, :, 3] > 24)
+    (cx, cy), far = cv2.minEnclosingCircle(np.column_stack([xs, ys]).astype(np.float32))
+    scale = reach * size / far
+    piece = piece.resize((round(piece.width * scale), round(piece.height * scale)), Image.LANCZOS)
+    out = Image.new("RGBA", (size, size))
+    out.paste(piece, (round(size / 2 - cx * scale), round(size / 2 - cy * scale)), piece)
+    return out
+
+
 def main() -> None:
-    groups = set(sys.argv[1:]) or {"fx", "scene", "move", "mini"}
+    groups = set(sys.argv[1:]) or {"fx", "scene", "move", "mini", "ui"}
     if "fx" in groups:
         for name in FX:
             piece = trimmed(solid(os.path.join(SPRITES, f"fx_{name}.webp")))
@@ -147,6 +178,16 @@ def main() -> None:
                 "}\n"
             )
         print(f"mini: {len(MINIS)}")
+    if "ui" in groups:
+        for name in UI:
+            path = os.path.join(UI_DIR, f"ui_{name}.webp")
+            piece = solid(path) if name in UI_SOLID else cut(path, threshold=WHITE_THRESHOLD) if name in UI_WHITE else cut(path)
+            save(piece.resize((UI_SIZE, UI_SIZE), Image.LANCZOS), f"peri_ui_{name}.webp")
+        save(framed(cut(os.path.join(UI_DIR, "icon_peri_shield.webp")), LAUNCHER_SIZE, LAUNCHER_REACH), "peri_launcher.webp")
+        Image.open(os.path.join(UI_DIR, "icon_bg.webp")).convert("RGB").resize((LAUNCHER_SIZE, LAUNCHER_SIZE), Image.LANCZOS).save(
+            os.path.join(OUT, "peri_launcher_bg.webp"), "WEBP", quality=90, method=6)
+        save(framed(cut(os.path.join(UI_DIR, "splash_peri.webp")), SPLASH_SIZE, SPLASH_REACH), "peri_splash.webp")
+        print(f"ui: {len(UI) + 3}")
 
 
 if __name__ == "__main__":
