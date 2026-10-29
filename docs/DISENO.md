@@ -70,6 +70,7 @@ El texto sobre coral fuerte es siempre tinta oscura (con blanco solo llega a 4,4
 - **Efectos de plastilina** (ronda 5): notas al tararear, gota de sudor, interrogación, exclamación, bombilla, confeti, lágrima y corazones, hechos con Muse Image (lote 6) y lanzados por `Sparkles`; polvo al aterrizar, dibujado.
 - **Movimientos** (ronda 5): en calma o contenta, salto de verdad, baile de cuatro pasos, vuelta entera vista de lado y de espaldas, estiramiento y reverencia (lote 4); nunca dos imágenes a la vez.
 - **Ilustraciones de los apartados** (ronda 5): Peri escribiendo su diario (con su té por la mañana y su lámpara de noche), con birrete en Aprende, abrazando un corazón en Familia, con llave inglesa en Ajustes, de doctora en la revisión y con su trofeo al ganar (lote 7).
+- **Mini Peri como cabeza** (ronda 5): solo su cabeza (lote 5), con los ojos y la boca de Peri puestos por sus mejillas; se lee aunque sea pequeña. Hoja al viento, saludo al aparecer, paraguas al proteger, gorro al dormir.
 - **El diario corto** (ronda 5): hoy entero hasta cinco momentos y «Ver N más»; los días anteriores, una línea plegada con el nombre del día, cuántas cosas hizo Peri y sus insignias de colores, que se abre al tocarla; solo la última semana.
 - **Chips:** píldoras con tinte del color de su apartado.
 - **Entradas:** cada pieza sube y aparece una tras otra (340 ms, 70 ms entre piezas). Cambio de apartado: 220 ms.

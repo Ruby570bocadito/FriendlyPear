@@ -57,7 +57,8 @@ The server runs on a computer (`cd backend; bun src/main.ts`). A phone reaches i
 for that address (`./gradlew :app:assembleDebug -Pfriendlypear.backendUrl=http://<computer-ip>:8711`), or anywhere
 once it has a public HTTPS address.
 
-## The debug APK is for testing only
+## The release APK is the one to hand out
 
-The debug build carries a shared test token for the hackathon server: it is for testing, and never published. A
-release build, signed with our own key and without the token, is being prepared for real use.
+`./gradlew :app:assembleRelease` builds it: signed with our own key (kept outside the repository), shrunk by R8, and
+without the shared test token, so it talks to Peri's server only once the phone is paired in person. The debug build
+carries that token for testing and is never published.
