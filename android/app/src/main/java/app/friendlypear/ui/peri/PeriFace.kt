@@ -689,6 +689,9 @@ class PeriFace(context: Context) : FrameLayout(context) {
         main.postDelayed({ if (entering || rig.alpha == 0f) start(drawn = false) }, ENTER_WAIT_MS)
     }
 
+    /** Out of sight, waiting for her entrance's frames to decode: the launch screen can stay meanwhile. */
+    val waitingToEnter: Boolean get() = moves && rig.alpha == 0f
+
     /** Out of sight from the very first picture until her entrance: she never stands there and then vanishes. */
     fun awaitEntrance() {
         if (moves) rig.alpha = 0f

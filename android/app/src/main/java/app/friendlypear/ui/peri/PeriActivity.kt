@@ -556,6 +556,16 @@ class PeriActivity : Activity() {
         if (savedInstanceState == null) {
             face.awaitEntrance()
             face.post { face.enter() }
+            // Android's launch screen stays while her entrance's frames decode, so she falls in at once instead of
+            // after a moment of an empty hill; never longer than SPLASH_HOLD_MS.
+            val since = android.os.SystemClock.uptimeMillis()
+            root.viewTreeObserver.addOnPreDrawListener(object : android.view.ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    if (face.waitingToEnter && android.os.SystemClock.uptimeMillis() - since < SPLASH_HOLD_MS) return false
+                    root.viewTreeObserver.removeOnPreDrawListener(this)
+                    return true
+                }
+            })
         }
 
         // This screen shows Android's dialog whenever Peri needs a permission, now or later.
@@ -1697,6 +1707,8 @@ class PeriActivity : Activity() {
         const val SPIN_SETTLE_MS = 950L
         const val YAWN_DELAY_MS = 700L
         const val CONGRATULATE_DELAY_MS = 1_800L
+        /** The longest the launch screen waits for Peri's entrance. */
+        const val SPLASH_HOLD_MS = 1_500L
         /** A breath after Peri stops talking before her badge comes. */
         const val QUIET_MS = 700L
 
