@@ -26,10 +26,15 @@ object Advice {
             "me han liado|me han enganado|me han estafado|me han timado|creo que|no se que hacer|estoy preocupad[oa]|necesito ayuda|" +
             "me llamo|me llamaron|me ha llamado|me han llamado|me escribio|me escribieron|me mandaron|me enviaron|me llego|me ha llegado|" +
             "me han mandado|me han enviado|me han escrito|" +
+            // As people type it: "a" for "ha", "q" for "qué".
+            "me a llamado|me an llamado|me a llegado|me an llegado|me a escrito|me an escrito|me a mandado|me an mandado|" +
+            "me a pedido|me an pedido|q hago|k hago|q puedo|que hacer|q hacer|se ha quedado|se me ha|no tengo|voy a comprar|" +
+            "quiero comprar|puedo comprar|cual es|cuales son|" +
             "what should|what do i|what can i|is it safe|is this|is that|how do i|how can i|how to|what is|what s|what are|" +
             "should i|can i|someone|somebody|i got|i ve got|i received|i ve received|i won|they asked|asks me|asked me|what if|" +
             "called me|calling me|texted me|sent me|i have a|help with|advice|tips|i think|i ve been|i need help|i m worried|" +
-            "i don t know what to do|something)\\b",
+            "i don t know what to do|something|asking for|asks for|asked for|is texting|texting from|texting me|want me to|" +
+            "wants me to|keeps calling|was stolen|been stolen|got stolen|lost my|i lost)\\b",
     )
 
     private val topics: List<Pair<Topic, Regex>> = listOf(
@@ -71,7 +76,7 @@ object Advice {
         Topic.TROUBLE to Text.anyOf(listOf("problema", "problemas", "lio", "liado", "liada", "enganado", "enganada", "estafado", "estafada",
             "timado", "timada", "algo raro", "no se que hacer", "preocupado", "preocupada", "necesito ayuda", "problem", "problems",
             "trouble", "need help", "something weird", "something strange", "something wrong", "been scammed", "scammed", "worried",
-            "don t know what to do")),
+            "don t know what to do", "ayudame con", "ayuda con", "help me with")),
     )
 
     /** Topics that only say something is wrong: an order that mentions them ("dile a Laura que tengo un problema") is still an order. */
