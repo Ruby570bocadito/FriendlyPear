@@ -42,10 +42,13 @@ class RelativeAlertTest {
     @Test
     fun `after a bank's call, an order is still an order`() {
         val d = AlertDevice()
-        val a = PeriAgent(d, listOf(mum, marisa), Lang.EN)
+        var now = 1_000_000L
+        val a = PeriAgent(d, listOf(mum, marisa), Lang.EN, clock = { now })
         a.onIncomingCall("+34 699 000 111")
         a.onCallStateChanged(active = true, answered = false)
         a.onCallStateChanged(active = true, answered = true)
+        // A minute's talk: a few seconds gets no question afterwards.
+        now += 60_000L
         a.onCallStateChanged(active = false)
         a.onHeard("the bank")
         assertTrue(d.said.last().endsWith("What did they ask you for?"))

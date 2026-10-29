@@ -27,15 +27,35 @@ class CallerCheckTest {
     private val laura = Contact("3", "Laura", listOf("600111222"), Relation.CHILD)
     private val stranger = "+34 699 000 111"
 
-    private fun agent(d: CallDevice, contacts: List<Contact> = listOf(pablo, laura), lang: Lang = Lang.ES, word: Boolean = false) =
-        PeriAgent(d, contacts, lang, hasFamilyWord = word)
+    /** The agents' clock: a call lasts as long as the test says. */
+    private var now = 1_000_000L
 
-    /** Rings, is picked up, then ends. */
-    private fun PeriAgent.answeredCall(number: String) {
+    private fun agent(d: CallDevice, contacts: List<Contact> = listOf(pablo, laura), lang: Lang = Lang.ES, word: Boolean = false) =
+        PeriAgent(d, contacts, lang, hasFamilyWord = word, clock = { now })
+
+    /** Rings, is picked up, a talk of [talkMs] (a minute by default), then ends. */
+    private fun PeriAgent.answeredCall(number: String, talkMs: Long = 60_000L) {
         onIncomingCall(number)
         onCallStateChanged(active = true, answered = false)
         onCallStateChanged(active = true, answered = true)
+        now += talkMs
         onCallStateChanged(active = false)
+    }
+
+    @Test
+    fun `a few seconds is no call to ask about, and a long one gets the pointed question`() {
+        val short = CallDevice()
+        agent(short).answeredCall(stranger, talkMs = 5_000L)
+        assertEquals(1, short.said.size, "only the warning before picking up: ${short.said}")
+        val long = CallDevice()
+        agent(long).answeredCall(stranger, talkMs = 4 * 60_000L)
+        assertEquals(
+            "Has hablado un buen rato con un número que no está en tu agenda. ¿Quién decía ser, y te ha pedido algo: un código, dinero o instalar una app?",
+            long.said.last(),
+        )
+        val english = CallDevice()
+        agent(english, lang = Lang.EN).answeredCall(stranger, talkMs = 4 * 60_000L)
+        assertTrue(english.said.last().startsWith("That was a long call"))
     }
 
     @Test
@@ -172,6 +192,7 @@ class CallerCheckTest {
         a.onIncomingCall("+44 7700 900 555")
         assertTrue(d.said.last().startsWith("This number isn't in your contacts."))
         a.onCallStateChanged(active = true, answered = true)
+        now += 60_000L
         a.onCallStateChanged(active = false)
         assertEquals("That number isn't in your contacts. Who did they say they were?", d.said.last())
         a.onHeard("he said he was my grandson")

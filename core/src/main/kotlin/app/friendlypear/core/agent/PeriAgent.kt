@@ -72,7 +72,7 @@ class PeriAgent(
     }
 
     /** An incoming call from a number not in the contacts, whether it was answered, and if Peri already warned about the bank. */
-    private data class StrangeCall(val number: String, var answered: Boolean = false, var bankWarned: Boolean = false)
+    private data class StrangeCall(val number: String, var answered: Boolean = false, var bankWarned: Boolean = false, var answeredAt: Long = 0L)
 
     private data class Received(val message: IncomingMessage, val verdict: Verdict)
 
@@ -124,7 +124,10 @@ class PeriAgent(
         val wasActive = callActive
         callActive = active
         val call = strangeCall
-        if (active && answered) call?.answered = true
+        if (active && answered && call != null && !call.answered) {
+            call.answered = true
+            call.answeredAt = clock()
+        }
         if (wasActive && !active) {
             strangeCall = null
             // The call is over: Peri puts the phone down.
@@ -135,9 +138,11 @@ class PeriAgent(
                 afterCall = null
                 return carryOut(next)
             }
-            if (call?.answered == true && pending == null) {
+            // A few seconds is a wrong number or a hang-up: nothing to ask. A long talk gets the pointed question.
+            val talked = if (call?.answered == true) clock() - call.answeredAt else 0L
+            if (call?.answered == true && pending == null && talked >= SHORT_CALL_MILLIS) {
                 pending = Pending.WhoClaimed(call.number)
-                say(p.whoClaimed, Mood.WORRIED)
+                say(if (talked >= LONG_CALL_MILLIS) p.whoClaimedLong else p.whoClaimed, Mood.WORRIED)
             }
         }
     }
@@ -738,6 +743,9 @@ class PeriAgent(
         val HAPPY_TALK = setOf(SmallTalk.THANKS, SmallTalk.JOKE, SmallTalk.LOVE)
 
         const val RISK_WINDOW_MILLIS = 30 * 60_000L
+        /** An answered stranger's call shorter than this gets no question after; one longer than [LONG_CALL_MILLIS], a pointed one. */
+        const val SHORT_CALL_MILLIS = 15_000L
+        const val LONG_CALL_MILLIS = 3 * 60_000L
         const val MAX_UNREAD = 50
 
         /** Callers who claim to be a bank, an official body or a company: the answer is always to call back yourself. */

@@ -53,6 +53,7 @@ internal interface Phrases {
     fun emergencySms(location: String?): String
     fun unknownCaller(hasFamilyWord: Boolean): String
     val whoClaimed: String
+    val whoClaimedLong: String
     fun notTheirNumber(name: String, hasFamilyWord: Boolean): String
     fun notAnyOf(names: String): String
     val officialCaller: String
@@ -279,6 +280,7 @@ internal object Spanish : Phrases {
         "Te llama un número que no está en tu agenda. Si dice ser de tu familia, no des dinero ni códigos" +
             if (hasFamilyWord) " y pregúntale la palabra de la familia." else "; al colgar lo comprobamos juntos."
     override val whoClaimed = "Ese número no está en tu agenda. ¿Quién decía ser?"
+    override val whoClaimedLong = "Has hablado un buen rato con un número que no está en tu agenda. ¿Quién decía ser, y te ha pedido algo: un código, dinero o instalar una app?"
     override fun notTheirNumber(name: String, hasFamilyWord: Boolean) =
         "Ese número no es el de $name. " +
             (if (hasFamilyWord) "Si vuelve a llamar, pregúntale la palabra de la familia. "
@@ -534,6 +536,7 @@ internal object English : Phrases {
         "This number isn't in your contacts. If they say they're family, don't give money or codes" +
             if (hasFamilyWord) " and ask them for the family word." else "; we'll check together when you hang up."
     override val whoClaimed = "That number isn't in your contacts. Who did they say they were?"
+    override val whoClaimedLong = "That was a long call with a number that isn't in your contacts. Who did they say they were, and did they ask you for anything: a code, money or to install an app?"
     override fun notTheirNumber(name: String, hasFamilyWord: Boolean) =
         "That number isn't $name's. " +
             (if (hasFamilyWord) "If they call again, ask them for the family word. "
