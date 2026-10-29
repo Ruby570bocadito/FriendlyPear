@@ -27,6 +27,11 @@ cada lado, guiño, tres bocas, risa, sorpresa, mareo) y se reutilizan: esta list
 
 **En la app (28 oct):** `assets/peri/layers.py` recorta las piezas: lo que cambian las imágenes de ojos y las de boca respecto a `peri_calm`, lejos del contorno, y cada píxel para el tipo de imagen que más lo cambia (Muse retoca a veces un ojo en una boca, como en `face_mouth_smirk`). La mirada a la derecha de siempre (`peri_calm_glanceright`) es un giro de cabeza y la de la izquierda apenas mueve el brillo: no son piezas, Peri mira a los lados moviendo los ojos. Los cuerpos sin cara mantienen el encuadre de su imagen (3 px como mucho), así que la cara va donde `PeriAnchors` dice que estaban sus ojos.
 
+**En la app (29 oct):** `assets/peri/sprites_cut.py` recorta a su tamaño los efectos (lote 6, 256 px como mucho), las
+ilustraciones de los apartados (lote 7, 512 px) y los movimientos (lote 4, 1024 px, como sus fotogramas). Los efectos
+blancos (polvo, copo, destello) y la pompa de jabón se confunden con el fondo crema y no se usan. Las cabezas de Mini
+Peri (lote 5) no tienen cara: esperan su colocación de la cara.
+
 ## Reglas para todas las imágenes
 
 - **Modelo:** `muse-image-1.0`. `POST {META_API_BASE}/images/edits` con la imagen de referencia de cada fila
