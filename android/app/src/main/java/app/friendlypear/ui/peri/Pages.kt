@@ -297,9 +297,66 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
             }, c.below())
             return
         }
-        val card = c.whiteCard()
-        c.timeline(card, lines, Palette.AMBER_INK)
-        list.addView(card, c.below())
+        days(lines)
+    }
+
+    /**
+     * Short, however much there is: today in full (the first few, then "show more"), and each earlier day folded to a
+     * line with its badges that opens on a tap; only the last week. All of it was one long list before.
+     */
+    private fun days(lines: List<Moment>) {
+        val c = context
+        val today = dayKey(System.currentTimeMillis())
+        lines.groupBy { dayKey(it.at) }.entries.take(MAX_DAYS).forEach { (key, moments) ->
+            val card = c.whiteCard()
+            if (key == today) {
+                c.timeline(card, moments.take(TODAY_LINES), Palette.AMBER_INK)
+                if (moments.size > TODAY_LINES) {
+                    card.addView(c.chipButton(c.resources.getQuantityString(R.plurals.diary_more, moments.size - TODAY_LINES, moments.size - TODAY_LINES)) {
+                        card.removeAllViews()
+                        c.timeline(card, moments, Palette.AMBER_INK)
+                    }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, c.dp(46)).apply { topMargin = c.dp(4) })
+                }
+            } else {
+                card.addView(folded(moments) {
+                    card.removeAllViews()
+                    c.timeline(card, moments, Palette.AMBER_INK)
+                })
+            }
+            list.addView(card, c.below())
+        }
+    }
+
+    /** A past day in one line: its name, how many things happened, their badges, and a chevron; a tap opens it. */
+    private fun folded(moments: List<Moment>, open: () -> Unit): View {
+        val c = context
+        val day = c.dayName(moments.first().at)
+        val count = c.resources.getQuantityString(R.plurals.diary_day_count, moments.size, moments.size)
+        return LinearLayout(c).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            isClickable = true
+            isFocusable = true
+            contentDescription = "$day. $count"
+            background = pressable(rounded(Palette.WHITE, c.dp(16).toFloat()), Palette.RIPPLE_DARK)
+            setOnClickListener { open() }
+            addView(LinearLayout(c).apply {
+                orientation = LinearLayout.VERTICAL
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+                addView(c.heading(day, 18f).apply { setTextColor(Palette.AMBER_INK) })
+                addView(c.body(count, TextSize.SMALL).apply { setTextColor(Palette.INK_SOFT) })
+                addView(LinearLayout(c).apply {
+                    moments.distinctBy { it.icon to it.face }.take(FOLDED_BADGES).forEachIndexed { i, m ->
+                        addView(c.badge(m.icon, m.face, m.ink, 30), LinearLayout.LayoutParams(c.dp(30), c.dp(30)).apply { if (i > 0) marginStart = c.dp(6) })
+                    }
+                }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = c.dp(8) })
+            }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            addView(ImageView(c).apply {
+                setImageResource(R.drawable.ic_chevron)
+                setColorFilter(Palette.INK_SOFT)
+                rotation = 90f
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }, LinearLayout.LayoutParams(c.dp(24), c.dp(24)))
+        }
     }
 
     /** The shields earned, the scams stopped and the days Peri and the person have been together. */
@@ -380,7 +437,11 @@ internal class DiaryPage(context: Context, private val hub: PeriHub) : Page(cont
     }
 
     private companion object {
-        const val MAX_LINES = 40
+        const val MAX_LINES = 120
+        /** Today's first moments in full; earlier days, a week of them, folded. */
+        const val TODAY_LINES = 5
+        const val MAX_DAYS = 7
+        const val FOLDED_BADGES = 6
         val SCAMS = mapOf(
             "parcel" to R.string.diary_scam_parcel,
             "link" to R.string.diary_scam_link,

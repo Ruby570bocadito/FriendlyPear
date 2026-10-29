@@ -444,9 +444,22 @@ class PeriActivity : Activity() {
             addView(spacer, LinearLayout.LayoutParams(0, 0, 0f))
             addView(settings, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginStart = dp(10) })
         }
-        secondary = LinearLayout(this).apply {
-            addView(look, LinearLayout.LayoutParams(0, dp(60), 1f).apply { marginEnd = dp(6) })
-            addView(mini, LinearLayout.LayoutParams(0, dp(60), 1f).apply { marginStart = dp(6) })
+        // Peri's tools in sight, each a clay tile with her pose for it and its section's colour: they were two pills,
+        // and the rest hid in Learn and Settings. The row scrolls when they don't all fit, the next one peeking out.
+        secondary = android.widget.HorizontalScrollView(this).apply {
+            isHorizontalScrollBarEnabled = false
+            clipToPadding = false
+            addView(LinearLayout(this@PeriActivity).apply {
+                listOf(
+                    Tool(R.string.picture_button, R.drawable.peri_calm_detective, Rubber.SKY) { look.performClick() },
+                    Tool(R.string.tools_checkup, R.drawable.peri_calm_hero, Rubber.GREEN) { startActivity(Intent(this@PeriActivity, CheckupActivity::class.java)) },
+                    Tool(R.string.quiz_title, R.drawable.peri_calm_medal, Rubber.SUN) { startActivity(Intent(this@PeriActivity, QuizActivity::class.java)) },
+                    Tool(R.string.tools_traps, R.drawable.peri_calm_idea, Rubber.CORAL) { showTab(TAB_LEARN) },
+                    Tool(R.string.mini_mode, R.drawable.peri_calm_wave1, Rubber.LILAC) { mini.performClick() },
+                ).forEachIndexed { i, tool ->
+                    addView(toolTile(tool), LinearLayout.LayoutParams(dp(TOOL_WIDTH_DP), dp(TOOL_HEIGHT_DP)).apply { if (i > 0) marginStart = dp(10) })
+                }
+            })
         }
         home = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -1491,7 +1504,41 @@ class PeriActivity : Activity() {
 
     private fun hasNotificationAccess(): Boolean = UnlockActivity.hasNotificationAccess(this)
 
+    /** One of Peri's tools on the home: its name, her pose for it and its section's colour. */
+    private class Tool(val label: Int, val pose: Int, val rubber: Rubber, val open: () -> Unit)
+
+    /** A tool as a clay tile: Peri's pose on top, its name under her; one button for TalkBack. */
+    private fun toolTile(tool: Tool): View = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        gravity = Gravity.CENTER_HORIZONTAL
+        background = RubberDrawable(tool.rubber.face, tool.rubber.lip, dp(4).toFloat(), dp(22).toFloat())
+        setPadding(dp(6), dp(6), dp(6), dp(10))
+        isClickable = true
+        isFocusable = true
+        contentDescription = getString(tool.label)
+        stateListAnimator = pressScale()
+        setOnClickListener { tool.open() }
+        addView(ImageView(this@PeriActivity).apply {
+            setImageDrawable(sized(tool.pose, dp(TOOL_POSE_DP)))
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, LinearLayout.LayoutParams(dp(TOOL_POSE_DP), dp(TOOL_POSE_DP)))
+        addView(TextView(this@PeriActivity).apply {
+            text = getString(tool.label)
+            sizeSp(13f)
+            typeface = Fonts.display(600)
+            setTextColor(tool.rubber.ink)
+            gravity = Gravity.CENTER
+            maxLines = 2
+            setLineSpacing(0f, 0.95f)
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(2) })
+    }
+
     private companion object {
+        /** A tool tile's size and its pose's. */
+        const val TOOL_WIDTH_DP = 92
+        const val TOOL_HEIGHT_DP = 108
+        const val TOOL_POSE_DP = 58
         const val REQUEST_NEED = 1
         const val SAID_SP = TextSize.BODY
         const val TAP_STREAK_MS = 1_600L

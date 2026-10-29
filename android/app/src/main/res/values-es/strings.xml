@@ -602,6 +602,18 @@
     <string name="settings_access_line">Cada permiso y lo que hizo con él</string>
     <string name="settings_welcome_line">Para quien te ayude a preparar el móvil</string>
     <string name="settings_more">Más de Peri</string>
+    <string name="tools_checkup">Revisa tu móvil</string>
+    <string name="tools_traps">Las trampas</string>
+    <plurals name="diary_more">
+        <item quantity="one">Ver %d más</item>
+        <item quantity="many">Ver %d más</item>
+        <item quantity="other">Ver %d más</item>
+    </plurals>
+    <plurals name="diary_day_count">
+        <item quantity="one">%d cosa que hizo Peri</item>
+        <item quantity="many">%d cosas que hizo Peri</item>
+        <item quantity="other">%d cosas que hizo Peri</item>
+    </plurals>
     <string name="settings_layers">La nueva Peri (prueba)</string>
     <string name="settings_layers_line">Su cara por piezas: habla, parpadea y sigue tu dedo con la mirada</string>
     <string name="layers_title">La nueva Peri</string>

@@ -603,6 +603,16 @@
     <string name="settings_access_line">Every permission, and what she did with it</string>
     <string name="settings_welcome_line">For whoever sets the phone up with you</string>
     <string name="settings_more">More from Peri</string>
+    <string name="tools_checkup">Check my phone</string>
+    <string name="tools_traps">Learn the traps</string>
+    <plurals name="diary_more">
+        <item quantity="one">Show %d more</item>
+        <item quantity="other">Show %d more</item>
+    </plurals>
+    <plurals name="diary_day_count">
+        <item quantity="one">%d thing Peri did</item>
+        <item quantity="other">%d things Peri did</item>
+    </plurals>
     <string name="settings_layers">The new Peri (preview)</string>
     <string name="settings_layers_line">Her face in pieces: she talks, blinks and follows your finger</string>
     <string name="layers_title">The new Peri</string>
