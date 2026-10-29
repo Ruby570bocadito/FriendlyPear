@@ -7,7 +7,11 @@
     <string name="chat_open">Write to Peri</string>
     <string name="chat_title">Ask Peri</string>
     <string name="chat_note">Just you and me: what you write stays on this phone, and the messages you receive never show up here.</string>
-    <string name="chat_hello">Ask me anything about scams and staying safe, or tell me what happened in your own words. You can also tap one of these questions.</string>
+    <string name="chat_hello">Ask me anything about scams and staying safe, or tell me what happened in your own words. Got a strange message? Paste it here and I\'ll check it, without it leaving your phone.</string>
+    <string name="chat_check_safe">I don\'t see signs of a scam in that message. Even so: if it asks for details, a code or money, don\'t, and call whoever it claims to be on their usual number.</string>
+    <string name="chat_s_called">An unknown number called me</string>
+    <string name="chat_s_message">I got a strange message</string>
+    <string name="chat_s_emergency">It\'s an emergency</string>
     <string name="chat_no_mic">Without the microphone, you can write to me here.</string>
     <string name="chat_hint">Write your question</string>
     <string name="chat_send">Send</string>

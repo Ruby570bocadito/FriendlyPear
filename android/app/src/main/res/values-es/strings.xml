@@ -6,7 +6,11 @@
     <string name="chat_open">Escribir a Peri</string>
     <string name="chat_title">Pregúntale a Peri</string>
     <string name="chat_note">Solo tú y yo: lo que escribes no sale del móvil, y aquí nunca aparecen los mensajes que recibes.</string>
-    <string name="chat_hello">Pregúntame lo que quieras sobre timos y seguridad, o cuéntame con tus palabras lo que ha pasado. También puedes tocar una de estas preguntas.</string>
+    <string name="chat_hello">Pregúntame lo que quieras sobre timos y seguridad, o cuéntame con tus palabras lo que ha pasado. ¿Te ha llegado un mensaje raro? Pégalo aquí y lo miro, sin que salga del móvil.</string>
+    <string name="chat_check_safe">No veo señales de timo en ese mensaje. Aun así: si te pide datos, un código o dinero, no lo hagas y llama tú a quien dice ser, a su número de siempre.</string>
+    <string name="chat_s_called">Me ha llamado un número desconocido</string>
+    <string name="chat_s_message">Me ha llegado un mensaje raro</string>
+    <string name="chat_s_emergency">Es una emergencia</string>
     <string name="chat_no_mic">Sin micrófono, puedes escribirme aquí.</string>
     <string name="chat_hint">Escribe tu pregunta</string>
     <string name="chat_send">Enviar</string>
