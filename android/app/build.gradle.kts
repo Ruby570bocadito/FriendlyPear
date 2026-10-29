@@ -25,14 +25,33 @@ android {
         buildConfigField("String", "BACKEND_URL", "\"${localProperty("friendlypear.backendUrl", "http://10.0.2.2:8787")}\"")
     }
 
+    signingConfigs {
+        // Our own key, kept outside this repo: ~/.gradle/gradle.properties says where it is and its passwords. Without
+        // them the release build is simply unsigned.
+        val keystore = localProperty("friendlypear.releaseKeystore", "")
+        if (keystore.isNotEmpty()) {
+            create("release") {
+                storeFile = file(keystore)
+                storePassword = localProperty("friendlypear.releaseStorePassword", "")
+                keyAlias = localProperty("friendlypear.releaseKeyAlias", "friendlypear")
+                keyPassword = localProperty("friendlypear.releaseKeyPassword", "")
+            }
+        }
+    }
+
     buildTypes {
         // The shared test token (DEVICE_TOKEN) only in debug builds, from ~/.gradle/gradle.properties, never in this
         // repo; a release build never carries it: only phones paired in person get in.
         debug {
             buildConfigField("String", "DEVICE_TOKEN", "\"${localProperty("friendlypear.deviceToken", "")}\"")
         }
+        // The one that is shown and handed out: signed with our key, its code and resources shrunk by R8.
         release {
             buildConfigField("String", "DEVICE_TOKEN", "\"\"")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.findByName("release")
         }
     }
 
