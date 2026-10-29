@@ -24,6 +24,8 @@ import java.util.concurrent.Executors
  * refused, so a stranger's QR can't send Peri's messages somewhere else.
  */
 class PairActivity : Activity() {
+    /** Its decisive buttons ignore touches through another app's window drawn over them; Peri says why. */
+    private val guard = Guard(this)
     private val io = Executors.newSingleThreadExecutor()
     private lateinit var status: TextView
     private lateinit var connect: Pill
@@ -31,6 +33,8 @@ class PairActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Out of captures and screen sharing: the pairing code.
+        Guard.secure(this)
         val uri: Uri? = intent.data
         val code = (uri?.getQueryParameter("code") ?: intent.getStringExtra(EXTRA_CODE)).orEmpty().trim().uppercase()
         val server = uri?.getQueryParameter("server") ?: BuildConfig.BACKEND_URL
@@ -69,7 +73,7 @@ class PairActivity : Activity() {
             accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
         }
         list.addView(status)
-        connect = Pill(this, getString(R.string.pair_connect), R.drawable.ic_shield, primary = true).apply {
+        connect = guard.button(Pill(this, getString(R.string.pair_connect), R.drawable.ic_shield, primary = true)).apply {
             setOnClickListener { pair(code) }
         }
         list.addView(connect, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(70)).apply { topMargin = dp(14) })
@@ -137,5 +141,10 @@ class PairActivity : Activity() {
 
     companion object {
         const val EXTRA_CODE = "code"
+    }
+
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        guard.check(ev)
+        return super.dispatchTouchEvent(ev)
     }
 }

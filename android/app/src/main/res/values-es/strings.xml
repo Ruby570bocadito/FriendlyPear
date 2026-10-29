@@ -516,6 +516,7 @@
     <string name="guardian_confirm_title">¿Seguro?</string>
     <string name="guardian_confirm_intro">Apruébalo solo si puedes decir que sí a las tres:</string>
     <string name="guardian_confirm_no">No, mejor no</string>
+    <string name="guard_covered">Hay algo de otra app tapando la pantalla, así que no lo he pulsado. Cierra las burbujas o ventanas flotantes y vuelve a intentarlo.</string>
     <string name="guardian_confirm_yes">Sí, lo he comprobado</string>
     <string name="guardian_identity_title">Confirma que eres tú</string>
     <string name="guardian_identity_subtitle">Para aprobar lo que pide %1$s</string>

@@ -30,6 +30,8 @@ class ReportActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Out of captures and screen sharing: the scam and what was lost, for the police.
+        Guard.secure(this)
         val list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         list.addView(LinearLayout(this).apply {
             gravity = Gravity.CENTER_VERTICAL

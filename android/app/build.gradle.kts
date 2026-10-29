@@ -42,12 +42,16 @@ android {
     buildTypes {
         // The shared test token (DEVICE_TOKEN) only in debug builds, from ~/.gradle/gradle.properties, never in this
         // repo; a release build never carries it: only phones paired in person get in.
+        // Screens a scammer would want to read stay out of captures and screen sharing (Guard.kt): always in release;
+        // debug builds stay capturable for the tests and the video, unless -Pfriendlypear.secureScreens=true.
         debug {
             buildConfigField("String", "DEVICE_TOKEN", "\"${localProperty("friendlypear.deviceToken", "")}\"")
+            buildConfigField("boolean", "SECURE_SCREENS", localProperty("friendlypear.secureScreens", "false"))
         }
         // The one that is shown and handed out: signed with our key, its code and resources shrunk by R8.
         release {
             buildConfigField("String", "DEVICE_TOKEN", "\"\"")
+            buildConfigField("boolean", "SECURE_SCREENS", "true")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")

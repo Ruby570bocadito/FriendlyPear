@@ -44,6 +44,8 @@ import app.friendlypear.services.PeriView
  * "Mini Peri" switches to the other mode: only the pear, floating over other apps ([MiniPeriService]).
  */
 class PeriActivity : Activity() {
+    /** Its decisive buttons ignore touches through another app's window drawn over them; Peri says why. */
+    private val guard = Guard(this)
     private lateinit var hub: PeriHub
     private lateinit var voice: VoiceInput
     private lateinit var said: TextView
@@ -379,7 +381,7 @@ class PeriActivity : Activity() {
             // One answer above the other, each the full width: they read whole even with big letters.
             addView(LinearLayout(this@PeriActivity).apply {
                 orientation = LinearLayout.VERTICAL
-                addView(Pill(this@PeriActivity, getString(R.string.check_me), R.drawable.ic_check, primary = false).apply {
+                addView(guard.button(Pill(this@PeriActivity, getString(R.string.check_me), R.drawable.ic_check, primary = false)).apply {
                     setOnClickListener { answerQuestion(me = true) }
                 }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)))
                 addView(Pill(this@PeriActivity, getString(R.string.check_not_me), R.drawable.ic_close, primary = false).apply {
@@ -770,6 +772,7 @@ class PeriActivity : Activity() {
 
     /** She glances towards a touch on the screen beside her. */
     override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        guard.check(ev)
         if (ev.actionMasked == android.view.MotionEvent.ACTION_DOWN && ::face.isInitialized && face.width > 0) {
             val at = IntArray(2).also { face.getLocationOnScreen(it) }
             val onFace = ev.rawY >= at[1] && ev.rawY <= at[1] + face.height && kotlin.math.abs(ev.rawX - (at[0] + face.width / 2f)) < face.width * 0.25f

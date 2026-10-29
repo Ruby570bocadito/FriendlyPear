@@ -47,6 +47,8 @@ class FamilyActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Out of captures and screen sharing: who the family trusts.
+        Guard.secure(this)
         store = FamilyStore(this)
         config = store.load()
         // Once someone protects the person, changing it needs the phone's own lock: not anyone holding the phone.

@@ -47,6 +47,8 @@ class AccessActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Out of captures and screen sharing: everything Peri did, with numbers and times.
+        Guard.secure(this)
         items = buildItems()
         val list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         list.addView(LinearLayout(this).apply {

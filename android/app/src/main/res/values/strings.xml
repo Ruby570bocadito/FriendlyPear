@@ -516,6 +516,7 @@
     <string name="guardian_confirm_title">Are you sure?</string>
     <string name="guardian_confirm_intro">Only approve it if you can say yes to all three:</string>
     <string name="guardian_confirm_no">No, better not</string>
+    <string name="guard_covered">Something from another app is covering the screen, so I didn\'t press that. Close any bubbles or floating windows, then try again.</string>
     <string name="guardian_confirm_yes">Yes, I\'ve checked</string>
     <string name="guardian_identity_title">Confirm it\'s you</string>
     <string name="guardian_identity_subtitle">To approve %1$s\'s request</string>

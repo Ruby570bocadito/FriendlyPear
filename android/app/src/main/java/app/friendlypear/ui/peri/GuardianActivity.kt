@@ -33,6 +33,8 @@ import java.util.concurrent.Executors
  * and the phone dials them); "Yes" last, behind three checks and the phone's own lock.
  */
 class GuardianActivity : Activity() {
+    /** Its decisive buttons ignore touches through another app's window drawn over them; Peri says why. */
+    private val guard = Guard(this)
     private lateinit var url: String
     private lateinit var from: String
     private var fromPhone: String? = null
@@ -54,6 +56,8 @@ class GuardianActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Out of captures and screen sharing: what is asked of the guardian, and their answer.
+        Guard.secure(this)
         url = intent.getStringExtra(EXTRA_URL) ?: return finish()
         from = intent.getStringExtra(EXTRA_FROM) ?: return finish()
         fromPhone = intent.getStringExtra(EXTRA_PHONE)
@@ -147,7 +151,7 @@ class GuardianActivity : Activity() {
         val call = Pill(this, getString(R.string.guardian_call, from), R.drawable.ic_call, primary = false).apply {
             setOnClickListener { send(Answer.CALLBACK) }
         }
-        val yes = TextView(this).apply {
+        val yes = guard.button(TextView(this)).apply {
             text = getString(R.string.guardian_yes)
             sizeSp(TextSize.BODY)
             typeface = weight(600)
@@ -247,7 +251,7 @@ class GuardianActivity : Activity() {
             getString(R.string.guardian_check_2, toName),
             getString(R.string.guardian_check_3),
         ).joinToString("\n\n") { "☐  $it" }
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(R.string.guardian_confirm_title)
             .setMessage(getString(R.string.guardian_confirm_intro) + "\n\n" + checks)
             .setNegativeButton(R.string.guardian_confirm_no) { _, _ -> send(Answer.REJECT) }
@@ -255,7 +259,9 @@ class GuardianActivity : Activity() {
                 confirmIdentity(getString(R.string.guardian_identity_title), getString(R.string.guardian_identity_subtitle, from), { send(Answer.APPROVE) })
             }
             .show()
-            .friendly(risky = AlertDialog.BUTTON_POSITIVE, riskyColor = YES_INK)
+        dialog.friendly(risky = AlertDialog.BUTTON_POSITIVE, riskyColor = YES_INK)
+        // Its "yes" can't be pressed through another app's window either.
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.filterTouchesWhenObscured = true
     }
 
     private fun send(answer: Answer) {
@@ -359,5 +365,10 @@ class GuardianActivity : Activity() {
                 .putExtra(EXTRA_NEEDED, request.needed)
                 .putStringArrayListExtra(EXTRA_YES, ArrayList(request.yes))
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+    }
+
+    override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+        guard.check(ev)
+        return super.dispatchTouchEvent(ev)
     }
 }
