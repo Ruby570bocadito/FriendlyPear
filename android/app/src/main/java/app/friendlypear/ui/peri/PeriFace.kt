@@ -34,7 +34,8 @@ import java.util.concurrent.Executors
  * talks with her hands. Only quick changes swap frames: blinks, glances, steps, gestures and mouth shapes.
  * Two pictures never show at once (blended, her legs and arms looked doubled, like a ghost): a new frame takes the
  * old one's place at once with a small clay squash, and a new mood pops in. With "remove animations" on she changes
- * mood without moving.
+ * mood without moving. Most frames are drawn by layers ([LayeredFrame]): blinks, words and glances change only her
+ * eyes and mouth on the same body, and what she holds stays in front of her face.
  */
 class PeriFace(context: Context) : FrameLayout(context) {
     private data class Frames(
@@ -240,9 +241,11 @@ class PeriFace(context: Context) : FrameLayout(context) {
 
     /**
      * An illustration decoded at the size she's drawn at, not its full 1024 px: Mini Peri needs a fraction of
-     * the memory, and the big Peri a half, with no loss of sharpness.
+     * the memory, and the big Peri a half, with no loss of sharpness. Where the frame has layers, it's drawn by
+     * them ([LayeredFrame]): one body for the whole mood, with the eyes and mouth of the frame and what she holds on top.
      */
     private fun decode(res: Int, side: Int = decodedSide): Drawable {
+        PeriLayerData.FRAMES[res]?.let { return LayeredFrame(context.resources, it, if (side > 0) side else PeriLayerData.SIZE.toInt()) }
         if (side <= 0) return context.getDrawable(res)!!
         return ImageDecoder.decodeDrawable(ImageDecoder.createSource(context.resources, res)) { decoder, info, _ ->
             if (info.size.width > side) decoder.setTargetSize(side, side * info.size.height / info.size.width)

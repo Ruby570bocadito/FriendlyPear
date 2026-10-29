@@ -21,6 +21,9 @@ import glob
 import os
 import sys
 
+import math
+import re
+
 import cv2
 import numpy as np
 from PIL import Image
@@ -29,6 +32,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SPRITES = os.path.join(HERE, "sprites")
 DRAWABLES = os.path.join(HERE, "..", "..", "android", "app", "src", "main", "res", "drawable-nodpi")
 KOTLIN = os.path.join(HERE, "..", "..", "android", "app", "src", "main", "java", "app", "friendlypear", "ui", "peri", "PeriLayerData.kt")
+ANCHORS = os.path.join(os.path.dirname(KOTLIN), "PeriAnchors.kt")
 sys.path.insert(0, HERE)
 from cutout import SIZE, cut  # noqa: E402
 
@@ -41,6 +45,9 @@ GROW = 16  # px of skin around each feature
 FEATHER = 7.0  # px, the soft edge
 EDGE = 40  # px of her outline that always belong to the body
 BAND = 6  # px, half the band where the mouth gives way to the eyes
+# In front of her face: differing this much from the calm body (summed over RGB), in pieces of this many px (1024 px).
+FRONT_DIFF = 90
+FRONT_LEAST = 250
 
 # Her old glances are no pieces: to the right she turns her whole head, and to the left only the shine moves. She looks
 # sideways by moving her eyes (LayeredPeri).
@@ -83,17 +90,102 @@ MOUTHS = {
     "smirk": "sprites/face_mouth_smirk.webp",
     "yawn": "sprites/face_mouth_yawn.webp",
 }
-# Each body without a face, and the picture it was made from (same framing, measured: within 3 px): that picture's eyes
-# (PeriAnchors) say where her face goes on it. The calm body is the one the pieces are cut for.
-BODIES = {
-    "calm": ("sprites/body_calm_noface.webp", "peri_calm"),
-    "wave1": ("sprites/body_calm_wave1_noface.webp", "peri_calm_wave1"),
-    "wave2": ("sprites/body_calm_wave2_noface.webp", "peri_calm_wave2"),
-    "gesturea": ("sprites/body_calm_gesturea_noface.webp", "peri_calm_gesturea"),
-    "gestureb": ("sprites/body_calm_gestureb_noface.webp", "peri_calm_gestureb"),
-    "thumbsup": ("sprites/body_calm_thumbsup_noface.webp", "peri_calm_thumbsup"),
-    "love": ("sprites/body_calm_love_noface.webp", "peri_calm_love"),
+# Her mouths for talking: small, so their skin around them never covers a hand she holds near her chest; the big ones
+# (a laugh, a yawn, a surprised "oh!") cover what they need.
+TALKING = {"smile", "talk", "wide", "o", "m", "ee", "u", "f", "l"}
+# The calm body, the one the pieces are cut for.
+CALM_BODY = "sprites/body_calm_noface.webp"
+# Moods drawn by layers: those with a faceless still (Muse's filter turned down "no face" for the worried and happy ones,
+# which keep their whole pictures), but thinking, whose eye is seen through her magnifying glass, and sleeping, whose
+# shut eyes are softer than any piece (and asleep she neither talks nor looks around). Every faceless body of these moods is used: sprites/body_<frame>_noface.webp is
+# peri_<frame> without its face, in the same framing (measured: within 3 px), so that picture's eyes (PeriAnchors) say
+# where her face goes on it.
+MOODS = ["calm", "listening", "protective", "calling", "waiting"]
+# Each mood's face: eyes and mouth, as near as the pieces get to its picture.
+MOOD_FACE = {
+    "calm": ("open", "smile"), "listening": ("open", "smile"), "protective": ("brave", "smile"),
+    "calling": ("open", "smile"), "waiting": ("open", "smile"),
 }
+# A mood's frames: what changes on its face (eyes, mouth; None keeps the mood's) and where the eyes look. Steps and
+# gestures have their own body; the rest are the still body with another face.
+FRAME_FACE = {
+    "": (None, None, 0), "_blinkhalf": ("half", None, 0), "_blink": ("closed", None, 0), "_talk": (None, "talk", 0),
+    "_talkwide": (None, "wide", 0), "_talko": (None, "o", 0), "_wink": ("wink_right", None, 0),
+    "_glanceleft": (None, None, -1), "_glanceright": (None, None, 1), "_gesturea": (None, "talk", 0), "_gestureb": (None, "wide", 0),
+    "_stepleft": (None, None, 0), "_stepright": (None, None, 0), "_steplefthalf": (None, None, 0), "_steprighthalf": (None, None, 0),
+}
+# The calm Peri's poses, each with the face of her picture.
+POSE_FACE = {
+    "wave1": ("happy", "smile"), "wave2": ("happy", "smile"), "butterfly": ("up", "smile"), "bye": ("happy", "talk"),
+    "clap": ("happy", "laugh"), "flower": ("happy", "smile"), "hero": ("brave", "grin"), "idea": ("wide", "o"),
+    "letter": ("down", "smile"), "love": ("love", "kiss"), "medal": ("happy", "grin"), "party": ("stars", "laugh"),
+    "phone": ("down", "smile"), "scarf": ("happy", "smile"), "sorry": ("worried", "worried"), "tea": ("happy", "smile"),
+    "thumbsup": ("happy", "grin"),
+}
+
+
+def placements():
+    """Where her face goes on each picture, from PeriAnchors: the turn, size and shift taking the calm eyes to its eyes."""
+    text = open(ANCHORS, encoding="utf-8").read().split("val HEADS")[0]
+    eyes = {n: [float(v) for v in vs] for n, *vs in re.findall(r"R\.drawable\.(\w+) to floatArrayOf\(([\d.]+)f, ([\d.]+)f, ([\d.]+)f, ([\d.]+)f\)", text)}
+    calm = eyes["peri_calm"]
+
+    def matrix(name):
+        e = eyes[name]
+        turn = math.atan2(e[3] - e[1], e[2] - e[0]) - math.atan2(calm[3] - calm[1], calm[2] - calm[0])
+        size = math.hypot(e[2] - e[0], e[3] - e[1]) / math.hypot(calm[2] - calm[0], calm[3] - calm[1])
+        a, b = size * math.cos(turn), size * math.sin(turn)
+        c0, c1 = ((calm[0] + calm[2]) / 2, (calm[1] + calm[3]) / 2), ((e[0] + e[2]) / 2, (e[1] + e[3]) / 2)
+        return np.float32([[a, -b, c1[0] - a * c0[0] + b * c0[1]], [b, a, c1[1] - b * c0[0] - a * c0[1]]])
+
+    return matrix
+
+
+def front(body: np.ndarray, calm: np.ndarray, face: np.ndarray, m: np.ndarray, objects_only: bool):
+    """What's in front of her face on [body] (both 1024 px RGBA): where it differs a lot from the calm body moved onto
+    it, inside the area her eyes and mouth cover ([face], calm's). Another mood's body is lit a little differently, so
+    there only what isn't her green clay or her cheeks counts ([objects_only]: a watch, a letter). The body's own pixels there,
+    soft-edged, and their box; None if nothing is in front."""
+    size = (SIZE, SIZE)
+    calm_here = cv2.warpAffine(calm, m, size, flags=cv2.INTER_LINEAR)
+    face_here = cv2.warpAffine(face, m, size, flags=cv2.INTER_LINEAR)
+    blur = lambda img: cv2.GaussianBlur(img[..., :3].astype(np.float32), (0, 0), 2.0)
+    differs = (np.abs(blur(body) - blur(calm_here)).sum(axis=2) > FRONT_DIFF) & (body[..., 3] > 128) & (face_here > 0.05)
+    if objects_only:
+        hsv = cv2.cvtColor(body[..., :3], cv2.COLOR_RGB2HSV)
+        clay = (hsv[..., 0] >= 30) & (hsv[..., 0] <= 80) & (hsv[..., 1] > 40)
+        blush = ((hsv[..., 0] <= 12) | (hsv[..., 0] >= 165)) & (hsv[..., 1] < 150)
+        differs &= ~clay & ~blush
+    mask = clean(differs, FRONT_LEAST)
+    if mask.sum() < FRONT_LEAST:
+        return None
+    mask = cv2.GaussianBlur(cv2.dilate(mask, np.ones((5, 5), np.uint8)).astype(np.float32), (0, 0), 1.5)
+    ys, xs = np.nonzero(mask > 0.02)
+    left, top, right, bottom = int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1
+    rgba = body.copy()
+    rgba[..., 3] = (body[..., 3].astype(np.float32) * np.clip(mask, 0, 1)).astype(np.uint8)
+    return Image.fromarray(rgba[top:bottom, left:right], "RGBA"), (left, top, right, bottom)
+
+
+def bodies_and_frames():
+    """The faceless bodies of the layered moods, and every frame of the app drawn by layers: frame name to (body, eyes,
+    mouth, look)."""
+    made = {f[len("body_"):-len("_noface.webp")] for f in os.listdir(SPRITES) if f.startswith("body_") and f.endswith("_noface.webp")}
+    bodies = {b: f"sprites/body_{b}_noface.webp" for b in sorted(made) if b.split("_")[0] in MOODS and os.path.exists(os.path.join(DRAWABLES, f"peri_{b}.webp"))}
+    frames = {}
+    for mood in MOODS:
+        if mood not in bodies:
+            continue
+        eyes, mouth = MOOD_FACE[mood]
+        for suffix, (e, m, look) in FRAME_FACE.items():
+            body = mood + suffix if mood + suffix in bodies else mood
+            if (body == mood and suffix.startswith(("_step", "_gesture"))) or not os.path.exists(os.path.join(DRAWABLES, f"peri_{mood}{suffix}.webp")):
+                continue
+            frames[f"{mood}{suffix}"] = (body, e or eyes, m or mouth, look)
+    for pose, (e, m) in POSE_FACE.items():
+        if f"calm_{pose}" in bodies:
+            frames[f"calm_{pose}"] = (f"calm_{pose}", e, m, 0)
+    return bodies, frames
 
 
 def load(name: str) -> np.ndarray:
@@ -151,36 +243,57 @@ def main() -> None:
     exists = lambda name: os.path.exists(os.path.join(HERE, name))
     have = lambda table: {k: v for k, v in table.items() if exists(v)}
     eyes, mouths = have(EYES), have(MOUTHS)
-    bodies = {k: v for k, v in BODIES.items() if exists(v[0])}
+    bodies, frames = bodies_and_frames()
     base, inside = load("peri_calm.webp"), face_inside()
     count = lambda names: sum(changes(base, name, inside).astype(np.int32) for name in names)
     eye_count, mouth_count = count(eyes.values()), count(mouths.values())
     eye_share, mouth_share = eye_count / len(eyes), mouth_count / len(mouths)
     eye_area = clean((eye_count > 0) & (eye_share > mouth_share), 300)
     mouth_area = clean((mouth_count > 0) & (mouth_share >= eye_share), 300)
-    gone = changes(base, BODIES["calm"][0], inside)
+    talk_area = clean((count(v for k, v in mouths.items() if k in TALKING) > 0) & (mouth_share >= eye_share), 300)
+    gone = changes(base, CALM_BODY, inside)
     distance = lambda area: cv2.distanceTransform(1 - area, cv2.DIST_L2, 5)
     to_eyes, to_mouth = distance(eye_area), distance(mouth_area)
     eye_area |= gone & (to_eyes <= to_mouth)
     mouth_area |= gone & (to_mouth < to_eyes)
+    talk_area |= gone & (to_mouth < to_eyes)
     to_eyes, to_mouth = distance(eye_area), distance(mouth_area)
     eye_alpha = soft(eye_area)
-    mouth_alpha = soft(mouth_area) * np.clip((to_eyes - to_mouth) / (2 * BAND) + 0.5, 0.0, 1.0)
+    give_way = np.clip((to_eyes - to_mouth) / (2 * BAND) + 0.5, 0.0, 1.0)
+    mouth_alpha = soft(mouth_area) * give_way
+    talk_alpha = soft(talk_area) * give_way
     eye_rect, mouth_rect = box(eye_alpha), box(mouth_alpha)
     for old in glob.glob(os.path.join(DRAWABLES, "peri_layer_*.webp")):
         os.remove(old)
     for state, name in eyes.items():
         piece(name, eye_alpha, eye_rect, f"peri_layer_eyes_{state}.webp")
     for state, name in mouths.items():
-        piece(name, mouth_alpha, mouth_rect, f"peri_layer_mouth_{state}.webp")
-    for state, (name, _) in bodies.items():
-        cut(os.path.join(HERE, name)).save(os.path.join(DRAWABLES, f"peri_layer_body_{state}.webp"), "WEBP", quality=92, method=6)
+        piece(name, talk_alpha if state in TALKING else mouth_alpha, mouth_rect, f"peri_layer_mouth_{state}.webp")
+    # Her face's area on the calm body (1024 px), to know what a body holds in front of it.
+    face = np.zeros((SIZE, SIZE), np.float32)
+    for alpha in (eye_alpha, mouth_alpha):
+        face = np.maximum(face, cv2.resize(alpha, (SIZE, SIZE), interpolation=cv2.INTER_AREA))
+    calm_rgba = np.asarray(cut(os.path.join(HERE, CALM_BODY)))
+    matrix = placements()
+    fronts = {}
+    for state, name in bodies.items():
+        picture = cut(os.path.join(HERE, name))
+        picture.save(os.path.join(DRAWABLES, f"peri_layer_body_{state}.webp"), "WEBP", quality=90, method=6)
+        if state == "calm":
+            continue
+        held = front(np.asarray(picture), calm_rgba, face, matrix(f"peri_{state}"), objects_only=not state.startswith("calm_"))
+        if held:
+            held[0].save(os.path.join(DRAWABLES, f"peri_layer_front_{state}.webp"), "WEBP", quality=92, method=6)
+            fronts[state] = held[1]
 
     def entries(table, kind):
         return "".join(f'        "{s}" to R.drawable.peri_layer_{kind}_{s},\n' for s in table)
 
     box_1024 = lambda r: "floatArrayOf(" + ", ".join(f"{v * SCALE:.0f}f" for v in r) + ")"
-    body_entries = "".join(f'        "{s}" to (R.drawable.peri_layer_body_{s} to R.drawable.{frame}),\n' for s, (_, frame) in bodies.items())
+    body_entries = "".join(f'        "{s}" to (R.drawable.peri_layer_body_{s} to R.drawable.peri_{s}),\n' for s in bodies)
+    look = lambda v: f", look = {v}f" if v else ""
+    front_entries = "".join(f'        "{s}" to (R.drawable.peri_layer_front_{s} to floatArrayOf({l}f, {t}f, {r}f, {b}f)),\n' for s, (l, t, r, b) in fronts.items())
+    frame_entries = "".join(f'        R.drawable.peri_{n} to Frame("{b}", "{e}", "{m}"{look(v)}),\n' for n, (b, e, m, v) in frames.items())
     with open(KOTLIN, "w", encoding="utf-8", newline="\n") as f:
         f.write(
             "// Generated by assets/peri/layers.py: do not edit.\n"
@@ -191,13 +304,19 @@ def main() -> None:
             f"    const val SIZE = {SIZE}f\n"
             f"    val EYES_BOX = {box_1024(eye_rect)}\n"
             f"    val MOUTH_BOX = {box_1024(mouth_rect)}\n"
+            "    /** A frame by layers: its body, its eyes and mouth, and where the eyes look (-1 left, 1 right). */\n"
+            "    class Frame(val body: String, val eyes: String, val mouth: String, val look: Float = 0f)\n\n"
             "    /** Each body, and the picture it was made from: that picture's eyes ([PeriAnchors]) place her face on it. */\n"
             "    val BODIES = mapOf(\n" + body_entries + "    )\n"
+            "    /** What a body holds in front of her face (a cup, a letter, her hands), drawn over her eyes and mouth: where it goes on the body. */\n"
+            "    val FRONTS = mapOf(\n" + front_entries + "    )\n"
+            "    /** The app's frames drawn by layers; the others keep their whole picture. */\n"
+            "    val FRAMES = mapOf(\n" + frame_entries + "    )\n"
             "    val EYES = mapOf(\n" + entries(eyes, "eyes") + "    )\n"
             "    val MOUTHS = mapOf(\n" + entries(mouths, "mouth") + "    )\n"
             "}\n"
         )
-    print(f"eyes {len(eyes)} at {eye_rect}, mouths {len(mouths)} at {mouth_rect}, bodies {len(bodies)}")
+    print(f"eyes {len(eyes)} at {eye_rect}, mouths {len(mouths)} at {mouth_rect}, bodies {len(bodies)}, frames {len(frames)}, in front: {', '.join(fronts)}")
 
 
 if __name__ == "__main__":

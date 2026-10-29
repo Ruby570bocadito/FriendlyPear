@@ -3,7 +3,6 @@ package app.friendlypear.ui.peri
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.ImageDecoder
 import android.graphics.Paint
 import android.graphics.RadialGradient
 import android.graphics.RectF
@@ -18,9 +17,7 @@ import app.friendlypear.R
 import java.util.concurrent.Executors
 import kotlin.math.PI
 import kotlin.math.abs
-import kotlin.math.atan2
 import kotlin.math.cos
-import kotlin.math.hypot
 import kotlin.math.min
 import kotlin.math.sin
 import kotlin.random.Random
@@ -38,17 +35,14 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
         HAPPY("happy", "grin"),
         LAUGH("laugh", "laugh", millis = 1_900),
         SURPRISED("wide", "surprised", millis = 1_800),
-        LOVE("love", "kiss", body = "love"),
+        LOVE("love", "kiss", body = "calm_love"),
         STARS("stars", "grin"),
         WORRIED("worried", "worried", millis = 2_800),
-        BRAVE("brave", "smirk", body = "thumbsup"),
+        BRAVE("brave", "smirk", body = "calm_thumbsup"),
         SLEEPY("sleepy", "yawn", millis = 3_000),
         WINK("wink_left", "tongue", millis = 1_400),
         SAD("teary", "sad", millis = 2_800),
     }
-
-    /** Where her face goes on a body: the middle of its eyes, its turn (°) and its size against the calm body's. */
-    private class Place(val x: Float, val y: Float, val turn: Float, val scale: Float)
 
     private val moves = context.animationsOn()
     private val main = Handler(Looper.getMainLooper())
@@ -280,7 +274,7 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
     }
 
     /** Where her eyes are on screen, in this view's pixels. */
-    private fun faceY() = (height - side) / 2f + side * (CALM_Y / PeriLayerData.SIZE)
+    private fun faceY() = (height - side) / 2f + side * (PeriLayers.CALM_Y / PeriLayerData.SIZE)
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
@@ -357,15 +351,20 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
         }
     }
 
-    /** Every piece in the background, the calm body and face first, so she shows up at once. */
+    /**
+     * The pieces she uses, in the background, the calm body and face first, so she shows up at once. Only her own bodies:
+     * all of them would be some 150 MB.
+     */
     private fun decodeAll(target: Int) {
-        val all = PeriLayerData.BODIES.map { (name, ids) -> "body_$name" to ids.first } +
+        val bodies = BODIES
+        val all = bodies.mapNotNull { b -> PeriLayerData.BODIES[b]?.let { "body_$b" to it.first } } +
+            bodies.mapNotNull { b -> PeriLayerData.FRONTS[b]?.let { "front_$b" to it.first } } +
             PeriLayerData.EYES.map { (name, id) -> "eyes_$name" to id } +
             PeriLayerData.MOUTHS.map { (name, id) -> "mouth_$name" to id }
         val ordered = all.sortedBy { (key, _) -> if (key in FIRST) 0 else 1 }
         DECODER.execute {
             ordered.forEach { (key, id) ->
-                val bitmap = runCatching { decode(id, target) }.getOrNull() ?: return@forEach
+                val bitmap = runCatching { PeriLayers.bitmap(context.resources, id, target) }.getOrNull() ?: return@forEach
                 main.post {
                     if (target == decodedSide) {
                         pictures[key] = bitmap
@@ -375,12 +374,6 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
             }
         }
     }
-
-    private fun decode(id: Int, target: Int): Bitmap =
-        ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.resources, id)) { decoder, info, _ ->
-            val k = target / PeriLayerData.SIZE
-            if (k < 1f) decoder.setTargetSize(maxOf(1, (info.size.width * k).toInt()), maxOf(1, (info.size.height * k).toInt()))
-        }
 
     private fun piece(kind: String, name: String): Bitmap? = pictures["${kind}_$name"] ?: pictures[if (kind == "eyes") "eyes_open" else "mouth_smile"]
 
@@ -411,25 +404,12 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
         canvas.scale(stretchX * k, stretchY * k)
         canvas.translate(-PeriLayerData.SIZE / 2, -PeriLayerData.SIZE * FEET)
         // One body at a time (two, one fading over the other, showed two pairs of arms).
-        draw(canvas, body, WHOLE)
-        // Her face where this body's picture has its eyes, turned a little towards what she looks at; her eyes move a
-        // little more, and the mouth goes over them (its edge gives way to the eyes, see layers.py).
-        val place = PLACES[bodyShown] ?: PLACES.getValue("calm")
-        canvas.translate(place.x, place.y)
-        canvas.rotate(place.turn)
-        canvas.scale(place.scale, place.scale)
-        canvas.translate(-CALM_X + gazeX * FACE_RUN_X, -CALM_Y + gazeY * FACE_RUN_Y)
-        canvas.save()
-        canvas.translate(gazeX * EYES_RUN_X, gazeY * EYES_RUN_Y)
-        piece("eyes", eyes())?.let { draw(canvas, it, PeriLayerData.EYES_BOX) }
+        PeriLayers.draw(canvas, body, PeriLayers.WHOLE, paint, rect)
+        // Her face where this body's picture has its eyes, turned a little towards what she looks at; then what she
+        // holds in front of it (her hands making a heart), so her mouth never rubs half of it out.
+        PeriLayers.drawFace(canvas, PeriLayers.place(bodyShown), piece("eyes", eyes()), piece("mouth", mouthShape()), gazeX, gazeY, gazeX, gazeY, paint, rect)
+        PeriLayerData.FRONTS[bodyShown]?.let { (_, box) -> pictures["front_$bodyShown"]?.let { PeriLayers.draw(canvas, it, box, paint, rect) } }
         canvas.restore()
-        piece("mouth", mouthShape())?.let { draw(canvas, it, PeriLayerData.MOUTH_BOX) }
-        canvas.restore()
-    }
-
-    private fun draw(canvas: Canvas, bitmap: Bitmap, box: FloatArray) {
-        rect.set(box[0], box[1], box[2], box[3])
-        canvas.drawBitmap(bitmap, null, rect, paint)
     }
 
     // ----- Motion -----
@@ -572,34 +552,21 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
 
     private companion object {
         val DECODER = Executors.newSingleThreadExecutor()
-        val WHOLE = floatArrayOf(0f, 0f, PeriLayerData.SIZE, PeriLayerData.SIZE)
         val FIRST = setOf("body_calm", "eyes_open", "mouth_smile")
         /** Her mouth shapes while talking (the open ones twice: they're most of speech); the closed ones go quicker. */
         val VISEMES = listOf("talk", "wide", "o", "ee", "u", "m", "l", "f", "talk", "wide", "ee")
         val CLOSED = setOf("m", "f")
-        val GESTURES = listOf("gesturea", "gestureb")
-        val WAVES = listOf("wave1", "wave2", "wave1", "wave2", "wave1", "wave2")
+        val GESTURES = listOf("calm_gesturea", "calm_gestureb")
+        val WAVES = listOf("calm_wave1", "calm_wave2", "calm_wave1", "calm_wave2", "calm_wave1", "calm_wave2")
+        /** The bodies she uses: calm, talking with her hands, waving, and those of her looks. */
+        val BODIES = setOf("calm") + GESTURES + WAVES + Look.entries.mapNotNull { it.body }
         /** Eyes she blinks with: the others are closed already, or have brows, hearts or stars. */
         val BLINKING = setOf("open", "up", "down", "teary")
-
-        val CALM = PeriAnchors.EYES.getValue(R.drawable.peri_calm)
-        val CALM_X = (CALM[0] + CALM[2]) / 2
-        val CALM_Y = (CALM[1] + CALM[3]) / 2
-        val PLACES: Map<String, Place> = PeriLayerData.BODIES.mapValues { (_, ids) ->
-            val e = PeriAnchors.EYES[ids.second] ?: CALM
-            val turn = atan2(e[3] - e[1], e[2] - e[0]) - atan2(CALM[3] - CALM[1], CALM[2] - CALM[0])
-            Place((e[0] + e[2]) / 2, (e[1] + e[3]) / 2, Math.toDegrees(turn.toDouble()).toFloat(), hypot(e[2] - e[0], e[3] - e[1]) / hypot(CALM[2] - CALM[0], CALM[3] - CALM[1]))
-        }
 
         /** As in PeriFace: her feet on the picture, and her shadow's size and flatness. */
         const val FEET = 0.885f
         const val SHADOW_SIZE = 0.22f
         const val SHADOW_FLATNESS = 0.16f
-        /** How far she turns her face and moves her eyes looking all the way to a side (px of the 1024 px picture). */
-        const val FACE_RUN_X = 6f
-        const val FACE_RUN_Y = 4f
-        const val EYES_RUN_X = 7f
-        const val EYES_RUN_Y = 3f
         /** Looking further up or down than this, her eyes change. */
         const val GAZE_TURN = 0.6f
         /** How far from her eyes a finger is "all the way" to a side, in her sizes. */
