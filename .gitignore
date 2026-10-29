@@ -41,3 +41,6 @@ video/out/
 
 # Python caches from the asset scripts
 __pycache__/
+# The draft voiceover (Windows voice): made again from video/public/voice/lines.json, never committed
+video/public/voice/*.wav
+video/public/cut/

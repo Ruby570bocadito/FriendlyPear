@@ -3,8 +3,11 @@
 # Voice orders go in through the debug broadcast, since the emulator has no microphone.
 export MSYS_NO_PATHCONV=1
 ADB="${ADB:-adb}"
-M="$ADB -s emulator-5554"
-A="$ADB -s emulator-5556"
+# Mum's and Ana's virtual phones; their numbers come from their ports (emulator-5556 is +1 555 521 5556).
+MUM="${MUM:-emulator-5556}"
+ANA="${ANA:-emulator-5554}"
+M="$ADB -s $MUM"
+A="$ADB -s $ANA"
 S="$(cd "$(dirname "$0")" && pwd)"
 REC="bash $S/vrec.sh"
 log() { echo "$(date +%T) $*"; }
@@ -36,7 +39,7 @@ ring() {
 case "$1" in
   newnumber)
     fresh
-    $REC start emulator-5554 m1_newnumber
+    $REC start $MUM m1_newnumber
     sleep 3
     $M emu sms send 447700900123 "Hi Mum, it's Ana. My phone broke and this is my new number. Can you send me 380 today for a bill? I'll pay you back tomorrow x" > /dev/null
     log "sms"
@@ -45,11 +48,11 @@ case "$1" in
     sleep 9
     hangup
     sleep 2
-    $REC stop emulator-5554 m1_newnumber
+    $REC stop $MUM m1_newnumber
     ;;
   call)
     fresh
-    $REC start emulator-5554 m2_call
+    $REC start $MUM m2_call
     sleep 2
     ring 911000111
     log "ringing"
@@ -63,11 +66,11 @@ case "$1" in
     sleep 10
     hear "they wanted the code they texted me"
     sleep 12
-    $REC stop emulator-5554 m2_call
+    $REC stop $MUM m2_call
     ;;
   code)
     fresh
-    $REC start emulator-5554 m3_code
+    $REC start $MUM m3_code
     sleep 2
     ring 911000222
     sleep 4
@@ -79,11 +82,11 @@ case "$1" in
     sleep 14
     $M emu gsm cancel 911000222 > /dev/null
     sleep 4
-    $REC stop emulator-5554 m3_code
+    $REC stop $MUM m3_code
     ;;
   picture)
     fresh
-    $REC start emulator-5554 m4_picture
+    $REC start $MUM m4_picture
     sleep 2
     $M shell input tap 540 2022
     log "look at a picture"
@@ -93,7 +96,7 @@ case "$1" in
     $M shell input tap 906 2196
     log "picked the parcel notice"
     sleep 30
-    $REC stop emulator-5554 m4_picture
+    $REC stop $MUM m4_picture
     ;;
   family)
     fresh
@@ -102,8 +105,8 @@ case "$1" in
     $A shell am force-stop app.friendlypear
     $A shell am start -n app.friendlypear/.ui.peri.PeriActivity > /dev/null
     sleep 5
-    $REC start emulator-5554 m6_family_mum
-    $REC start emulator-5556 m6_family_ana
+    $REC start $MUM m6_family_mum
+    $REC start $ANA m6_family_ana
     sleep 2
     ring 911000333
     sleep 5
@@ -114,24 +117,25 @@ case "$1" in
     sleep 7
     hear "the bank"
     sleep 11
-    hear "tell Marisa that the code is 7350"
+    hear "tell Pablo that the code is 7350"
     sleep 10
     # The emulators don't pass texts between them: Ana's phone receives the exact text Mum's phone sent.
     TEXT=$($M shell content query --uri content://sms/sent --projection body | head -1 | sed 's/^Row: 0 body=//' | tr -d '
 ')
     log "sent: ${TEXT:0:70}"
-    $A emu sms send 5554 "$TEXT" > /dev/null
+    # From Mum's full number, as Ana's contacts have it: a short one would look like a stranger's fake Peri text.
+    $A emu sms send "1555521${MUM#emulator-}" "$TEXT" > /dev/null
     sleep 9
     $A shell input tap 540 1352
     log "Ana taps call Mum now"
     sleep 15
-    $REC stop emulator-5554 m6_family_mum
-    $REC stop emulator-5556 m6_family_ana
+    $REC stop $MUM m6_family_mum
+    $REC stop $ANA m6_family_ana
     hangup
     ;;
   after)
     fresh
-    $REC start emulator-5554 m7_after
+    $REC start $MUM m7_after
     sleep 2
     $M emu sms send 447700900456 "Royal Mail: your parcel is on hold due to an unpaid shipping fee of 1.45 GBP. Pay today at https://royalmail-redeliver.top or it will be returned." > /dev/null
     log "parcel scam"
@@ -152,17 +156,17 @@ case "$1" in
     sleep 4
     $M shell input swipe 540 1800 540 900 1200
     sleep 4
-    $REC stop emulator-5554 m7_after
+    $REC stop $MUM m7_after
     ;;
   fallen)
     fresh
-    $REC start emulator-5554 m5_fallen
+    $REC start $MUM m5_fallen
     sleep 3
     hear "I have fallen"
     sleep 16
     hangup
     sleep 2
-    $REC stop emulator-5554 m5_fallen
+    $REC stop $MUM m5_fallen
     ;;
 esac
 log "done $1"
