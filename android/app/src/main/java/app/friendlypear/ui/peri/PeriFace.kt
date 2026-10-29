@@ -65,7 +65,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
     enum class Trick { HOP, SPIN, DANCE, WINK, STRETCH }
 
     /** What she does by herself now and then, when nothing else is going on; DROP is her entrance. */
-    private enum class Idle { HOP, STEPS, LOOK, WAVE, STRETCH, WINK, SPIN, DANCE, DROP, POSE }
+    private enum class Idle { HOP, STEPS, LOOK, WAVE, STRETCH, WINK, SPIN, DANCE, DROP, POSE, BOW }
 
     /** One moment of an action: how high (dp), squash (−) or stretch (+), extra tilt (°) and width (−1 is turned round). */
     private data class Shape(val lift: Float = 0f, val squash: Float = 0f, val tilt: Float = 0f, val width: Float = 1f)
@@ -117,6 +117,10 @@ class PeriFace(context: Context) : FrameLayout(context) {
     private var actionStart = 0L
     /** Until then a blink or glance owns the frame, so running steps don't cut it short. */
     private var busyUntil = 0L
+    /** A turn with her own pictures, not a mirror trick. */
+    private var turning = false
+    /** Until then one of her movements owns the picture. */
+    private var movingUntil = 0L
     private var lastRun = -1L
     /** The start of the little nod that goes with each word, and of the squash as her body changes frame. */
     private var nodStart = 0L
@@ -179,6 +183,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         val side = min(w, h).toFloat()
         val wasFeet = feetY
         feetY = (h - side) / 2 + side * FEET
+        sparkles.feetY = feetY
         glide(min(oldw, oldh).toFloat(), side, wasFeet, w)
         shadowWidth = side * 0.44f
         rig.pivotX = w / 2f
@@ -283,7 +288,14 @@ class PeriFace(context: Context) : FrameLayout(context) {
         if (moves && !first) {
             popStart = SystemClock.uptimeMillis()
             if (mood != Mood.SLEEPING) act(Idle.HOP)
-            if (mood == Mood.HAPPY) sparkles.burst(22)
+            // Her mood's sign, in clay: a drop when she worries, a question mark while she thinks, a "!" when she warns.
+            when (mood) {
+                Mood.HAPPY -> sparkles.burst(22)
+                Mood.WORRIED -> sparkles.play(Sparkles.Effect.SWEAT)
+                Mood.THINKING -> sparkles.play(Sparkles.Effect.QUESTION)
+                Mood.PROTECTIVE -> sparkles.play(Sparkles.Effect.ALARM)
+                else -> Unit
+            }
         }
         // The other frames decode in the background, so the change itself is instant.
         preload()
@@ -341,11 +353,15 @@ class PeriFace(context: Context) : FrameLayout(context) {
         }
         hold(res, POSE_MILLIS)
         if (moves) when (moment) {
-            app.friendlypear.services.PeriMoment.SORRY, app.friendlypear.services.PeriMoment.LETTER, app.friendlypear.services.PeriMoment.GLASSES,
-            app.friendlypear.services.PeriMoment.DETECTIVE, app.friendlypear.services.PeriMoment.SCARF -> Unit
+            app.friendlypear.services.PeriMoment.LETTER, app.friendlypear.services.PeriMoment.GLASSES, app.friendlypear.services.PeriMoment.SCARF -> Unit
+            app.friendlypear.services.PeriMoment.DETECTIVE -> sparkles.play(Sparkles.Effect.QUESTION)
+            app.friendlypear.services.PeriMoment.SORRY -> sparkles.play(Sparkles.Effect.SWEAT)
             app.friendlypear.services.PeriMoment.LOVE, app.friendlypear.services.PeriMoment.PEEKABOO, app.friendlypear.services.PeriMoment.BYE -> sparkles.play(Sparkles.Effect.HEARTS)
-            app.friendlypear.services.PeriMoment.PARTY, app.friendlypear.services.PeriMoment.HERO -> sparkles.burst(26)
-            app.friendlypear.services.PeriMoment.SURPRISED -> sparkles.burst(6)
+            app.friendlypear.services.PeriMoment.PARTY, app.friendlypear.services.PeriMoment.MEDAL,
+            app.friendlypear.services.PeriMoment.CLAP -> sparkles.play(Sparkles.Effect.CONFETTI, 26)
+            app.friendlypear.services.PeriMoment.HERO -> sparkles.burst(26)
+            app.friendlypear.services.PeriMoment.SURPRISED -> sparkles.play(Sparkles.Effect.ALARM)
+            app.friendlypear.services.PeriMoment.IDEA -> sparkles.play(Sparkles.Effect.IDEA)
             app.friendlypear.services.PeriMoment.YAWN -> sparkles.play(Sparkles.Effect.SLEEPY)
             app.friendlypear.services.PeriMoment.DIZZY -> sparkles.burst(8)
             else -> sparkles.burst()
@@ -415,7 +431,11 @@ class PeriFace(context: Context) : FrameLayout(context) {
         if (windowVisibility != VISIBLE) return
         // A blink or wave scheduled before a mood change never shows a frame of the old mood.
         val waving = shown == Mood.CALM && (res == R.drawable.peri_calm_wave1 || res == R.drawable.peri_calm_wave2)
-        if (posing || (res !in frames.all && !waving)) return
+        val moving = res in MOVE_FRAMES && canMove()
+        // During one of her movements, only its pictures: a word or a blink would cut it short (it has its own face).
+        if (SystemClock.uptimeMillis() < movingUntil && res !in MOVE_FRAMES) return
+        if (posing || (res !in frames.all && !waving && !moving)) return
+        outfitLayer.visibility = if (res in TURNS) INVISIBLE else VISIBLE
         front.setImageDrawable(dressed(res, drawable(res)))
         if (snap && moves) snapStart = SystemClock.uptimeMillis()
         // Each frame places her outfit from its own eyes: a step or a gesture moves her a little.
@@ -486,15 +506,51 @@ class PeriFace(context: Context) : FrameLayout(context) {
         }
     }
 
+    /** Her movements (lote 4) only calm or happy: their pictures have her calm, smiling face. */
+    private fun canMove(): Boolean = moves && (shown == Mood.CALM || shown == Mood.HAPPY)
+
+    /** [res] decoded in the background, then [then] on the main thread; at once if they're ready. */
+    private fun prepared(res: List<Int>, then: () -> Unit) {
+        val missing = res.filter { it !in loaded }
+        if (missing.isEmpty()) return then()
+        val side = decodedSide
+        DECODER.execute {
+            val ready = missing.mapNotNull { r -> runCatching { r to decode(r, side) }.getOrNull() }
+            main.post {
+                if (side == decodedSide) ready.forEach { (r, d) -> loaded.putIfAbsent(r, d) }
+                then()
+            }
+        }
+    }
+
+    /** Once a movement is over, she lets go of its pictures: each is a full illustration. */
+    private fun forgetMoves(after: Long) = main.postDelayed({ if (action == null) loaded.keys.removeAll(MOVE_FRAMES) }, after)
+
     private fun act(idle: Idle) {
         val now = SystemClock.uptimeMillis()
+        // A movement with pictures of its own waits for them, decoded in the background, so it never stutters.
+        val pictures = if (canMove()) MOVES[idle].orEmpty() else emptyList()
+        if (pictures.any { it !in loaded }) return prepared(pictures) { if (!posing && action == null && canMove()) act(idle) }
+        val real = pictures.isNotEmpty()
+        if (real) {
+            forgetMoves(MOVE_HOLD_MS)
+            movingUntil = now + (MOVE_MS[idle] ?: 0L)
+        }
         when (idle) {
             Idle.HOP, Idle.STRETCH -> {
                 action = idle
                 actionStart = now
-                // Eyes softly half closed for a stretch, as if it felt good.
+                if (idle == Idle.HOP) main.postDelayed({ if (!sparkles.busy) sparkles.play(Sparkles.Effect.DUST) }, HOP_LAND_MS)
+                if (idle == Idle.HOP && real) {
+                    // Her own jump: she crouches, springs up with her arms high, and lands with her knees bent.
+                    put(R.drawable.peri_move_jump_crouch)
+                    main.postDelayed({ if (action == Idle.HOP) put(R.drawable.peri_move_jump_air) }, HOP_UP_MS)
+                    main.postDelayed({ if (action == Idle.HOP) put(R.drawable.peri_move_jump_land) }, HOP_LAND_MS)
+                    main.postDelayed({ if (!talking) put(frames.still) }, HOP_MS.toLong() - 40)
+                }
+                // A stretch, her arms up, as if it felt good; without the picture, her eyes softly half closed.
                 if (idle == Idle.STRETCH) {
-                    put(frames.half)
+                    put(if (real) R.drawable.peri_move_stretch_up else frames.half)
                     main.postDelayed({ if (!talking) put(frames.still) }, STRETCH_MS)
                 }
             }
@@ -521,7 +577,12 @@ class PeriFace(context: Context) : FrameLayout(context) {
             }
             Idle.WAVE -> greet()
             // A moment of her own while all is calm: humming, a butterfly on her finger, a cup of tea...
-            Idle.POSE -> if (moves) hold(CALM_MOMENTS.random(), CALM_MOMENT_MILLIS)
+            Idle.POSE -> if (moves) {
+                val pose = CALM_MOMENTS.random()
+                hold(pose, CALM_MOMENT_MILLIS)
+                // Humming, notes leave her mouth.
+                if (pose == R.drawable.peri_calm_hum) sparkles.play(Sparkles.Effect.NOTES)
+            }
             Idle.WINK -> {
                 val w = frames.wink ?: return
                 busyUntil = now + 850
@@ -531,6 +592,17 @@ class PeriFace(context: Context) : FrameLayout(context) {
             Idle.SPIN, Idle.DROP -> {
                 action = idle
                 actionStart = now
+                turning = idle == Idle.SPIN && real
+                if (turning) {
+                    // Round she goes, really: from the side, from behind, from the other side, and facing you again.
+                    TURN_STEPS.forEachIndexed { i, res -> main.postDelayed({ if (action == Idle.SPIN) put(res) }, (SPIN_MS * (0.12f + i * 0.25f)).toLong()) }
+                    main.postDelayed({ if (!talking) put(frames.still) }, (SPIN_MS * 0.87f).toLong())
+                }
+            }
+            Idle.BOW -> {
+                if (!real) return
+                busyUntil = now + BOW_STEPS.last().second + 120
+                BOW_STEPS.forEach { (res, at) -> main.postDelayed({ if (!talking) put(res ?: frames.still, snap = true) }, at) }
             }
             Idle.DANCE -> {
                 val l = frames.stepLeft ?: return
@@ -539,7 +611,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
                 actionStart = now
                 busyUntil = now + DANCE_STEPS * DANCE_MS
                 (0 until DANCE_STEPS).forEach { i ->
-                    main.postDelayed({ if (!talking && action == Idle.DANCE) put(if (i % 2 == 0) l else r, snap = true) }, i * DANCE_MS)
+                    val step = if (real) DANCE_FRAMES[i % DANCE_FRAMES.size] else if (i % 2 == 0) l else r
+                    main.postDelayed({ if (!talking && action == Idle.DANCE) put(step, snap = true) }, i * DANCE_MS)
                 }
                 main.postDelayed({ if (!talking) put(frames.still, snap = true) }, DANCE_STEPS * DANCE_MS)
             }
@@ -550,7 +623,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
     fun enter() {
         if (!moves) return
         act(Idle.DROP)
-        main.postDelayed({ sparkles.burst(10) }, DROP_MS.toLong() + 40)
+        main.postDelayed({ sparkles.play(Sparkles.Effect.DUST) }, DROP_MS.toLong())
     }
 
     /**
@@ -656,7 +729,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
             Idle.STRETCH -> if (e < STRETCH_MS) Shape(squash = 0.06f * sin(PI * e / STRETCH_MS).toFloat()) else done()
             Idle.SPIN -> if (e < SPIN_MS) {
                 val a = e / SPIN_MS
-                Shape(lift = 10f * 4 * a * (1 - a), width = kotlin.math.cos(2 * PI * a).toFloat())
+                Shape(lift = 10f * 4 * a * (1 - a), width = if (turning) 1f else kotlin.math.cos(2 * PI * a).toFloat())
             } else done()
             Idle.DANCE -> if (e < DANCE_STEPS * DANCE_MS) {
                 val ph = (e % DANCE_MS) / DANCE_MS
@@ -814,6 +887,32 @@ class PeriFace(context: Context) : FrameLayout(context) {
         const val IDLE_MIN = 7_000L
         const val IDLE_MAX = 12_000L
         const val SPIN_MS = 720f
+        /** A hop's feet leave the ground; her movements' pictures are let go this long after one starts. */
+        const val HOP_UP_MS = 130L
+        const val MOVE_HOLD_MS = 4_000L
+        val DANCE_FRAMES = listOf(R.drawable.peri_move_dance1, R.drawable.peri_move_dance2, R.drawable.peri_move_dance3, R.drawable.peri_move_dance4,
+            R.drawable.peri_move_dance1, R.drawable.peri_move_dance2, R.drawable.peri_move_hips, R.drawable.peri_move_dance4)
+        val TURN_STEPS = listOf(R.drawable.peri_turn_side_right, R.drawable.peri_turn_back, R.drawable.peri_turn_side_left)
+        val TURNS = TURN_STEPS.toSet()
+        /** A bow: down, further down, up again, and herself; when each, in ms. */
+        val BOW_STEPS = listOf(R.drawable.peri_move_bow1 to 0L, R.drawable.peri_move_bow2 to 220L, R.drawable.peri_move_bow1 to 760L, null to 960L)
+        /** Each movement's own pictures. */
+        val MOVES: Map<Idle, List<Int>> = mapOf(
+            Idle.HOP to listOf(R.drawable.peri_move_jump_crouch, R.drawable.peri_move_jump_air, R.drawable.peri_move_jump_land),
+            Idle.DANCE to DANCE_FRAMES.distinct(),
+            Idle.SPIN to TURN_STEPS,
+            Idle.STRETCH to listOf(R.drawable.peri_move_stretch_up),
+            Idle.BOW to listOf(R.drawable.peri_move_bow1, R.drawable.peri_move_bow2),
+        )
+        val MOVE_FRAMES = MOVES.values.flatten().toSet()
+        /** How long each movement owns the picture: up to just before she's herself again. */
+        val MOVE_MS: Map<Idle, Long> = mapOf(
+            Idle.HOP to HOP_MS.toLong() - 60,
+            Idle.DANCE to DANCE_STEPS * DANCE_MS - 20,
+            Idle.SPIN to (SPIN_MS * 0.87f).toLong() - 20,
+            Idle.STRETCH to STRETCH_MS - 20,
+            Idle.BOW to 940L,
+        )
         const val DANCE_MS = 380L
         const val DANCE_STEPS = 8
         const val DROP_MS = 420f
@@ -826,6 +925,8 @@ class PeriFace(context: Context) : FrameLayout(context) {
         const val HOME_K = 190f
         const val HOME_C = 9f
         const val HOP_MS = 640f
+        /** When a hop's feet touch the ground again. */
+        const val HOP_LAND_MS = 480L
         const val HOP_DP = 18f
         const val STEP_MS = 340L
         const val STEPS = 8
@@ -841,7 +942,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         const val SHADOW_FLATNESS = 0.16f
 
         val MOTIONS = mapOf(
-            Mood.CALM to Motion(tilt = 3f, tiltMs = 3_800, bob = 5f, bobMs = 1_900, sway = 2.5f, idles = listOf(Idle.HOP, Idle.STEPS, Idle.LOOK, Idle.WAVE, Idle.STRETCH, Idle.WINK, Idle.SPIN, Idle.DANCE, Idle.POSE, Idle.POSE, Idle.POSE)),
+            Mood.CALM to Motion(tilt = 3f, tiltMs = 3_800, bob = 5f, bobMs = 1_900, sway = 2.5f, idles = listOf(Idle.HOP, Idle.STEPS, Idle.LOOK, Idle.WAVE, Idle.STRETCH, Idle.WINK, Idle.SPIN, Idle.DANCE, Idle.POSE, Idle.POSE, Idle.POSE, Idle.BOW)),
             Mood.LISTENING to Motion(tilt = 2f, tiltMs = 3_000, bob = 2.5f, bobMs = 1_500, sway = 1f),
             Mood.THINKING to Motion(tilt = 3.5f, tiltMs = 2_800, bob = 3f, bobMs = 1_400, sway = 1.5f, idles = listOf(Idle.LOOK, Idle.STEPS, Idle.STRETCH)),
             Mood.WORRIED to Motion(tilt = 1.5f, tiltMs = 2_000, bob = 1.5f, bobMs = 1_000, sway = 1.2f, idles = listOf(Idle.STEPS, Idle.LOOK)),

@@ -128,14 +128,17 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
             Look.LAUGH -> laugh()
             Look.SURPRISED -> {
                 hop(0.5f)
-                sparkles.burst(6)
+                sparkles.play(Sparkles.Effect.ALARM)
             }
             Look.LOVE -> sparkles.play(Sparkles.Effect.HEARTS)
             Look.STARS -> {
                 hop()
                 sparkles.play(Sparkles.Effect.STARS, 14)
             }
-            Look.WORRIED -> shiverStart = SystemClock.uptimeMillis()
+            Look.WORRIED -> {
+                shiverStart = SystemClock.uptimeMillis()
+                sparkles.play(Sparkles.Effect.SWEAT)
+            }
             Look.BRAVE -> {
                 hop(0.7f)
                 sparkles.burst(8)
@@ -146,7 +149,7 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
                 main.postDelayed({ if (look == Look.SLEEPY) moment(null, "m", next.millis) }, YAWN_MS)
             }
             Look.WINK -> hop(0.4f)
-            Look.SAD -> Unit
+            Look.SAD -> sparkles.play(Sparkles.Effect.TEAR)
         }
         refresh()
     }
@@ -307,6 +310,8 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
         if (!moves) return
         hopStart = SystemClock.uptimeMillis()
         hopHeight = height
+        // She lands in a little dust, unless an effect of her look is still on show.
+        main.postDelayed({ if (!sparkles.busy) sparkles.play(Sparkles.Effect.DUST) }, (HOP_MS * 0.8f).toLong())
         wake()
     }
 
@@ -341,6 +346,7 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
         super.onSizeChanged(w, h, oldw, oldh)
         side = min(w, h).toFloat()
         feetY = (h - side) / 2 + side * FEET
+        sparkles.feetY = feetY
         shadow.shader = if (side > 1f) RadialGradient(0f, 0f, side * SHADOW_SIZE, Palette.SHADOW, 0x00000000, Shader.TileMode.CLAMP) else null
         // Decoded for her size, as PeriFace's frames: a clearly different size decodes them again.
         val target = if (side <= 0f) 0 else min(1024, ((side * 1.12f).toInt() + 127) / 128 * 128)
@@ -503,7 +509,10 @@ class LayeredPeri(context: Context) : FrameLayout(context) {
                     main.postDelayed(lookBack, 1_200)
                 }
                 3 -> moment("happy", "grin", 1_300)
-                4 -> moment(null, "whistle", 1_800)
+                4 -> {
+                    moment(null, "whistle", 1_800)
+                    sparkles.play(Sparkles.Effect.NOTES)
+                }
                 5 -> moment("wink_left", "tongue", 700)
                 else -> wave()
             }
