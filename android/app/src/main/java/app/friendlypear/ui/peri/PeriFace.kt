@@ -70,8 +70,11 @@ class PeriFace(context: Context) : FrameLayout(context) {
     /** One moment of an action: how high (dp), squash (−) or stretch (+), extra tilt (°) and width (−1 is turned round). */
     private data class Shape(val lift: Float = 0f, val squash: Float = 0f, val tilt: Float = 0f, val width: Float = 1f)
 
-    /** A moment of a movement drawn frame by frame: when, the picture that comes on (or none), how high she is then. */
-    private data class Key(val at: Long, val res: Int?, val lift: Float, val fall: Boolean = false)
+    /**
+     * A moment of a movement drawn frame by frame: when, the picture that comes on (or none), and how high she is then
+     * (none: the picture changes on the way between two heights). [steady] keeps an even pace down (floating).
+     */
+    private data class Key(val at: Long, val res: Int?, val lift: Float = Float.NaN, val steady: Boolean = false)
 
     /** A movement drawn frame by frame: its keys, and when her feet touch the ground (a puff of dust). */
     private class Drawn(val keys: List<Key>, val lands: Long) {
@@ -707,7 +710,7 @@ class PeriFace(context: Context) : FrameLayout(context) {
         main.postDelayed({ if (!talking) put(frames.still) }, keys.last().at - 40)
     }
 
-    /** Her height [e] ms into a movement drawn frame by frame: between its keys, faster and faster from a [Key.fall]. */
+    /** Her height [e] ms into a movement drawn frame by frame, between the heights of its keys. */
     private fun along(keys: List<Key>, e: Float): Shape {
         val i = keys.indexOfLast { it.at <= e }
         if (i >= keys.lastIndex) {
@@ -715,11 +718,17 @@ class PeriFace(context: Context) : FrameLayout(context) {
             action = null
             return Shape()
         }
-        val a = keys[i]
-        val b = keys[i + 1]
+        // Between the heights around now, like a real jump: slower as she rises, faster as she falls.
+        val a = keys.subList(0, i + 1).last { !it.lift.isNaN() }
+        val b = keys.subList(i + 1, keys.size).first { !it.lift.isNaN() }
         val f = ((e - a.at) / (b.at - a.at)).coerceIn(0f, 1f)
-        val share = a.lift + (b.lift - a.lift) * (if (a.fall) f * f else f)
-        return Shape(lift = share * pictureSide / resources.displayMetrics.density)
+        val k = when {
+            a.steady -> f
+            b.lift < a.lift -> f * f
+            b.lift > a.lift -> 1 - (1 - f) * (1 - f)
+            else -> f
+        }
+        return Shape(lift = (a.lift + (b.lift - a.lift) * k) * pictureSide / resources.displayMetrics.density)
     }
 
     /**
@@ -992,84 +1001,85 @@ class PeriFace(context: Context) : FrameLayout(context) {
          * Her jump frame by frame (lote 16): when each picture comes on, and how high she is then, as a share of her
          * picture (sprites/anim_offsets.json: Muse keeps her in the middle, so the frames in the air are drawn higher).
          * She crouches, springs, rises stretched, tucks, opens out at the top, falls, lands squashed and stands up.
+         * Each pose holds long enough to be seen: a long crouch, a hang at the top, a squash on landing.
          */
         val JUMP = Drawn(listOf(
             Key(0, R.drawable.peri_anim_jump_01, 0f),
-            Key(110, R.drawable.peri_anim_jump_02, 0f),
-            Key(170, R.drawable.peri_anim_jump_03, 0.073f),
-            Key(240, R.drawable.peri_anim_jump_04, 0.153f),
-            Key(320, R.drawable.peri_anim_jump_05, 0.198f),
-            Key(410, R.drawable.peri_anim_jump_06, 0.177f),
-            Key(490, R.drawable.peri_anim_jump_07, 0f),
-            Key(590, R.drawable.peri_anim_jump_08, 0f),
-            Key(670, R.drawable.peri_anim_jump_09, 0f),
-            Key(750, null, 0f),
-        ), lands = 490)
+            Key(220, R.drawable.peri_anim_jump_02, 0f),
+            Key(330, R.drawable.peri_anim_jump_03),
+            Key(440, R.drawable.peri_anim_jump_04),
+            Key(570, R.drawable.peri_anim_jump_05, 0.198f),
+            Key(770, R.drawable.peri_anim_jump_06, 0.18f),
+            Key(900, R.drawable.peri_anim_jump_07, 0f),
+            Key(1_080, R.drawable.peri_anim_jump_08, 0f),
+            Key(1_220, R.drawable.peri_anim_jump_09, 0f),
+            Key(1_360, null, 0f),
+        ), lands = 900)
         /** A star jump: up from her crouch, arms and legs wide at the top, and the big jump's landing. */
         val STAR = Drawn(listOf(
             Key(0, R.drawable.peri_anim_jump_01, 0f),
-            Key(110, R.drawable.peri_anim_jump_02, 0f),
-            Key(170, R.drawable.peri_anim_star_01, 0.06f),
-            Key(290, null, 0.17f),
-            Key(390, null, 0.08f),
-            Key(440, R.drawable.peri_anim_jump_07, 0f),
-            Key(540, R.drawable.peri_anim_jump_08, 0f),
-            Key(620, R.drawable.peri_anim_jump_09, 0f),
-            Key(700, null, 0f),
-        ), lands = 440)
+            Key(220, R.drawable.peri_anim_jump_02, 0f),
+            Key(330, R.drawable.peri_anim_star_01),
+            Key(560, null, 0.18f),
+            Key(720, null, 0.15f),
+            Key(850, R.drawable.peri_anim_jump_07, 0f),
+            Key(1_020, R.drawable.peri_anim_jump_08, 0f),
+            Key(1_160, R.drawable.peri_anim_jump_09, 0f),
+            Key(1_300, null, 0f),
+        ), lands = 850)
         /** A jump with a turn: she crouches turning, is seen from the side and from behind in the air, and lands facing you. */
         val SPIN_JUMP = Drawn(listOf(
             Key(0, R.drawable.peri_anim_spin_01, 0f),
-            Key(120, R.drawable.peri_anim_spin_02, 0.07f),
-            Key(260, R.drawable.peri_anim_spin_03, 0.16f),
-            Key(390, R.drawable.peri_anim_spin_04, 0f),
-            Key(640, null, 0f),
-        ), lands = 390)
+            Key(200, R.drawable.peri_anim_spin_02, 0f),
+            Key(420, R.drawable.peri_anim_spin_03, 0.17f),
+            Key(560, null, 0.15f),
+            Key(680, R.drawable.peri_anim_spin_04, 0f),
+            Key(1_100, null, 0f),
+        ), lands = 680)
         /** Her jump for joy: fists at her chest, up with both fists high, one fist up at the top, and landed still cheering. */
         val CHEER = Drawn(listOf(
             Key(0, R.drawable.peri_anim_cheer_01, 0f),
-            Key(130, R.drawable.peri_anim_cheer_02, 0f),
-            Key(200, null, 0.168f),
-            Key(290, R.drawable.peri_anim_cheer_03, 0.218f),
-            Key(400, null, 0.15f),
-            Key(470, R.drawable.peri_anim_cheer_04, 0f),
-            Key(760, null, 0f),
-        ), lands = 470)
+            Key(230, R.drawable.peri_anim_cheer_02, 0f),
+            Key(480, R.drawable.peri_anim_cheer_03, 0.22f),
+            Key(640, null, 0.19f),
+            Key(760, R.drawable.peri_anim_cheer_04, 0f),
+            Key(1_300, null, 0f),
+        ), lands = 760)
         /** Her jumps, at random: the big one most often. */
         val HOPS = listOf(JUMP, JUMP, STAR, SPIN_JUMP)
         /** Where her entrance starts: this far above the ground, as a share of her picture. */
         const val ENTER_FROM = 0.8f
         /** Her entrance frame by frame: she falls stretched, splats, bounces up a little and stands with her arms open. */
         val DROP = Drawn(listOf(
-            Key(0, R.drawable.peri_anim_drop_01, ENTER_FROM, fall = true),
-            Key(300, R.drawable.peri_anim_drop_02, 0.11f),
-            Key(360, R.drawable.peri_anim_drop_03, 0f),
-            Key(480, R.drawable.peri_anim_drop_04, 0f),
-            Key(545, null, 0.065f),
-            Key(610, R.drawable.peri_anim_drop_05, 0f),
-            Key(700, R.drawable.peri_anim_drop_06, 0f),
-            Key(1_050, null, 0f),
-        ), lands = 360)
+            Key(0, R.drawable.peri_anim_drop_01, ENTER_FROM),
+            Key(420, R.drawable.peri_anim_drop_02),
+            Key(500, R.drawable.peri_anim_drop_03, 0f),
+            Key(720, R.drawable.peri_anim_drop_04, 0f),
+            Key(830, null, 0.07f),
+            Key(940, R.drawable.peri_anim_drop_05, 0f),
+            Key(1_080, R.drawable.peri_anim_drop_06, 0f),
+            Key(1_600, null, 0f),
+        ), lands = 500)
         /**
          * Out of the ground: her leaf and the top of her head, then half of her (both pictures end where the soil is,
          * so they're drawn up to the ground line), a jump out with her arms up and the big jump's landing.
          */
         val SPROUT = Drawn(listOf(
             Key(0, R.drawable.peri_anim_sprout_01, 1 - FEET),
-            Key(320, R.drawable.peri_anim_sprout_02, 1 - FEET),
-            Key(560, R.drawable.peri_anim_sprout_03, 0.08f),
-            Key(660, null, 0.2f),
-            Key(780, R.drawable.peri_anim_jump_07, 0f),
-            Key(880, R.drawable.peri_anim_jump_09, 0f),
-            Key(960, null, 0f),
-        ), lands = 780)
+            Key(450, R.drawable.peri_anim_sprout_02, 1 - FEET),
+            Key(800, R.drawable.peri_anim_sprout_03, 1 - FEET),
+            Key(960, null, 0.22f),
+            Key(1_120, R.drawable.peri_anim_jump_07, 0f),
+            Key(1_290, R.drawable.peri_anim_jump_09, 0f),
+            Key(1_430, null, 0f),
+        ), lands = 1_120)
         /** Down with her umbrella: floating from high up, swaying lower, and landing softly as she closes it. */
         val FLOAT = Drawn(listOf(
-            Key(0, R.drawable.peri_anim_float_01, 0.9f),
-            Key(700, R.drawable.peri_anim_float_02, 0.3f),
-            Key(1_150, R.drawable.peri_anim_float_03, 0f),
-            Key(1_600, null, 0f),
-        ), lands = 1_150)
+            Key(0, R.drawable.peri_anim_float_01, 0.9f, steady = true),
+            Key(950, R.drawable.peri_anim_float_02),
+            Key(1_550, R.drawable.peri_anim_float_03, 0f),
+            Key(2_150, null, 0f),
+        ), lands = 1_550)
         /** Her entrances, at random: from the sky, out of the ground, down with her umbrella. */
         val ENTRANCES = listOf(DROP, SPROUT, FLOAT)
         /** The longest she stays out of sight waiting for her entrance's frames. */
