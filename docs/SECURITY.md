@@ -87,7 +87,7 @@ are gone after 15 minutes or when that phone is disconnected.
   (`FLAG_SECURE`, `Guard.kt`; release builds always, debug builds only when asked, so tests and the video can record).
   A remote-control app installed during a call sees a black screen there.
 - **Nobody can press "yes" for the person through another app**: the buttons that decide (a guardian's "Yes, I
-  approve" and its confirmation, "It was me", "Connect" when pairing) ignore a touch that comes through another app's
+  approve" and its confirmation, "Yes, it was me", "Connect" when pairing) ignore a touch that comes through another app's
   window drawn over them, and Peri says why. Android 12 and later already block most such touches; this catches the
   see-through rest. Other buttons still work under a screen dimmer.
 - Contacts are read on the phone and never sent. Only doubtful messages leave it, plus what the person chooses (a
