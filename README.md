@@ -226,6 +226,16 @@ Secrets never go in the repo: the backend reads `backend/.env` (see `.env.exampl
 
 Threats, mitigations and what is still open: [`docs/SECURITY.md`](docs/SECURITY.md). Every feature and how it was tested: [`docs/FEATURES.md`](docs/FEATURES.md).
 
+**What Peri can see, and what she can't** (the same list is in the app, Settings › What Peri can do):
+
+| Peri sees, on the phone | Peri never sees |
+|---|---|
+| The texts (SMS) you receive, as they arrive | What is said in a call: she never listens to its sound |
+| What WhatsApp, email and other apps show in their notifications, never the whole chat | Your WhatsApp chats, their photos or voice notes, beyond a notification |
+| Who is calling (the number), and whether you're on a call | What you type in other apps, your passwords or your bank account |
+| Which app is open during a call, to warn about your bank or a remote-control app | Where you are, except to send it to your family when you ask or in an emergency |
+| Your contacts, to know who is family; the pictures you choose to show her | Anything you switch off |
+
 
 Only doubtful messages ever leave the phone, plus what the person chooses to send: a picture they show Peri, and their voice orders if they turn on Muse Voice Transcribe in Settings (off by default; Android's own recognizer otherwise). None of it is stored. Contacts are read on the phone and never sent anywhere. What Peri keeps on the phone about scams and people (the last scam, blocked numbers, who she called or texted, her diary, the family setup) is encrypted with a key that never leaves Android's keystore. Permissions are asked one at a time, the first time they are needed, and Peri first says what each one is for and what she won't do with it. Reading texts is optional: Android locks it for apps installed from a file, so Peri also protects from notifications alone, and the step can be hidden. For those locked settings, Peri's **unlock guide** walks through Android's own three steps (try once, allow restricted settings, turn it on). A "no" is respected: Peri says what still works (for example, she gives you the number to dial yourself) and never asks again on every start. Peri never accesses call audio, and the microphone stays closed during any phone call, even on speaker; if Peri was listening when a call starts, it closes at once and nothing it heard is used.
 

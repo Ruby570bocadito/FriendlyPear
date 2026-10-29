@@ -66,6 +66,8 @@ class AccessActivity : Activity() {
             setPadding(0, dp(10), 0, 0)
         }
         list.addView(summary)
+        // Before the switches, in plain words: what she sees, and what she never does.
+        list.addView(sees(), full(top = 12))
         // One card for all of them, each row split by a thin rule.
         rows = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -105,6 +107,37 @@ class AccessActivity : Activity() {
         super.onResume()
         showItems()
         showLog()
+    }
+
+    /** What Peri sees on this phone, each with a green tick, what she never sees, with a coral cross, and what leaves it. */
+    private fun sees(): View = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        background = cardBackground()
+        setPadding(dp(18), dp(16), dp(18), dp(18))
+        addView(heading(getString(R.string.sees_title), TextSize.BODY))
+        SEES.forEach { addView(seen(it, yes = true)) }
+        addView(heading(getString(R.string.sees_never_title), TextSize.BODY).apply { setPadding(0, dp(16), 0, 0) })
+        NEVER.forEach { addView(seen(it, yes = false)) }
+        addView(body(getString(R.string.sees_leaves), TextSize.SMALL).apply {
+            setTextColor(Palette.AMBER_INK)
+            typeface = weight(600)
+            setPadding(0, dp(16), 0, 0)
+        })
+    }
+
+    private fun seen(text: Int, yes: Boolean): View = LinearLayout(this).apply {
+        setPadding(0, dp(10), 0, 0)
+        addView(ImageView(this@AccessActivity).apply {
+            setImageResource(if (yes) R.drawable.ic_check else R.drawable.ic_close)
+            setColorFilter(if (yes) Palette.GREEN_DARK else Palette.CORAL_INK)
+            background = rounded(if (yes) Palette.GREEN_TINT else Palette.CORAL_TINT, dp(14).toFloat())
+            setPadding(dp(5), dp(5), dp(5), dp(5))
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }, LinearLayout.LayoutParams(dp(28), dp(28)))
+        addView(body(getString(text)).apply {
+            setTextColor(Palette.INK)
+            setPadding(dp(12), dp(1), 0, 0)
+        }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
     }
 
     private fun full(top: Int) = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(top) }
@@ -297,6 +330,9 @@ class AccessActivity : Activity() {
     }
 
     private companion object {
+        val SEES = listOf(R.string.sees_sms, R.string.sees_notifications, R.string.sees_calls, R.string.sees_apps, R.string.sees_contacts,
+            R.string.sees_pictures)
+        val NEVER = listOf(R.string.never_audio, R.string.never_chats, R.string.never_typing, R.string.never_location, R.string.never_off)
         const val REQUEST_NEED = 11
         const val REQUEST_ROLE = 12
         const val SHOWN = 12
