@@ -3,6 +3,7 @@
 Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (API 37).
 
 ## Hecho (24 h)
+- 29 oct, tarde 3 (la persona: «el vídeo» y «me vale, graba»): guion decidido juntos (`docs/GUION.md`), cinco grabaciones de la app de hoy y la demo de 3:00 en 16:9 renderizada (`video/out/demo.mp4`, voz de borrador). La toma de la familia salió a la cuarta: contacto inexistente, APK con la dirección del móvil y remitente corto.
 - 29 oct, tarde 2 (la persona: «el pulido»): la entrada al momento (el arranque espera a sus fotogramas); rendimiento medido (mediana 17 ms, 95 % < 24 ms, 78 MB); accesibilidad al 200 % y sin animaciones comprobada en lo nuevo. Antes: Gradle 8.14.6 por sus arreglos de seguridad (lint había subido a 5 avisos por la versión).
 - 29 oct, tarde (la persona: «sí, el resto»): `bun keycopy` con su ensayo, dependencias con huella SHA-256 (Gradle se niega si cambia una) y «Borrar lo que Peri sabe» sin poder quitar a los guardianes. Con la verificación de dependencias, si una tarea nueva descarga algo, hay que regenerar las huellas.
 - 29 oct, mediodía 2 (la persona: «sí, la siguiente»): release sin registros y con el informe sensible, comprobado por `release_check.py` (que miraba el APK sin firmar); los 7 componentes exportados probados con intents malos, todo rechazado; la verificación de desarrolladores preparada en INSTALL (falta la cuenta de la persona).
