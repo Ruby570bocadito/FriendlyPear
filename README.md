@@ -167,12 +167,10 @@ Nobody wants an app *"to control your phone"*. Peri is presented, truthfully, as
 
 <table>
   <tr>
-    <td width="50%" valign="top"><img src="assets/ui/ui_family_waiting.webp" width="96" align="left" alt="Peri sitting beside a big lilac clock"><b>A one-time link, not an app</b><br>Each guardian gets an SMS with their own link, valid once for 15 minutes: <b>No</b> · <b>Call me first</b> · <b>Yes</b>. Silence counts as no.</td>
-    <td width="50%" valign="top"><img src="assets/ui/ui_welcome_family.webp" width="96" align="left" alt="Peri with three small pear friends in a cap, a bow and a beanie"><b>Peri to Peri</b><br>If the guardian has FriendlyPear too, the request opens in their own Peri, and a yes needs their phone's lock.</td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top"><img src="assets/ui/ui_family_yes.webp" width="96" align="left" alt="Peri giving a thumbs up under three little hearts"><b>"Was it you?"</b><br>When a new number claims to be family, Peri quietly asks the family's other phones. Each answers with one tap.</td>
-    <td width="50%" valign="top"><img src="assets/ui/ui_perm_calls.webp" width="96" align="left" alt="Peri holding an old sky-blue telephone handset"><b>Hang up their call</b><br>A guardian can end a stranger's call on a relative's phone, never a call with a contact.</td>
+    <td align="center" width="25%" valign="top"><img src="assets/ui/ui_family_waiting.webp" width="104" alt="Peri sitting beside a big lilac clock"><br><b>A one-time link</b><br><sub>Each guardian gets an SMS with their own link, valid once for 15 minutes: <b>No</b> · <b>Call me first</b> · <b>Yes</b>. Silence counts as no.</sub></td>
+    <td align="center" width="25%" valign="top"><img src="assets/ui/ui_welcome_family.webp" width="104" alt="Peri with three small pear friends in a cap, a bow and a beanie"><br><b>Peri to Peri</b><br><sub>If the guardian has FriendlyPear too, the request opens in their own Peri, and a yes needs their phone's lock.</sub></td>
+    <td align="center" width="25%" valign="top"><img src="assets/ui/ui_family_yes.webp" width="104" alt="Peri giving a thumbs up under three little hearts"><br><b>"Was it you?"</b><br><sub>When a new number claims to be family, Peri quietly asks the family's other phones. Each answers with one tap.</sub></td>
+    <td align="center" width="25%" valign="top"><img src="assets/ui/ui_perm_calls.webp" width="104" alt="Peri holding an old sky-blue telephone handset"><br><b>Hang up their call</b><br><sub>A guardian can end a stranger's call on a relative's phone, never a call with a contact.</sub></td>
   </tr>
 </table>
 
