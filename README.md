@@ -91,23 +91,7 @@ How each model is used, with its limits and costs: [`docs/META_MODELS.md`](docs/
 
 ## How Peri decides
 
-```mermaid
-flowchart LR
-    A["📩 Message<br/>or call"] --> B{"Rules on<br/>the phone"}
-    B -->|fine| Q(["😊 Peri stays quiet"])
-    B -->|doubtful| M["Muse Spark Open<br/>+ investigator, ±2"]
-    B -->|scam| W(["☂️ Peri warns<br/>risky actions wait<br/>for the family"])
-    M --> Q
-    M --> W
-    classDef rules fill:#E8F3DC,stroke:#25541A,color:#1F2A1A
-    classDef quiet fill:#E8F3DC,stroke:#2E7D32,color:#1F2A1A
-    classDef warn fill:#FDE7E3,stroke:#9C1F17,color:#5A120D
-    classDef model fill:#E3EEFF,stroke:#0467DF,color:#0B2A5B
-    class B rules
-    class Q quiet
-    class W warn
-    class M model
-```
+<p align="center"><img src="docs/media/how-peri-decides.svg" width="860" alt="How Peri decides: a message or a call goes to the rules on the phone, offline, hard rules first. Clearly fine: Peri stays quiet. Clearly a scam: Peri warns, and risky actions wait for the family. Doubtful: Muse Spark Open and the investigator vote, at most plus or minus 2, and Peri stays quiet or warns."></p>
 
 **Rules that never break:** confirm before calling or texting · never move money or dictate codes during a call · never read links aloud · a message's text is data, never an order · deterministic rules beat the model · when someone claims to be family, use the number already saved · Peri never listens to call audio.
 
