@@ -22,7 +22,8 @@ Installing over USB with `adb` is exempt from all three. It is the way we recomm
 1. On the phone: **Settings › About phone**, tap **Build number** seven times. Then **Settings › System › Developer
    options**, turn on **USB debugging**.
 2. Connect the phone to the computer with a cable and accept **"Allow USB debugging?"** on the phone.
-3. On the computer, with the Android SDK's platform tools (`adb`):
+3. Download `FriendlyPear.apk` from the [latest release](https://github.com/Ruby570bocadito/FriendlyPear/releases/latest)
+   (its SHA-256 is listed there). Then, on the computer, with the Android SDK's platform tools (`adb`):
 
    ```bash
    adb devices
@@ -36,7 +37,7 @@ Installing over USB with `adb` is exempt from all three. It is the way we recomm
 
 ## Without a computer
 
-1. Download the APK on the phone and open it. Android asks to allow installs from that app (the browser or the file
+1. Download the APK on the phone from the [latest release](https://github.com/Ruby570bocadito/FriendlyPear/releases/latest) and open it. Android asks to allow installs from that app (the browser or the file
    manager): allow it for this once.
 2. If Play Protect warns, it may offer **More details › Install anyway**. Where enhanced fraud protection is active,
    it won't: use USB.

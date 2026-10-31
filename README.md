@@ -6,6 +6,8 @@
 
 <p align="center"><img src="docs/media/banner.jpg" width="860" alt="Peri, a clay pear, waving on a green hill among little clay houses, trees and clouds"></p>
 
+<p align="center"><b><a href="https://ruby570bocadito.github.io/FriendlyPear/">Website</a> · <a href="https://github.com/Ruby570bocadito/FriendlyPear/releases/latest">Download the app (APK)</a> · <a href="docs/INSTALL.md">How to install it</a></b></p>
+
 Peri, a friendly pear that lives in your phone, reads your messages aloud, calls whoever you ask, and when something smells like a scam it checks with the real person or with your family before you lose a cent.
 
 Built for the **Meta Global AI Developer Hackathon** · Indie track · *Build for Your World*.
@@ -27,7 +29,7 @@ Built for the **Meta Global AI Developer Hackathon** · Indie track · *Build fo
 
 <p align="center"><img src="docs/media/opening.gif" width="260" alt="Opening FriendlyPear: Peri with her arms up on the launch screen, then her hello in her meadow, a thumbs up and a wave"></p>
 
-- **On an Android phone (12 or later)**: install the release APK over USB, `adb install -r FriendlyPear.apk`. Android blocks scam guards installed from a browser, because they read texts and notifications like the malware they fight; USB is exempt. [`docs/INSTALL.md`](docs/INSTALL.md) has the five-minute steps, and what to do without a computer.
+- **On an Android phone (12 or later)**: install the release APK ([latest release](https://github.com/Ruby570bocadito/FriendlyPear/releases/latest)) over USB, `adb install -r FriendlyPear.apk`. Android blocks scam guards installed from a browser, because they read texts and notifications like the malware they fight; USB is exempt. [`docs/INSTALL.md`](docs/INSTALL.md) has the five-minute steps, and what to do without a computer.
 - **The first minutes**: Peri introduces herself and asks for each permission when it's needed, one step at a time. Then **Check my phone** finds what Android puts in her way on a real phone (battery saving that puts her to sleep, no permission to pause other apps during a call, the call filter, codes hidden on Android 15, settings locked for apps from a file) and opens the right screen for each.
 - **To see her catch a scam** on the emulator, send it a text ([Build and test](#build-and-test)). Without Peri's server she still protects with the rules on the phone; the family, the second opinion and "look at a picture" need it ([what works where](docs/INSTALL.md#what-works-where)).
 
@@ -188,7 +190,7 @@ Doubtful messages then go to Muse Spark Open and the investigator. Weights learn
 
 ## Built during the hackathon
 
-Every line of product code, from the first commit on Oct 27 (421 commits by Oct 29, 262 tests in `core/` alone):
+Every line of product code, from the first commit on Oct 27 (over 450 commits by Oct 31; 264 tests in `core/` and 134 in `backend/`):
 
 - **The shield**: signals and hard rules on the phone, weights and their evaluation on 200 unseen messages, the red team with Muse Spark, a code during a call, strangers' calls before pickup, the pause over a bank app, QR codes judged without opening them.
 - **The models**: Muse Spark Open as second opinion, the Muse Spark investigator with tools, "look at a picture" with SAM 3.1, the police report in one tap, Muse Voice Transcribe, Muse Image for every picture of Peri and the trap comics.
@@ -205,7 +207,9 @@ backend/   Bun + TypeScript: guardian approvals and pages, investigator agent, m
 models/    How to serve the open-weight model.
 eval/      Held-out test set and metrics scripts.
 training/  Scam knowledge base, dataset scripts, learned weights and fine-tuning.
-assets/    Peri's illustrations and the prompts used to make them.
+assets/    Peri's illustrations and the prompts used to make them; the app's Rive animations, written in code.
+video/     The demo video, made as code with Remotion: its scenes, lines and the scripts that make its pictures and sound.
+web/       The project's website (Next.js), published with GitHub Pages.
 docs/      Concept, architecture, demo script and the multi-agent protocol (in Spanish).
 ```
 
@@ -271,4 +275,4 @@ Only doubtful messages ever leave the phone, plus what the person chooses to sen
 
 Security of the backend, whose guardian links are public URLs: everything it keeps on disk is encrypted with a key kept apart from the data, each phone changes its key monthly and the admin token can be rotated with a day's overlap; its log carries nothing personal. Requests are limited per IP (30 a minute on `/a/` and `/g/`, 240 on the phone's API), an IP that keeps sending wrong device tokens is shut out for 15 minutes, bodies are capped and read only up to the limit, and every answer carries security headers (no sniffing, no referrer, no embedding, CSP on pages, HSTS over HTTPS). Link tokens are stored only as hashes. Release builds speak HTTPS only; plain HTTP to the developer's machine exists in debug builds alone, and the debug voice bridge only answers `adb`.
 
-Icons in the app's buttons: [Material Icons](https://fonts.google.com/icons) (Apache License 2.0). QR codes in pictures are read on the phone with [ZXing](https://github.com/zxing/zxing) core (Apache License 2.0). Everything else, including Peri, was made during the event.
+Icons in the app's buttons: [Material Icons](https://fonts.google.com/icons) (Apache License 2.0). QR codes in pictures are read on the phone with [ZXing](https://github.com/zxing/zxing) core (Apache License 2.0). The small animations on buttons, tabs and screens play with [Rive](https://rive.app)'s Android runtime (MIT License); the animations themselves are written in code in `assets/rive`. Everything else, including Peri, was made during the event.

@@ -3,14 +3,10 @@
 Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (API 37).
 
 ## Hecho (24 h)
-- 29 oct, tarde 3 (la persona: «el vídeo» y «me vale, graba»): guion decidido juntos (`docs/GUION.md`), cinco grabaciones de la app de hoy y la demo de 3:00 en 16:9 renderizada (`video/out/demo.mp4`, voz de borrador). La toma de la familia salió a la cuarta: contacto inexistente, APK con la dirección del móvil y remitente corto.
-- 29 oct, tarde 2 (la persona: «el pulido»): la entrada al momento (el arranque espera a sus fotogramas); rendimiento medido (mediana 17 ms, 95 % < 24 ms, 78 MB); accesibilidad al 200 % y sin animaciones comprobada en lo nuevo. Antes: Gradle 8.14.6 por sus arreglos de seguridad (lint había subido a 5 avisos por la versión).
-- 29 oct, tarde (la persona: «sí, el resto»): `bun keycopy` con su ensayo, dependencias con huella SHA-256 (Gradle se niega si cambia una) y «Borrar lo que Peri sabe» sin poder quitar a los guardianes. Con la verificación de dependencias, si una tarea nueva descarga algo, hay que regenerar las huellas.
-- 29 oct, mediodía 2 (la persona: «sí, la siguiente»): release sin registros y con el informe sensible, comprobado por `release_check.py` (que miraba el APK sin firmar); los 7 componentes exportados probados con intents malos, todo rechazado; la verificación de desarrolladores preparada en INSTALL (falta la cuenta de la persona).
-- 29 oct, mediodía (la persona: «sí, la seguridad»): r7-pantalla-segura y r7-toques-tapados con `Guard` (captura negra comprobada en el informe; el toque tapado sin probar con una superposición real); antes, los saltos más lentos y la ronda 7 en el roadmap.
-- 29 oct, media mañana 3 (la persona: «celebraciones»): salto de alegría, saltos y entradas al azar (`Drawn`, `variants`) y la vuelta en 8 vistas (lotes 17 y 20); la entrada ya no la corta un salto ni un momento del saludo. Grabado: tierra, cielo y paraguas; salto grande y de estrella.
-- 29 oct, media mañana 2 (la persona: «sí, el salto»): el salto en 9 fotogramas y la entrada desde el cielo en 6 (lote 16) en `PeriFace` (`Key`, `play`, `along`), con su ropa (`anchors.py`) y decodificados en un hilo propio; grabado en el emulador: entra sin parpadeo y salta con doble toque.
-- 29 oct, media mañana (la persona: sigue con el roadmap): icono y arranque nuevos; las imágenes de la interfaz en su sitio (32 recortes de los lotes 14, 15, 28 y 29 con `sprites_cut.py ui`); hitos con medalla (`Milestone` en core, `Milestones`); obstáculos de Android en la revisión y en el inicio (`Obstacles`); README para el jurado. El agente de imágenes hace commits en este mismo checkout: su commit `b6cb973` se llevó tres borrados que yo tenía preparados (correctos; el icono los completa en `f5d41f7`). Desde ahora, añadir y hacer commit en el mismo comando.
+- 31 oct (la persona: «revisa mi proyecto» y «arregla todo»): el CI estaba rojo desde el 29 porque las huellas de `verification-metadata.xml` se sacaron con la caché llena (en core faltaba `kotlinx-coroutines-bom-1.6.4.pom`, en android el aapt2 de Linux): regeneradas con una caché vacía y el aapt2 de Linux y macOS a mano. En Windows la caché vacía tiene que ir en una ruta corta (`.agent-tmp/g`): con una larga, aapt2 no arranca («Daemon startup failed»).
+- 31 oct: un remitente con nombre elegido por quien escribe (SMS con letras, nombre de un correo) ya no pasa por contacto (`IncomingMessage.nameFromContacts`); medido con `evalShield` antes y después, los 200 reservados igual.
+- 31 oct: Rive commiteado con dos arreglos en `RiveArt.kt`: se carga al verse (no en segundo plano) y cada pantalla le da un ciclo de vida. La fuga se midió con la galería (`RiveDemoActivity`) y `dumpsys meminfo`, mismo proceso y ninguna galería abierta: +13 MB en 6 aperturas sin él, +1,5 MB fijos con él. Ojo: una primera medida salió plana sin el arreglo (el emulador iba sin memoria); medir siempre comprobando el PID.
+- 31 oct: el vídeo (composiciones, scripts y guiones; los 1,4 GB de imágenes y audios fuera del repo por `.gitignore`) y la web en `main` en un solo commit, con la autoría del resto del repo. README con la web, la descarga y créditos de Rive; INSTALL con la Release.
 
 ## Cómo probar (solo builds de depuración)
 - Voz: `adb shell "am broadcast -a app.friendlypear.debug.HEAR --es text 'call my daughter'"`.
@@ -34,6 +30,7 @@ Tareas hechas por IMP-1 a petición de la persona. Todo probado en el emulador (
 
 ## Peticiones
 - SEG: `r2s-revision-nuevo` (lo de hoy: preguntas, colgar, notificaciones con acciones, bloqueados).
+- La persona: publicar la APK firmada en una Release de GitHub (el README y INSTALL ya enlazan a la última).
 
 ## Propuestas para el roadmap
 - Sección F (seguridad); regrabar los GIF del README con el diseño nuevo; las trampas que faltan (inversión, policía falsa, trabajo, voz clonada) cuando haya una señal que las distinga.
