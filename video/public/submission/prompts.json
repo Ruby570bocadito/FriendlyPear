@@ -1,0 +1,42 @@
+{
+  "conductor": {
+    "prompt": "Change: Peri is a cheerful orchestra conductor holding a small wooden baton up in one hand. In front of her, on the ground, stand six small round clay helper robots in different pastel colours (coral, sky blue, lilac, sun yellow, mint, peach), each holding one different item: a magnifying glass, a big ear trumpet, a paintbrush, a notebook, a red-and-white target, a glowing light bulb. Same Peri: same face, big round dark eyes, leaf, colours and clay style. Cream background.",
+    "size": "1024x1024"
+  },
+  "builder": {
+    "prompt": "Change: Peri wears a small yellow hard hat and holds a little clay wrench, standing proudly next to a half-built big clay smartphone held by small wooden scaffolding, a few clay bolts on the ground. Same Peri: same face, big round dark eyes, leaf, colours and clay style. Cream background.",
+    "size": "1024x1024"
+  },
+  "padlock": {
+    "prompt": "Change: Peri holds a big shiny golden clay padlock in both hands in front of her chest, the padlock has a small green leaf on its front, and Peri has a firm, kind, confident smile. Same Peri: same face, big round dark eyes, leaf, colours and clay style. Cream background.",
+    "size": "1024x1024"
+  },
+  "bridge": {
+    "prompt": "Change: Peri stands in the middle holding hands with two smiling clay people: on the left an elderly woman with silver hair in a bun and a lilac cardigan, on the right her adult daughter with brown hair and a sky blue jumper. Small coral hearts float above them. All three the same height scale as a family photo, Peri a little smaller. Same Peri: same face, big round dark eyes, leaf, colours and clay style. Cream background.",
+    "size": "1024x1024"
+  },
+  "lonely": {
+    "prompt": "Wide shot. An elderly clay woman with silver hair in a bun and a lilac cardigan sits alone on a soft armchair in a cosy living room in the evening, a standing lamp glowing warm, she looks worried at a phone in her hands whose screen casts a cold blue light on her face. Soft 3D clay diorama, matte plasticine texture with visible fingerprints, rounded chunky shapes, warm pastel colours with fresh greens, soft studio light from the top left, gentle shadows, shallow depth of field. No text, no letters, no numbers, no logos.",
+    "size": "1536x1024"
+  },
+  "scammer": {
+    "prompt": "Wide shot. A dark, moody clay room: a shadowy faceless figure in a hoodie sits at a desk with many phones and a laptop glowing purple, a big clay fishing hook hangs from the ceiling. Mysterious but not scary, suitable for all ages. Soft 3D clay diorama, matte plasticine texture with visible fingerprints, rounded chunky shapes, warm pastel colours with fresh greens, soft studio light from the top left, gentle shadows, shallow depth of field. No text, no letters, no numbers, no logos.",
+    "size": "1536x1024"
+  },
+  "meadow": {
+    "prompt": "Wide landscape. A sunny clay meadow on rolling green hills with small pear trees, little white clay houses with terracotta roofs far away, fluffy clay clouds in a soft blue sky, flowers in the foreground, an empty grassy hill in the middle. No people, no animals. Soft 3D clay diorama, matte plasticine texture with visible fingerprints, rounded chunky shapes, warm pastel colours with fresh greens, soft studio light from the top left, gentle shadows, shallow depth of field. No text, no letters, no numbers, no logos.",
+    "size": "1536x1024"
+  },
+  "rosa_morning": {
+    "prompt": "Same elderly woman, same cosy living room, same armchair and the same soft 3D clay style. Change: it is a bright sunny morning now, warm golden light pours through the window, and she smiles, relaxed and happy, holding a small cup of tea in one hand and her phone in the other. No text.",
+    "size": "1024x1024"
+  },
+  "ana_city": {
+    "prompt": "Keep only the young woman on the right (long brown hair, sky blue knitted jumper), in the same soft 3D clay style. New wide scene: she stands by a big window in a small city flat at dusk, tall buildings with warm lit windows behind her, holding her phone and looking at it with a caring, slightly worried face. No pear, no elderly woman, no text.",
+    "size": "1024x1024"
+  },
+  "parking": {
+    "prompt": "Wide shot. A sunny clay street in a small Spanish town: a parking meter in the foreground on the pavement, with a small blue sticker stuck on it showing an abstract black and white square pattern like a QR code, parked clay cars, balconies with flower pots, a pale blue sky. No people. Soft 3D clay diorama, matte plasticine texture with visible fingerprints, rounded chunky shapes, warm pastel colours with fresh greens, soft studio light from the top left, gentle shadows, shallow depth of field. No text, no letters, no numbers, no logos.",
+    "size": "1536x1024"
+  }
+}

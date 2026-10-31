@@ -1,0 +1,42 @@
+{
+  "rosa_desk": {
+    "prompt": "Same elderly woman (silver hair in a bun, lilac knitted cardigan) in the same soft 3D clay style. New scene: she sits behind a small wooden desk in a cosy little office, round reading glasses on the tip of her nose, holding a clipboard and a pen, looking towards the right side of the image with a serious but playful interviewer face. Warm daylight from a window. No text, no letters.",
+    "size": "1024x1536"
+  },
+  "office": {
+    "prompt": "Tall vertical shot of a cosy little interview room: a warm peach wall with framed pictures of pears and flowers, a potted plant, a small window with daylight, a wooden floor with a soft round spotlight on it in the middle, and empty space in the centre where someone could stand. No people, no characters. Soft 3D clay, matte plasticine texture with visible fingerprints, rounded chunky shapes, warm pastel colours, soft studio light from the top left. No text, no letters, no numbers, no logos.",
+    "size": "1024x1536"
+  },
+  "padlock": {
+    "prompt": "A funny grumpy clay character standing, full body, centred: a big shiny golden padlock with stubby arms and legs, thick angry eyebrows and a frowning mouth, heavy chains over its shoulders, arms crossed. Plain cream background (#FFF8EC), nothing else. Like a stop-motion children's film. Soft 3D clay, matte plasticine texture with visible fingerprints, rounded chunky shapes, warm pastel colours, soft studio light from the top left. No text, no letters, no numbers, no logos.",
+    "size": "1024x1024"
+  },
+  "camera": {
+    "prompt": "A funny sneaky clay character standing, full body, centred: a grey security camera head on a little round body with stubby arms and legs, one huge round lens eye looking sideways suspiciously, holding small binoculars, a sly grin. Plain cream background (#FFF8EC), nothing else. Like a stop-motion children's film. Soft 3D clay, matte plasticine texture with visible fingerprints, rounded chunky shapes, warm pastel colours, soft studio light from the top left. No text, no letters, no numbers, no logos.",
+    "size": "1024x1024"
+  },
+  "peri_tie": {
+    "prompt": "Only change: Peri wears a small neat red tie and holds a tiny sheet of paper (her CV) in both hands in front of her, with a hopeful, slightly nervous smile. Same Peri: same face, big round dark eyes, leaf, colours and clay style. Cream background.",
+    "size": "1024x1024"
+  },
+  "peri_guard": {
+    "prompt": "Only change: Peri wears cool black sunglasses and a tiny black earpiece with a curly wire, arms crossed over her chest, a confident proud smile, like a bodyguard. Same Peri: same face, big round dark eyes, leaf, colours and clay style. Cream background.",
+    "size": "1024x1024"
+  },
+  "peri_stop": {
+    "prompt": "Only change: Peri holds one hand up firmly in front of her, palm out like a stop sign, with a serious, brave, protective face (eyebrows a little lowered, no smile); her other hand rests on her hip. Same Peri: same face, big round dark eyes, leaf, colours and clay style. Cream background.",
+    "size": "1024x1024"
+  },
+  "rosa_meh": {
+    "prompt": "Same woman, same desk, same office, same framing and the same soft 3D clay style. Only change: she raises one eyebrow and purses her lips, unimpressed, pointing her pen to the right as if saying \"next!\".",
+    "size": "1024x1536"
+  },
+  "rosa_laugh": {
+    "prompt": "Same woman, same desk, same office, same framing and the same soft 3D clay style. Only change: she laughs with joy, eyes squeezed happily shut, and gives a big thumbs up with one hand.",
+    "size": "1024x1536"
+  },
+  "rosa_phone": {
+    "prompt": "Same woman, same desk, same office, same framing and the same soft 3D clay style. Only change: she holds her phone up proudly towards the viewer with a warm, satisfied smile, the glasses still on her nose.",
+    "size": "1024x1536"
+  }
+}

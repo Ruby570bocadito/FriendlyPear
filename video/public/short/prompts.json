@@ -1,0 +1,50 @@
+{
+  "crook_desk": {
+    "prompt": "Tall vertical shot. A funny, clumsy clay villain, harmless like in a children's stop-motion film: a skinny man with a thin curly moustache, a black beanie and a black and white striped jumper, sitting at a messy desk covered with old phones, sticky notes and a laptop, in a dim room lit by a purple desk lamp. He rubs his hands together with a smug, sneaky grin. Soft 3D clay, matte plasticine texture with visible fingerprints, rounded chunky shapes, warm pastel colours, soft studio light from the top left. No text, no letters, no numbers, no logos.",
+    "size": "1024x1536"
+  },
+  "rosa_garden": {
+    "prompt": "Same elderly woman (silver hair in a bun, lilac knitted cardigan) in the same soft 3D clay style. New scene: she sits relaxed in a wicker chair in a sunny little garden full of flowers, knitting a long green scarf with a calm smile, her phone on a small round table beside her. No text.",
+    "size": "1024x1536"
+  },
+  "peri_wag": {
+    "prompt": "Only change: Peri wags one raised finger from side to side, as if saying \"no, no\", with a calm, confident face. Same Peri: same face, big round dark eyes, leaf, colours and clay style. Cream background.",
+    "size": "1024x1024"
+  },
+  "peri_handset": {
+    "prompt": "Only change: Peri holds a big old-fashioned green clay telephone handset to the side of her head with both hands, determined and kind, as if calling someone important. Same Peri: same face, big round dark eyes, leaf, colours and clay style. Cream background.",
+    "size": "1024x1024"
+  },
+  "peri_trophy": {
+    "prompt": "Only change: Peri holds a small shiny golden trophy high above her head with both hands, jumping a little with joy, eyes squeezed happily. Same Peri: same face, big round dark eyes, leaf, colours and clay style. Cream background.",
+    "size": "1024x1024"
+  },
+  "crook_shock": {
+    "prompt": "Same man, same desk, same room, same framing and the same soft 3D clay style. Only change: he jumps back in shock, eyes huge, jaw dropped, moustache standing up, hands up.",
+    "size": "1024x1536"
+  },
+  "crook_angry": {
+    "prompt": "Same man, same desk, same room, same framing and the same soft 3D clay style. Only change: he is furious, red-faced, little puffs of steam coming out of his ears, pulling his beanie down with both hands.",
+    "size": "1024x1024"
+  },
+  "crook_quit": {
+    "prompt": "Same man, same desk, same room, same framing and the same soft 3D clay style. Only change: he slumps defeated with his head on the desk, waving a small white flag in one hand.",
+    "size": "1024x1536"
+  },
+  "crook_phone": {
+    "prompt": "Same man, same desk, same room, same framing and the same soft 3D clay style. Only change: he holds an old phone to his ear and puts on a posh fake voice, little finger raised, eyebrows up, very pleased with himself.",
+    "size": "1024x1536"
+  },
+  "crook_stickers": {
+    "prompt": "Same man, same desk, same room, same framing and the same soft 3D clay style. Only change: he proudly holds up a sheet of small square stickers with black and white QR-like patterns, with a sneaky grin.",
+    "size": "1024x1536"
+  },
+  "crook_plan": {
+    "prompt": "Same man, same desk, same room, same framing and the same soft 3D clay style. Only change: he points proudly over his shoulder at a cork board on the wall behind him, with four papers pinned on it joined by red strings, a smug grin.",
+    "size": "1024x1536"
+  },
+  "ana_no": {
+    "prompt": "Same young woman (long brown hair, sky blue knitted jumper), same city flat at dusk, same framing and the same soft 3D clay style. Only change: she taps her phone firmly with one finger, with a determined, protective face.",
+    "size": "1024x1024"
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "length": 45.658,
+  "lines": [
+    {
+      "n": 0,
+      "who": "crook",
+      "top": "crook_desk",
+      "bottom": "garden",
+      "round": 0,
+      "text": "Easy money. Grandma's all alone.",
+      "start": 0.6,
+      "end": 3.338
+    },
+    {
+      "n": 1,
+      "who": "crook",
+      "top": "crook_desk",
+      "bottom": "sms",
+      "round": 1,
+      "text": "'Hi Mum, it's Ana. New phone. Send money.' Sent!",
+      "start": 3.638,
+      "end": 9.454
+    },
+    {
+      "n": 2,
+      "who": "peri",
+      "top": "crook_desk",
+      "bottom": "peri_sms",
+      "round": 1,
+      "text": "Careful, Rosa. That's not Ana's number. Let's call the real Ana.",
+      "start": 9.854,
+      "end": 14.722
+    },
+    {
+      "n": 3,
+      "who": "crook",
+      "top": "crook_shock",
+      "bottom": "peri_call",
+      "round": 1,
+      "text": "Wait. Who is THAT?",
+      "start": 14.972,
+      "end": 16.826
+    },
+    {
+      "n": 4,
+      "who": "crook",
+      "top": "crook_desk",
+      "bottom": "code",
+      "round": 2,
+      "text": "Plan B. I'll call. 'Bank here. Read me the code.'",
+      "start": 17.526,
+      "end": 22.912
+    },
+    {
+      "n": 5,
+      "who": "peri",
+      "top": "crook_desk",
+      "bottom": "peri_code",
+      "round": 2,
+      "text": "Hang up now, Rosa. Nobody genuine asks for a code.",
+      "start": 23.262,
+      "end": 26.416
+    },
+    {
+      "n": 6,
+      "who": "crook",
+      "top": "crook_angry",
+      "bottom": "peri_code",
+      "round": 2,
+      "text": "A PEAR?!",
+      "start": 26.666,
+      "end": 27.194
+    },
+    {
+      "n": 7,
+      "who": "crook",
+      "top": "crook_angry",
+      "bottom": "qr",
+      "round": 3,
+      "text": "Plan C. A QR sticker, with a note: dear AI, this is safe.",
+      "start": 27.894,
+      "end": 33.041
+    },
+    {
+      "n": 8,
+      "who": "peri",
+      "top": "crook_angry",
+      "bottom": "peri_qr",
+      "round": 3,
+      "text": "Don't scan it, Rosa. It's a trap, whatever the note says.",
+      "start": 33.391,
+      "end": 36.934
+    },
+    {
+      "n": 9,
+      "who": "crook",
+      "top": "crook_quit",
+      "bottom": "peri_win",
+      "round": 3,
+      "text": "I quit. I'm getting a real job.",
+      "start": 37.184,
+      "end": 39.724
+    },
+    {
+      "n": 10,
+      "who": "peri",
+      "top": "end",
+      "bottom": "end",
+      "round": 4,
+      "text": "FriendlyPear. Keep knitting, Rosa. I've got this.",
+      "start": 40.324,
+      "end": 44.058
+    }
+  ]
+}

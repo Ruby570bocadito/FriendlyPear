@@ -1,0 +1,237 @@
+{
+  "crook_angry": {
+    "from": "short/crook_desk.png",
+    "prompt": "Same man, same desk, same room, same framing and the same soft 3D clay style, keeping his thin curly black moustache, his black beanie and his black and white striped jumper. Only change: he looks very cross and grumpy, frowning hard with his cheeks a little red, two small cartoon puffs of steam rising from his ears, and his arms crossed.",
+    "size": "1024x1536"
+  },
+  "rosa_call": {
+    "from": "submission/rosa_morning.png",
+    "prompt": "Same elderly woman, same armchair, same room, same framing and the same soft 3D clay style. Only change: she holds her phone to her ear with one hand, listening to someone with a worried face; her other hand rests on her lap, no cup.",
+    "size": "1024x1024"
+  },
+  "ana_call": {
+    "from": "submission/ana_city.png",
+    "prompt": "Same young woman, same flat at dusk, same framing and the same soft 3D clay style. Only change: she holds her phone to her ear, listening with a surprised, alarmed face.",
+    "size": "1024x1024"
+  },
+  "ana_go": {
+    "from": "submission/ana_city.png",
+    "prompt": "Same young woman, same flat at dusk, same framing and the same soft 3D clay style. Only change: she is pulling on a coat in a hurry with her phone held to her ear, worried but determined.",
+    "size": "1024x1024"
+  },
+  "pear_rosa": {
+    "from": "../../assets/peri/peri_calm.webp",
+    "prompt": "Only change: Peri wears a small red bow on top of her head, next to her leaf, with a warm smile. Same Peri: same face, big round dark eyes, leaf, colours and clay style. Cream background.",
+    "size": "1024x1024"
+  },
+  "pear_ana": {
+    "from": "../../assets/peri/peri_calm.webp",
+    "prompt": "Only change: Peri wears small round red glasses and a red bow tie, with a kind, attentive smile. Same Peri: same face, big round dark eyes, leaf, colours and clay style. Cream background.",
+    "size": "1024x1024"
+  },
+  "pear_pablo": {
+    "from": "../../assets/peri/peri_calm.webp",
+    "prompt": "Only change: Peri wears a cosy blue woolly beanie, with a cheerful smile. Same Peri: same face, big round dark eyes, leaf, colours and clay style. Cream background.",
+    "size": "1024x1024"
+  },
+  "crook_plan_talk": {
+    "from": "short/crook_plan.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word. He keeps his thin curly black moustache exactly as it is.",
+    "size": "1024x1536"
+  },
+  "crook_desk_talk": {
+    "from": "short/crook_desk.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word. He keeps his thin curly black moustache exactly as it is.",
+    "size": "1024x1536"
+  },
+  "crook_phone_talk": {
+    "from": "short/crook_phone.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word. He keeps his thin curly black moustache exactly as it is.",
+    "size": "1024x1536"
+  },
+  "crook_stickers_talk": {
+    "from": "short/crook_stickers.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word. He keeps his thin curly black moustache exactly as it is.",
+    "size": "1024x1536"
+  },
+  "crook_shock_talk": {
+    "from": "short/crook_shock.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word. He keeps his thin curly black moustache exactly as it is.",
+    "size": "1024x1536"
+  },
+  "crook_angry_talk": {
+    "from": "heist/crook_angry.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word. He keeps his thin curly black moustache exactly as it is.",
+    "size": "1024x1536"
+  },
+  "crook_quit_talk": {
+    "from": "short/crook_quit.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word. He keeps his thin curly black moustache exactly as it is.",
+    "size": "1024x1536"
+  },
+  "rosa_morning_talk": {
+    "from": "submission/rosa_morning.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word.",
+    "size": "1024x1024"
+  },
+  "rosa_call_talk": {
+    "from": "heist/rosa_call.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word.",
+    "size": "1024x1024"
+  },
+  "ana_call_talk": {
+    "from": "heist/ana_call.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word.",
+    "size": "1024x1024"
+  },
+  "ana_no_talk": {
+    "from": "short/ana_no.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word.",
+    "size": "1024x1024"
+  },
+  "ana_go_talk": {
+    "from": "heist/ana_go.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word.",
+    "size": "1024x1024"
+  },
+  "crook_plan_blink": {
+    "from": "short/crook_plan.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the eyes are gently closed, as in the middle of a blink; the mouth stays exactly as it is. He keeps his thin curly black moustache exactly as it is.",
+    "size": "1024x1536"
+  },
+  "crook_desk_blink": {
+    "from": "short/crook_desk.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the eyes are gently closed, as in the middle of a blink; the mouth stays exactly as it is. He keeps his thin curly black moustache exactly as it is.",
+    "size": "1024x1536"
+  },
+  "crook_phone_blink": {
+    "from": "short/crook_phone.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the eyes are gently closed, as in the middle of a blink; the mouth stays exactly as it is. He keeps his thin curly black moustache exactly as it is.",
+    "size": "1024x1536"
+  },
+  "crook_stickers_blink": {
+    "from": "short/crook_stickers.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the eyes are gently closed, as in the middle of a blink; the mouth stays exactly as it is. He keeps his thin curly black moustache exactly as it is.",
+    "size": "1024x1536"
+  },
+  "rosa_morning_blink": {
+    "from": "submission/rosa_morning.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the eyes are gently closed, as in the middle of a blink; the mouth stays exactly as it is.",
+    "size": "1024x1024"
+  },
+  "rosa_call_blink": {
+    "from": "heist/rosa_call.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the eyes are gently closed, as in the middle of a blink; the mouth stays exactly as it is.",
+    "size": "1024x1024"
+  },
+  "rosa_reading": {
+    "from": "submission/rosa_morning.png",
+    "prompt": "Same elderly woman, same armchair, same room, same framing and the same soft 3D clay style. Only change: she holds her phone a little closer and reads a message on it with a puzzled, slightly worried face, her eyebrows raised and her mouth closed; the cup rests on her lap.",
+    "size": "1024x1024"
+  },
+  "rosa_yes": {
+    "from": "submission/rosa_morning.png",
+    "prompt": "Same elderly woman, same armchair, same room, same framing and the same soft 3D clay style. Only change: she looks at her phone hopeful and relieved, her free hand resting on her chest, her mouth closed in a small grateful smile; no cup.",
+    "size": "1024x1024"
+  },
+  "rosa_qr": {
+    "from": "submission/rosa_morning.png",
+    "prompt": "Same elderly woman with the same grey hair bun, the same lilac knitted cardigan and the same soft 3D clay style. She now stands outdoors on a sunny little town street beside a parking meter with a small square sticker on it, holding her phone up in front of it as if about to scan it, with a curious face and her mouth closed. Upper body, similar framing.",
+    "size": "1024x1024"
+  },
+  "rosa_kitchen": {
+    "from": "heist/rosa_call.png",
+    "prompt": "Same elderly woman with the same grey hair bun, the same lilac knitted cardigan and the same soft 3D clay style. She now sits at a small cosy kitchen table with a cup of tea and a notepad, holding her phone to her ear and listening trustingly, her mouth closed. Similar framing.",
+    "size": "1024x1024"
+  },
+  "rosa_fallen": {
+    "from": "submission/rosa_morning.png",
+    "prompt": "Same elderly woman, same living room, same lilac cardigan and the same soft 3D clay style. Only change: she has slipped and now sits on the rug beside her armchair, one hand on her hip, holding her phone in the other hand to ask for help, calm but a little shaken, her mouth closed.",
+    "size": "1024x1024"
+  },
+  "ana_call_rest": {
+    "from": "heist/ana_call.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same background, same lighting, same clay style. Only change: her mouth is closed, lips gently together, with the same surprised, concerned look.",
+    "size": "1024x1024"
+  },
+  "ana_go_rest": {
+    "from": "heist/ana_go.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same background, same lighting, same clay style. Only change: her mouth is closed, lips gently together, worried but calm and determined.",
+    "size": "1024x1024"
+  },
+  "rosa_yes_talk": {
+    "from": "heist/rosa_yes.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word.",
+    "size": "1024x1024"
+  },
+  "rosa_kitchen_talk": {
+    "from": "heist/rosa_kitchen.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word.",
+    "size": "1024x1024"
+  },
+  "rosa_fallen_talk": {
+    "from": "heist/rosa_fallen.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word.",
+    "size": "1024x1024"
+  },
+  "ana_call_rest_talk": {
+    "from": "heist/ana_call_rest.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word.",
+    "size": "1024x1024"
+  },
+  "ana_go_rest_talk": {
+    "from": "heist/ana_go_rest.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word.",
+    "size": "1024x1024"
+  },
+  "rosa_reading_blink": {
+    "from": "heist/rosa_reading.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the eyes are gently closed, as in the middle of a blink; the mouth stays exactly as it is.",
+    "size": "1024x1024"
+  },
+  "rosa_yes_blink": {
+    "from": "heist/rosa_yes.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the eyes are gently closed, as in the middle of a blink; the mouth stays exactly as it is.",
+    "size": "1024x1024"
+  },
+  "rosa_qr_blink": {
+    "from": "heist/rosa_qr.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the eyes are gently closed, as in the middle of a blink; the mouth stays exactly as it is.",
+    "size": "1024x1024"
+  },
+  "rosa_kitchen_blink": {
+    "from": "heist/rosa_kitchen.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the eyes are gently closed, as in the middle of a blink; the mouth stays exactly as it is.",
+    "size": "1024x1024"
+  },
+  "rosa_fallen_blink": {
+    "from": "heist/rosa_fallen.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the eyes are gently closed, as in the middle of a blink; the mouth stays exactly as it is.",
+    "size": "1024x1024"
+  },
+  "ana_call_rest_blink": {
+    "from": "heist/ana_call_rest.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the eyes are gently closed, as in the middle of a blink; the mouth stays exactly as it is.",
+    "size": "1024x1024"
+  },
+  "ana_go_rest_blink": {
+    "from": "heist/ana_go_rest.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the eyes are gently closed, as in the middle of a blink; the mouth stays exactly as it is.",
+    "size": "1024x1024"
+  },
+  "rosa_garden_call": {
+    "from": "short/rosa_garden.png",
+    "prompt": "Same elderly woman, same garden, same wicker chair, same framing and the same soft 3D clay style. Only change: she has put her knitting down on her lap and holds her phone to her ear with one hand, listening to someone with a polite, slightly unsure face, her mouth closed.",
+    "size": "1024x1536"
+  },
+  "rosa_garden_call_talk": {
+    "from": "heist/rosa_garden_call.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the mouth is open in a natural talking shape, as if in the middle of saying a word.",
+    "size": "1024x1536"
+  },
+  "rosa_garden_call_blink": {
+    "from": "heist/rosa_garden_call.png",
+    "prompt": "Exactly the same image. Same character, same pose, same framing, same size and position, same background, same lighting, same clay style. Only change: the eyes are gently closed, as in the middle of a blink; the mouth stays exactly as it is.",
+    "size": "1024x1536"
+  }
+}

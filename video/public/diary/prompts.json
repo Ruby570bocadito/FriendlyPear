@@ -1,0 +1,77 @@
+{
+  "town_morning": {
+    "from": "heist/rosa_garden_call.png",
+    "prompt": "A cosy little clay cottage with a lilac front door, round windows and a small flower garden behind a low picket fence, seen from the garden path, early morning just after sunrise: soft golden light, long gentle shadows, a bird on the fence, no people. Wide view, the same soft 3D clay style, warm and cosy.",
+    "size": "1792x1024"
+  },
+  "kitchen_noon": {
+    "from": "heist/rosa_kitchen.png",
+    "prompt": "The same cosy kitchen, wider view, with nobody in it: bright late-morning sun through the window, a cup of tea and a notepad on the table, and a phone on the table lighting up with an incoming call. the same soft 3D clay style, warm and cosy.",
+    "size": "1792x1024"
+  },
+  "garden_sunset": {
+    "from": "heist/rosa_garden_call.png",
+    "prompt": "The same garden, wider view, with nobody in it: the empty wicker chair with the green knitting left on it, the little round table, flowers everywhere, a warm pink and orange sunset sky and a string of little lights starting to glow. the same soft 3D clay style, warm and cosy.",
+    "size": "1792x1024"
+  },
+  "cottage_night": {
+    "from": "diary/town_morning.png",
+    "prompt": "The same cottage and garden, same framing, now late at night: a deep blue sky full of stars and a round moon, warm golden light glowing in the windows, a little lamp by the door, peaceful and cosy, not dark. No people. the same soft 3D clay style, warm and cosy.",
+    "size": "1792x1024"
+  },
+  "hill_morning": {
+    "from": "diary/street_afternoon.png",
+    "prompt": "A small round clay hill covered in soft grass and tiny flowers, in the middle of a cosy little world, under a sunrise sky in pastel yellow, peach and pink with a few puffy clay clouds; the top of the hill is empty and flat, ready for someone to stand on it. No buildings, no people. Wide view, the same soft 3D clay style, warm and cosy.",
+    "size": "1792x1024"
+  },
+  "peri_desk": {
+    "from": "../../assets/peri/sprites/scene_night.webp",
+    "prompt": "Peri, the same small green clay pear with the same face, big round dark eyes, rosy cheeks and leaf, sits at a small wooden desk in her cosy little room at night, writing in an open diary with a pencil and looking up with a gentle smile; a warm desk lamp lights the room, a round window shows stars and a crescent moon, a mug and a little plant on the desk. Wide view with Peri in the middle, the same soft 3D clay style, warm and cosy, warm light, not dark.",
+    "size": "1792x1024"
+  },
+  "peri_desk_yawn": {
+    "from": "diary/peri_desk.png",
+    "prompt": "Exactly the same room, desk, lamp and window, same framing and the same clay style. Only change: Peri has closed the diary and stretches both arms up in a big sleepy yawn, eyes closed.",
+    "size": "1792x1024"
+  },
+  "peri_desk_sleep": {
+    "from": "diary/peri_desk.png",
+    "prompt": "Exactly the same room, desk, lamp and window, same framing and the same clay style. Only change: Peri has fallen asleep with her head resting on the closed diary, a little smile, and three small letters z floating above her; the lamp is still on.",
+    "size": "1792x1024"
+  },
+  "rosa_fallen_night": {
+    "from": "heist/rosa_fallen.png",
+    "prompt": "Exactly the same elderly woman, same pose, same living room, same framing and the same soft 3D clay style. Only change: it is now night: the floor lamp glows warm and golden and the window shows a deep blue night sky with stars; the room stays warm and cosy, not dark. Her mouth is closed.",
+    "size": "1024x1024"
+  },
+  "ana_hug": {
+    "from": "diary/rosa_fallen_night.png",
+    "prompt": "The same living room at night, same lamp light and the same soft 3D clay style. The same elderly woman still sits on the rug, and her daughter Ana, a young woman with long wavy brown hair, a blue knitted jumper and a beige coat, kneels beside her and hugs her warmly; both have their eyes closed and smile with relief.",
+    "size": "1024x1024"
+  },
+  "rosa_kitchen_hangup": {
+    "from": "heist/rosa_kitchen.png",
+    "prompt": "Exactly the same elderly woman, same kitchen, same framing and the same soft 3D clay style. Only change: she has put the phone down on the table and smiles with relief, one hand on her chest, her mouth closed.",
+    "size": "1024x1024"
+  },
+  "rosa_qr_away": {
+    "from": "heist/rosa_qr.png",
+    "prompt": "Exactly the same elderly woman, same street, same framing and the same soft 3D clay style. Only change: she has lowered her phone and smiles knowingly, shaking her head at the sticker on the parking meter, her mouth closed.",
+    "size": "1024x1024"
+  },
+  "rosa_garden_smile": {
+    "from": "heist/rosa_garden_call.png",
+    "prompt": "Exactly the same elderly woman, same garden, same wicker chair, same framing and the same soft 3D clay style. Only change: she has lowered the phone to her lap and smiles warmly at its screen, relieved, her mouth closed.",
+    "size": "1024x1536"
+  },
+  "street_afternoon": {
+    "from": "heist/rosa_qr.png",
+    "prompt": "Same clay town street and the same soft 3D clay style, wider view, no people, warm afternoon light.",
+    "size": "1792x1024"
+  },
+  "cover": {
+    "from": "diary/peri_desk.png",
+    "prompt": "A closed cosy notebook lying flat on the same wooden desk, seen from straight above and filling most of the picture: a soft green fabric cover with rounded corners and stitched edges, a cute clay pear sticker with a little leaf in the middle, a red ribbon bookmark hanging out at the bottom, a pencil beside it, warm lamp light. No text, no letters. the same soft 3D clay style, warm and cosy.",
+    "size": "1792x1024"
+  }
+}

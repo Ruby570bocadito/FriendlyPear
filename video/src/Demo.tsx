@@ -1,5 +1,6 @@
 import { AbsoluteFill, Audio, Img, interpolate, OffthreadVideo, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import durations from "../public/voice/durations.json";
+import edit from "../public/voice/edicion.json";
 import { Backdrop } from "./parts";
 import { BODY, C, clamp, HEADING } from "./theme";
 
@@ -24,6 +25,11 @@ const LINES: Record<number, string> = {
 };
 const VOICE = durations as Record<string, number>;
 
+/** From the edit's recipe (video/scripts/editar.ps1): each scene's headline, and when each word of the person's voice is said. */
+type Word = { w: string; from: number; to: number };
+const HEADLINES = edit.headlines as Record<string, string>;
+const WORDS = edit.words as Record<string, Word[]>;
+
 /** Each scene: where it starts and ends (s), its place, when its voice starts, and its phone clip (s into the clip). */
 const SCENES = [
   { n: 1, from: 0, to: 14, place: "village_sunset_wide", voiceAt: 0.3 },
@@ -47,8 +53,13 @@ export const Demo = () => (
         {"clip" in scene ? <DemoPhone clip={scene.clip} clipFrom={s(scene.clipFrom)} enterAt={s(scene.phoneAt)} /> : null}
         <Sequence from={s(scene.voiceAt)} layout="none">
           <Audio src={staticFile(`voice/vo_${scene.n}.wav`)} />
-          <Subtitles text={LINES[scene.n]} length={s(VOICE[scene.n])} beside={"clip" in scene} />
+          {WORDS[scene.n] ? (
+            <WordSubtitles words={WORDS[scene.n]} beside={"clip" in scene} />
+          ) : (
+            <Subtitles text={LINES[scene.n]} length={s(VOICE[scene.n])} beside={"clip" in scene} />
+          )}
         </Sequence>
+        {HEADLINES[scene.n] ? <Headline text={HEADLINES[scene.n]} /> : null}
         <FadeFromCream />
       </Sequence>
     ))}
@@ -234,6 +245,47 @@ const DemoPhone = ({ clip, clipFrom, enterAt }: { clip: string; clipFrom: number
         fontFamily: BODY, fontWeight: 700, fontSize: 24, padding: "10px 22px", borderRadius: 24 }}>
         Real app · recorded on Android
       </div>
+    </div>
+  );
+};
+
+/** The scene's name, top left in Peri's yellow, bouncing in and leaving after a few seconds. */
+const Headline = ({ text }: { text: string }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const pop = spring({ frame: frame - s(0.4), fps, config: { damping: 8, stiffness: 160 } });
+  const leave = interpolate(frame, [s(3.6), s(4)], [1, 0], clamp);
+  if (frame > s(4)) return null;
+  return (
+    <div style={{ position: "absolute", left: 80, top: 60, fontFamily: HEADING, fontWeight: 700, fontSize: 76, color: C.sun,
+      WebkitTextStroke: `14px ${C.ink}`, paintOrder: "stroke fill", textShadow: "0 8px 0 rgba(31, 42, 26, 0.35)",
+      scale: interpolate(pop, [0, 1], [0.3, 1]), rotate: `${interpolate(pop, [0, 1], [-8, -2])}deg`, transformOrigin: "0% 50%", opacity: Math.min(pop, leave) }}>
+      {text}
+    </div>
+  );
+};
+
+/** The person's words, two or three at a time as they say them, the one being said in Peri's green. */
+const WordSubtitles = ({ words, beside }: { words: Word[]; beside: boolean }) => {
+  const frame = useCurrentFrame();
+  const now = frame / FPS;
+  const groups: Word[][] = [];
+  for (const word of words) {
+    const group = groups[groups.length - 1];
+    if (group && group.length < 3 && !/[.,?!:]$/.test(group[group.length - 1].w)) group.push(word);
+    else groups.push([word]);
+  }
+  const group = groups.find((g, i) => now < (groups[i + 1]?.[0].from ?? g[g.length - 1].to + 0.4) && now >= g[0].from - 0.05);
+  if (!group) return null;
+  const saying = group.filter((word) => now >= word.from - 0.05).length - 1;
+  return (
+    <div style={{ position: "absolute", left: beside ? 80 : 160, right: beside ? 700 : 160, bottom: 60, display: "flex", justifyContent: "center", gap: 22 }}>
+      {group.map((word, i) => (
+        <span key={`${groups.indexOf(group)}-${i}`} style={{ fontFamily: HEADING, fontWeight: 700, fontSize: 72, color: i === saying ? C.green : C.white,
+          WebkitTextStroke: `12px ${C.ink}`, paintOrder: "stroke fill", textShadow: "0 6px 0 rgba(31, 42, 26, 0.35)" }}>
+          {word.w}
+        </span>
+      ))}
     </div>
   );
 };

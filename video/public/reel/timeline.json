@@ -1,0 +1,116 @@
+{
+  "length": 42.154,
+  "lines": [
+    {
+      "n": 0,
+      "who": "rosa",
+      "shot": "rosa_desk",
+      "text": "Who wants to guard my phone?",
+      "start": 0.35,
+      "end": 1.871
+    },
+    {
+      "n": 1,
+      "who": "lock",
+      "shot": "padlock",
+      "text": "I lock everything. Nobody gets in. Not even your grandson.",
+      "start": 2.171,
+      "end": 7.315
+    },
+    {
+      "n": 2,
+      "who": "rosa",
+      "shot": "rosa_meh",
+      "text": "Not even Pablo? Next!",
+      "start": 7.515,
+      "end": 9.645
+    },
+    {
+      "n": 3,
+      "who": "cam",
+      "shot": "camera",
+      "text": "I'll watch every message, and report it all to your family.",
+      "start": 10.245,
+      "end": 13.034
+    },
+    {
+      "n": 4,
+      "who": "rosa",
+      "shot": "rosa_meh",
+      "text": "A spy? Next!",
+      "start": 13.234,
+      "end": 14.808
+    },
+    {
+      "n": 5,
+      "who": "peri",
+      "shot": "peri_tie",
+      "text": "Hi! I'm Peri. I stop scams before any money moves.",
+      "start": 15.408,
+      "end": 19.783
+    },
+    {
+      "n": 6,
+      "who": "peri",
+      "shot": "peri_tie",
+      "text": "Risky? I ask your family first. They never see your messages.",
+      "start": 20.033,
+      "end": 24.063
+    },
+    {
+      "n": 7,
+      "who": "rosa",
+      "shot": "rosa_desk",
+      "text": "Weaknesses?",
+      "start": 24.363,
+      "end": 25.248
+    },
+    {
+      "n": 8,
+      "who": "peri",
+      "shot": "peri_tie",
+      "text": "I'm a pear. I bruise easily.",
+      "start": 25.498,
+      "end": 27.801
+    },
+    {
+      "n": 9,
+      "who": "rosa",
+      "shot": "rosa_laugh",
+      "text": "Ha! You're hired!",
+      "start": 28.151,
+      "end": 29.636
+    },
+    {
+      "who": "scam",
+      "shot": "scam",
+      "text": "",
+      "start": 30.536,
+      "end": 32.736
+    },
+    {
+      "n": 10,
+      "who": "peri",
+      "shot": "peri_stop",
+      "text": "Hang up now. That's a scam. Call your bank yourself.",
+      "start": 32.736,
+      "end": 36.254
+    },
+    {
+      "n": 11,
+      "who": "rosa",
+      "shot": "rosa_phone",
+      "text": "Best hire ever.",
+      "start": 36.654,
+      "end": 37.851
+    },
+    {
+      "n": 12,
+      "who": "peri",
+      "shot": "end",
+      "text": "FriendlyPear. Your phone's new bodyguard.",
+      "start": 38.201,
+      "end": 40.754
+    }
+  ]
+}

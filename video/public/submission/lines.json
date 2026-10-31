@@ -1,0 +1,172 @@
+{
+  "hook": [
+    {
+      "at": 1.8,
+      "text": "This text says it's from Ana."
+    },
+    {
+      "at": 4.0,
+      "text": "It isn't."
+    },
+    {
+      "at": 5.6,
+      "text": "In 2025, Americans over sixty reported losing seven point seven billion dollars to fraud."
+    }
+  ],
+  "problem": [
+    {
+      "at": 0.5,
+      "text": "Scams work when you're rushed, and alone."
+    },
+    {
+      "at": 3.3,
+      "text": "This is Rosa. Her daughter Ana lives far away."
+    }
+  ],
+  "meet": [
+    {
+      "at": 0.6,
+      "text": "Hi! I'm Peri, a clay pear who lives in Rosa's phone."
+    },
+    {
+      "at": 4.2,
+      "text": "I read her messages aloud, call whoever she asks, and stop scams before any money moves."
+    }
+  ],
+  "number": [
+    {
+      "at": 0.6,
+      "text": "A text from a new number says it's Ana, and asks for money."
+    },
+    {
+      "at": 4.6,
+      "text": "I warn Rosa at once, and I never read a scam out loud."
+    },
+    {
+      "at": 8.6,
+      "text": "I find the real Ana in her contacts. One spoken yes, and I call her usual number."
+    },
+    {
+      "at": 15.4,
+      "text": "The real Ana never sent it."
+    }
+  ],
+  "code": [
+    {
+      "at": 0.5,
+      "text": "Now a stranger calls. Before Rosa answers, I tell her the number isn't saved."
+    },
+    {
+      "at": 8.8,
+      "text": "Then a bank code arrives, in the middle of the call. That's always a scam."
+    },
+    {
+      "at": 13.4,
+      "text": "So a hard rule fires: hang up now. No AI model can overrule it."
+    }
+  ],
+  "picture": [
+    {
+      "at": 0.5,
+      "text": "A parking sticker with a QR code? Rosa shows it to me."
+    },
+    {
+      "at": 3.9,
+      "text": "Look closely. It even tells the AI that it's safe. I'm not fooled."
+    },
+    {
+      "at": 8.7,
+      "text": "The phone reads the code without opening it, Muse Spark reads the picture, and SAM rings the trap."
+    }
+  ],
+  "family": [
+    {
+      "at": 0.5,
+      "text": "When something risky needs a yes, I ask the family first."
+    },
+    {
+      "at": 4.2,
+      "text": "Ana sees a possible scam in progress, and answers in one tap."
+    },
+    {
+      "at": 8.6,
+      "text": "The family never sees Rosa's messages, calls or location."
+    }
+  ],
+  "fallen": [
+    {
+      "at": 0.5,
+      "text": "And if Rosa says she's fallen, I check she's OK."
+    },
+    {
+      "at": 4.6,
+      "text": "No answer? I call Ana."
+    }
+  ],
+  "layers": [
+    {
+      "at": 0.4,
+      "text": "How do I decide? In layers."
+    },
+    {
+      "at": 2.5,
+      "text": "Rules on the phone, even offline."
+    },
+    {
+      "at": 4.8,
+      "text": "Hard rules no model can change."
+    },
+    {
+      "at": 7.0,
+      "text": "A second opinion from Muse Spark Open, which can only nudge the score."
+    },
+    {
+      "at": 11.4,
+      "text": "And for anything risky, the family decides."
+    }
+  ],
+  "models": [
+    {
+      "at": 0.4,
+      "text": "Six Meta models help me, each with one job."
+    },
+    {
+      "at": 3.6,
+      "text": "A second opinion. An investigator, with SAM for pictures. My ears. My looks."
+    },
+    {
+      "at": 9.6,
+      "text": "My training data, and a red team to attack my shield."
+    },
+    {
+      "at": 13.4,
+      "text": "And ideas for my lines, every one checked by hand."
+    }
+  ],
+  "results": [
+    {
+      "at": 0.4,
+      "text": "Before any model, my phone rules flag ninety-one percent of two hundred unseen scams, with four percent false alarms."
+    }
+  ],
+  "companion": [
+    {
+      "at": 0.4,
+      "text": "And I'm a friend, not a watchdog."
+    },
+    {
+      "at": 2.6,
+      "text": "I giggle when Rosa holds me, get dizzy when she shakes the phone, and I love dressing up."
+    }
+  ],
+  "end": [
+    {
+      "at": 0.6,
+      "text": "Rafa built me in nine days, for this hackathon."
+    },
+    {
+      "at": 4.0,
+      "text": "FriendlyPear. You relax. I'll keep watch."
+    }
+  ]
+}
