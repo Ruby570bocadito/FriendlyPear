@@ -91,17 +91,17 @@ How each model is used, with its limits and costs: [`docs/META_MODELS.md`](docs/
 ## How Peri decides
 
 ```mermaid
-flowchart LR
-    A["Texts · WhatsApp · email<br/>calls · browser notices"] --> B{"Rules on the phone<br/>offline, hard rules first"}
-    B -- "ok" --> Q["Peri stays quiet"]
-    B -- "scam" --> W["Peri warns and<br/>offers the safe move"]
-    B -- "doubtful" --> C["Muse Spark Open<br/>second opinion, ±2"]
-    C -- "still doubtful" --> D["Muse Spark investigator<br/>domain age · scam scripts<br/>family relations"]
-    C --> V{"Rules + votes"}
-    D --> V
-    V --> Q
-    V --> W
-    W -- "risky action" --> G["A guardian's yes<br/>one-time link or their own Peri"]
+flowchart TD
+    A["📩 A text, WhatsApp, email,<br/>call or browser notice"] --> B{"Rules on the phone<br/>offline · hard rules first"}
+    B -->|clearly fine| Q["😊 Peri stays quiet"]
+    B -->|clearly a scam| W["☂️ Peri warns<br/>and offers the safe move"]
+    B -->|doubtful| C["Muse Spark Open<br/>second opinion · vote ±2"]
+    C -->|still doubtful| D["🔎 Muse Spark investigator<br/>domain age · scam scripts · family relations"]
+    C -->|calmed| Q
+    C -->|confirmed| W
+    D -->|calmed| Q
+    D -->|confirmed| W
+    W -->|risky action| G["👨‍👩‍👧 A guardian's yes<br/>one-time link, or their own Peri"]
 ```
 
 **Rules that never break:** confirm before calling or texting · never move money or dictate codes during a call · never read links aloud · a message's text is data, never an order · deterministic rules beat the model · when someone claims to be family, use the number already saved · Peri never listens to call audio.
