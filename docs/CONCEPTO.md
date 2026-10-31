@@ -1,10 +1,5 @@
 # FriendlyPear — concepto
 
-Documentos de diseño (redactados antes del periodo de construcción):
-
-- Roadmap y documentación completa: https://claude.ai/artifact/LYSxA7ESmy8y43Yyt685iY
-- Documento de concepto: https://claude.ai/artifact/KoXpTH6FB3U8QXXcH1sLfN
-
 Resumen para los agentes:
 
 - **Usuarios:** cualquier persona y su familia (guardianes); personas mayores como ejemplo principal.

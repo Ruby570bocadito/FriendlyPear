@@ -29,25 +29,10 @@ Dos piezas distintas:
 - **Nunca** un vídeo generado que finja que la app hace algo que no hace.
 - Rótulo pequeño en las escenas generadas: *"Escena ilustrativa generada con IA"*.
 
-## 2. Herramienta: Higgsfield MCP
+## 2. Herramienta: Higgsfield (descartada)
 
-Servidor MCP oficial y remoto de Higgsfield para generar vídeo desde Claude.
-
-| Dato | Valor (según Higgsfield) |
-|---|---|
-| URL del MCP | `https://mcp.higgsfield.ai` |
-| Dónde se añade | Ajustes de conectores de Claude (web, escritorio o Claude Code) |
-| Modelos | Veo 3.1, Sora 2, Kling 3.0, Seedance 2.0, Wan 2.6, MiniMax Hailuo y modelos propios |
-| Salida | Hasta 4K, clips de hasta 15 s, cualquier formato |
-| Skills | Higgsfield ofrece skills y CLI; **la skill concreta la elige Rafa** |
-
-**Conectar:**
-
-1. Claude → Ajustes → Conectores → añadir conector personalizado → `https://mcp.higgsfield.ai`.
-2. Iniciar sesión en Higgsfield cuando lo pida y revisar el coste en créditos de cada generación.
-3. Probar con un clip corto de Peri antes de generar las escenas finales.
-
-**Coherencia de Peri:** generar primero una imagen de referencia de Peri (Muse Image o Higgsfield) y usarla en todas las escenas como referencia de personaje.
+Se pensó para generar las escenas de historia. Se descartó el 28 oct (D11): esas escenas usan los fondos del
+mundo de Peri, y el plan de la tabla de abajo que dice «Higgsfield» quedó sustituido por ellos.
 
 ## 3. Vídeo de demo (3:00)
 
