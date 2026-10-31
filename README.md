@@ -16,6 +16,7 @@
   <img src="https://img.shields.io/badge/unseen_scams_flagged-91%25-2E7D32" alt="91% of 200 unseen scams flagged">
   <img src="https://img.shields.io/badge/tests-400-2E7D32" alt="400 tests">
   <img src="https://img.shields.io/badge/English_%C2%B7_Espa%C3%B1ol-bilingual-E8A33D" alt="English and Spanish">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
 </p>
 
 <p align="center">
@@ -276,3 +277,7 @@ Every feature, how it decides and how it was tested: [`docs/FEATURES.md`](docs/F
 ## Credits
 
 Icons in the app's buttons: [Material Icons](https://fonts.google.com/icons) (Apache License 2.0). QR codes in pictures are read on the phone with [ZXing](https://github.com/zxing/zxing) core (Apache License 2.0). The small animations on buttons, tabs and screens play with [Rive](https://rive.app)'s Android runtime (MIT License); the animations themselves are written in code in `assets/rive`. Type: [Fredoka](https://fonts.google.com/specimen/Fredoka) and [Atkinson Hyperlegible](https://fonts.google.com/specimen/Atkinson+Hyperlegible) (SIL Open Font License). Everything else, including Peri, was made during the event.
+
+## License
+
+FriendlyPear is open source under the [MIT License](LICENSE). The fonts, icons and libraries above keep their own licenses.
