@@ -19,7 +19,9 @@ class SmsReceiver : BroadcastReceiver() {
         parts.groupBy { it.originatingAddress.orEmpty() }.forEach { (sender, pieces) ->
             val text = pieces.joinToString("") { it.messageBody.orEmpty() }.trim()
             if (sender.isNotEmpty() && text.isNotEmpty()) {
-                PeriApp.hub(context).onMessage(IncomingMessage(Channel.SMS, sender, text, pieces.first().timestampMillis))
+                // The SMS's own address: a number, or letters whoever sends it picks ("BBVA", or "Hija" from a scammer).
+                val message = IncomingMessage(Channel.SMS, sender, text, pieces.first().timestampMillis, nameFromContacts = false)
+                PeriApp.hub(context).onMessage(message)
             }
         }
     }

@@ -49,12 +49,12 @@ data class ShieldContext(
     val contacts: List<Contact> = emptyList(),
     val callActive: Boolean = false,
 ) {
-    fun knows(sender: String): Boolean {
+    /** [byName]: whether the sender's name can stand for a contact (see [IncomingMessage.nameFromContacts]). */
+    fun knows(sender: String, byName: Boolean = true): Boolean {
         val name = Text.fold(sender).trim()
         val phone = Text.phoneDigits(sender)
         return contacts.any { c ->
-            Text.fold(c.name) == name ||
-                c.aliases.any { Text.fold(it) == name } ||
+            (byName && (Text.fold(c.name) == name || c.aliases.any { Text.fold(it) == name })) ||
                 (phone.length >= 6 && c.phones.any { Text.phoneDigits(it) == phone })
         }
     }

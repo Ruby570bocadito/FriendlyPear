@@ -39,6 +39,16 @@ class ShieldTest {
     }
 
     @Test
+    fun `an SMS or an email named like a contact is judged as a stranger's`() {
+        // Measured with evalShield: by the name alone, "Laura" made this OK and the Bizum one only doubtful.
+        val sms = IncomingMessage(Channel.SMS, "Laura", "Hola mamá, este es mi número nuevo, guárdalo", 0, nameFromContacts = false)
+        assertEquals(Level.DOUBT, shield.evaluate(sms, family).level)
+        val bizum = sms.copy(text = "Mamá se me ha roto el móvil, te escribo desde este. ¿Me haces un bizum de 200?")
+        assertEquals(Level.SCAM, shield.evaluate(bizum, family).level)
+        assertEquals(Level.SCAM, shield.evaluate(IncomingMessage(Channel.EMAIL, "Laura", bizum.text, 0), family).level)
+    }
+
+    @Test
     fun `ordinary message from a stranger stays quiet`() {
         assertEquals(Level.OK, check("Hola, soy el fontanero, mañana paso a las 10").level)
     }

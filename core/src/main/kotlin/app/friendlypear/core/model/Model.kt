@@ -29,4 +29,10 @@ data class IncomingMessage(
     val sender: String,
     val text: String,
     val receivedAtMillis: Long,
+    /**
+     * Whether a name in [sender] comes from the phone's contact book (WhatsApp and the SMS app show a saved contact by
+     * its name), so it can stand for that contact. An SMS's own address and an email's display name are written by
+     * whoever sends them: "Hija" or "Laura" there proves nothing, and only a number can match.
+     */
+    val nameFromContacts: Boolean = channel != Channel.EMAIL,
 )

@@ -30,7 +30,7 @@ data class Verdict(
 }
 
 /**
- * Layer 1 of the shield: deterministic rules on the phone. Doubtful verdicts go on to Muse Glimmer and,
+ * Layer 1 of the shield: deterministic rules on the phone. Doubtful verdicts go on to Muse Spark Open and,
  * if still doubtful, to Muse Spark; their opinion enters through [withModelOpinion].
  */
 class Shield(

@@ -141,6 +141,22 @@ class SignalDetectorTest {
     }
 
     @Test
+    fun `a name the sender chose is no contact, only a number is`() {
+        // An SMS can come from letters ("Laura", "La niña") and an email can show any name: neither proves who wrote it.
+        val sms = IncomingMessage(Channel.SMS, "Laura", "Hola mamá, este es mi número nuevo, guárdalo", 0, nameFromContacts = false)
+        assertTrue(Signal.UNKNOWN_SENDER in SignalDetector.detect(sms, family).signals)
+        assertTrue(Signal.UNKNOWN_SENDER in SignalDetector.detect(sms.copy(sender = "La Niña"), family).signals)
+        val email = IncomingMessage(Channel.EMAIL, "Laura", "Hola mamá, ¿me puedes prestar 300 euros?", 0)
+        assertTrue(Signal.UNKNOWN_SENDER in SignalDetector.detect(email, family).signals)
+        assertTrue(Signal.ROMANCE_BAIT in SignalDetector.detect(email.copy(text = "Mi amor, quiero verte por fin"), family).signals)
+        // Laura's own number is still Laura, and WhatsApp shows her by the name saved for her.
+        assertFalse(Signal.UNKNOWN_SENDER in SignalDetector.detect(sms.copy(sender = "+34 600 111 222"), family).signals)
+        assertFalse(Signal.UNKNOWN_SENDER in SignalDetector.detect(IncomingMessage(Channel.WHATSAPP, "Laura", "Hola mamá", 0), family).signals)
+        assertFalse(family.knows("Laura", byName = false))
+        assertTrue(family.knows("600111222", byName = false))
+    }
+
+    @Test
     fun `new number from a son or daughter asking for a Bizum`() {
         val d = SignalDetector.detect(
             IncomingMessage(Channel.WHATSAPP, "+34 699 000 000", "Mamá, se me ha roto el móvil, este es mi número nuevo, ¿me haces un Bizum?", 0),

@@ -257,7 +257,8 @@ internal object SignalDetector {
         val checked = hosts + listOfNotNull(Links.senderDomain(message.sender))
         val impersonated = checked.firstNotNullOfOrNull { Brands.impersonated(it, mentioned) }
 
-        if (!context.knows(message.sender)) signals += Signal.UNKNOWN_SENDER
+        val known = context.knows(message.sender, byName = message.nameFromContacts)
+        if (!known) signals += Signal.UNKNOWN_SENDER
         if (hosts.isNotEmpty()) signals += Signal.LINK
         if (hosts.any(Links::isShortener)) signals += Signal.URL_SHORTENER
         if (Links.insecure(message.text)) signals += Signal.INSECURE_LINK
@@ -271,7 +272,7 @@ internal object SignalDetector {
         if (secrecy.containsMatchIn(folded)) signals += Signal.SECRECY
         if ((scare.containsMatchIn(folded) && device.containsMatchIn(folded)) || supportCall.containsMatchIn(folded)) signals += Signal.DEVICE_SCARE
         // Affection from a stranger only: family say "querida" and "mi amor" all the time.
-        if (!context.knows(message.sender) && (affection.containsMatchIn(folded) || loveStory.containsMatchIn(folded))) signals += Signal.ROMANCE_BAIT
+        if (!known && (affection.containsMatchIn(folded) || loveStory.containsMatchIn(folded))) signals += Signal.ROMANCE_BAIT
         if (remoteApps.containsMatchIn(folded)) signals += Signal.REMOTE_ACCESS_APP
         if (aiInstructions.any { it in folded }) signals += Signal.AI_INSTRUCTIONS
         // Letters from another alphabet or invisible ones inside a word, in the text or in a link's international name.

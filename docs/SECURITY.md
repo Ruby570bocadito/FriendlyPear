@@ -24,6 +24,7 @@ in the code and covered by tests or by the two-phone tests of Oct 27 and 28.
 | 1 | "Open your bank app now" | Safety pause before money and remote-control apps during or after a stranger's call | ✅ |
 | 2 | Fake Peri request | The guardian's own Peri only accepts links to **Peri's own server** (same scheme, host and port), from a **saved contact**, and reads the request from the server, never from the SMS. Anything that talks like Peri but links elsewhere is a firm scam: *"this message pretends to be from me"* | ✅ |
 | 2 | Fake family member | "New number", secrecy ("don't tell dad"), romance and scareware signals; Peri offers to call the real relative at the saved number | ✅ |
+| 2 | A sender named like family | An SMS can come from letters instead of a number ("Hija", "Mum") and an email can show any name. Only a number says who wrote: an SMS's own address or an email's name never counts as a saved contact, so a "Laura" by text or email is judged as a stranger, asks the family "was it you?" and can be blocked; a name counts only where the phone's own app shows a saved contact by it (WhatsApp). Measured with `evalShield`: by the name alone, "Mum, this is my new number" from a letters sender named like a contact went from doubtful to quiet | ✅ |
 | 2 | "Mum, it's me, new number" | **"Was it you?"**: Peri quietly asks the family's other phones whether any of them wrote from a new number. Each answers once with a tap, with its own key, and Peri says what they answered, or that nobody did. An answer never turns a warning into an OK: even "yes, it was me" ends with "call them on their usual number first". 15 minutes, at most 3 open questions per phone, only while Peri's news is shared | ✅ |
 | 2 | The same trap reaching the family | When two or more family pears turn to attention with the same kind of trap within 30 minutes, every Peri warns that it is going around | ✅ |
 | 1 | A scammer on the line, right now | A big *Hang up* button whenever a number that isn't in the contacts is on the line. The family sees "on a call with a number they don't know" (only that, only while the person shares Peri's news) and can ask that phone's Peri to hang up: one request at a time, two minutes at most, with each phone's own key; it never ends a call with a contact, and never behind the person's back: Peri says who asks and waits three seconds with *Keep talking* on screen | ✅ |
@@ -102,8 +103,11 @@ are gone after 15 minutes or when that phone is disconnected.
   in a new process. With no guardians, the family setup, the blocked numbers and the phone's key go too, and the
   server forgets the phone. With guardians those stay: who protects the person is decided with the family, so this
   can't be used to take them away.
-- **Every dependency pinned and checked**: the app uses one library (ZXing core 3.5.4) and the build its plugins, all at
-  exact versions. Gradle checks every artifact it downloads against its SHA-256 (`gradle/verification-metadata.xml`
+- **Every dependency pinned and checked**: the app uses two libraries, ZXing core 3.5.4 (QR codes) and Rive's runtime
+  10.4.0 (MIT, the small vector animations, with the AndroidX lifecycle, Compose runtime and Kotlin coroutines it
+  brings), and the build its plugins, all at exact versions. Rive's native code loads only when a screen shows one of
+  its animations, never when a text or a call wakes Peri in the background; with "remove animations" on, or where it
+  can't load, every screen keeps its still picture. Gradle checks every artifact it downloads against its SHA-256 (`gradle/verification-metadata.xml`
   in `android/` and `core/`; a changed byte stops the build, tried) and the Gradle download itself
   (`distributionSha256Sum`). The server runs on Bun alone, with no packages.
 - **Nobody can press "yes" for the person through another app**: the buttons that decide (a guardian's "Yes, I
@@ -149,6 +153,9 @@ are gone after 15 minutes or when that phone is disconnected.
   the on-phone rules, which still warn).
 - **SMS is not encrypted.** The link travels by SMS, so it is short-lived, single-use and guarded by the "are you
   sure?" step and the phone lock. A spoofed sender number alone is not enough: the request must exist on the server.
+- **Texts read from the SMS app's notifications** (when Peri isn't allowed to read texts) show a letters sender the
+  same way as a saved contact's name, so there a sender named like family can still pass for them. Allowing texts
+  closes it: Peri then reads each SMS with its own address.
 - **The server's data key** has to be kept apart from the data: without it, the sealed files can't be opened and the
   family pairs its phones again (nothing is ever approved by itself meanwhile, and Peri's warnings stand).
   `bun keycopy <folder>` writes a copy (its owner only) once it has opened every sealed file, never printing the key, and

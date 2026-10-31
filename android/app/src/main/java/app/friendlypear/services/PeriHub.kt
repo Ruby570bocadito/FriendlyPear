@@ -566,13 +566,14 @@ class PeriHub(context: Context) {
 
     /**
      * Blocked here, or by someone else in the family; a family block never applies to a saved contact, so nobody can
-     * cut this phone off from its own people, not even with a stolen family key. On the main thread.
+     * cut this phone off from its own people, not even with a stolen family key. On the main thread. [byName]: as in
+     * [familyContact].
      */
-    fun blockedHere(sender: String): Blocker? {
+    fun blockedHere(sender: String, byName: Boolean = true): Blocker? {
         if (blocked.has(sender)) return Blocker.ME
         if (!familyBlocks.has(sender)) return null
         if (contacts == null) refreshNow()
-        return if (familyContact(sender) == null) Blocker.FAMILY else null
+        return if (familyContact(sender, byName) == null) Blocker.FAMILY else null
     }
 
     /** From the scam's card: blocked on this phone, and for the rest of the family. */
@@ -773,14 +774,14 @@ class PeriHub(context: Context) {
     fun onMessage(message: IncomingMessage) = main.post {
         if (contacts == null) refreshNow()
         // A number the person (or the family) blocked: never read aloud, only a line in the diary.
-        blockedHere(message.sender)?.let { by ->
+        blockedHere(message.sender, message.nameFromContacts)?.let { by ->
             diary.add(app.friendlypear.config.Diary.Kind.BLOCKED_TEXT, if (by == Blocker.FAMILY) app.friendlypear.config.Diary.BY_FAMILY else "")
             Log.i(TAG, "message from a blocked sender silenced")
             return@post
         }
         // Peri to Peri: a family member's request, from a saved contact and to Peri's own server, opens in the app.
         FamilyRequestLink.find(message.text, BuildConfig.BACKEND_URL)?.let { found ->
-            val from = familyContact(message.sender)
+            val from = familyContact(message.sender, message.nameFromContacts)
             if (from != null) return@post familyRequest(found, from)
         }
         // Talks like Peri but links elsewhere: never a real request, so no model is asked either.
@@ -798,10 +799,13 @@ class PeriHub(context: Context) {
     /** The SMS and its notification both arrive: each request is handled once. */
     private val familyRequests = LinkedHashSet<String>()
 
-    /** The saved contact who sent [sender]: by number (SMS), or by the name a notification shows. */
-    private fun familyContact(sender: String): Contact? {
+    /**
+     * The saved contact who sent [sender]: by number, or by the name a notification shows when [byName] (the phone put
+     * it there from the contacts; an SMS's own address or an email's name is the sender's to choose).
+     */
+    private fun familyContact(sender: String, byName: Boolean = true): Contact? {
         val saved = contacts.orEmpty()
-        return ContactDirectory(saved).byPhone(sender) ?: saved.firstOrNull { it.name.equals(sender.trim(), ignoreCase = true) }
+        return ContactDirectory(saved).byPhone(sender) ?: saved.takeIf { byName }?.firstOrNull { it.name.equals(sender.trim(), ignoreCase = true) }
     }
 
     /**
@@ -955,7 +959,7 @@ class PeriHub(context: Context) {
         }
         if (level == Level.DOUBT) diary.add(app.friendlypear.config.Diary.Kind.DOUBT_CHECKED)
         // A stranger's number claiming to be family: the family's Peris are asked "was it you?".
-        if (level != Level.OK && app.friendlypear.core.shield.Signal.NEW_NUMBER_CLAIM in verdict.signals && familyContact(message.sender) == null) askFamily()
+        if (level != Level.OK && app.friendlypear.core.shield.Signal.NEW_NUMBER_CLAIM in verdict.signals && familyContact(message.sender, message.nameFromContacts) == null) askFamily()
         val name = when (level) {
             Level.SCAM -> "scam"
             Level.DOUBT -> "doubt"
