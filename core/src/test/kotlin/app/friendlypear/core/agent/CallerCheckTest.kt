@@ -116,6 +116,29 @@ class CallerCheckTest {
     }
 
     @Test
+    fun `a question nobody answers lapses, and a yes long after calls no one`() {
+        // Left waiting, Peri would ignore taps and skip her hello and badges for good (the app checks isWaitingForAnswer).
+        val d = CallDevice()
+        val a = agent(d)
+        a.answeredCall(stranger)
+        assertTrue(a.isWaitingForAnswer)
+        now += 11 * 60_000L
+        assertFalse(a.isWaitingForAnswer, "who they said they were, asked eleven minutes ago")
+        a.answeredCall(stranger)
+        a.onHeard("decía ser mi nieto")
+        assertTrue(d.said.last().endsWith("¿Llamo a Pablo a su número de siempre para comprobarlo?"))
+        now += 11 * 60_000L
+        a.onHeard("sí")
+        assertEquals(emptyList(), d.calls, "a yes about something else, long after the question")
+        // In time, the same yes calls.
+        a.answeredCall(stranger)
+        a.onHeard("decía ser mi nieto")
+        now += 2 * 60_000L
+        a.onHeard("sí")
+        assertEquals(listOf("600333444"), d.calls)
+    }
+
+    @Test
     fun `two grandchildren - Peri asks whom to call`() {
         val d = CallDevice()
         val a = agent(d, contacts = listOf(pablo, marta))

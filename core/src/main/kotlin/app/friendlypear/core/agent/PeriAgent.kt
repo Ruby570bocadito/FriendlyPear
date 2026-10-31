@@ -96,7 +96,20 @@ class PeriAgent(
     private val directory = ContactDirectory(contacts)
     private val unread = ArrayDeque<Received>()
     private val awaitingOpinion = mutableSetOf<IncomingMessage>()
-    private var pending: Pending? = null
+    private var asked: Pending? = null
+    private var askedAt = 0L
+
+    /**
+     * What Peri waits to hear. A question nobody answers lapses after [QUESTION_MILLIS]: Peri doesn't wait for good
+     * (the app holds back her hello, her badges and her answers to taps while she waits), and a "yes" said long
+     * after, about something else, calls or texts no one. Never the emergency countdown, which ends in its timeout.
+     */
+    private var pending: Pending?
+        get() = asked?.takeIf { it == Pending.Emergency || clock() - askedAt < QUESTION_MILLIS }
+        set(value) {
+            asked = value
+            askedAt = clock()
+        }
     private var callActive = false
     private var strangeCall: StrangeCall? = null
     /** The family member who asked Peri to hang up, while the person has three seconds to keep talking. */
@@ -205,7 +218,8 @@ class PeriAgent(
 
     /** The person's choice on the safety pause. Calling is a choice they made, like a spoken "yes". */
     fun onPauseAnswer(answer: PauseAnswer) {
-        val offered = (pending as? Pending.Confirm)?.takeIf { it === pauseOffer }
+        // The pause's own buttons stay on screen until pressed, so their offer doesn't lapse like a spoken question.
+        val offered = (asked as? Pending.Confirm)?.takeIf { it === pauseOffer }
         pauseOffer = null
         when (answer) {
             PauseAnswer.CALL_FAMILY -> offered?.let {
@@ -746,6 +760,8 @@ class PeriAgent(
         /** An answered stranger's call shorter than this gets no question after; one longer than [LONG_CALL_MILLIS], a pointed one. */
         const val SHORT_CALL_MILLIS = 15_000L
         const val LONG_CALL_MILLIS = 3 * 60_000L
+        /** How long a question waits for its answer (see [pending]). */
+        const val QUESTION_MILLIS = 10 * 60_000L
         const val MAX_UNREAD = 50
 
         /** Callers who claim to be a bank, an official body or a company: the answer is always to call back yourself. */
