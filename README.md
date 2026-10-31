@@ -92,17 +92,24 @@ How each model is used, with its limits and costs: [`docs/META_MODELS.md`](docs/
 ## How Peri decides
 
 ```mermaid
-flowchart TD
-    A["📩 A text, WhatsApp, email,<br/>call or browser notice"] --> B{"Rules on the phone<br/>offline · hard rules first"}
-    B -->|clearly fine| Q["😊 Peri stays quiet"]
-    B -->|clearly a scam| W["☂️ Peri warns<br/>and offers the safe move"]
-    B -->|doubtful| C["Muse Spark Open<br/>second opinion · vote ±2"]
-    C -->|still doubtful| D["🔎 Muse Spark investigator<br/>domain age · scam scripts · family relations"]
-    C -->|calmed| Q
-    C -->|confirmed| W
-    D -->|calmed| Q
-    D -->|confirmed| W
-    W -->|risky action| G["👨‍👩‍👧 A guardian's yes<br/>one-time link, or their own Peri"]
+flowchart LR
+    A["📩 A message<br/>or a call"] --> B{"Rules on<br/>the phone"}
+    B -->|fine| Q(["😊 Peri stays quiet"])
+    B -->|scam| W(["☂️ Peri warns"])
+    B -->|doubtful| M["Muse Spark Open<br/>+ investigator<br/>vote ±2"]
+    M --> Q
+    M --> W
+    W -->|risky action| G(["👨‍👩‍👧 The family's yes"])
+    classDef rules fill:#E8F3DC,stroke:#25541A,color:#1F2A1A
+    classDef quiet fill:#E8F3DC,stroke:#2E7D32,color:#1F2A1A
+    classDef warn fill:#FDE7E3,stroke:#9C1F17,color:#5A120D
+    classDef model fill:#E3EEFF,stroke:#0467DF,color:#0B2A5B
+    classDef family fill:#EFE9FB,stroke:#5B3FA0,color:#2E1F57
+    class B rules
+    class Q quiet
+    class W warn
+    class M model
+    class G family
 ```
 
 **Rules that never break:** confirm before calling or texting · never move money or dictate codes during a call · never read links aloud · a message's text is data, never an order · deterministic rules beat the model · when someone claims to be family, use the number already saved · Peri never listens to call audio.
@@ -175,27 +182,36 @@ Nobody wants an app *"to control your phone"*. Peri is presented, truthfully, as
 
 ## For the family
 
-<img align="right" src="docs/media/guardian-page.jpg" width="260" alt="The guardian's page: Peri holding a phone with an exclamation mark, the request, a 'possible scam in progress' alert and three answers">
+**No app the family must install, and nothing to watch.** A guardian is a saved contact who answers when something risky comes up. With the person's OK, guardians also see Peri's week: only the kind of event, never messages, numbers, names, calls, location or apps.
 
-There is no app the family must install, and nothing to watch. A guardian (for example a daughter) is a saved contact the person marks as guardian. When the person asks for something risky, each guardian gets an SMS with their own **one-time link, valid for 15 minutes**, to a page with three answers: **"No"** first, then **"Ask them to call me first"**, then "Yes, I approve". The page shows the asking family member's pear dressed as the family knows it, a sign a fake page can't copy.
+<table>
+  <tr>
+    <td width="50%" valign="top"><img src="assets/ui/ui_family_waiting.webp" width="96" align="left" alt="Peri sitting beside a big lilac clock"><b>A one-time link, not an app</b><br>Each guardian gets an SMS with their own link, valid once for 15 minutes: <b>No</b> · <b>Call me first</b> · <b>Yes</b>. Silence counts as no.</td>
+    <td width="50%" valign="top"><img src="assets/ui/ui_welcome_family.webp" width="96" align="left" alt="Peri with three small pear friends in a cap, a bow and a beanie"><b>Peri to Peri</b><br>If the guardian has FriendlyPear too, the request opens in their own Peri, and a yes needs their phone's lock.</td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><img src="assets/ui/ui_family_yes.webp" width="96" align="left" alt="Peri giving a thumbs up under three little hearts"><b>"Was it you?"</b><br>When a new number claims to be family, Peri quietly asks the family's other phones. Each answers with one tap.</td>
+    <td width="50%" valign="top"><img src="assets/ui/ui_perm_calls.webp" width="96" align="left" alt="Peri holding an old sky-blue telephone handset"><b>Hang up their call</b><br>A guardian can end a stranger's call on a relative's phone, never a call with a contact.</td>
+  </tr>
+</table>
 
-- **Peri to Peri:** if the guardian has FriendlyPear too, the request opens in their own Peri, read aloud, and a yes needs the phone's lock. *"Call Mamá now"* sends nothing and dials Mum instead: they meet halfway.
-- **"Was it you?":** when a new number claims to be family, Peri quietly asks the family's other phones; each answers with one tap.
-- **Peri's news (opt-in):** a page with the last 7 days of what Peri did, and a weekly SMS with the counts. Only the kind of event travels, never text, numbers, names, calls, location or apps.
-- **Hang up their call:** a guardian can end a stranger's call on a relative's phone, never a call with a contact.
-
-<br clear="right">
-
-<p align="center"><img src="docs/media/peri-to-peri.gif" width="660" alt="Mum's Peri and Ana's Peri side by side: the stranger's call, Ana's Peri opening the urgent request, Ana calling Mum, and a fake Peri text caught"></p>
+<p align="center"><img src="docs/media/peri-to-peri.gif" width="660" alt="Mum's Peri and Ana's Peri side by side: the stranger's call, Ana's Peri opening the urgent request, Ana calling Mum, and a fake Peri text caught"><br><sub>Peri to Peri, tested with two phones: Mum's Peri in Spanish, Ana's in English.</sub></p>
 
 ## Try it
 
-> [!TIP]
-> **On an Android phone (12 or later):** download `FriendlyPear.apk` from the [latest release](https://github.com/Ruby570bocadito/FriendlyPear/releases/latest) and install it over USB with `adb install -r FriendlyPear.apk`. Android blocks scam guards installed from a browser, because they read texts and notifications like the malware they fight; USB is exempt. The five-minute steps, and what to do without a computer: [`docs/INSTALL.md`](docs/INSTALL.md).
+<table>
+  <tr>
+    <td align="center" width="33%" valign="top"><img src="assets/ui/ui_update.webp" width="110" alt="Peri opening a coral gift box"><br><b>1. Download</b><br><a href="https://github.com/Ruby570bocadito/FriendlyPear/releases/latest"><code>FriendlyPear.apk</code></a><br>from the latest release</td>
+    <td align="center" width="33%" valign="top"><img src="assets/ui/ui_install_usb.webp" width="110" alt="Peri plugging a small clay phone into a laptop"><br><b>2. Install over USB</b><br><code>adb install -r FriendlyPear.apk</code><br><sub>Android blocks scam guards installed from a browser; USB is exempt. <a href="docs/INSTALL.md">The 5-minute steps</a></sub></td>
+    <td align="center" width="33%" valign="top"><img src="assets/ui/ui_welcome_home.webp" width="110" alt="Peri waving beside a little clay house shaped like a phone"><br><b>3. Meet Peri</b><br>She asks for each permission when it's needed.<br>Then tap <b>Check my phone</b>.</td>
+  </tr>
+</table>
 
-- **The first minutes:** Peri introduces herself and asks for each permission when it's needed, one at a time. Then **Check my phone** finds what Android puts in her way (battery saving, the call filter, codes hidden on Android 15, settings locked for apps from a file) and opens the right screen for each.
-- **To see her catch a scam** on the emulator, send it a text ([Build and test](#build-and-test)).
-- **Without Peri's server**, the rules on the phone still protect: texts and notifications, strangers' calls, a code during a call, the safety pause, Mini Peri, the chat. The Meta models and the family features need the server ([what works where](docs/INSTALL.md#what-works-where)).
+| On the phone alone | With Peri's server too |
+|---|---|
+| The rules on texts and notifications · strangers' calls · a code during a call · the safety pause · Mini Peri · the chat and the game | The Meta models: second opinion, investigator, "look at a picture", voice · The family: approvals, "was it you?", Peri to Peri |
+
+<sub>To run it on the emulator and watch her catch a scam: [Build and test](#build-and-test). What works where, in detail: [`docs/INSTALL.md`](docs/INSTALL.md#what-works-where).</sub>
 
 ## Under the hood
 
