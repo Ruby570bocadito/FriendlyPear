@@ -13,7 +13,10 @@ class PermissionGate(context: Context, private val speak: (String) -> Unit) {
     private val context = context.applicationContext
     private val main = Handler(Looper.getMainLooper())
 
-    /** Set by the visible screen, which shows Android's permission dialog and reports the answer. */
+    /**
+     * Set by the visible screen: there Peri says what for ([Need.why]) in a card of her own, since Android's dialog
+     * would cover her bubble at once; then it shows Android's dialog and reports the answer.
+     */
     @Volatile
     var presenter: ((Need, (Boolean) -> Unit) -> Unit)? = null
 
@@ -24,7 +27,6 @@ class PermissionGate(context: Context, private val speak: (String) -> Unit) {
         main.post {
             if (granted(need)) return@post onResult(true)
             val show = presenter ?: return@post onResult(false)
-            speak(context.getString(need.why))
             show(need) { allowed ->
                 if (!allowed && need.denied != 0) speak(context.getString(need.denied))
                 onResult(allowed)

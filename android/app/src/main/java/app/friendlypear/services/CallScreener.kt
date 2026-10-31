@@ -14,14 +14,16 @@ class CallScreener : CallScreeningService() {
         val number = details.handle?.schemeSpecificPart?.takeIf { it.isNotBlank() }
         val incoming = details.callDirection == Call.Details.DIRECTION_INCOMING
         val hub = PeriApp.hub(this)
-        val blocker = if (incoming && number != null) hub.blockedHere(number) else null
-        if (blocker != null) {
-            respondToCall(details, CallResponse.Builder().setDisallowCall(true).setRejectCall(true).setSkipNotification(true).build())
-            hub.onBlockedCall(blocker)
-            return
+        if (!incoming || number == null) return respondToCall(details, CallResponse.Builder().build())
+        // The answer comes once the contacts are read, away from the screen's thread.
+        hub.screenCall(number) { blocker ->
+            if (blocker != null) {
+                respondToCall(details, CallResponse.Builder().setDisallowCall(true).setRejectCall(true).setSkipNotification(true).build())
+                hub.onBlockedCall(blocker)
+            } else {
+                respondToCall(details, CallResponse.Builder().build())
+                hub.onIncomingCall(number)
+            }
         }
-        respondToCall(details, CallResponse.Builder().build())
-        if (!incoming || number == null) return
-        hub.onIncomingCall(number)
     }
 }

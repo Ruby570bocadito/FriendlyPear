@@ -104,6 +104,8 @@ class PeriActivity : Activity() {
     /** Set while the app steps aside for Mini Peri, so the last resume before that doesn't put her away. */
     private var leaving = false
     private var resumed = false
+    /** On screen, even behind one of Android's dialogs: from onStart to onStop. */
+    private var shown = false
     private var greeted = false
     private var answer: ((Boolean) -> Unit)? = null
     private val asked by lazy { getSharedPreferences("permissions", MODE_PRIVATE) }
@@ -222,18 +224,21 @@ class PeriActivity : Activity() {
         access = setupRow(R.drawable.ic_notifications, getString(label)) {
             // Installed from a file, Android locks this: the guide walks through unlocking it, step by step.
             if (UnlockActivity.restricted(this)) return@setupRow startActivity(Intent(this, UnlockActivity::class.java))
-            hub.show(getString(R.string.why_notifications))
-            startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+            explainFirst(getString(R.string.why_notifications), cancelable = true) {
+                startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+            }
         }
         // Usage access is a special setting: Peri explains it first, then opens the screen where it's granted.
         usage = setupRow(R.drawable.ic_bank, getString(R.string.usage_access), dismissKey = DISMISS_USAGE) {
-            hub.show(getString(R.string.why_usage))
-            startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+            explainFirst(getString(R.string.why_usage), cancelable = true) {
+                startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
+            }
         }
         // Battery saving can put Peri to sleep and the family's alerts arrive late: Android's own question, optional.
         battery = setupRow(R.drawable.ic_shield, getString(R.string.setup_battery), dismissKey = DISMISS_BATTERY) {
-            hub.show(getString(R.string.why_battery))
-            runCatching { startActivity(Obstacles.freeIntent(this)) }.onFailure { startActivity(Obstacles.appInfo(this)) }
+            explainFirst(getString(R.string.why_battery), cancelable = true) {
+                runCatching { startActivity(Obstacles.freeIntent(this)) }.onFailure { startActivity(Obstacles.appInfo(this)) }
+            }
         }
         setup = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -593,10 +598,21 @@ class PeriActivity : Activity() {
             })
         }
 
-        // This screen shows Android's dialog whenever Peri needs a permission, now or later.
+        // This screen shows Android's dialog whenever Peri needs a permission, now or later, once she's said what for.
         hub.permissions.presenter = { need, done ->
-            answer = done
-            requestPermissions(need.permissions.toTypedArray(), REQUEST_NEED)
+            val request = {
+                answer = done
+                requestPermissions(need.permissions.toTypedArray(), REQUEST_NEED)
+            }
+            when {
+                isFinishing || isDestroyed -> done(false)
+                // Off screen (Mini Peri is out) a card here would wait unseen: her reason goes to her bubble, then Android's dialog.
+                !shown -> {
+                    hub.show(getString(need.why))
+                    request()
+                }
+                else -> explainFirst(getString(need.why), then = request)
+            }
         }
         // The very first time, Peri introduces herself before asking for anything. Someone updating the app has
         // already answered her questions: no welcome for them.
@@ -896,9 +912,38 @@ class PeriActivity : Activity() {
         if (!roles.isRoleAvailable(RoleManager.ROLE_CALL_SCREENING) || roles.isRoleHeld(RoleManager.ROLE_CALL_SCREENING)) return false
         if (asked.getBoolean(SCREENING, false)) return false
         asked.edit().putBoolean(SCREENING, true).apply()
-        hub.show(getString(R.string.calls_why))
-        startActivityForResult(roles.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING), REQUEST_SCREENING)
+        explainFirst(getString(R.string.calls_why)) {
+            startActivityForResult(roles.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING), REQUEST_SCREENING)
+        }
         return true
+    }
+
+    /**
+     * Peri's reason before Android's own dialog or settings screen, which would cover her bubble the moment it opened:
+     * she says it in a card too, and [then] opens Android's once the person taps "Continue". From the setup card it can
+     * be put off ([cancelable]); a permission's dialog always comes, as its own "Don't allow" is the way to say no.
+     */
+    private fun explainFirst(text: String, cancelable: Boolean = false, then: () -> Unit) {
+        hub.show(text)
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            setPadding(dp(24), dp(20), dp(24), dp(4))
+            addView(ImageView(this@PeriActivity).apply {
+                setImageResource(R.drawable.peri_shield)
+                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            }, LinearLayout.LayoutParams(dp(80), dp(80)))
+            addView(body(text).apply {
+                setTextColor(Palette.INK)
+                setPadding(0, dp(12), 0, 0)
+            })
+        }
+        android.app.AlertDialog.Builder(this)
+            .setView(ScrollView(this).apply { addView(content) })
+            .setPositiveButton(R.string.explain_continue) { _, _ -> then() }
+            .setCancelable(cancelable)
+            .show()
+            .friendly()
     }
 
     @Deprecated("Deprecated in Java")
@@ -1556,8 +1601,9 @@ class PeriActivity : Activity() {
         if (need == Need.READ_SMS && UnlockActivity.restricted(this)) return startActivity(Intent(this, UnlockActivity::class.java))
         val canAsk = need.permissions.any { shouldShowRequestPermissionRationale(it) } || !asked.getBoolean(need.name, false)
         if (!canAsk) {
-            hub.show(getString(need.why) + " " + getString(R.string.setup_restricted))
-            return startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+            return explainFirst(getString(need.why) + " " + getString(R.string.setup_restricted), cancelable = true) {
+                startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+            }
         }
         asked.edit().putBoolean(need.name, true).apply()
         hub.permissions.ask(need) {
@@ -1579,7 +1625,13 @@ class PeriActivity : Activity() {
         super.onPause()
     }
 
+    override fun onStart() {
+        super.onStart()
+        shown = true
+    }
+
     override fun onStop() {
+        shown = false
         leaving = false
         super.onStop()
     }
@@ -1659,10 +1711,10 @@ class PeriActivity : Activity() {
      */
     private fun goMini() {
         if (!Settings.canDrawOverlays(this)) {
-            wantsMini = true
-            hub.show(getString(R.string.why_overlay))
-            startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
-            return
+            return explainFirst(getString(R.string.why_overlay), cancelable = true) {
+                wantsMini = true
+                startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
+            }
         }
         wantsMini = false
         hub.permissions.ask(Need.MIC) {

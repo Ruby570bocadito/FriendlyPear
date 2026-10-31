@@ -232,6 +232,10 @@ class PeriHub(context: Context) {
     /** Permission explanations are shown in Peri's bubble, not read aloud: at first start they'd be a lot of talking. */
     val permissions: PermissionGate = PermissionGate(this.context) { text -> show(text) }
     private var contacts: List<Contact>? = null
+    /** The contacts are read on their own thread: with many of them, or a slow phone, reading froze the screen. */
+    private val contactsReader = Executors.newSingleThreadExecutor()
+    /** What came before the contacts were first read (a message, a call, an install), handled once they are, in order. */
+    private val afterContacts = ArrayList<() -> Unit>()
     private val family = FamilyStore(this.context)
     private var familyWord = false
     private val approvalClient = ApprovalClient(BuildConfig.BACKEND_URL, { app.friendlypear.net.DeviceKey.current(this.context) })
@@ -566,15 +570,20 @@ class PeriHub(context: Context) {
 
     /**
      * Blocked here, or by someone else in the family; a family block never applies to a saved contact, so nobody can
-     * cut this phone off from its own people, not even with a stolen family key. On the main thread. [byName]: as in
-     * [familyContact].
+     * cut this phone off from its own people, not even with a stolen family key. On the main thread, with the contacts
+     * read ([withContacts]). [byName]: as in [familyContact].
      */
-    fun blockedHere(sender: String, byName: Boolean = true): Blocker? {
+    private fun blockedHere(sender: String, byName: Boolean = true): Blocker? {
         if (blocked.has(sender)) return Blocker.ME
         if (!familyBlocks.has(sender)) return null
-        if (contacts == null) refreshNow()
         return if (familyContact(sender, byName) == null) Blocker.FAMILY else null
     }
+
+    /**
+     * From [CallScreener], before the call rings: who blocked [number], if anyone. The answer may wait for the contacts
+     * to be read; Android waits five seconds for it, and after that the call simply rings.
+     */
+    fun screenCall(number: String, answer: (Blocker?) -> Unit) = main.post { withContacts { answer(blockedHere(number)) } }
 
     /** From the scam's card: blocked on this phone, and for the rest of the family. */
     fun block(sender: String) {
@@ -753,8 +762,7 @@ class PeriHub(context: Context) {
 
     /** From [AppWatcher]. Only the package name is looked at, and only remote-control apps make Peri speak. */
     fun onAppInstalled(packageName: String) = main.post {
-        if (contacts == null) refreshNow()
-        agent.onAppInstalled(packageName)
+        withContacts { agent.onAppInstalled(packageName) }
     }
 
     /** Reloads contacts and listeners after permissions change; the agent keeps its state if nothing changed. */
@@ -762,27 +770,55 @@ class PeriHub(context: Context) {
         calls.start()
         weeklySummary()
         family.loadPending()?.takeIf { !it.approved }?.let { awaitCircle(it) }
+        readContacts()
+    }
+
+    /**
+     * Reads the contacts on their own thread, then puts them in place (a new agent only if they changed) and lets what
+     * was waiting for them go. A reading that fails keeps the contacts there were. On the main thread.
+     */
+    private fun readContacts() {
         val config = currentConfig()
-        val fresh = config.applyTo(PhoneContacts.load(context))
-        if (fresh != contacts || config.hasFamilyWord != familyWord) {
-            contacts = fresh
-            familyWord = config.hasFamilyWord
-            agent = newAgent(fresh).also { it.onCallStateChanged(callActive) }
+        contactsReader.execute {
+            val read = runCatching { PhoneContacts.load(context) }
+                .onFailure { Log.w(TAG, "contacts not read: ${it.javaClass.simpleName}") }
+                .getOrNull()
+            main.post {
+                val fresh = read?.let { config.applyTo(it) } ?: contacts ?: emptyList()
+                if (fresh != contacts || config.hasFamilyWord != familyWord) {
+                    contacts = fresh
+                    familyWord = config.hasFamilyWord
+                    agent = newAgent(fresh).also { it.onCallStateChanged(callActive) }
+                }
+                val waiting = afterContacts.toList()
+                afterContacts.clear()
+                waiting.forEach { it() }
+            }
         }
     }
 
-    fun onMessage(message: IncomingMessage) = main.post {
-        if (contacts == null) refreshNow()
+    /** [then] with the contacts in place: at once, or once they are first read. On the main thread. */
+    private fun withContacts(then: () -> Unit) {
+        if (contacts != null) return then()
+        afterContacts += then
+        if (afterContacts.size > 1) return
+        calls.start()
+        readContacts()
+    }
+
+    fun onMessage(message: IncomingMessage) = main.post { withContacts { judge(message) } }
+
+    private fun judge(message: IncomingMessage) {
         // A number the person (or the family) blocked: never read aloud, only a line in the diary.
         blockedHere(message.sender, message.nameFromContacts)?.let { by ->
             diary.add(app.friendlypear.config.Diary.Kind.BLOCKED_TEXT, if (by == Blocker.FAMILY) app.friendlypear.config.Diary.BY_FAMILY else "")
             Log.i(TAG, "message from a blocked sender silenced")
-            return@post
+            return
         }
         // Peri to Peri: a family member's request, from a saved contact and to Peri's own server, opens in the app.
         FamilyRequestLink.find(message.text, BuildConfig.BACKEND_URL)?.let { found ->
             val from = familyContact(message.sender, message.nameFromContacts)
-            if (from != null) return@post familyRequest(found, from)
+            if (from != null) return familyRequest(found, from)
         }
         // Talks like Peri but links elsewhere: never a real request, so no model is asked either.
         val fake = FamilyRequestLink.imitatesPeri(message.text, BuildConfig.BACKEND_URL)
@@ -992,9 +1028,10 @@ class PeriHub(context: Context) {
 
     /** From [CallScreener], before the call is picked up. The number itself is never logged. */
     fun onIncomingCall(number: String) = main.post {
-        if (contacts == null) refreshNow()
-        agent.onIncomingCall(number)
-        Log.i(TAG, "incoming call screened")
+        withContacts {
+            agent.onIncomingCall(number)
+            Log.i(TAG, "incoming call screened")
+        }
     }
 
     /**
@@ -1196,13 +1233,6 @@ class PeriHub(context: Context) {
 
     private fun newAgent(contacts: List<Contact>): PeriAgent =
         PeriAgent(device, contacts, lang, hasFamilyWord = familyWord, approvals = if (approvalClient.enabled) approvals else null)
-
-    private fun refreshNow() {
-        calls.start()
-        val config = currentConfig()
-        familyWord = config.hasFamilyWord
-        contacts = config.applyTo(PhoneContacts.load(context)).also { agent = newAgent(it).apply { onCallStateChanged(callActive) } }
-    }
 
     /**
      * Debug builds only: lets the emulator "speak" with
