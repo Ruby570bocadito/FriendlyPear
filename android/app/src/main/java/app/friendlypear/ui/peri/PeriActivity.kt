@@ -18,6 +18,7 @@ import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.view.WindowInsets
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -54,7 +55,11 @@ class PeriActivity : Activity() {
     private lateinit var talk: Pill
     private lateinit var write: ImageView
     private lateinit var status: TextView
-    private lateinit var shieldsChip: TextView
+    /** The chip around [status], with the radar dot (Rive) when animations are on. */
+    private lateinit var statusChip: LinearLayout
+    private var radar: app.rive.runtime.kotlin.RiveAnimationView? = null
+    private lateinit var shieldsChip: LinearLayout
+    private lateinit var shieldsCount: TextView
     private lateinit var report: View
     private lateinit var web: View
     private lateinit var webText: TextView
@@ -133,7 +138,7 @@ class PeriActivity : Activity() {
             background = BubbleDrawable(Palette.WHITE, Palette.LINE, dp(1).toFloat(), dp(24).toFloat(), tail, BubbleDrawable.Tail.TOP)
             setPadding(dp(22), dp(16) + tail.toInt(), dp(22), dp(18))
         }
-        talk = Pill(this, getString(R.string.talk), R.drawable.ic_mic, primary = true, size = TextSize.TITLE).apply {
+        talk = Pill(this, getString(R.string.talk), R.drawable.ic_mic, primary = true, size = TextSize.TITLE, art = RiveArt.VOICE).apply {
             setOnClickListener { listen() }
         }
         write = ImageView(this).apply {
@@ -165,20 +170,40 @@ class PeriActivity : Activity() {
             isFocusable = true
             setOnClickListener { startActivity(Intent(this@PeriActivity, AccessActivity::class.java)) }
         }
+        // Its dot sends out radar rings while she protects, and blinks amber while something is left to set up.
+        radar = rive(RiveArt.PULSE, 1f)
+        statusChip = LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            radar?.let {
+                addView(it, LinearLayout.LayoutParams(dp(28), dp(28)).apply { marginStart = dp(6) })
+                status.setPadding(dp(4), dp(6), dp(14), dp(6))
+            }
+            addView(status)
+        }
         // Her shields, beside her feet: how many the person earned. Tapping shows what for.
-        shieldsChip = TextView(this).apply {
+        // Its shield glints now and then (Rive): a prize, worth a tap.
+        val glint = rive(RiveArt.GLINT)
+        shieldsCount = TextView(this).apply {
             sizeSp(TextSize.SMALL)
             typeface = weight(700)
             setTextColor(Palette.GREEN_DARK)
             gravity = Gravity.CENTER_VERTICAL
-            background = pressable(rounded(Palette.WHITE, 999f, Palette.LINE_STRONG, dp(1.5f)), Palette.RIPPLE_DARK)
-            setPadding(dp(10), dp(6), dp(14), dp(6))
             compoundDrawablePadding = dp(6)
-            val icon = getDrawable(R.drawable.ic_shield)!!.mutate().apply {
-                setTint(Palette.GREEN_DARK)
-                setBounds(0, 0, dp(20), dp(20))
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+            if (glint == null) {
+                val icon = getDrawable(R.drawable.ic_shield)!!.mutate().apply {
+                    setTint(Palette.GREEN_DARK)
+                    setBounds(0, 0, dp(20), dp(20))
+                }
+                setCompoundDrawablesRelative(icon, null, null, null)
             }
-            setCompoundDrawablesRelative(icon, null, null, null)
+        }
+        shieldsChip = LinearLayout(this).apply {
+            gravity = Gravity.CENTER_VERTICAL
+            background = pressable(rounded(Palette.WHITE, 999f, Palette.LINE_STRONG, dp(1.5f)), Palette.RIPPLE_DARK)
+            setPadding(dp(if (glint == null) 10 else 6), dp(6), dp(14), dp(6))
+            glint?.let { addView(it, LinearLayout.LayoutParams(dp(26), dp(26)).apply { marginEnd = dp(4) }) }
+            addView(shieldsCount)
             isClickable = true
             isFocusable = true
             visibility = View.GONE
@@ -457,7 +482,7 @@ class PeriActivity : Activity() {
                     spacer.layoutParams = LinearLayout.LayoutParams(0, 0, 1f)
                 }
             }
-            addView(status)
+            addView(statusChip)
             addView(spacer, LinearLayout.LayoutParams(0, 0, 0f))
             addView(settings, LinearLayout.LayoutParams(dp(48), dp(48)).apply { marginStart = dp(10) })
         }
@@ -484,12 +509,12 @@ class PeriActivity : Activity() {
             clipChildren = false
             clipToPadding = false
             addView(header)
-            addView(android.widget.FrameLayout(this@PeriActivity).apply {
+            addView(FrameLayout(this@PeriActivity).apply {
                 clipChildren = false
-                addView(face, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
-                addView(shieldsChip, android.widget.FrameLayout.LayoutParams(
-                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
-                    android.widget.FrameLayout.LayoutParams.WRAP_CONTENT,
+                addView(face, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
+                addView(shieldsChip, FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.WRAP_CONTENT,
+                    FrameLayout.LayoutParams.WRAP_CONTENT,
                     Gravity.BOTTOM or Gravity.START,
                 ).apply { bottomMargin = dp(10) })
                 // Her wardrobe, beside her other foot: a hat, glasses, a bow tie...
@@ -501,7 +526,7 @@ class PeriActivity : Activity() {
                     setPadding(dp(12), dp(12), dp(12), dp(12))
                     stateListAnimator = pressScale()
                     setOnClickListener { startActivity(Intent(this@PeriActivity, WardrobeActivity::class.java)) }
-                }, android.widget.FrameLayout.LayoutParams(dp(52), dp(52), Gravity.BOTTOM or Gravity.END).apply { bottomMargin = dp(8) })
+                }, FrameLayout.LayoutParams(dp(52), dp(52), Gravity.BOTTOM or Gravity.END).apply { bottomMargin = dp(8) })
             }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(4) })
             addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
             addView(question, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
@@ -519,22 +544,22 @@ class PeriActivity : Activity() {
         world = PeriWorld(this).apply { onTone = { applyTone(it) } }
         pages = android.widget.FrameLayout(this).apply {
             clipChildren = false
-            addView(home, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
+            addView(home, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
         }
         tabs = TabBar(
             this,
             listOf(
-                TabBar.Tab(R.drawable.ic_pear, getString(R.string.tab_peri), Palette.GREEN_TINT, Palette.GREEN_DARK),
-                TabBar.Tab(R.drawable.ic_diary, getString(R.string.tab_diary), Palette.SUN_TINT, Palette.AMBER_INK),
-                TabBar.Tab(R.drawable.ic_learn, getString(R.string.tab_learn), Palette.SKY_TINT, Palette.SKY_INK),
-                TabBar.Tab(R.drawable.ic_family, getString(R.string.family_short), Palette.LILAC_TINT, Palette.LILAC_INK),
+                TabBar.Tab(R.drawable.ic_pear, getString(R.string.tab_peri), Palette.GREEN_TINT, Palette.GREEN_DARK, RiveArt.TAB_PERI),
+                TabBar.Tab(R.drawable.ic_diary, getString(R.string.tab_diary), Palette.SUN_TINT, Palette.AMBER_INK, RiveArt.TAB_DIARY),
+                TabBar.Tab(R.drawable.ic_learn, getString(R.string.tab_learn), Palette.SKY_TINT, Palette.SKY_INK, RiveArt.TAB_LEARN),
+                TabBar.Tab(R.drawable.ic_family, getString(R.string.family_short), Palette.LILAC_TINT, Palette.LILAC_INK, RiveArt.TAB_FAMILY),
             ),
         ) { showTab(it) }
         tabs.select(TAB_PERI, animate = false)
         val root = android.widget.FrameLayout(this).apply {
-            addView(world, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
-            addView(pages, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
-            addView(tabs, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, dp(TAB_BAR_DP), Gravity.BOTTOM).apply {
+            addView(world, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
+            addView(pages, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
+            addView(tabs, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, dp(TAB_BAR_DP), Gravity.BOTTOM).apply {
                 leftMargin = dp(12)
                 rightMargin = dp(12)
             })
@@ -543,7 +568,7 @@ class PeriActivity : Activity() {
         root.setOnApplyWindowInsetsListener { _, insets ->
             bars = insets.getInsets(WindowInsets.Type.systemBars())
             padPages()
-            tabs.layoutParams = (tabs.layoutParams as android.widget.FrameLayout.LayoutParams).apply { bottomMargin = bars.bottom + dp(8) }
+            tabs.layoutParams = (tabs.layoutParams as FrameLayout.LayoutParams).apply { bottomMargin = bars.bottom + dp(8) }
             insets
         }
         // Wherever Peri ends up (a longer sentence makes her smaller), her hill rises to her feet.
@@ -652,7 +677,7 @@ class PeriActivity : Activity() {
 
     private fun addPage(page: Page) {
         page.visibility = View.GONE
-        pages.addView(page, android.widget.FrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams.MATCH_PARENT, android.widget.FrameLayout.LayoutParams.MATCH_PARENT))
+        pages.addView(page, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
         padPages()
     }
 
@@ -1044,11 +1069,19 @@ class PeriActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
             setPadding(dp(24), dp(20), dp(24), dp(4))
-            addView(ImageView(this@PeriActivity).apply {
+            val art = ImageView(this@PeriActivity).apply {
                 setImageResource(MILESTONE_ART.getValue(reached))
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 alive()
-            }, LinearLayout.LayoutParams(dp(170), dp(170)))
+            }
+            // Behind her, sun rays turning and a burst of confetti (Rive).
+            val burst = rive(RiveArt.BURST)
+            if (burst == null) addView(art, LinearLayout.LayoutParams(dp(170), dp(170)))
+            else addView(FrameLayout(this@PeriActivity).apply {
+                clipChildren = false
+                addView(burst, FrameLayout.LayoutParams(dp(250), dp(250)))
+                addView(art, FrameLayout.LayoutParams(dp(170), dp(170), Gravity.CENTER))
+            }, LinearLayout.LayoutParams(dp(250), dp(250)).apply { topMargin = -dp(30); bottomMargin = -dp(30) })
             addView(heading(getString(R.string.badge_new)).apply { gravity = Gravity.CENTER })
             addView(LinearLayout(this@PeriActivity).apply {
                 gravity = Gravity.CENTER_VERTICAL
@@ -1103,7 +1136,7 @@ class PeriActivity : Activity() {
 
     private fun showShieldCount(total: Int, pop: Boolean) {
         shieldsChip.visibility = if (total > 0) View.VISIBLE else View.GONE
-        shieldsChip.text = java.text.NumberFormat.getIntegerInstance().format(total)
+        shieldsCount.text = java.text.NumberFormat.getIntegerInstance().format(total)
         shieldsChip.contentDescription = resources.getQuantityString(R.plurals.shields_chip, total, total)
         if (!pop || !animationsOn()) return
         shieldsChip.scaleX = 0.5f
@@ -1498,7 +1531,12 @@ class PeriActivity : Activity() {
         val protecting = !noBasics && seesMessages
         status.text = getString(if (protecting) R.string.status_protecting else R.string.status_setup)
         status.setTextColor(if (protecting) Palette.GREEN_DARK else Palette.AMBER_INK)
-        status.background = rounded(if (protecting) Palette.GREEN_TINT else Palette.AMBER_TINT, dp(20).toFloat())
+        statusChip.background = rounded(if (protecting) Palette.GREEN_TINT else Palette.AMBER_TINT, dp(20).toFloat())
+        // The radar dot, or a still one with animations off.
+        radar?.let {
+            it.show(RiveArt.PULSE, if (protecting) 1f else 0f)
+            return
+        }
         val dot = GradientDrawable().apply {
             shape = GradientDrawable.OVAL
             setColor(if (protecting) Palette.GREEN else Palette.AMBER_INK)
@@ -1597,6 +1635,8 @@ class PeriActivity : Activity() {
     /** While the microphone is open the button says so and breathes gently, so it's clear Peri is listening. */
     private fun showListening(on: Boolean) {
         talk.label = getString(if (on) R.string.listening else R.string.talk)
+        // Its microphone becomes sound bars bouncing while she listens (Rive).
+        talk.art(if (on) 1f else 0f)
         pulse?.cancel()
         talk.scaleX = 1f
         talk.scaleY = 1f

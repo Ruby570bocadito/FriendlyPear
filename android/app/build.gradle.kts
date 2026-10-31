@@ -56,6 +56,11 @@ android {
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.findByName("release")
+            // Rive's native library for phones (ARM, 64 and 32 bits: Android Go phones run 32) and today's emulators,
+            // not for 32-bit x86, which no Android 12 phone uses: about 5 MB less to download.
+            ndk {
+                abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64")
+            }
         }
     }
 
@@ -77,4 +82,9 @@ dependencies {
     implementation("app.friendlypear:core:0.1.0")
     // Reads QR codes in a picture on the phone, offline (Apache License 2.0).
     implementation("com.google.zxing:core:3.5.4")
+    // Rive's runtime (MIT License): the vector animations in res/raw/rive_*.riv, made by assets/rive. 10.4.0 is the
+    // last one that builds against compileSdk 35.
+    implementation("app.rive:rive-android:10.4.0")
+    // The lifecycle Rive's views need to give their memory back (RiveArt.kt): the version Rive already brings.
+    implementation("androidx.lifecycle:lifecycle-runtime:2.9.1")
 }

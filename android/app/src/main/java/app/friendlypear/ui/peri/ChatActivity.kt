@@ -94,12 +94,18 @@ class ChatActivity : Activity() {
                 true
             }
         }
-        val sendButton = ImageView(this).apply {
-            setImageResource(R.drawable.ic_chevron)
-            setColorFilter(Palette.WHITE)
+        // Its arrow flies off with each message and comes back (Rive), or stays still with animations off.
+        val arrow = rive(RiveArt.SEND, 0f)
+        sendArrow = arrow
+        val sendButton = FrameLayout(this).apply {
+            addView(arrow ?: ImageView(this@ChatActivity).apply {
+                setImageResource(R.drawable.ic_chevron)
+                setColorFilter(Palette.WHITE)
+            }, FrameLayout.LayoutParams(dp(if (arrow != null) 32 else 28), dp(if (arrow != null) 32 else 28), Gravity.CENTER))
             contentDescription = getString(R.string.chat_send)
+            isClickable = true
+            isFocusable = true
             background = pressable(rounded(Palette.GREEN_DARK, dp(28).toFloat()), Palette.RIPPLE_LIGHT)
-            setPadding(dp(14), dp(14), dp(14), dp(14))
             stateListAnimator = pressScale()
             setOnClickListener { send(input.text.toString()) }
         }
@@ -130,9 +136,17 @@ class ChatActivity : Activity() {
         column.floatIn()
     }
 
+    /** The send arrow, and its input: 1 and 2 take turns, so each message plays its flight again. */
+    private var sendArrow: app.rive.runtime.kotlin.RiveAnimationView? = null
+    private var sent = 2
+
     private fun send(raw: String) {
         val text = raw.trim()
         if (text.isEmpty()) return
+        sendArrow?.let {
+            sent = 3 - sent
+            it.show(RiveArt.SEND, sent.toFloat())
+        }
         input.text.clear()
         addMine(text)
         hub.ask(text) { lines, topic ->

@@ -289,7 +289,10 @@ internal class Pill(
     size: Float = TextSize.BODY,
     trailing: Boolean = false,
     rubber: Rubber = if (primary) Rubber.PRIMARY else Rubber.PLAIN,
+    /** The same icon in Rive, made for this button's colours; [icon] stands in with animations off. */
+    private val art: RiveArt? = null,
 ) : LinearLayout(context) {
+    private val artView = art?.let { context.rive(it, 0f) }
     private val text = TextView(context)
     private val lip = context.dp(LIP_DP).toFloat()
     private val shape = RubberDrawable(rubber.face, rubber.lip, lip, PILL_RADIUS)
@@ -312,7 +315,7 @@ internal class Pill(
         // The label sits on the face, above the lip.
         setPadding(context.dp(18), 0, context.dp(18), lip.toInt())
         val s = context.dp(if (primary) 28 else 24)
-        val image = ImageView(context).apply {
+        val image = artView ?: ImageView(context).apply {
             setImageResource(icon)
             setColorFilter(fg)
             importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
@@ -327,6 +330,11 @@ internal class Pill(
         })
         if (trailing) addView(image, LayoutParams(s, s).apply { marginStart = context.dp(10) })
         this.label = label
+    }
+
+    /** Moves the Rive icon on to [value], if it has one. */
+    fun art(value: Float) {
+        art?.let { artView?.show(it, value) }
     }
 
     private val baseSp = size

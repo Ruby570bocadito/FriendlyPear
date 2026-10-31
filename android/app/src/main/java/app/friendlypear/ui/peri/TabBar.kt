@@ -10,6 +10,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import app.rive.runtime.kotlin.RiveAnimationView
 
 /**
  * The sections of Peri's screen, along the bottom: Peri, Diary, Learn and Family, each with its own colour. The one
@@ -18,9 +19,10 @@ import android.widget.TextView
  */
 @SuppressLint("ViewConstructor") // Built in code only, never from XML.
 internal class TabBar(context: Context, private val tabs: List<Tab>, private val onPick: (Int) -> Unit) : LinearLayout(context) {
-    class Tab(val icon: Int, val label: String, val tint: Int, val ink: Int)
+    /** [art]: the same icon in Rive, with its own moment when picked; [icon] still stands in with animations off. */
+    class Tab(val icon: Int, val label: String, val tint: Int, val ink: Int, val art: RiveArt? = null)
 
-    private class Item(val root: LinearLayout, val pill: FrameLayout, val icon: ImageView, val label: TextView)
+    private class Item(val root: LinearLayout, val pill: FrameLayout, val icon: View, val label: TextView)
 
     private val items = ArrayList<Item>()
 
@@ -40,13 +42,16 @@ internal class TabBar(context: Context, private val tabs: List<Tab>, private val
     }
 
     private fun item(i: Int, tab: Tab): Item {
-        val icon = ImageView(context).apply {
+        val art = tab.art?.let { context.rive(it, 0f) }
+        val icon = art ?: ImageView(context).apply {
             setImageResource(tab.icon)
             setColorFilter(Palette.INK_SOFT)
             importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
         }
         val pill = FrameLayout(context).apply {
-            addView(icon, FrameLayout.LayoutParams(context.dp(26), context.dp(26), Gravity.CENTER))
+            // The Rive icon's artboard has a margin around the drawing: a little larger, the same size on screen.
+            val size = context.dp(if (art != null) 30 else 26)
+            addView(icon, FrameLayout.LayoutParams(size, size, Gravity.CENTER))
         }
         val label = TextView(context).apply {
             text = tab.label
@@ -91,7 +96,9 @@ internal class TabBar(context: Context, private val tabs: List<Tab>, private val
             val on = i == index
             val tab = tabs[i]
             item.pill.background = if (on) rounded(tab.tint, context.dp(16).toFloat()) else null
-            item.icon.setColorFilter(if (on) tab.ink else Palette.INK_SOFT)
+            (item.icon as? ImageView)?.setColorFilter(if (on) tab.ink else Palette.INK_SOFT)
+            // The Rive icon takes its colour itself, and plays its moment.
+            if (item.icon is RiveAnimationView) tab.art?.let { item.icon.show(it, if (on) 1f else 0f) }
             item.label.setTextColor(if (on) tab.ink else Palette.INK_SOFT)
             item.label.typeface = Fonts.display(if (on) 700 else 600)
             item.root.isSelected = on

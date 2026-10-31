@@ -58,6 +58,8 @@ class PairActivity : Activity() {
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
             setPadding(dp(18), dp(14), dp(18), dp(14))
+            // This phone and Peri's shield, linked by dots that run while it connects (Rive).
+            link?.let { addView(it, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(84)).apply { bottomMargin = dp(6) }) }
             addView(body(getString(R.string.pair_server, Uri.parse(server).host ?: server), TextSize.SMALL).apply { setTextColor(Palette.INK) })
             addView(heading(code.ifEmpty { "—" }).apply {
                 gravity = Gravity.CENTER
@@ -106,7 +108,11 @@ class PairActivity : Activity() {
         super.onDestroy()
     }
 
+    /** The link between the phone and the shield, or null with animations off. */
+    private val link by lazy { rive(RiveArt.LINK, 0f) }
+
     private fun refuse(why: String) {
+        link?.show(RiveArt.LINK, 3f)
         status.text = why
         status.setTextColor(Palette.AMBER_INK)
         connect.visibility = View.GONE
@@ -116,6 +122,7 @@ class PairActivity : Activity() {
         connect.isEnabled = false
         connect.alpha = 0.5f
         status.text = getString(R.string.pair_working)
+        link?.show(RiveArt.LINK, 1f)
         io.execute {
             val outcome = DeviceKey.pair(this, code)
             runOnUiThread {
@@ -123,6 +130,7 @@ class PairActivity : Activity() {
                 when (outcome) {
                     DeviceKey.Outcome.PAIRED -> {
                         status.text = getString(R.string.pair_done)
+                        link?.show(RiveArt.LINK, 2f)
                         status.setTextColor(Palette.GREEN_DARK)
                         connect.visibility = View.GONE
                         later.label = getString(R.string.guardian_back)
@@ -131,6 +139,7 @@ class PairActivity : Activity() {
                     DeviceKey.Outcome.REFUSED, DeviceKey.Outcome.BAD_CODE -> refuse(getString(R.string.pair_refused))
                     DeviceKey.Outcome.FAILED -> {
                         status.text = getString(R.string.pair_failed)
+                        link?.show(RiveArt.LINK, 3f)
                         connect.isEnabled = true
                         connect.alpha = 1f
                     }

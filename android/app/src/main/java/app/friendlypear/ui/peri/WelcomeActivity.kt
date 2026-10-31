@@ -88,7 +88,8 @@ class WelcomeActivity : Activity() {
         }
         points = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         progress = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
-        next = Pill(this, "", R.drawable.ic_chevron, primary = true, trailing = true).apply { setOnClickListener { forward() } }
+        // Its arrow nudges forward now and then (Rive), inviting the next page.
+        next = Pill(this, "", R.drawable.ic_chevron, primary = true, trailing = true, art = RiveArt.NEXT).apply { setOnClickListener { forward() } }
         // Hearing the page: a round button beside "Next", so the card keeps the room.
         val hear = ImageView(this).apply {
             setImageResource(R.drawable.ic_volume)

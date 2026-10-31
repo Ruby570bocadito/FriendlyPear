@@ -13,6 +13,7 @@ import android.util.Base64
 import android.view.Gravity
 import android.view.View
 import android.view.WindowInsets
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import app.friendlypear.PeriApp
@@ -27,6 +28,7 @@ import app.friendlypear.device.QrReader
 import app.friendlypear.net.PictureMark
 import app.friendlypear.net.PictureVerdict
 import app.friendlypear.services.PeriView
+import app.rive.runtime.kotlin.RiveAnimationView
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.Executors
 import kotlin.math.max
@@ -70,7 +72,12 @@ class PictureActivity : Activity() {
             background = ground()
             clipChildren = false
             addView(heading(getString(R.string.picture_title)))
-            addView(picture, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(10) })
+            // Her magnifying glass circles over the picture while she looks, then the verdict's badge (Rive).
+            scan = rive(RiveArt.SCAN, 0f)
+            addView(FrameLayout(this@PictureActivity).apply {
+                addView(picture, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
+                scan?.let { addView(it, FrameLayout.LayoutParams(dp(170), dp(170), Gravity.CENTER)) }
+            }, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(10) })
             addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply { topMargin = dp(12) })
             addView(face, LinearLayout.LayoutParams(dp(110), dp(110)).apply { gravity = Gravity.START })
             addView(again, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(56)))
@@ -134,6 +141,7 @@ class PictureActivity : Activity() {
     private fun look(uri: Uri) {
         face.show(Mood.THINKING)
         said.text = getString(R.string.picture_looking)
+        scanning(1f)
         picture.show(null)
         shown = null
         // Only the latest picture answers: an earlier one's late verdict never lands on this one.
@@ -155,6 +163,18 @@ class PictureActivity : Activity() {
     }
 
     private var looks = 0
+
+    /** The glass and its badge, or null with animations off. */
+    private var scan: RiveAnimationView? = null
+
+    /** Shows [state] on the glass; a verdict's badge stays a moment, then makes way for the rings. */
+    private fun scanning(state: Float) {
+        val view = scan ?: return
+        view.animate().cancel()
+        view.alpha = 1f
+        view.show(RiveArt.SCAN, state)
+        if (state >= 2f) view.animate().alpha(0f).setStartDelay(2_200).setDuration(400).start()
+    }
 
     /** At most 1280 px on the long side, upright: about 1,400 tokens for Muse Spark, sharp enough for a QR code. */
     private fun load(uri: Uri): Bitmap = ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, uri)) { decoder, info, _ ->
@@ -221,6 +241,12 @@ class PictureActivity : Activity() {
             else -> Mood.CALM
         }
         picture.show(shown, rings)
+        scanning(when {
+            v == null && codes.isEmpty() -> 0f
+            overall == Level.SCAM -> 4f
+            overall == Level.DOUBT -> 3f
+            else -> 2f
+        })
         face.show(mood)
         said.text = text
         mine = text

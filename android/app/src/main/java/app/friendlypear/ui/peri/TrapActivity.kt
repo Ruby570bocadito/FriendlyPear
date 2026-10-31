@@ -43,6 +43,8 @@ class TrapActivity : Activity() {
             addView(heading(if (chosen != null) getString(NAMES[kind] ?: R.string.trap_title) else getString(R.string.trap_title)).apply {
                 setPadding(dp(12), 0, 0, 0)
             }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
+            // The shield turning green with its tick: this trap is known now.
+            rive(RiveArt.SHIELD, 2f)?.let { addView(it, LinearLayout.LayoutParams(dp(64), dp(64))) }
         })
         panels.forEachIndexed { i, (image, caption) ->
             list.addView(LinearLayout(this).apply {

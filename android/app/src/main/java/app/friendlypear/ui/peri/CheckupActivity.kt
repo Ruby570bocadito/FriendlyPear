@@ -70,11 +70,18 @@ class CheckupActivity : Activity() {
         list.addView(LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
-            addView(ImageView(this@CheckupActivity).apply {
+            val peri = ImageView(this@CheckupActivity).apply {
                 setImageResource(if (ok == checks.size) R.drawable.peri_scene_cheer else R.drawable.peri_scene_checkup)
                 importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
                 alive()
-            }, LinearLayout.LayoutParams(dp(130), dp(130)))
+            }
+            // Peri inside a ring that fills to how much is in order, green with sparks when all of it is.
+            val ring = rive(RiveArt.RING, (ok * 10 / checks.size.coerceAtLeast(1)) * 10f)
+            if (ring == null) addView(peri, LinearLayout.LayoutParams(dp(130), dp(130)))
+            else addView(FrameLayout(this@CheckupActivity).apply {
+                addView(ring, FrameLayout.LayoutParams(dp(170), dp(170)))
+                addView(peri, FrameLayout.LayoutParams(dp(112), dp(112), Gravity.CENTER))
+            }, LinearLayout.LayoutParams(dp(170), dp(170)))
             addView(heading(getString(R.string.checkup_title)).apply { gravity = Gravity.CENTER })
             addView(TextView(this@CheckupActivity).apply {
                 text = getString(R.string.checkup_score, ok, checks.size)

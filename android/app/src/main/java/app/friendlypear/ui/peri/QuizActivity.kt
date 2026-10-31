@@ -269,12 +269,20 @@ class QuizActivity : Activity() {
         say(if (shield) line + " " + Lines.next(this, R.array.peri_medal) else line)
         val score = whiteCard().apply {
             gravity = Gravity.CENTER_HORIZONTAL
-            // A good round gets Peri with her trophy.
-            if (correct * 2 >= round.size) addView(ImageView(this@QuizActivity).apply {
-                setImageDrawable(sized(R.drawable.peri_scene_trophy, dp(TROPHY_DP)))
-                importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-                popIn(200)
-            }, LinearLayout.LayoutParams(dp(TROPHY_DP), dp(TROPHY_DP)))
+            // A good round gets Peri with her trophy; a great one, sun rays and confetti behind it too (Rive).
+            if (correct * 2 >= round.size) {
+                val trophy = ImageView(this@QuizActivity).apply {
+                    setImageDrawable(sized(R.drawable.peri_scene_trophy, dp(TROPHY_DP)))
+                    importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+                    popIn(200)
+                }
+                val burst = if (share >= 0.8f) rive(RiveArt.BURST) else null
+                if (burst == null) addView(trophy, LinearLayout.LayoutParams(dp(TROPHY_DP), dp(TROPHY_DP)))
+                else addView(FrameLayout(this@QuizActivity).apply {
+                    addView(burst, FrameLayout.LayoutParams(dp(BURST_DP), dp(BURST_DP)))
+                    addView(trophy, FrameLayout.LayoutParams(dp(TROPHY_DP), dp(TROPHY_DP), Gravity.CENTER))
+                }, LinearLayout.LayoutParams(dp(BURST_DP), dp(BURST_DP)).apply { topMargin = -dp(20); bottomMargin = -dp(20) })
+            }
             addView(TextView(this@QuizActivity).apply {
                 text = getString(R.string.quiz_score, correct, round.size)
                 sizeSp(30f)
@@ -282,7 +290,10 @@ class QuizActivity : Activity() {
                 setTextColor(Palette.INK)
                 gravity = Gravity.CENTER
             })
-            addView(stars(), LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(40)).apply { topMargin = dp(8) })
+            // The stars light up one after another (Rive, made for a round of six); still ones otherwise.
+            val lit = if (round.size == ROUND) rive(RiveArt.STARS, correct.toFloat()) else null
+            if (lit != null) addView(lit, LinearLayout.LayoutParams(dp(264), dp(66)).apply { topMargin = dp(4) })
+            else addView(stars(), LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(40)).apply { topMargin = dp(8) })
             if (shield) addView(TextView(this@QuizActivity).apply {
                 text = getString(R.string.shields_learned)
                 sizeSp(16f)
@@ -367,6 +378,7 @@ class QuizActivity : Activity() {
 
     companion object {
         const val TROPHY_DP = 120
+        private const val BURST_DP = 200
         private const val PREFS = "quiz"
         private const val BEST = "best"
         private const val BEST_OF = "best_of"

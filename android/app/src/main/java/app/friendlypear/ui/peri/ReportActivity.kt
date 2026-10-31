@@ -118,11 +118,12 @@ class ReportActivity : Activity() {
     private fun write() {
         state.removeAllViews()
         state.addView(body(getString(R.string.report_writing)).apply { accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE })
-        // The report's place, with grey lines where the words will be.
+        // The report's place: a pencil writing line after line (Rive), or grey lines where the words will be.
         state.addView(LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
             setPadding(dp(18), dp(18), dp(18), dp(18))
+            rive(RiveArt.WRITE)?.let { return@apply addView(it, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(190))) }
             listOf(0.6f, 1f, 0.95f, 1f, 0.7f, 1f, 0.85f).forEach { share ->
                 addView(View(this@ReportActivity).apply { background = rounded(SKELETON, dp(6).toFloat()) },
                     LinearLayout.LayoutParams(0, dp(16)).apply {

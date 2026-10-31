@@ -65,7 +65,15 @@ class PauseOverlay(context: Context, private val onAnswer: (PauseAnswer) -> Unit
             background = ground()
             setPadding(c.dp(20), c.dp(48), c.dp(20), c.dp(32))
             clipChildren = false
-            addView(title)
+            // The red shield beside the title, shaking a little: something here needs a second look.
+            val shield = c.rive(RiveArt.SHIELD, 1f)
+            if (shield == null) addView(title) else addView(LinearLayout(c).apply {
+                gravity = Gravity.CENTER
+                addView(shield, LinearLayout.LayoutParams(c.dp(64), c.dp(64)))
+                addView(title, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                    marginStart = c.dp(8)
+                })
+            })
             addView(face, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f))
             addView(said, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
         }
