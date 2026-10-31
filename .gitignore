@@ -19,9 +19,8 @@ local.properties
 .DS_Store
 node_modules/
 
-# Agent scratch space, and the editor's local commands
+# Agent scratch space
 .agent-tmp/
-.claude/
 
 # The backend's saved data (guardians' link hashes and Peri's news)
 backend/data/
