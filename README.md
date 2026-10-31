@@ -93,23 +93,20 @@ How each model is used, with its limits and costs: [`docs/META_MODELS.md`](docs/
 
 ```mermaid
 flowchart LR
-    A["📩 A message<br/>or a call"] --> B{"Rules on<br/>the phone"}
+    A["📩 Message<br/>or call"] --> B{"Rules on<br/>the phone"}
     B -->|fine| Q(["😊 Peri stays quiet"])
-    B -->|scam| W(["☂️ Peri warns"])
-    B -->|doubtful| M["Muse Spark Open<br/>+ investigator<br/>vote ±2"]
+    B -->|doubtful| M["Muse Spark Open<br/>+ investigator, ±2"]
+    B -->|scam| W(["☂️ Peri warns<br/>risky actions wait<br/>for the family"])
     M --> Q
     M --> W
-    W -->|risky action| G(["👨‍👩‍👧 The family's yes"])
     classDef rules fill:#E8F3DC,stroke:#25541A,color:#1F2A1A
     classDef quiet fill:#E8F3DC,stroke:#2E7D32,color:#1F2A1A
     classDef warn fill:#FDE7E3,stroke:#9C1F17,color:#5A120D
     classDef model fill:#E3EEFF,stroke:#0467DF,color:#0B2A5B
-    classDef family fill:#EFE9FB,stroke:#5B3FA0,color:#2E1F57
     class B rules
     class Q quiet
     class W warn
     class M model
-    class G family
 ```
 
 **Rules that never break:** confirm before calling or texting · never move money or dictate codes during a call · never read links aloud · a message's text is data, never an order · deterministic rules beat the model · when someone claims to be family, use the number already saved · Peri never listens to call audio.
