@@ -1,0 +1,262 @@
+{
+  "greet": {
+    "morning": [
+      "Good morning! Did you sleep well? I’m here if you need anything.",
+      "Good morning, sunshine! Let’s have a calm, lovely day.",
+      "Morning! I’ve had my water and I’m ready to help.",
+      "Good morning! A new day, and I'm right here with you.",
+      "Morning! Shall I read you any messages that came in overnight?"
+    ],
+    "afternoon": [
+      "Good afternoon! How’s your day going?",
+      "Hello again! Anything I can do for you this afternoon?",
+      "Good afternoon! I’m keeping an eye out for you.",
+      "Good afternoon! Remember to drink a little water.",
+      "Hello! Lovely to see you this afternoon."
+    ],
+    "evening": [
+      "Good evening! Time to take it easy. I’m right here.",
+      "Evening! Did anything nice happen today?",
+      "Good evening! Shall we check your messages together?",
+      "Good evening! If a message looks odd tonight, show it to me first.",
+      "Evening! Time to put your feet up. I'm keeping watch."
+    ],
+    "night": [
+      "It’s late! I’ll keep watch while you rest.",
+      "Hello, night owl! I’m here if you need me.",
+      "Shh… it’s night-time. I’m keeping you company.",
+      "Still up? Anything that isn't urgent can wait till morning.",
+      "Good night! I'll stay awake so you don't have to."
+    ]
+  },
+  "taps": [
+    "Hee hee, that tickles!",
+    "Ooh, a little hug! Thank you!",
+    "Hello there! I’m all ears.",
+    "Yay! You make me so happy."
+  ],
+  "jokes": [
+    "What did one pear say to the other? We make a great pear!",
+    "Why are scammers scared of me? Because I always say: let me pear-sonally check that!",
+    "I'm not just a fruit. I'm a pear-fectly good friend!",
+    "What's my favourite TV show? Pears and Recreation!",
+    "I tried to be an apple once. It didn't work: I'm too pear-sistent!",
+    "Why did the pear stay calm? Because it never goes pear-shaped!",
+    "What do you call a pear that sings? A pear-former!",
+    "My leaf gave me some advice today: always turn over a new leaf!",
+    "Why did the pear go to the doctor? It wasn't peeling very well!"
+  ],
+  "tips": [
+    "A little tip: your bank will never ask you for a code over the phone.",
+    "A little tip: if someone says they’re family from a new number, call their usual number first.",
+    "A little tip: a real company won’t rush you to pay today. Hurry is a trap’s favourite trick.",
+    "A little tip: never install an app because a stranger on the phone tells you to.",
+    "A little tip: a link without a padlock isn’t safe. Better not to touch it.",
+    "A little tip: if a prize sounds too good to be true, it is.",
+    "A little tip: agree a family word with your loved ones, to tell a real call from a fake one.",
+    "A little tip: when in doubt, hang up and call back on the number you already have."
+  ],
+  "facts": [
+    "Did you know? Your bank will never ask you for a code over the phone. If someone does, it's a scam.",
+    "Did you know? Couriers don't charge customs fees by text. A payment link in an SMS is a warning sign.",
+    "Did you know? A familiar voice can be copied with artificial intelligence. That's why a family word is so useful.",
+    "Did you know? Nobody genuine will ask you to install AnyDesk or TeamViewer. If they do, hang up.",
+    "Did you know? Rushing you is a scammer's favourite trick. If you're in a hurry, stop and ask.",
+    "Did you know? The tax office never asks for your card details by text.",
+    "Did you know? A message saying your account closes today is trying to scare you. Real banks give you time.",
+    "Did you know? You can always hang up. It's never rude to call back on the number you already have.",
+    "Did you know? Gift cards are for presents. Nobody genuine asks you to pay a bill with them."
+  ],
+  "quizRight": [
+    "Exactly right! What a sharp eye you have.",
+    "Well done! You spotted that straight away.",
+    "That's it! I take my leaf off to you.",
+    "You got it! That makes me so happy.",
+    "Nicely spotted! Nothing gets past you today.",
+    "Brilliant! You hit the nail on the head.",
+    "That's the one! I'm very proud.",
+    "Spot on! That was pear-fectly judged."
+  ],
+  "quizWrong": [
+    "Nearly there. That's what practising is for.",
+    "That one was tricky. The next may feel easier.",
+    "No harm done. This is a great way to learn.",
+    "Good try. It happens to everyone.",
+    "That one was confusing. Thanks for trying with me.",
+    "No worries at all. Every practice helps a lot.",
+    "That was hard to spot. Let's try the next one.",
+    "Getting it wrong here is safe. That's the point."
+  ],
+  "quizEndGreat": [
+    "What a game! You were brilliant at this.",
+    "You shone from start to finish. Well done indeed.",
+    "You play this so well. I'm really impressed.",
+    "A pear-fect round from you. Well done!",
+    "You did splendidly. Keep that calm thinking going.",
+    "What a great run. The practice really shows.",
+    "You caught those tricks so well. Brilliant work.",
+    "That deserves a happy leaf twirl. Fantastic!"
+  ],
+  "quizEndGood": [
+    "Good game. You're really getting the hang of this.",
+    "You're on a very good path. Keep practising calmly.",
+    "Good work today. It gets clearer every time.",
+    "A very decent game. I'm pleased with your progress.",
+    "You got plenty right and learned more. Well done.",
+    "This is taking shape nicely. Rather like me, in clay.",
+    "A good practice session. Next time may go even better.",
+    "You're getting an eye for tricks. That pleases me."
+  ],
+  "quizEndLow": [
+    "Thank you for playing to the end. Practising is winning.",
+    "Today felt harder, and that's fine. We carry on calmly.",
+    "Those tricks were very tangled. That was a good effort.",
+    "This is learned little by little. I'm here to practise.",
+    "I loved playing with you. We'll spot more next time.",
+    "You stuck with the whole game. That says a lot.",
+    "Every try teaches something new. Step by step.",
+    "I'm a patient pear. We'll practise whenever you like."
+  ],
+  "quiz": [
+    {
+      "sender": "Royal Mail",
+      "text": "Your parcel is on hold due to an unpaid £1.99 fee. Pay today here: {royalmail-redeliver.top/pay}",
+      "clue": "Royal Mail doesn't ask for fees by text with a link. If you're expecting a parcel, check the official website yourself.",
+      "scam": true,
+      "channel": "sms"
+    },
+    {
+      "sender": "Your bank",
+      "text": "We've blocked your card after a suspicious payment. Verify your details at: {customer-security.app}",
+      "clue": "Your bank never asks for details through a link. Call the number on the back of your card.",
+      "scam": true,
+      "channel": "sms"
+    },
+    {
+      "sender": "Unknown number",
+      "text": "Hi, it's me, I've broken my phone and this is my new number. Can you send me some money urgently? I'll explain later.",
+      "clue": "A new number, a rush and money: a classic trap. Call their usual number first.",
+      "scam": true,
+      "channel": "whatsapp"
+    },
+    {
+      "sender": "Unknown number",
+      "text": "Sorry, I sent you a 6-digit code by mistake. Could you send it back to me? It's urgent.",
+      "clue": "A code is like your front door key: never give it to anyone.",
+      "scam": true,
+      "channel": "whatsapp"
+    },
+    {
+      "sender": "Prize Club",
+      "text": "Congratulations! You've won a new phone. Claim it within 24 hours: {prize-club.win}",
+      "clue": "Nobody gives away surprise prizes, especially in a rush. They want your details.",
+      "scam": true,
+      "channel": "sms"
+    },
+    {
+      "sender": "Tech Support",
+      "text": "“Your computer has a virus. Install this app so we can fix it for you remotely.”",
+      "clue": "No real technician calls you to install anything. It's fine to hang up.",
+      "scam": true,
+      "channel": "call"
+    },
+    {
+      "sender": "HMRC",
+      "text": "You are due a tax refund of £312.40. Confirm your bank account at: {tax-refund-uk.com}",
+      "clue": "HMRC doesn't ask for your bank details by text. If in doubt, go to the official website yourself.",
+      "scam": true,
+      "channel": "sms"
+    },
+    {
+      "sender": "Energy supplier",
+      "text": "Notice: your power will be cut off today for an unpaid bill. Avoid it by paying now: {energy-payments.net}",
+      "clue": "Scaring you with a cut-off today is a trick. Call the number on your bill yourself.",
+      "scam": true,
+      "channel": "sms"
+    },
+    {
+      "sender": "Gold Investments",
+      "text": "Invest £250 today and make £3,000 in a week with our system. Limited places!",
+      "clue": "Nobody can promise that much money that fast. If it sounds too good, it's a trap.",
+      "scam": true,
+      "channel": "whatsapp"
+    },
+    {
+      "sender": "DVLA",
+      "text": "Your vehicle tax payment failed. Pay today to avoid a fine: {dvla-renew.info}",
+      "clue": "The DVLA doesn't chase payments by text with a strange link. Use the official website.",
+      "scam": true,
+      "channel": "sms"
+    },
+    {
+      "sender": "Moon Pharmacy",
+      "text": "Your prescription is ready to collect. We're open from 9:30 to 8pm.",
+      "clue": "It doesn't ask for money, details or taps. It just lets you know.",
+      "scam": false,
+      "channel": "sms"
+    },
+    {
+      "sender": "GP surgery",
+      "text": "Reminder: your appointment is tomorrow at 10:15 with your GP. If you can't come, please call the surgery.",
+      "clue": "A reminder: no payment, no details, and it tells you to call them yourself.",
+      "scam": false,
+      "channel": "sms"
+    },
+    {
+      "sender": "Laura (daughter)",
+      "text": "Hi, I'll be there at 8 for dinner. Shall I bring bread?",
+      "clue": "A contact you already have, asking for no money or codes. Enjoy dinner!",
+      "scam": false,
+      "channel": "whatsapp"
+    },
+    {
+      "sender": "Your bank",
+      "text": "Card purchase of £23.50 at Sun Supermarket with your card ending 4821.",
+      "clue": "It just tells you about a purchase. If it wasn't you, call the number on your card.",
+      "scam": false,
+      "channel": "sms"
+    },
+    {
+      "sender": "Marisa (neighbour)",
+      "text": "I've left your umbrella in the letterbox. Thanks for lending it to me!",
+      "clue": "A neighbour you know, no rush and no payments. All fine.",
+      "scam": false,
+      "channel": "whatsapp"
+    },
+    {
+      "sender": "Royal Mail",
+      "text": "Your parcel will arrive tomorrow between 9am and 2pm. You don't need to do anything.",
+      "clue": "It informs you without asking for payment or taps. That's how real companies write.",
+      "scam": false,
+      "channel": "sms"
+    },
+    {
+      "sender": "Your bank",
+      "text": "We've seen an unusual payment on your card. Call our security team now on 01632 960 815.",
+      "clue": "A number to call written in the message goes to the scammers. Call only the one on the back of your card.",
+      "scam": true,
+      "channel": "sms"
+    },
+    {
+      "sender": "Unknown number",
+      "text": "Hi, I'm interested in your sofa. I've paid through the safe payment service: check your email and accept it so the money reaches you.",
+      "clue": "A buyer never pays through a page they send you. If nothing came into your bank, there's nothing to accept.",
+      "scam": true,
+      "channel": "whatsapp"
+    },
+    {
+      "sender": "Mark",
+      "text": "My love, I'm stuck at the airport and they won't let me fly to you without a £300 fee. Can you send it today?",
+      "clue": "Someone you've never met in person who asks for money is always a trap, however sweet the words.",
+      "scam": true,
+      "channel": "whatsapp"
+    },
+    {
+      "sender": "Your bank",
+      "text": "A new phone has signed in to your banking app. If it was you, you don't need to do anything.",
+      "clue": "It asks for nothing and has no link. If it wasn't you, call the number on the back of your card.",
+      "scam": false,
+      "channel": "sms"
+    }
+  ]
+}
