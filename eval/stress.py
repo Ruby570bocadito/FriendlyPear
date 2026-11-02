@@ -14,7 +14,8 @@ import time
 
 ADB = os.environ.get("ADB", "adb")
 OUT = sys.argv[1] if len(sys.argv) > 1 else "."
-MAMA, ANA = "emulator-5556", "emulator-5554"
+# One emulator can play both: MAMA=emulator-5554 ANA=emulator-5554 python eval/stress.py
+MAMA, ANA = os.environ.get("MAMA", "emulator-5556"), os.environ.get("ANA", "emulator-5554")
 PKG = "app.friendlypear"
 
 

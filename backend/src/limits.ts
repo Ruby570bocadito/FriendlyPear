@@ -36,7 +36,7 @@ export const LIMITS = {
 const MAX_KEYS = 10_000;
 
 export class RateLimiter {
-  private readonly windows = new Map<string, { start: number; count: number }>();
+  private readonly windows = new Map<string, { start: number; count: number; limit: Limit }>();
 
   constructor(private readonly now: () => number = Date.now) {}
 
@@ -49,7 +49,9 @@ export class RateLimiter {
 
   /** How many requests the window already has, without counting a new one. */
   count(key: string, limit: Limit): number {
-    return this.current(key, limit).count;
+    // Only looks: an IP that never sent a wrong token takes no room in the table.
+    const w = this.windows.get(key);
+    return w && this.now() - w.start < limit.windowMs ? w.count : 0;
   }
 
   /** Seconds until the window for [key] starts again. */
@@ -63,17 +65,29 @@ export class RateLimiter {
     let w = this.windows.get(key);
     if (!w || at - w.start >= limit.windowMs) {
       if (this.windows.size >= MAX_KEYS) this.sweep(at);
-      w = { start: at, count: 0 };
+      this.windows.delete(key);
+      w = { start: at, count: 0, limit };
       this.windows.set(key, w);
     }
     return w;
   }
 
-  /** Forgets windows older than the longest limit, so the map never grows without bound. */
+  /**
+   * Makes room so the map never grows without bound: first the windows that are over, then, oldest first, the ones
+   * still under their limit. Whoever is being held back stays held back: a flood of new IPs can't wipe a lockout.
+   */
   private sweep(at: number) {
-    const longest = Math.max(...Object.values(LIMITS).map((l) => l.windowMs));
-    for (const [key, w] of this.windows) if (at - w.start >= longest) this.windows.delete(key);
-    if (this.windows.size >= MAX_KEYS) this.windows.clear();
+    for (const [key, w] of this.windows) if (at - w.start >= w.limit.windowMs) this.windows.delete(key);
+    const room = MAX_KEYS * 0.9;
+    for (const [key, w] of this.windows) {
+      if (this.windows.size < room) return;
+      if (w.count < w.limit.max) this.windows.delete(key);
+    }
+    // Only held-back windows left (ten thousand of them): the oldest go.
+    for (const key of this.windows.keys()) {
+      if (this.windows.size < room) return;
+      this.windows.delete(key);
+    }
   }
 }
 

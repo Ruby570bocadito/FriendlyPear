@@ -76,3 +76,10 @@ test("behind the tunnel the client's IP is the one the proxy added, so a forged 
   expect(clientIp("1.2.3.4", false, "198.51.100.7")).toBe("198.51.100.7");
   expect(clientIp(null, false, undefined)).toBe("unknown");
 });
+
+test("a flood of new IPs doesn't wipe the lockout of one guessing the token", async () => {
+  const { handle } = setup();
+  for (let i = 0; i < LIMITS.badToken.max; i++) await handle(event("Bearer wrong"), "9.9.9.9");
+  for (let i = 0; i < 15_000; i++) await page(`10.${i >> 16}.${(i >> 8) & 255}.${i & 255}`)(handle);
+  expect((await handle(event(`Bearer ${token}`), "9.9.9.9")).status).toBe(429);
+});
