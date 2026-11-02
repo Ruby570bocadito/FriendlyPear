@@ -311,6 +311,48 @@ if not WANTED or "playing" in WANTED:
 record("playing", MAMA, 20, play)
 
 
+def places(phone):
+    """Where each labelled thing on the screen is: {label: [(x, y), …]}, read while it's still."""
+    found = {}
+    for node in re.finditer(r"<node [^>]*>", dump(phone)):
+        label = re.search(r'content-desc="([^"]+)"', node.group(0)) or re.search(r'text="([^"]+)"', node.group(0))
+        box = re.search(r'bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"', node.group(0))
+        if label and box:
+            x1, y1, x2, y2 = map(int, box.groups())
+            found.setdefault(unescape(label.group(1)), []).append((str((x1 + x2) // 2), str((y1 + y2) // 2)))
+    return found
+
+
+WARDROBE = {}
+
+
+def get_dressed():
+    # Into her wardrobe from her home, then on one by one: she hops and says what she thinks of each. Last, the look
+    # she wears in the other clips, and back home in it.
+    adb(MAMA, "shell", "input", "tap", *WARDROBE["Dress Peri"][0])
+    time.sleep(4)
+    for item in ("Crown", "Heart glasses", "Neckerchief", "Straw hat", "Glasses", "Bow tie"):
+        adb(MAMA, "shell", "input", "tap", *WARDROBE[item][0])
+        time.sleep(2.6)
+    adb(MAMA, "shell", "input", "tap", *WARDROBE["Done"][0])
+    time.sleep(4)
+
+
+if not WANTED or "wardrobe" in WANTED:
+    # Undressed first, and every place read while the screens are still; then Peri moves for the clip.
+    ready(moving=False)
+    WARDROBE.update(places(MAMA))
+    adb(MAMA, "shell", "input", "tap", *WARDROBE["Dress Peri"][0])
+    time.sleep(4)
+    inside = places(MAMA)
+    for spot in inside["Nothing"]:
+        adb(MAMA, "shell", "input", "tap", *spot)
+        time.sleep(1)
+    WARDROBE.update(inside)
+    ready()
+record("wardrobe", MAMA, 38, get_dressed)
+
+
 def mini_peri():
     adb(MAMA, "shell", "input", "keyevent", "KEYCODE_HOME")
     time.sleep(2)

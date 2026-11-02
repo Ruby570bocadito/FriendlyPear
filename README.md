@@ -192,6 +192,7 @@ Only doubtful messages ever leave the phone, plus what the person chooses to sen
 Nobody wants an app *"to control your phone"*. Peri is presented, truthfully, as a friend who reads your messages aloud, calls whoever you ask and keeps you company, and who also spots scams. She works for the person, not for the family, and the app never says "control", "monitor" or "watch".
 
 - **Alive:** nine moods drawn by layers (her face over every pose), blinks, glances and little hops; she giggles when you hold her, gets dizzy when you shake the phone and bounces home when you drag her.
+- **Her wardrobe:** a hat, glasses and something below her smile, chosen by the person; she wears them in every pose, in Mini Peri and on the family's pears.
 - **Her own world:** the sky follows the hour, the place changes every day with the season, all drawn in code at 30 frames a second.
 - **Mini Peri** floats over other apps and comes out by herself beside a stranger's call.
 - **Learn and play:** the game *Scam or not?*, comics of how each trap works, badges for her milestones.
@@ -203,10 +204,11 @@ Nobody wants an app *"to control your phone"*. Peri is presented, truthfully, as
 
 <table>
   <tr>
-    <td align="center" width="25%" valign="top"><img src="docs/media/features/playing.gif" width="170" alt="Tapping Peri's leaf, tummy and feet, dragging her, and five quick taps for a burst of stars"><br><b>Play with her</b><br><sub>Her leaf, her tummy and her feet each answer differently.</sub></td>
-    <td align="center" width="25%" valign="top"><img src="docs/media/features/mini-peri.gif" width="170" alt="Outside the app, a stranger's call is picked up and Mini Peri floats beside the call screen"><br><b>Mini Peri</b><br><sub>Beside a stranger's call, outside the app.</sub></td>
-    <td align="center" width="25%" valign="top"><img src="docs/media/features/scam-or-not.gif" width="170" alt="The Scam or not game: a message, the buttons It's a trap and It's fine, and Peri explaining the answer"><br><b>Scam or not?</b><br><sub>Six messages, trap or fine, and why.</sub></td>
-    <td align="center" width="25%" valign="top"><img src="docs/media/features/checkup.gif" width="170" alt="The security checkup: how many items are in order, with a picture of Peri for each and a fix one tap away"><br><b>Check my phone</b><br><sub>Each risky setting, with its fix.</sub></td>
+    <td align="center" width="20%" valign="top"><img src="docs/media/features/playing.gif" width="150" alt="Tapping Peri's leaf, tummy and feet, dragging her, and five quick taps for a burst of stars"><br><b>Play with her</b><br><sub>Her leaf, her tummy and her feet each answer differently.</sub></td>
+    <td align="center" width="20%" valign="top"><img src="docs/media/features/wardrobe.gif" width="150" alt="Peri's wardrobe: she tries on a crown, heart glasses and a neckerchief, then a straw hat, round glasses and a bow tie, hopping at each, and back home she says she loves it"><br><b>Dress her up</b><br><sub>Hats, glasses, bow ties: she wears them everywhere.</sub></td>
+    <td align="center" width="20%" valign="top"><img src="docs/media/features/mini-peri.gif" width="150" alt="Outside the app, a stranger's call is picked up and Mini Peri floats beside the call screen"><br><b>Mini Peri</b><br><sub>Beside a stranger's call, outside the app.</sub></td>
+    <td align="center" width="20%" valign="top"><img src="docs/media/features/scam-or-not.gif" width="150" alt="The Scam or not game: a message, the buttons It's a trap and It's fine, and Peri explaining the answer"><br><b>Scam or not?</b><br><sub>Six messages, trap or fine, and why.</sub></td>
+    <td align="center" width="20%" valign="top"><img src="docs/media/features/checkup.gif" width="150" alt="The security checkup: how many items are in order, with a picture of Peri for each and a fix one tap away"><br><b>Check my phone</b><br><sub>Each risky setting, with its fix.</sub></td>
   </tr>
 </table>
 
