@@ -138,7 +138,7 @@ if not WANTED or "opening" in WANTED:
     adb(MAMA, "shell", "am", "force-stop", PKG)
     adb(MAMA, "shell", "input", "keyevent", "KEYCODE_HOME")
     time.sleep(2)
-record("opening", MAMA, 12, opening)
+record("opening", MAMA, 12, opening, skip=1.4)
 
 
 def new_number():

@@ -112,12 +112,9 @@ Each clip is the phone's own screen recording of the current build, with Peri's 
 
 <p align="center"><img src="docs/media/features/family-approval.gif" width="560" alt="Two phones side by side. Mum asks Peri to send Ana a code; Peri stops and asks her guardians. Dad's Peri, in Spanish, shows the request with Mum's pear and three answers; he taps Call Mum now, his phone gets her number ready, and Mum's Peri says he'd rather talk first and offers to call him"><br><b>A yes needs the family.</b> <sub>Mum asks Peri to send a code. Peri sends nothing and asks her guardians. Dad's own Peri shows the request with Mum's pear; he answers <i>"Call me first"</i>, and Mum's Peri offers to call him.</sub></p>
 
-<table>
-  <tr>
-    <td align="center" width="50%" valign="top"><img src="docs/media/features/was-it-you.gif" width="420" alt="Two phones side by side. Mum gets a text from a new number claiming to be her grandson Pablo; Pablo's Peri asks him whether he wrote it, he taps no, and Mum's Peri says Pablo says it wasn't him, so it's a trap"><br><b>"Was it you?"</b><br><sub>A new number claims to be the grandson. His own Peri asks him in silence; one tap, and Grandma's Peri says it's a trap.</sub></td>
-    <td align="center" width="50%" valign="top"><img src="docs/media/features/hang-up-theirs.gif" width="420" alt="Two phones side by side. Pablo picks up a call from an unknown number; Mum's Peri shows he's on a call with a stranger, she taps Hang up their call, and Pablo's Peri ends the call"><br><b>Hang up their call</b><br><sub>A relative on a stranger's call shows on the family's Peris. One tap, and their Peri ends it after a few seconds' notice.</sub></td>
-  </tr>
-</table>
+<p align="center"><img src="docs/media/features/was-it-you.gif" width="560" alt="Two phones side by side. Mum gets a text from a new number claiming to be her grandson Pablo; Pablo's Peri asks him whether he wrote it, he taps no, and Mum's Peri says Pablo says it wasn't him, so it's a trap"><br><b>"Was it you?"</b> <sub>A new number claims to be the grandson. His own Peri asks him in silence; one tap, and Grandma's Peri says it's a trap.</sub></p>
+
+<p align="center"><img src="docs/media/features/hang-up-theirs.gif" width="560" alt="Two phones side by side. Pablo picks up a call from an unknown number; Mum's Peri shows he's on a call with a stranger, she taps Hang up their call, and Pablo's Peri ends the call"><br><b>Hang up their call.</b> <sub>A relative on a stranger's call shows on the family's Peris. One tap, and their Peri ends it after a few seconds' notice.</sub></p>
 
 <sub>The family's pears, the same trap reaching several of them, numbers blocked for everyone and the weekly summary are in [`docs/FEATURES.md`](docs/FEATURES.md#2-the-family-without-spying).</sub>
 
@@ -206,10 +203,10 @@ Nobody wants an app *"to control your phone"*. Peri is presented, truthfully, as
 
 <table>
   <tr>
-    <td align="center" width="25%" valign="top"><img src="docs/media/features/playing.gif" width="190" alt="Tapping Peri's leaf, tummy and feet, dragging her, and five quick taps for a burst of stars"><br><b>Play with her</b><br><sub>Her leaf, her tummy and her feet each answer differently.</sub></td>
-    <td align="center" width="25%" valign="top"><img src="docs/media/features/mini-peri.gif" width="190" alt="Outside the app, a stranger's call is picked up and Mini Peri floats beside the call screen"><br><b>Mini Peri</b><br><sub>Beside a stranger's call, outside the app.</sub></td>
-    <td align="center" width="25%" valign="top"><img src="docs/media/features/scam-or-not.gif" width="190" alt="The Scam or not game: a message, the buttons It's a trap and It's fine, and Peri explaining the answer"><br><b>Scam or not?</b><br><sub>Six messages, trap or fine, and why.</sub></td>
-    <td align="center" width="25%" valign="top"><img src="docs/media/features/checkup.gif" width="190" alt="The security checkup: how many items are in order, with a picture of Peri for each and a fix one tap away"><br><b>Check my phone</b><br><sub>Each risky setting, with its fix.</sub></td>
+    <td align="center" width="25%" valign="top"><img src="docs/media/features/playing.gif" width="170" alt="Tapping Peri's leaf, tummy and feet, dragging her, and five quick taps for a burst of stars"><br><b>Play with her</b><br><sub>Her leaf, her tummy and her feet each answer differently.</sub></td>
+    <td align="center" width="25%" valign="top"><img src="docs/media/features/mini-peri.gif" width="170" alt="Outside the app, a stranger's call is picked up and Mini Peri floats beside the call screen"><br><b>Mini Peri</b><br><sub>Beside a stranger's call, outside the app.</sub></td>
+    <td align="center" width="25%" valign="top"><img src="docs/media/features/scam-or-not.gif" width="170" alt="The Scam or not game: a message, the buttons It's a trap and It's fine, and Peri explaining the answer"><br><b>Scam or not?</b><br><sub>Six messages, trap or fine, and why.</sub></td>
+    <td align="center" width="25%" valign="top"><img src="docs/media/features/checkup.gif" width="170" alt="The security checkup: how many items are in order, with a picture of Peri for each and a fix one tap away"><br><b>Check my phone</b><br><sub>Each risky setting, with its fix.</sub></td>
   </tr>
 </table>
 
