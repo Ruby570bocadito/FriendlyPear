@@ -113,6 +113,21 @@ Sent with `adb emu sms send` to the app installed from Downloads, after the unlo
 Two bugs found this way and fixed: amounts written "200 EUR" or "me prestas" weren't seen as money, and the
 link sentence said "it has a link" twice.
 
+**Every feature, end to end (Nov 2).** `eval/features.py` drives two emulators (Mum on 5556 in English, Pablo on
+5560 in Spanish, both paired) through 40 features and checks Peri's log and the screen. The feature GIFs in the README
+are recorded the same way (`docs/demo/tools/gifs.py`), and `eval/load.ts` puts the server under load and abuse. Five
+bugs found and fixed, each with a test:
+
+- A website's *"Your phone has 5 viruses!"* was let through: the scare rule matched "virus" but not "viruses",
+  "bugs" or "infections".
+- The second opinion's calm vote could take a link without a padlock from a contact down to OK, so Peri said
+  nothing; it now stays at least doubtful, as promised above.
+- *"Tell Ana the code is 482913"* wasn't understood without "that", so the family approval never started.
+- An old website card kept the place of a newer scam's card, hiding its *Block this number* and *Report it*: the
+  latest of the two now shows.
+- On the server, a flood of requests from 10,000 new IPs emptied the limits table, and with it the lockout of
+  someone guessing the device token: it now keeps whoever is held back.
+
 ## 6. How to try it on the emulator
 
 ```

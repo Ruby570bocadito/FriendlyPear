@@ -225,10 +225,12 @@ def _():
     # She offers to call Ana's saved number and listens: one "yes" and the phone calls her (5554), not the sender.
     hear(MAMA, "yes")
     dialing = wait_for(lambda: call_state(MAMA) == "2", timeout=12)
-    calls = adb(MAMA, "shell", "dumpsys", "telecom")
+    # Android hides the numbers in its call log dump; the call screen says who it's calling.
+    time.sleep(2)
+    calling = screen(MAMA)
     got = verdict(MAMA)
     hang_up(MAMA)
-    return bool(got) and got[0] != "OK" and bool(dialing) and "5554" in calls and "447700900123" not in calls.split("Call id")[-1], f"{got} dialing={bool(dialing)}"
+    return bool(got) and got[0] != "OK" and bool(dialing) and has(calling, "Ana") and "447700" not in calling.replace(" ", ""), f"{got} dialing={bool(dialing)} · {calling[:120]}"
 
 
 @test("sms_insecure_link_from_contact")
@@ -517,7 +519,7 @@ def _():
 def _():
     fresh(PABLO)
     fresh(MAMA)
-    sms(MAMA, "447700900456", "Hi Mum it's Pablo, new number, my old phone fell in the sea. Text me here")
+    sms(MAMA, "447700900456", "Hi Grandma it's Pablo, new number, my old phone fell in the sea. Text me here")
     asked = wait_for(lambda: has(screen(PABLO), "escrito tú|Was it you|has sido"), timeout=90, every=5)
     s = screen(PABLO)
     # Any older question still open shows first: answer them all (the server keeps each one 15 minutes).
