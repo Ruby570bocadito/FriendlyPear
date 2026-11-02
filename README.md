@@ -15,6 +15,7 @@
   <img src="https://img.shields.io/badge/Meta_AI-6_models-0467DF?logo=meta&logoColor=white" alt="Six Meta models">
   <img src="https://img.shields.io/badge/unseen_scams_flagged-91%25-2E7D32" alt="91% of 200 unseen scams flagged">
   <img src="https://img.shields.io/badge/tests-401-2E7D32" alt="401 tests">
+  <img src="https://img.shields.io/badge/features_checked_on_emulators-40-2E7D32" alt="40 features checked end to end on emulators">
   <img src="https://img.shields.io/badge/English_%C2%B7_Espa%C3%B1ol-bilingual-E8A33D" alt="English and Spanish">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
 </p>
@@ -31,6 +32,19 @@
 <p align="center"><img src="docs/media/banner.jpg" width="860" alt="Peri, a clay pear, waving on a green hill among little clay houses, trees and clouds"></p>
 
 <p align="center"><sub>Built for the <b>Meta Global AI Developer Hackathon</b> · Indie track · <i>Build for Your World</i> · all product code written Oct 27 – Nov 4, 2026 (concept and design documents were drafted before)</sub></p>
+
+<p align="center">
+  <a href="#scams-win-by-isolating-people-and-rushing-them">The problem</a> ·
+  <a href="#see-it-work">See it work</a> ·
+  <a href="#the-family-without-spying">The family</a> ·
+  <a href="#six-meta-models-each-with-one-job">Meta models</a> ·
+  <a href="#how-peri-decides">How Peri decides</a> ·
+  <a href="#does-it-work-measured-not-promised">Measured</a> ·
+  <a href="#safe-by-design">Safe by design</a> ·
+  <a href="#a-friend-people-want-to-keep">Peri</a> ·
+  <a href="#try-it">Try it</a> ·
+  <a href="#under-the-hood">Under the hood</a>
+</p>
 
 ## Scams win by isolating people and rushing them
 
@@ -59,56 +73,53 @@ In 2025, Americans aged 60 and over reported losing **$7.7 billion** to online c
 | **Impact** | Any Android 12+ phone, English and Spanish, made for older adults first: big type in Atkinson Hyperlegible, 7:1 contrast, a voice to talk to, and the family one tap away. |
 | **Use of Meta AI** | Six Meta models, each with one job: an open-weight second opinion, an investigator agent with tools, pictures read with Muse Spark and SAM 3.1, ears for voice orders, every picture of Peri, and a red team that attacks the rules. |
 | **Technical depth** | Rules on the phone that no model can override, a model's vote capped at ±2, 401 tests, a held-out evaluation with confidence intervals, per-phone keys paired in person, encrypted storage, and dependencies pinned by SHA-256. |
-| **Demo** | The moments below run on the real app on the Android emulator, end to end with two phones. |
+| **Demo** | Every clip below is the real app recorded on the Android emulator with Peri's server, two phones side by side for the family, and the same 40 features are checked end to end by a script. |
 
 ## See it work
 
-<p align="center"><img src="docs/media/screens.png" width="860" alt="Four screens: Peri's home in her meadow; Peri under her umbrella warning about a fake BBVA text, with buttons to see the trap, report it or block the number; the security checkup with a picture of Peri for each item; and a new badge for five shields"></p>
+<p align="center"><img src="docs/media/screens.png" width="860" alt="Four screens of the app today: Peri's home in her meadow; Peri under her umbrella warning about a fake Correos text, with buttons to see the trap, report it or block the number; Learn with Peri, with the Scam or not game and the traps she knows; and Peri's diary of what she did"></p>
 
-Tested on the Android emulator, in English and in Spanish:
+Each clip is the phone's own screen recording of the current build, with Peri's server running: texts arrive by SMS, calls ring, and voice orders go in through the debug build's stand-in for the microphone ([`docs/demo/tools/gifs.py`](docs/demo/tools/gifs.py) records them all again).
 
-| Moment | What happens |
-|---|---|
-| **"I have a new number"** | A text from an unknown number claims to be the daughter and asks for money. Peri warns, finds the real daughter in the contacts and says *"If you say yes, I'll call Laura"*. One spoken "yes" and the phone calls her saved number. |
-| **"Grandma, it's Pablo"** | A call rings from a number that isn't in the contacts. Before pickup Peri says: *"This number isn't in your contacts. If they say they're family, don't give money or codes; we'll check together when you hang up."* Afterwards: *"Who did they say they were?"* → "my grandson" → *"That number isn't Pablo's… Shall I call Pablo on their usual number to check?"* It never blocks, answers or listens to the call. |
-| **A code during a call** | During a phone call, an SMS with a one-time code arrives. A hard rule fires at once: *"You got a code while on the phone: nobody genuine will ask for it, so hang up and don't tell anyone."* The code is never read aloud. |
-| **"Send Marisa the code"** | Right after a "bank" called from an unknown number, Mum asks Peri to send a code. Peri stops and texts her daughter Ana an **URGENT** one-time link. Ana taps *"Ask them to call me first"*, and three seconds later Peri offers Mum a call to Ana. Nothing was sent. |
-
-<p align="center"><img src="docs/media/family-approval.gif" width="660" alt="Mum's phone and Ana's phone side by side, step by step: the stranger's call, the code request stopped, Ana's urgent approval page, and Peri calling Ana"></p>
-
-## Every feature, recorded on the phone
-
-Each clip is the emulator's own screen recording of the debug build, with Peri's server running ([`docs/demo/tools/gifs.py`](docs/demo/tools/gifs.py) makes them all again). Nothing is mocked: the texts arrive by SMS, the calls ring, and voice orders go in through the debug build's stand-in for the microphone.
+### Peri catches the trap
 
 <table>
   <tr>
-    <td align="center" width="33%" valign="top"><img src="docs/media/features/new-number.gif" width="230" alt="A text from an unknown number says it's Ana with a new number and asks for 380; Peri puts up her umbrella and offers to call Ana's saved number"><br><b>"It's Ana, new number"</b><br><sub>Peri warns and offers to call the real Ana. One "yes" dials her saved number.</sub></td>
-    <td align="center" width="33%" valign="top"><img src="docs/media/features/stranger-call.gif" width="230" alt="A call from a number not in the contacts; Peri reminds the person not to give codes, and after the call asks who they said they were"><br><b>A stranger's call</b><br><sub>A word before pickup; after it, "who did they say they were?" and what to do about what they asked for.</sub></td>
-    <td align="center" width="33%" valign="top"><img src="docs/media/features/code-during-call.gif" width="230" alt="During a call, a text with a bank code arrives; Peri says to hang up now, without reading the code"><br><b>A code during a call</b><br><sub>A hard rule: hang up now. The code is never read aloud.</sub></td>
+    <td align="center" width="33%" valign="top"><img src="docs/media/features/new-number.gif" width="240" alt="A text from an unknown number says it's Ana with a new number and asks for 380; Peri puts up her umbrella and offers to call Ana's saved number"><br><b>"It's Ana, new number"</b><br><sub>A stranger claims to be the daughter and asks for money. Peri warns and offers to call the real Ana: one "yes" dials her saved number.</sub></td>
+    <td align="center" width="33%" valign="top"><img src="docs/media/features/code-during-call.gif" width="240" alt="During a call with an unknown number, a text with a bank code arrives; Peri says to hang up now, without reading the code"><br><b>A code during a call</b><br><sub>A hard rule no model can override: hang up now. The code is never read aloud.</sub></td>
+    <td align="center" width="33%" valign="top"><img src="docs/media/features/stranger-call.gif" width="240" alt="A call from a number not in the contacts; Peri reminds the person not to give codes, and after the call asks who they said they were"><br><b>A stranger's call</b><br><sub>A word before pickup. After it, <i>"Who did they say they were?"</i>, and what to do about what they asked for.</sub></td>
   </tr>
   <tr>
-    <td align="center" valign="top"><img src="docs/media/features/safety-pause.gif" width="230" alt="On a call with a stranger, the bank app opens and Peri covers it with a safety pause: call family, hang up, leave the app or carry on"><br><b>The safety pause</b><br><sub>A bank app opened during a stranger's call: wait a moment, hang up, call family or carry on.</sub></td>
-    <td align="center" valign="top"><img src="docs/media/features/website-notice.gif" width="230" alt="A website's notice says the phone has 5 viruses; Peri says it isn't the phone talking and offers to silence that website"><br><b>A scary website notice</b><br><sub>"It isn't your phone talking", and that one site silenced in one tap.</sub></td>
-    <td align="center" valign="top"><img src="docs/media/features/remote-app.gif" width="230" alt="AnyDesk is installed and Peri asks whether someone on the phone told them to install it"><br><b>"Are they guiding you?"</b><br><sub>A remote-control app installed: Peri asks who asked for it, and offers to tell the family.</sub></td>
-  </tr>
-  <tr>
-    <td align="center" valign="top"><img src="docs/media/features/trap-card.gif" width="230" alt="A fake Correos text; Peri's card offers to see the trap as three comic panels, report it or block the number"><br><b>See it, report it, block it</b><br><sub>Three panels of how the trap works, a report for the police, and the number blocked for the whole family.</sub></td>
-    <td align="center" valign="top"><img src="docs/media/features/first-aid.gif" width="230" alt="The person says they gave them the code; Peri opens calm steps to take the account back"><br><b>First aid after a scam</b><br><sub>"I gave them the code": no reproach, the urgent steps in order, each one tap away.</sub></td>
-    <td align="center" valign="top"><img src="docs/media/features/chat.gif" width="230" alt="In the chat, a parcel text is pasted in and Peri says it's a trap and why"><br><b>"I got this…"</b><br><sub>A message pasted in the chat goes through the same shield as a text.</sub></td>
-  </tr>
-  <tr>
-    <td align="center" valign="top"><img src="docs/media/features/was-it-you.gif" width="230" alt="Mum gets a text from a new number claiming to be her grandson Pablo; Peri warns, and a minute later says Pablo answered that it wasn't him, so it's a trap"><br><b>"Was it you?"</b><br><sub>Two phones: Pablo's Peri asks him in silence, and Mum's Peri says what he answered.</sub></td>
-    <td align="center" valign="top"><img src="docs/media/features/hang-up-theirs.gif" width="230" alt="Pablo is on a call with a stranger; Mum's Peri shows it and Mum taps hang up their call"><br><b>Hang up their call</b><br><sub>A family member on a stranger's call: one tap and their Peri ends it, after three seconds' notice.</sub></td>
-    <td align="center" valign="top"><img src="docs/media/features/mini-peri.gif" width="230" alt="Outside the app, a stranger's call is picked up and Mini Peri floats beside the call screen"><br><b>Mini Peri</b><br><sub>Her head floats over other apps, and comes out by herself beside a stranger's call.</sub></td>
-  </tr>
-  <tr>
-    <td align="center" valign="top"><img src="docs/media/features/scam-or-not.gif" width="230" alt="The Scam or not game: a message, the buttons It's a trap and It's fine, and Peri explaining the answer"><br><b>Scam or not?</b><br><sub>Six messages, trap or fine, and Peri says why.</sub></td>
-    <td align="center" valign="top"><img src="docs/media/features/checkup.gif" width="230" alt="The security checkup: how many items are in order, with a picture of Peri for each and a fix one tap away"><br><b>Check my phone</b><br><sub>Screen lock, updates, apps that control the screen, Peri's own access: each with its fix.</sub></td>
-    <td align="center" valign="top"><img src="docs/media/features/playing.gif" width="230" alt="Tapping Peri's leaf, tummy and feet, dragging her, and five quick taps for a burst of stars"><br><b>Playing with Peri</b><br><sub>Her leaf, her tummy and her feet each answer differently; drag her and she bounces home.</sub></td>
+    <td align="center" valign="top"><img src="docs/media/features/safety-pause.gif" width="240" alt="On a call with a stranger, the bank app opens and Peri covers it with a safety pause: hang up, leave the app or carry on"><br><b>The safety pause</b><br><sub>A bank app opened during a stranger's call: wait a moment, hang up, leave, or carry on.</sub></td>
+    <td align="center" valign="top"><img src="docs/media/features/website-notice.gif" width="240" alt="A website's notice says the phone has 5 viruses; Peri says it isn't the phone talking and offers to silence that website"><br><b>A scary website notice</b><br><sub><i>"It isn't your phone talking"</i>, and that one site silenced in one tap.</sub></td>
+    <td align="center" valign="top"><img src="docs/media/features/remote-app.gif" width="240" alt="AnyDesk is installed and Peri asks whether someone on the phone told them to install it"><br><b>"Are they guiding you?"</b><br><sub>A remote-control app installed: Peri asks who asked for it, and offers to tell the family.</sub></td>
   </tr>
 </table>
 
-**Tested end to end, not just recorded.** [`eval/features.py`](eval/features.py) drives the same two phones through 40 features (texts, email, website notices, calls, the safety pause, voice orders, the emergency countdown, approvals, the weekly summary, the family's pears, "was it you?", hanging up a relative's call, shared blocks, every screen) and checks what Peri logged and what the screen says. [`eval/load.ts`](eval/load.ts) puts the server under load and abuse: 20 phones at once, 15,000 different IPs, junk and oversized bodies, with no 5xx and every limit holding. Bugs found this way and fixed on Nov 2: a website's *"5 viruses"* notice let through (the plural wasn't seen), the second opinion silencing a link without a padlock, *"tell Ana the code is…"* not understood without *"that"*, an old website card hiding a new scam's *Block* and *Report*, and a flood of new IPs on the server wiping the lockout of someone guessing the token.
+### After a scam: see it, report it, put it right
+
+<table>
+  <tr>
+    <td align="center" width="33%" valign="top"><img src="docs/media/features/trap-card.gif" width="240" alt="A fake Correos text; Peri's card shows how the trap worked in comic panels, then the number is blocked for the whole family"><br><b>See it, report it, block it</b><br><sub>Comic panels of how the trap works, a report for the police in one tap, and the number blocked for the whole family.</sub></td>
+    <td align="center" width="33%" valign="top"><img src="docs/media/features/first-aid.gif" width="240" alt="The person says they gave them the code; Peri opens calm steps to take the account back"><br><b>First aid</b><br><sub><i>"I gave them the code"</i>: no reproach, the urgent steps in order, each one tap away.</sub></td>
+    <td align="center" width="33%" valign="top"><img src="docs/media/features/chat.gif" width="240" alt="In the chat, a parcel text is pasted in and Peri says it's a trap and why"><br><b>"I got this…"</b><br><sub>A message pasted in the chat goes through the same shield as a text, with its verdict and what to do.</sub></td>
+  </tr>
+</table>
+
+## The family, without spying
+
+**No app the family must install, and nothing to watch.** A guardian is a saved contact who answers when something risky comes up: an SMS with their own one-time link (<i>No</i> · <i>Call me first</i> · <i>Yes</i>), valid once for 15 minutes, where silence counts as no. If the guardian has FriendlyPear too, the request opens in their own Peri, checked with Peri's server rather than trusted from the SMS. With the person's OK, guardians also see Peri's week: only the kind of event, never messages, numbers, names, calls, location or apps.
+
+<p align="center"><img src="docs/media/features/family-approval.gif" width="560" alt="Two phones side by side. Mum asks Peri to send Ana a code; Peri stops and asks her guardians. Dad's Peri, in Spanish, shows the request with Mum's pear and three answers; he taps Call Mum now, his phone gets her number ready, and Mum's Peri says he'd rather talk first and offers to call him"><br><b>A yes needs the family.</b> <sub>Mum asks Peri to send a code. Peri sends nothing and asks her guardians. Dad's own Peri shows the request with Mum's pear; he answers <i>"Call me first"</i>, and Mum's Peri offers to call him.</sub></p>
+
+<table>
+  <tr>
+    <td align="center" width="50%" valign="top"><img src="docs/media/features/was-it-you.gif" width="420" alt="Two phones side by side. Mum gets a text from a new number claiming to be her grandson Pablo; Pablo's Peri asks him whether he wrote it, he taps no, and Mum's Peri says Pablo says it wasn't him, so it's a trap"><br><b>"Was it you?"</b><br><sub>A new number claims to be the grandson. His own Peri asks him in silence; one tap, and Grandma's Peri says it's a trap.</sub></td>
+    <td align="center" width="50%" valign="top"><img src="docs/media/features/hang-up-theirs.gif" width="420" alt="Two phones side by side. Pablo picks up a call from an unknown number; Mum's Peri shows he's on a call with a stranger, she taps Hang up their call, and Pablo's Peri ends the call"><br><b>Hang up their call</b><br><sub>A relative on a stranger's call shows on the family's Peris. One tap, and their Peri ends it after a few seconds' notice.</sub></td>
+  </tr>
+</table>
+
+<sub>The family's pears, the same trap reaching several of them, numbers blocked for everyone and the weekly summary are in [`docs/FEATURES.md`](docs/FEATURES.md#2-the-family-without-spying).</sub>
 
 ## Six Meta models, each with one job
 
@@ -142,6 +153,8 @@ Measured on **200 hand-written messages the rules were never tuned on** ([`eval/
 
 - **A red team that attacks the rules.** Muse Spark wrote 374 scams made to slip past them (no link, a number to call, a casual tone, spelling tricks), and a person read every one that got through. Judged before anyone read it, the last batch was **80 % warned** (40 % with the previous day's rules). False alarms didn't move.
 - **Learned weights, kept honest.** A logistic regression on 1,306 synthetic messages ranks scams better (AUC 0.972 vs 0.964) but stays silent on more of them, so the shield keeps the hand-set weights: a missed scam costs more than a doubt the model can still calm.
+- **Every feature, end to end.** [`eval/features.py`](eval/features.py) drives the real app on two emulators through 40 features (texts, email, website notices, calls, the safety pause, voice orders, the emergency countdown, approvals, the weekly summary, the family's pears, "was it you?", hanging up a relative's call, shared blocks, every screen) and checks what Peri logged and what the screen says: **40 of 40 pass**. It found five bugs, each fixed with a test that failed before the fix.
+- **The server under load and abuse.** [`eval/load.ts`](eval/load.ts): 20 phones at once (about 3,000 requests a second), 15,000 different IPs, junk, oversized bodies and a restart. No 5xx, and every limit held.
 
 Full method, numbers and reasoning: [`eval/REPORT.md`](eval/REPORT.md).
 
@@ -176,7 +189,7 @@ Only doubtful messages ever leave the phone, plus what the person chooses to sen
 
 <table>
   <tr>
-    <td align="center" width="34%"><img src="docs/media/opening.gif" width="230" alt="Opening FriendlyPear: Peri with her arms up on the launch screen, then her hello in her meadow, a thumbs up and a wave"></td>
+    <td align="center" width="34%"><img src="docs/media/features/opening.gif" width="240" alt="Opening FriendlyPear: Peri's launch screen, then her hello in her meadow"></td>
     <td>
 
 Nobody wants an app *"to control your phone"*. Peri is presented, truthfully, as a friend who reads your messages aloud, calls whoever you ask and keeps you company, and who also spots scams. She works for the person, not for the family, and the app never says "control", "monitor" or "watch".
@@ -191,24 +204,18 @@ Nobody wants an app *"to control your phone"*. Peri is presented, truthfully, as
   </tr>
 </table>
 
-<p align="center"><img src="docs/media/moods.png" width="860" alt="Peri's nine moods: calm, listening, thinking, worried, protective, calling, waiting for family, happy and sleeping"></p>
-
-<p align="center"><img src="docs/media/reactions.png" width="860" alt="Peri's reactions: an idea, a thumbs up, laughing, holding a heart, dizzy with spiral eyes, yawning and reading a letter"></p>
-
-## For the family
-
-**No app the family must install, and nothing to watch.** A guardian is a saved contact who answers when something risky comes up. With the person's OK, guardians also see Peri's week: only the kind of event, never messages, numbers, names, calls, location or apps.
-
 <table>
   <tr>
-    <td align="center" width="25%" valign="top"><img src="assets/ui/ui_family_waiting.webp" width="104" alt="Peri sitting beside a big lilac clock"><br><b>A one-time link</b><br><sub>Each guardian gets an SMS with their own link, valid once for 15 minutes: <b>No</b> · <b>Call me first</b> · <b>Yes</b>. Silence counts as no.</sub></td>
-    <td align="center" width="25%" valign="top"><img src="assets/ui/ui_welcome_family.webp" width="104" alt="Peri with three small pear friends in a cap, a bow and a beanie"><br><b>Peri to Peri</b><br><sub>If the guardian has FriendlyPear too, the request opens in their own Peri, and a yes needs their phone's lock.</sub></td>
-    <td align="center" width="25%" valign="top"><img src="assets/ui/ui_family_yes.webp" width="104" alt="Peri giving a thumbs up under three little hearts"><br><b>"Was it you?"</b><br><sub>When a new number claims to be family, Peri quietly asks the family's other phones. Each answers with one tap.</sub></td>
-    <td align="center" width="25%" valign="top"><img src="assets/ui/ui_perm_calls.webp" width="104" alt="Peri holding an old sky-blue telephone handset"><br><b>Hang up their call</b><br><sub>A guardian can end a stranger's call on a relative's phone, never a call with a contact.</sub></td>
+    <td align="center" width="25%" valign="top"><img src="docs/media/features/playing.gif" width="190" alt="Tapping Peri's leaf, tummy and feet, dragging her, and five quick taps for a burst of stars"><br><b>Play with her</b><br><sub>Her leaf, her tummy and her feet each answer differently.</sub></td>
+    <td align="center" width="25%" valign="top"><img src="docs/media/features/mini-peri.gif" width="190" alt="Outside the app, a stranger's call is picked up and Mini Peri floats beside the call screen"><br><b>Mini Peri</b><br><sub>Beside a stranger's call, outside the app.</sub></td>
+    <td align="center" width="25%" valign="top"><img src="docs/media/features/scam-or-not.gif" width="190" alt="The Scam or not game: a message, the buttons It's a trap and It's fine, and Peri explaining the answer"><br><b>Scam or not?</b><br><sub>Six messages, trap or fine, and why.</sub></td>
+    <td align="center" width="25%" valign="top"><img src="docs/media/features/checkup.gif" width="190" alt="The security checkup: how many items are in order, with a picture of Peri for each and a fix one tap away"><br><b>Check my phone</b><br><sub>Each risky setting, with its fix.</sub></td>
   </tr>
 </table>
 
-<p align="center"><img src="docs/media/peri-to-peri.gif" width="660" alt="Mum's Peri and Ana's Peri side by side: the stranger's call, Ana's Peri opening the urgent request, Ana calling Mum, and a fake Peri text caught"><br><sub>Peri to Peri, tested with two phones: Mum's Peri in Spanish, Ana's in English.</sub></p>
+<p align="center"><img src="docs/media/moods.png" width="860" alt="Peri's nine moods: calm, listening, thinking, worried, protective, calling, waiting for family, happy and sleeping"></p>
+
+<p align="center"><img src="docs/media/reactions.png" width="860" alt="Peri's reactions: an idea, a thumbs up, laughing, holding a heart, dizzy with spiral eyes, yawning and reading a letter"></p>
 
 ## Try it
 
@@ -233,7 +240,7 @@ Nobody wants an app *"to control your phone"*. Peri is presented, truthfully, as
 | [`core/`](core/) | Kotlin/JVM library: the shield, voice orders, the agent, trust and alerts. Tested without a phone (266 tests). |
 | [`android/`](android/) | The Android app (Kotlin, Android 12+), with `core/` as a composite build. Peri drawn by layers, her world drawn in code, small animations in Rive. |
 | [`backend/`](backend/) | Bun + TypeScript, no packages: guardian approvals and pages, the investigator agent, model clients, device pairing with its own QR encoder (135 tests). |
-| [`eval/`](eval/) · [`training/`](training/) | The held-out set, the red team, metrics and release checks; the scam knowledge base, synthetic data and learned weights. |
+| [`eval/`](eval/) · [`training/`](training/) | The held-out set, the red team, metrics, the end-to-end and load tests, and release checks; the scam knowledge base, synthetic data and learned weights. |
 | [`assets/`](assets/) | Peri's illustrations with the prompts that made them, and the app's Rive animations written in code. |
 | [`video/`](video/) · [`web/`](web/) | The demo video, made as code with Remotion; the [website](https://ruby570bocadito.github.io/FriendlyPear/), made with Next.js. |
 | [`docs/`](docs/) | Concept, architecture, design, security, the demo script and the multi-agent protocol the project was built with (mostly in Spanish). |
@@ -279,13 +286,9 @@ Secrets never go in the repo: the backend reads `backend/.env` (see `.env.exampl
 
 </details>
 
-## iPhone
-
-Not built yet: iOS needs a Mac to build, and it doesn't let apps read other apps' notifications or draw over them. [`docs/IPHONE.md`](docs/IPHONE.md) (in Spanish) maps each feature to its iOS equivalent: the shared Kotlin core through Kotlin Multiplatform, an SMS filter extension, the safety pause with the Screen Time API, Peri in a Live Activity, and "Share it with Peri".
-
 ## Limits
 
-- **Android only.** On iPhone, apps can't read texts or other apps' notifications ([iPhone](#iphone)).
+- **Android only.** On iPhone, apps can't read texts or other apps' notifications. [`docs/IPHONE.md`](docs/IPHONE.md) (in Spanish) maps each feature to its iOS equivalent: the shared Kotlin core through Kotlin Multiplatform, an SMS filter extension, the safety pause with the Screen Time API, Peri in a Live Activity, and "Share it with Peri".
 - **Peri never hears a call.** She knows a call is on, who is calling and what happens during it (a code arriving, a bank or remote-control app opened), not what is said. A scammer who asks for nothing she can see is caught by her question after the call, not during it.
 - **From Android 15, codes in notifications are hidden from Peri.** With texts allowed she still sees the ones sent by SMS; *Check my phone* says when they aren't.
 - **Installing from a file keeps getting harder:** Play Protect's fraud protection, restricted settings, and developer verification from September 2026 in four countries ([why](docs/INSTALL.md#why-the-phone-may-block-it)). USB works today; a store listing is the lasting answer.
@@ -295,11 +298,11 @@ Not built yet: iOS needs a Mac to build, and it doesn't let apps read other apps
 
 ## Built during the hackathon
 
-Every line of product code, from the first commit on Oct 27: over 450 commits by Oct 31, 266 tests in `core/` and 135 in `backend/`, all green in CI, plus 40 features checked end to end on two emulators (`eval/features.py`).
+Every line of product code, from the first commit on Oct 27: over 470 commits by Nov 2, 266 tests in `core/` and 135 in `backend/`, all green in CI, and 40 features checked end to end on emulators.
 
 - **The shield:** signals and hard rules on the phone, weights and their evaluation on 200 unseen messages, the red team with Muse Spark, a code during a call, strangers' calls before pickup, the pause over a bank app, QR codes judged without opening them.
 - **The models:** Muse Spark Open as second opinion, the Muse Spark investigator with tools, "look at a picture" with SAM 3.1, the police report in one tap, Muse Voice Transcribe, Muse Image for every picture of Peri and the trap comics.
-- **The family:** guardian approvals with one-time links, URGENT after a stranger's call, Peri to Peri between two phones, pairing each phone in person with its own key.
+- **The family:** guardian approvals with one-time links, URGENT after a stranger's call, Peri to Peri between two phones, "was it you?", hanging up a relative's call, numbers blocked for the whole family, pairing each phone in person with its own key.
 - **Peri:** over 400 clay pictures drawn by layers, her moves, moods and moments, Mini Peri over other apps, a chat that understands what people really write, her diary, milestones with badges, and her world with its seasons.
 - **A real phone:** the signed release APK without test secrets, text at 200 %, TalkBack headings, and Android's obstacles found and guided one by one.
 

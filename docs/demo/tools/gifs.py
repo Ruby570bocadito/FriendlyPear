@@ -1,8 +1,12 @@
 """
 The README's feature GIFs, recorded for real on the emulators with the debug build and Peri's server running (the
-same two phones as eval/features.py: Mamá on 5556 in English, Pablo on 5560). Each clip is the phone's own screen
-recording, made into a small looping GIF with ffmpeg in docs/media/features/.
+phones of eval/features.py: Mamá on 5556 in English, Pablo on 5560 in Spanish, plus Papá on 5558, a guardian with
+FriendlyPear, in Spanish). Each clip is the phones' own screen recording, made into a small looping GIF with ffmpeg in
+docs/media/features/; the family's stories show two phones side by side, with the waits cut out.
 
+The server must sign its links with the address the emulators see, or Papá's Peri won't trust the request:
+
+    cd backend && PUBLIC_BASE_URL=http://10.0.2.2:8711 bun src/main.ts
     python docs/demo/tools/gifs.py [name ...]
 """
 import os
@@ -20,6 +24,10 @@ sys.argv = [sys.argv[0], OUT, "__none__"]
 exec(open(os.path.join(ROOT, "eval", "features.py"), encoding="utf-8").read().split("\nsetup()\n")[0])
 FFMPEG = os.environ.get("FFMPEG", "ffmpeg")
 WIDTH = 300
+PAPA = os.environ.get("PAPA", "emulator-5558")
+# Labels over each phone in the side-by-side clips (Windows' Segoe UI Semibold; any TTF will do).
+FONT = os.environ.get("GIF_FONT", "C\\:/Windows/Fonts/seguisb.ttf")
+PALETTE = "split[a][b];[a]palettegen=max_colors=96:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle"
 
 
 def animations(phone, on):
@@ -52,6 +60,58 @@ def record(name, phone, seconds, act, skip=0.0, speed=1.0):
     print(f"   {os.path.getsize(gif) // 1024} KB", flush=True)
 
 
+def record_pair(name, left, right, seconds, act, labels):
+    """
+    Records two phones at once while [act] runs and puts them side by side, each with its label on top. [act] gets a
+    clock (seconds since the recording started) and returns the stretches to keep, or None for all of it: the
+    minute a family's Peri waits for an answer is cut, never played fast.
+    """
+    if WANTED and name not in WANTED:
+        return
+    print(f"== {name}", flush=True)
+    threads = [threading.Thread(target=adb, args=(p, "shell", "screenrecord", "--size", "540x1200", "--bit-rate", "3000000",
+                                                  "--time-limit", str(seconds), f"/sdcard/{name}.mp4"), kwargs={"timeout": seconds + 30})
+               for p in (left, right)]
+    for t in threads:
+        t.start()
+    started = time.time() + 0.7
+    time.sleep(1)
+    keep = act(lambda: time.time() - started)
+    for t in threads:
+        t.join()
+    time.sleep(1)
+    mp4s = []
+    for i, p in enumerate((left, right)):
+        mp4s.append(os.path.join(OUT, f"{name}-{i}.mp4"))
+        subprocess.run([ADB, "-s", p, "pull", f"/sdcard/{name}.mp4", mp4s[-1]], capture_output=True, env=ENV)
+    cut = ""
+    if keep:
+        spans = "+".join(f"between(t,{max(0.0, a):.1f},{b:.1f})" for a, b in keep)
+        cut = f"select='{spans}',setpts=N/8/TB,"
+    half = WIDTH - 30
+    sides = []
+    for i, label in enumerate(labels):
+        gap = ",pad=iw+14:ih:0:0:color=0xFFF8EC" if i == 0 else ""
+        sides.append(f"[{i}:v]fps=8,{cut}scale={half}:-1:flags=lanczos,pad=iw:ih+34:0:34:color=0xFFF8EC,"
+                     f"drawtext=fontfile='{FONT}':text='{label}':x=(w-text_w)/2:y=8:fontsize=17:fontcolor=0x24461E{gap}[s{i}]")
+    graph = ";".join(sides) + f";[s0][s1]hstack=inputs=2,{PALETTE}"
+    gif = os.path.join(OUT, f"{name}.gif")
+    subprocess.run([FFMPEG, "-y", "-loglevel", "error", "-i", mp4s[0], "-i", mp4s[1], "-filter_complex", graph, gif], check=True)
+    for m in mp4s:
+        os.remove(m)
+    print(f"   {os.path.getsize(gif) // 1024} KB", flush=True)
+
+
+def sent_to(phone, number):
+    """The newest text [phone] sent to [number]: the request Peri texted that guardian, link and all."""
+    out = adb(phone, "shell", "content query --uri content://sms/sent --projection address:body --sort 'date DESC'")
+    for line in out.splitlines():
+        m = re.search(r"address=(\S+), body=(.*)$", line)
+        if m and m.group(1).endswith(number):
+            return m.group(2)
+    return None
+
+
 def ready(phone=MAMA, moving=True):
     """
     Peri's home, fresh and calm, with no old card in the way. Android can only read a still screen, so the app starts
@@ -61,11 +121,24 @@ def ready(phone=MAMA, moving=True):
     animations(phone, False)
     fresh(phone)
     for _ in range(3):
-        if not tap_text(phone, "Hide|Ocultar|Lovely|Qué bien", tries=1):
+        if not tap_text(phone, "Hide|Ocultar|Lovely|Qué bien|¡Qué bien", tries=1):
             break
     if moving:
         animations(phone, True)
     time.sleep(2)
+
+
+def opening():
+    adb(MAMA, "shell", "am", "start", "-n", f"{PKG}/.ui.peri.PeriActivity")
+    time.sleep(10)
+
+
+if not WANTED or "opening" in WANTED:
+    ready()
+    adb(MAMA, "shell", "am", "force-stop", PKG)
+    adb(MAMA, "shell", "input", "keyevent", "KEYCODE_HOME")
+    time.sleep(2)
+record("opening", MAMA, 12, opening)
 
 
 def new_number():
@@ -73,7 +146,8 @@ def new_number():
     time.sleep(16)
 
 
-ready()
+if not WANTED or "new-number" in WANTED:
+    ready()
 record("new-number", MAMA, 18, new_number)
 
 
@@ -90,7 +164,8 @@ def stranger_call():
     time.sleep(8)
 
 
-ready()
+if not WANTED or "stranger-call" in WANTED:
+    ready()
 record("stranger-call", MAMA, 32, stranger_call)
 
 
@@ -105,7 +180,8 @@ def code_during_call():
     adb(MAMA, "emu", "gsm", "cancel", "911000222")
 
 
-ready()
+if not WANTED or "code-during-call" in WANTED:
+    ready()
 record("code-during-call", MAMA, 17, code_during_call)
 
 
@@ -120,7 +196,8 @@ def safety_pause():
     adb(MAMA, "emu", "gsm", "cancel", STRANGER)
 
 
-ready()
+if not WANTED or "safety-pause" in WANTED:
+    ready()
 record("safety-pause", MAMA, 20, safety_pause)
 
 
@@ -129,7 +206,8 @@ def website():
     time.sleep(14)
 
 
-ready()
+if not WANTED or "website-notice" in WANTED:
+    ready()
 record("website-notice", MAMA, 15, website)
 
 
@@ -138,7 +216,8 @@ def remote_app():
     time.sleep(13)
 
 
-ready()
+if not WANTED or "remote-app" in WANTED:
+    ready()
 record("remote-app", MAMA, 14, remote_app)
 
 
@@ -149,7 +228,8 @@ def first_aid():
     time.sleep(4)
 
 
-ready()
+if not WANTED or "first-aid" in WANTED:
+    ready()
 record("first-aid", MAMA, 15, first_aid)
 
 
@@ -163,7 +243,8 @@ def chat():
     time.sleep(10)
 
 
-ready(moving=False)
+if not WANTED or "chat" in WANTED:
+    ready(moving=False)
 record("chat", MAMA, 18, chat)
 
 
@@ -179,7 +260,8 @@ def block_and_report():
     time.sleep(5)
 
 
-ready(moving=False)
+if not WANTED or "trap-card" in WANTED:
+    ready(moving=False)
 record("trap-card", MAMA, 32, block_and_report)
 
 
@@ -193,7 +275,8 @@ def game():
         time.sleep(2)
 
 
-ready(moving=False)
+if not WANTED or "scam-or-not" in WANTED:
+    ready(moving=False)
 record("scam-or-not", MAMA, 24, game)
 
 
@@ -206,7 +289,8 @@ def checkup():
     time.sleep(3)
 
 
-ready(moving=False)
+if not WANTED or "checkup" in WANTED:
+    ready(moving=False)
 record("checkup", MAMA, 16, checkup)
 
 
@@ -222,7 +306,8 @@ def play():
     time.sleep(4)
 
 
-ready()
+if not WANTED or "playing" in WANTED:
+    ready()
 record("playing", MAMA, 20, play)
 
 
@@ -238,42 +323,123 @@ def mini_peri():
     time.sleep(3)
 
 
-ready()
+if not WANTED or "mini-peri" in WANTED:
+    ready()
 record("mini-peri", MAMA, 22, mini_peri)
 
 
-# Two phones: Pablo answers "was it you?" on his phone, and Mamá hangs up a stranger's call on Pablo's.
-def was_it_you():
+# The family, two phones side by side. A guardian's request travels by SMS: the emulators don't pass texts to each
+# other, so the very text Mamá's phone sent (the same words and one-time link) is delivered to Papá's through the
+# emulator, as every other text in these clips arrives.
+def family_approval(clock):
+    # Peri doesn't send it: she asks the guardians straight away ("Sending a code is delicate, so I'm asking…").
+    hear(MAMA, "tell Ana the code is 482913")
+    wait_for(lambda: "approval requested" in logs(MAMA), timeout=30)
+    adb(PAPA, "emu", "sms", "send", "15555215556", sent_to(MAMA, "5558"))
+    wait_for(lambda: has(screen(PAPA), "te pide permiso"), timeout=40, every=2)
+    time.sleep(5)
+    # "Call me first": his phone gets her number ready to call, and her Peri sends nothing and offers to call him.
+    tap_text(PAPA, "Llamar a Mam", tries=2)
+    wait_for(lambda: "approval result=" in logs(MAMA), timeout=30, every=1)
+    answered = clock()
+    time.sleep(9)
+    return [(0, answered + 8)]
+
+
+if not WANTED or "family-approval" in WANTED:
+    ready(PAPA, moving=False)
+    # A "was it you?" left from another clip would show first on Papá's phone (his Peri asks the server every half
+    # minute): wait for it, answer it, then start clean.
+    if wait_for(lambda: has(screen(PAPA), "escrito tú|Was it you"), timeout=40, every=4):
+        while tap_text(PAPA, "No he sido yo|No, it wasn", tries=2):
+            time.sleep(2)
+    ready(PAPA, moving=False)
+    ready(MAMA)
+record_pair("family-approval", MAMA, PAPA, 60, family_approval, ("Mum (English)", "Dad, her guardian (Spanish)"))
+
+
+def was_it_you(clock):
     sms(MAMA, "447700900456", "Hi Grandma it's Pablo, new number, my old phone fell in the sea. Text me here")
-    wait_for(lambda: has(screen(PABLO), "escrito tú|Was it you"), timeout=80, every=4)
-    time.sleep(2)
-    # Any older question still open shows first: answer them all, then Mamá's Peri hears back within a minute.
+    # Pablo's Peri checks with the family every half minute: the wait for the question is cut too.
+    wait_for(lambda: has(screen(PABLO), "escrito tú|Was it you"), timeout=80, every=2)
+    asked = clock()
+    time.sleep(3)
+    # Any older question still open shows first: answer them all.
     for _ in range(4):
         if not tap_text(PABLO, "No he sido yo|No, it wasn", tries=2):
             break
-        time.sleep(3)
-    # Mamá's Peri polls every 10 s and says who answered once a minute has passed without a "yes".
-    time.sleep(80)
+        time.sleep(2)
+    answered = clock()
+    # Mamá's Peri says who answered once a minute has passed without a "yes": that minute is cut.
+    wait_for(lambda: has(screen(MAMA), "wasn't them"), timeout=110, every=3)
+    told = clock()
+    time.sleep(7)
+    return [(0, min(14, asked - 1)), (asked - 1, answered + 4), (told - 2, told + 7)]
 
 
-ready(PABLO, moving=False)
-ready(MAMA)
-record("was-it-you", MAMA, 150, was_it_you, speed=4.0)
+if not WANTED or "was-it-you" in WANTED:
+    ready(PABLO, moving=False)
+    ready(MAMA, moving=False)
+record_pair("was-it-you", MAMA, PABLO, 150, was_it_you, ("Mum (English)", "Pablo, her grandson (Spanish)"))
 
 
-def hang_up_theirs():
+def hang_up_theirs(clock):
     adb(PABLO, "emu", "gsm", "call", STRANGER)
     time.sleep(3)
     adb(PABLO, "emu", "gsm", "accept", STRANGER)
-    wait_for(lambda: tap_text(MAMA, "Hang up their call", tries=1), timeout=70, every=4)
-    time.sleep(10)
+    answered = clock()
+    wait_for(lambda: has(screen(MAMA), "Hang up their call"), timeout=90, every=3)
+    shown = clock()
+    time.sleep(4)
+    tap_text(MAMA, "Hang up their call", tries=2)
+    wait_for(lambda: call_state(PABLO) == "0", timeout=25, every=1)
+    ended = clock()
+    time.sleep(4)
     hang_up(PABLO)
+    return [(0, answered + 5), (shown - 2, ended + 4)]
 
 
-ready(PABLO)
-ready(MAMA, moving=False)
-record("hang-up-theirs", MAMA, 75, hang_up_theirs, speed=3.0)
+if not WANTED or "hang-up-theirs" in WANTED:
+    ready(PABLO)
+    ready(MAMA, moving=False)
+record_pair("hang-up-theirs", MAMA, PABLO, 120, hang_up_theirs, ("Mum (English)", "Pablo, her grandson (Spanish)"))
 
-for p in PHONES:
+# docs/media/screens.png: four screens of the app as it is today, side by side with rounded corners.
+def capture(phone, name):
+    path = os.path.join(OUT, f"{name}.png")
+    open(path, "wb").write(subprocess.run([ADB, "-s", phone, "exec-out", "screencap", "-p"], capture_output=True, timeout=30).stdout)
+    return path
+
+
+if not WANTED or "screens" in WANTED:
+    print("== screens", flush=True)
+    ready()
+    time.sleep(3)
+    shots = [capture(MAMA, "screen-home")]
+    sms(MAMA, f"6113{int(time.time()) % 100000:05d}", "Correos: su paquete esta retenido, pague 1,99 EUR aqui http://correos-envio.top/p")
+    time.sleep(11)
+    shots.append(capture(MAMA, "screen-warning"))
+    animations(MAMA, False)
+    tap_text(MAMA, "Learn", tries=2)
+    time.sleep(4)
+    shots.append(capture(MAMA, "screen-learn"))
+    tap_text(MAMA, "Diary", tries=2)
+    time.sleep(4)
+    shots.append(capture(MAMA, "screen-diary"))
+    animations(MAMA, True)
+    # Each phone 300 px wide with 24 px corners, 28 px apart, on a transparent background.
+    corner = ("format=rgba,scale=300:-1:flags=lanczos,geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':"
+              "a='if(gt(abs(X-W/2),W/2-24)*gt(abs(Y-H/2),H/2-24),if(lte(hypot(abs(X-W/2)-(W/2-24),abs(Y-H/2)-(H/2-24)),24),255,0),255)'")
+    parts = [f"[{i}:v]{corner}" + (",pad=iw+28:ih:0:0:color=black@0" if i < 3 else "") + f"[p{i}]" for i in range(4)]
+    graph = ";".join(parts) + ";[p0][p1][p2][p3]hstack=inputs=4,format=rgba"
+    args = [FFMPEG, "-y", "-loglevel", "error"]
+    for shot in shots:
+        args += ["-i", shot]
+    subprocess.run(args + ["-filter_complex", graph, "-frames:v", "1", os.path.join(ROOT, "docs", "media", "screens.png")], check=True)
+    for shot in shots:
+        os.remove(shot)
+    print(f"   {os.path.getsize(os.path.join(ROOT, 'docs', 'media', 'screens.png')) // 1024} KB", flush=True)
+
+for p in (*PHONES, PAPA):
     animations(p, True)
 print("done")
