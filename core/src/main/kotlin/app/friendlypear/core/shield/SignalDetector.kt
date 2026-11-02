@@ -114,8 +114,8 @@ internal object SignalDetector {
             """|\bdon.?t tell\b|\bdo not tell\b|\bkeep (it|this) (a )?secret\b|\bbetween (you and me|us)\b|\btell no one\b""",
     )
     private val scare = Regex(
-        """\b(virus|infectad[oa]s?|hackead[oa]|pirateado|spyware|malware|troyano|infected|hacked|compromised|""" +
-            """fallos|fallando|errores|infection|bug|errors|poorly|failing|infeccion|infecciones|problemas? de seguridad|security (issue|problem)s?|""" +
+        """\b(virus(es)?|infectad[oa]s?|hackead[oa]|pirateado|spyware|malware|troyanos?|trojans?|infected|hacked|compromised|""" +
+            """fallos|fallando|errores|infections?|bugs?|errors|poorly|failing|infeccion|infecciones|problemas? de seguridad|security (issue|problem)s?|""" +
             """actualizacion de seguridad|(weird|strange|unusual) traffic)\b""",
     )
     private val device = Regex(

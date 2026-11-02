@@ -36,6 +36,8 @@ class ShieldTest {
         // Seen on the emulator: "…isn't safe and it has a link" said the link twice.
         val en = Shield(lang = Lang.EN).evaluate(IncomingMessage(Channel.SMS, "Laura", "Mira las fotos: http://fotos-boda.net/album", 0), family)
         assertFalse("it has a link" in en.explanation, en.explanation)
+        // Seen on the emulator: the second opinion's calm vote took it down to OK, and Peri said nothing.
+        assertEquals(Level.DOUBT, shield.withModelOpinion(v, -Shield.MAX_MODEL_DELTA).level)
     }
 
     @Test

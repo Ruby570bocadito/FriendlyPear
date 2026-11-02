@@ -182,6 +182,9 @@ class SignalDetectorTest {
         assertTrue(Signal.SECRECY in signals("Mum it's Josh, I need £350 now, please don't tell dad"))
         assertTrue(Signal.DEVICE_SCARE in signals("ALERTA Microsoft: 3 virus graves en su Windows. Llame al técnico ahora"))
         assertTrue(Signal.DEVICE_SCARE in signals("Su router ha sido hackeado. Llame urgente al soporte técnico"))
+        // English plurals: a website's "5 viruses" notice was let through (found on the emulator).
+        assertTrue(Signal.DEVICE_SCARE in signals("Your phone has 5 viruses! Tap now to clean it"))
+        assertTrue(Signal.DEVICE_SCARE in signals("Infections and bugs found on your device"))
         assertTrue(Signal.ROMANCE_BAIT in signals("Mi amor, soy Elena, viuda en León. ¿Me ayudas con 350 euros?"))
         assertTrue(Signal.ROMANCE_BAIT in signals("Darling, I'm a soldier deployed abroad and I need help with my leave fee"))
     }

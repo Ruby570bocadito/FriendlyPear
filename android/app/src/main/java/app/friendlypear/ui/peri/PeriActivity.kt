@@ -1554,16 +1554,16 @@ class PeriActivity : Activity() {
             battery -> R.drawable.peri_ui_perm_battery
             else -> R.drawable.peri_shield
         })
-        // A family question first, then family in trouble, then a website to silence, then a scam to report: one card
-        // at a time, so Peri keeps her room.
+        // A family question first, then family in trouble, then the latest of a website to silence or a scam to report:
+        // one card at a time, so Peri keeps her room. (An old website card hid a new scam's Block and Report.)
         val asked = asking != null
         question.reveal(asked)
         val family = !asked && familyAlertKey != null
         familyAlert.reveal(family)
-        val site = hub.webNotices.offer()?.takeIf { !family && !asked }
+        val scam = hub.lastScam.offer()
+        val site = hub.webNotices.offer()?.takeIf { !family && !asked && (scam == null || it.at >= scam.at) }
         web.reveal(site != null)
         if (site != null) webText.text = getString(R.string.web_card_text, site.site ?: getString(R.string.web_unknown_site))
-        val scam = hub.lastScam.offer()
         val reporting = !family && !asked && site == null && scam != null
         report.reveal(reporting)
         val blockable = scam != null && app.friendlypear.config.BlockList.key(scam.sender) != null && !hub.blocked.has(scam.sender)

@@ -26,7 +26,9 @@ object VoiceCommands {
             "\\s+(?:que|diciendo que|diciendole que|poniendo que|poniendole que)\\s+(.+)$" +
             "|\\b(?:tell|text|message|write to|send a (?:text|message) to)\\s+(.+?)\\s+(?:that|saying)\\s+(.+)$" +
             // "Tell Laura I'm running late": no "that", the message starts with I, we or it.
-            "|\\b(?:tell|text|message)\\s+(.+?)\\s+((?:i|we|it)(?:['’\\s]+(?:m|am|ll|will|re|are|s|is|d|won['’ ]t|can['’ ]t))?\\s+.+)$",
+            "|\\b(?:tell|text|message)\\s+(.+?)\\s+((?:i|we|it)(?:['’\\s]+(?:m|am|ll|will|re|are|s|is|d|won['’ ]t|can['’ ]t))?\\s+.+)$" +
+            // "Tell Ana the code is 4821": no "that", the message is "the/my/our/your something is…".
+            "|\\b(?:tell|text|message)\\s+(.+?)\\s+((?:the|my|our|your)\\s+\\w+(?:\\s+\\w+)?\\s+(?:is|are|was|were|will be)\\s+.+)$",
     )
     /** "Pide ayuda a mamá", "ask my daughter for help": a call to that person, after Peri's usual "shall I?". */
     private val askForHelp = Regex(
@@ -131,7 +133,7 @@ object VoiceCommands {
     private fun sendMessage(utterance: String, folded: String): Command.SendMessage? {
         val m = send.find(folded) ?: return null
         // Spanish, English with "that", or English without it: whichever matched.
-        val (targetGroup, bodyGroup) = listOf(1 to 2, 3 to 4, 5 to 6).first { m.groups[it.first] != null }
+        val (targetGroup, bodyGroup) = listOf(1 to 2, 3 to 4, 5 to 6, 7 to 8).first { m.groups[it.first] != null }
         val bodyRange = m.groups[bodyGroup]!!.range
         val body = if (folded.length == utterance.length) utterance.substring(bodyRange.first, bodyRange.last + 1) else m.groupValues[bodyGroup]
         val text = trailingPlease.replace(body, "").trim().trimEnd('.', '!')

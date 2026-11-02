@@ -69,7 +69,12 @@ class Shield(
         brand: String?,
         claimedRelation: Relation?,
     ): Verdict {
-        val level = if (hardRule != null) Level.SCAM else levelFor(rulesScore + modelDelta)
+        val level = when {
+            hardRule != null -> Level.SCAM
+            // A link without a padlock is always mentioned, even from family: a model's calm vote can't silence it.
+            Signal.INSECURE_LINK in signals -> maxOf(levelFor(rulesScore + modelDelta), Level.DOUBT)
+            else -> levelFor(rulesScore + modelDelta)
+        }
         val action = safeAction(level, signals, brand)
         return Verdict(
             level = level,

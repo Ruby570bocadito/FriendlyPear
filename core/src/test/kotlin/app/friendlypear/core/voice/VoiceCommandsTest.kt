@@ -81,6 +81,9 @@ class VoiceCommandsTest {
         assertEquals(Command.Call("laura"), parse("I want to talk to Laura"))
         assertEquals(Command.SendMessage("laura", "I'll be late"), parse("Tell Laura that I'll be late"))
         assertEquals(Command.SendMessage("pablo", "see you tomorrow"), parse("text Pablo saying see you tomorrow, please"))
+        // No "that" and no "I": found on the emulator, where "tell Ana the code is…" was "didn't catch that".
+        assertEquals(Command.SendMessage("ana", "the code is 482913"), parse("Tell Ana the code is 482913"))
+        assertEquals(Command.SendMessage("my daughter", "my car is broken"), parse("tell my daughter my car is broken"))
         assertEquals(Command.ReadMessages(), parse("Read me my messages"))
         assertEquals(Command.ReadMessages(onlyLast = true), parse("read the last message"))
         assertEquals(Command.ReadMessages(), parse("any new messages?"))
