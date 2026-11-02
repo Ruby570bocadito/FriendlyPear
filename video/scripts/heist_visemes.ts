@@ -78,7 +78,14 @@ const GROUPS: Record<string, { pose: string; shapes: string[] }[]> = {
     { pose: "diary/rosa_kitchen_hangup", shapes: ["blink"] },
     { pose: "diary/rosa_qr_away", shapes: ["blink"] },
     { pose: "diary/rosa_garden_smile", shapes: ["blink"] },
+    // Ana at 8:42 in the morning (her other pictures are at dusk); she never opens her mouth past half.
+    { pose: "diary/ana_morning", shapes: ["slight", "half", "round", "blink", "blinkhalf"] },
   ],
+  // Peri's new poses for "Peri's diary" (diary_images.ts), and her detective from the app, so she can talk in them.
+  periposes: ["peri_phone_check", "peri_hangup", "peri_stop", "peri_wait", "peri_key", "peri_lantern", "peri_detective"].map((name) => ({
+    pose: `diary/${name}`,
+    shapes: ["slight", "half", "open", "round", "blink", "blinkhalf"],
+  })),
 };
 
 const dimensions = (file: string) => {

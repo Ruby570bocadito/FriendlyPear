@@ -217,10 +217,16 @@ export const Cast = ({ scene, parts }: { scene: string; parts: { from: number; p
 };
 
 /** Peri changing mood (or outfit) as she talks: one Peri, squashing like clay at each change. */
-export const PeriMoods = ({ scene, parts, x, y, w, h, enter }: { scene: string; parts: { from: number; pose: string }[]; x: number; y: number; w: number; h: number; enter?: number }) => {
+export const PeriMoods = ({ scene, parts, x, y, w, h, enter, ground = false }: { scene: string; parts: { from: number; pose: string }[]; x: number; y: number; w: number; h: number; enter?: number; ground?: boolean }) => {
   const fr = useCurrentFrame();
   const part = [...parts].reverse().find((p) => fr >= p.from) ?? parts[0];
-  return <Actor pose={part.pose} who="peri" scene={scene} x={x} y={y} w={w} h={h} contain enter={enter ?? parts[0].from} bounce={part.from} />;
+  const side = Math.min(w, h);
+  return (
+    <>
+      {ground && fr >= (enter ?? parts[0].from) && <Ground x={x + w / 2} y={y + h - (1 - SOLES) * side} w={side * 0.55} />}
+      <Actor pose={part.pose} who="peri" scene={scene} x={x} y={y} w={w} h={h} contain enter={enter ?? parts[0].from} bounce={part.from} />
+    </>
+  );
 };
 
 /**
@@ -245,7 +251,7 @@ export const CHEER: Key[] = [
   { ms: 640, lift: 0.19 },
   { ms: 760, src: "anim_cheer_04", lift: 0 },
 ];
-export const Drawn = ({ keys, at, until, x, y, size }: { keys: Key[]; at: number; until?: number; x: number; y: number; size: number }) => {
+export const Drawn = ({ keys, at, until, x, y, size, ground = false }: { keys: Key[]; at: number; until?: number; x: number; y: number; size: number; ground?: boolean }) => {
   const fr = useCurrentFrame();
   if (fr < at || (until !== undefined && fr >= until)) return null;
   const ms = ((fr - at) / FPS) * 1000;
@@ -258,7 +264,26 @@ export const Drawn = ({ keys, at, until, x, y, size }: { keys: Key[]; at: number
     const p = (ms - from.ms) / (to.ms - from.ms);
     lift += (to.lift! - from.lift!) * (to.lift! > from.lift! ? 1 - (1 - p) ** 2 : p * p);
   }
-  return <Img src={pic(`peri7/${picture}.webp`)} style={{ position: "absolute", left: x - size / 2, top: y - size * (1 + lift), width: size, height: size }} />;
+  return (
+    <>
+      {ground && <Ground x={x} y={y - (1 - SOLES) * size} w={size * 0.55} lift={lift} />}
+      <Img src={pic(`peri7/${picture}.webp`)} style={{ position: "absolute", left: x - size / 2, top: y - size * (1 + lift), width: size, height: size }} />
+    </>
+  );
+};
+
+/** Where Peri's feet are in her pictures (the app's cut-outs), as a share of their height. */
+export const SOLES = 0.925;
+
+/**
+ * A soft shadow on the ground under someone standing at (x, y), [w] wide; as in the app, it stays on the ground when
+ * they jump, smaller and fainter the higher they are ([lift], in picture heights).
+ */
+export const Ground = ({ x, y, w, lift = 0 }: { x: number; y: number; w: number; lift?: number }) => {
+  const k = Math.max(0.35, 1 - lift * 2.2);
+  return (
+    <div style={{ position: "absolute", left: x - (w * k) / 2, top: y - w * 0.07 * k, width: w * k, height: w * 0.14 * k, borderRadius: "50%", background: "radial-gradient(ellipse, rgba(50,30,10,0.45) 0%, rgba(50,30,10,0.24) 45%, rgba(50,30,10,0) 72%)", opacity: 0.4 + 0.6 * k }} />
+  );
 };
 
 /** Peri's little effects from the app (stars, hearts, notes, confetti) bursting out of a point and falling away. */

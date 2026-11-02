@@ -8,14 +8,14 @@ import { BODY, clamp, HEADING } from "./theme";
 import { img } from "./Minute";
 import { AppPhone, BUBBLE, BUTTONS, CALLER, NOTE, NOTE_BEFORE, QR, SCAM_BOX, shown, Zoom } from "./Submission";
 import type { Take } from "./Submission";
-import { Actor, CHEER, Coins, DROP, Drawn, f, FOCUS, Floaties, FPS, H, INK, musicVolume, peri, PeriMoods, pic, POSES, script, ScriptContext, Slam, Snd, Sparks, SubtitleBand, timing } from "./cast";
+import { Actor, CHEER, Coins, DROP, Drawn, f, FOCUS, Floaties, FPS, Ground, H, INK, musicVolume, PeriMoods, pic, POSES, script, ScriptContext, Slam, Snd, SOLES, Sparks, SubtitleBand, timing } from "./cast";
 import type { Eye, Line, Pose, Shape, Who } from "./cast";
 
 /**
  * "Peri's diary", the second 3-minute submission video (16:9, 30 fps, exactly 3:00). At night Peri writes about her
  * day: the four tricks a crook tried on Rosa, each an entry at its hour (the place in Rosa's day, the people as
  * polaroids that talk, the real app on her phone), how Peri decides, the evening Rosa fell and Ana came, and goodnight.
- * The book opens at the start, its pages turn between the parts and it closes at the end. A camera moves in on what
+ * The book opens at the start, its pages turn like paper between the parts and it closes at the end. A camera moves in on what
  * matters and shakes when a trick is stamped out; the places breathe (dust in the light, steam, petals, fireflies) and
  * sound like themselves (scripts/diary_music.py). Pictures by Muse Image (scripts/diary_images.ts, heist_frames.ts,
  * heist_visemes.ts and the app's own), steadied by scripts/heist_stabilize.py; voices and lip sync from
@@ -29,7 +29,7 @@ const DIARY = script(AT, lines as Record<Name, Line[]>, durations as Record<Name
 const { say, ends } = timing(DIARY);
 const length = (name: Name) => f(AT[name][1] - AT[name][0]);
 /** How long a page takes to turn, in frames. */
-const TURN = 22;
+const TURN = 24;
 const PAPER = "#FFFBF0";
 const BROWN = "#3B2F2A";
 /** A steady pseudo-random number from 0 to 1 for a seed. */
@@ -66,15 +66,31 @@ Object.assign(POSES, {
   rosa_kitchen_hangup: drawn("rosa_kitchen_hangup", "diary/rosa_kitchen_hangup", [], ["blink"]),
   rosa_qr_away: drawn("rosa_qr_away", "diary/rosa_qr_away", [], ["blink"]),
   rosa_garden_smile: drawn("rosa_garden_smile", "diary/rosa_garden_smile", [], ["blink"]),
-  peri_worried: peri("worried"),
+  ana_morning: drawn("ana_morning", "diary/ana_morning", ["slight", "half", "round"], ["blink", "blinkhalf"]),
 });
 FOCUS.peri_desk = "50% 45%";
+/** Peri's own poses for this story (peri_cut.py): cut out, talking with her mouth, blinking over it. */
+const PERI_POSES = ["peri_phone_check", "peri_hangup", "peri_stop", "peri_wait", "peri_key", "peri_lantern", "peri_detective"];
+Object.assign(
+  POSES,
+  Object.fromEntries(
+    PERI_POSES.map((name): [string, Pose] => [
+      name,
+      {
+        base: `diary/peri/${name}`,
+        mouths: { slight: `diary/peri/${name}_slight`, half: `diary/peri/${name}_half`, open: `diary/peri/${name}_open`, round: `diary/peri/${name}_round` },
+        eyes: { blink: `diary/peri/${name}_blink`, blinkhalf: `diary/peri/${name}_blinkhalf` },
+        overlay: true,
+      },
+    ]),
+  ),
+);
 /** Where each face is, as fractions of its picture: a polaroid keeps it there and moves in on it. */
 const FACES: Record<string, [number, number]> = {
   crook_plan: [0.44, 0.36], crook_desk: [0.49, 0.37], crook_phone: [0.47, 0.36], crook_stickers: [0.43, 0.36], crook_shock: [0.46, 0.36], crook_angry: [0.49, 0.39], crook_quit: [0.49, 0.62],
   rosa_reading: [0.51, 0.36], rosa_yes: [0.51, 0.36], rosa_kitchen: [0.49, 0.42], rosa_kitchen_hangup: [0.48, 0.4], rosa_qr: [0.48, 0.42], rosa_qr_away: [0.57, 0.42],
   rosa_garden_call: [0.51, 0.29], rosa_garden_smile: [0.52, 0.3], rosa_fallen_night: [0.42, 0.48],
-  ana_call_rest: [0.53, 0.45], ana_no: [0.58, 0.46], ana_go_rest: [0.52, 0.45],
+  ana_call_rest: [0.53, 0.45], ana_morning: [0.53, 0.45], ana_no: [0.58, 0.46], ana_go_rest: [0.52, 0.45],
 };
 /** How close each polaroid is: tall pictures are already cropped closer. */
 const ZOOM: Record<string, number> = { rosa_garden_call: 1.45, rosa_garden_smile: 1.45, crook_quit: 1.5 };
@@ -278,7 +294,7 @@ const TimeCard = ({ time, title, ink, from, to }: { time: string; title: string;
           <div style={{ fontFamily: HEADING, fontWeight: 600, fontSize: 54, color: BROWN, marginTop: 8 }}>{title}</div>
         </div>
       </div>
-      <Snd src="diary/sfx/clock" at={8} volume={0.45} />
+      <Snd src="diary/sfx/clock" at={8} volume={0.4} />
     </>
   );
 };
@@ -286,12 +302,22 @@ const TimeCard = ({ time, title, ink, from, to }: { time: string; title: string;
 const NAME: Record<Who, string> = { crook: "The crook", peri: "Peri", rosa: "Rosa", ana: "Ana" };
 const TAPES = ["#F7C9D9", "#BDE68A", "#B4E2FF", "#FFE07A", "#E3D3FF"];
 
-/** One polaroid: a person (alive, see Actor) or Peri on a soft green, with their name (or [caption]) underneath. */
-const Polaroid = ({ scene, pose, who, k, caption }: { scene: Name; pose: string; who: Who; k: number; caption?: string }) => {
+/**
+ * One polaroid: a person (alive, see Actor), or Peri standing in [place] (where the story is, at that time of day; her
+ * hill by default), with their name (or [caption]) underneath.
+ */
+const Polaroid = ({ scene, pose, who, k, caption, place = "diary/hill_morning" }: { scene: Name; pose: string; who: Who; k: number; caption?: string; place?: string }) => {
   const isPeri = who === "peri";
   return (
     <>
-      <div style={{ position: "absolute", left: 22, top: 22, width: 496, height: 500, overflow: "hidden", borderRadius: 2, background: isPeri ? "radial-gradient(circle at 50% 35%, #FFFDF2, #D9EFC0 78%)" : "#2B2430" }}>
+      <div style={{ position: "absolute", left: 22, top: 22, width: 496, height: 500, overflow: "hidden", borderRadius: 2, background: "#2B2430" }}>
+        {isPeri && (
+          <>
+            {/* Peri standing there, her shadow on the ground. */}
+            <Img src={pic(place)} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 100%", scale: "1.6", transformOrigin: "50% 100%", filter: "blur(1.5px)" }} />
+            <Ground x={248} y={30 + 470 * SOLES} w={470 * 0.55} />
+          </>
+        )}
         <Actor pose={pose} who={who} scene={scene} x={0} y={isPeri ? 30 : 0} w={496} h={isPeri ? 470 : 500} contain={isPeri} enter={-999} rise={false} face={FACES[pose]} zoom={isPeri ? 1 : ZOOM[pose] ?? 1.7} />
       </div>
       <div style={{ position: "absolute", left: 0, right: 0, bottom: 30, textAlign: "center", fontFamily: HEADING, fontWeight: 600, fontSize: caption ? 50 : 44, color: BROWN, whiteSpace: "nowrap" }}>{caption ?? NAME[who]}</div>
@@ -305,7 +331,7 @@ const Polaroid = ({ scene, pose, who, k, caption }: { scene: Name; pose: string;
  * speaking (or Rosa's face as it ends), the newest on top, the two before it peeking out underneath.
  */
 type Snap = { at: number; pose: string; who: Who };
-const Album = ({ scene, snaps, until }: { scene: Name; snaps: Snap[]; until?: number }) => {
+const Album = ({ scene, snaps, until, place }: { scene: Name; snaps: Snap[]; until?: number; place?: string }) => {
   const fr = useCurrentFrame();
   const { fps } = useVideoConfig();
   const gone = until === undefined ? 0 : interpolate(fr, [until, until + 12], [0, 1], { ...clamp, easing: Easing.in(Easing.cubic) });
@@ -323,7 +349,7 @@ const Album = ({ scene, snaps, until }: { scene: Name; snaps: Snap[]; until?: nu
             const nudge = [0, 18, -14, 22, -18, 10, -22, 14][k % 8];
             return (
               <div key={s.at} style={{ position: "absolute", left: 70 + nudge - depth * 26, top: 200 - depth * 8, width: 540, height: 640, background: "#FFFDF7", borderRadius: 5, boxShadow: `0 ${20 + (1 - p) * 30}px ${36 + (1 - p) * 30}px rgba(40,20,0,0.38)`, rotate: `${tilt - depth * 3 + (1 - p) * 16}deg`, translate: `${(1 - p) * -300}px ${(1 - p) * 560}px`, scale: `${1 - depth * 0.04 + (1 - p) * 0.06}`, zIndex: 10 + k }}>
-                <Polaroid scene={scene} pose={s.pose} who={s.who} k={k} />
+                <Polaroid scene={scene} pose={s.pose} who={s.who} k={k} place={place} />
                 {depth > 0 && <div style={{ position: "absolute", inset: 0, borderRadius: 5, background: `rgba(60,40,20,${depth * 0.1})` }} />}
               </div>
             );
@@ -331,7 +357,7 @@ const Album = ({ scene, snaps, until }: { scene: Name; snaps: Snap[]; until?: nu
         </div>
       )}
       {snaps.map((s) => (
-        <Snd key={s.at} src="diary/sfx/flick" at={s.at} volume={0.5} />
+        <Snd key={s.at} src="diary/sfx/flick" at={s.at} volume={0.45} />
       ))}
     </>
   );
@@ -404,41 +430,43 @@ const Victory = ({ at, n }: { at: number; n: number }) => {
         </div>
         <div style={{ marginTop: 24, fontFamily: HEADING, fontWeight: 600, fontSize: 40, color: INK }}>Trick {n} of 4 · $0 lost</div>
       </div>
-      <Drawn keys={CHEER} at={at + 8} x={1540} y={930} size={520} />
-      <Sparks at={at + 8 + f(0.76)} x={1540} y={680} kinds={["fx_star", "fx_star_green", "fx_confetti_dot", "fx_confetti_strip"]} count={12} />
-      <Snd src="reel/sfx/stamp" at={at + 10} volume={0.6} />
-      <Snd src="short/sfx/score" at={at + f(0.9)} volume={0.45} />
+      {/* Her stars burst out from behind her as she lands, never over her. */}
+      <Sparks at={at + 8 + f(0.76)} x={1540} y={680} kinds={["fx_star", "fx_star_green", "fx_confetti_dot", "fx_confetti_strip"]} count={12} spread={330} />
+      <Drawn keys={CHEER} at={at + 8} x={1540} y={930} size={520} ground />
+      <Snd src="diary/sfx/stamp" at={at + 10} volume={0.45} />
+      <Snd src="diary/sfx/score" at={at + f(0.9)} volume={0.35} />
     </>
   );
 };
 
 // ---------------------------------------------------------------- the parts
 
-/** The cover of Peri's diary, close up: [turn] from 0 (shut) to 1 (opened, turned away). */
-const CoverFace = ({ zoom, turn, credits = 0 }: { zoom: number; turn: number; credits?: number }) => (
-  <AbsoluteFill style={{ height: H, perspective: 2600, zIndex: 80 }}>
-    <AbsoluteFill style={{ transformOrigin: "0% 50%", transform: turn > 0 ? `rotateY(${turn * 90}deg)` : undefined, overflow: "hidden" }}>
-      <div style={{ position: "absolute", inset: 0, scale: `${zoom}`, transformOrigin: "48.5% 46%" }}>
-        <Img src={pic("diary/cover")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ position: "absolute", left: 0, right: 40, top: 560, textAlign: "center", fontFamily: HEADING, fontWeight: 700, fontSize: 62, color: "#FFF4D6", textShadow: "0 3px 0 rgba(30,60,20,0.55), 0 0 10px rgba(255,230,160,0.35)", letterSpacing: 1 }}>Peri's Diary</div>
-        {credits > 0 && (
-          <div style={{ position: "absolute", left: 0, right: 0, top: 890, textAlign: "center", opacity: credits }}>
-            <span style={{ padding: "8px 22px", borderRadius: 999, background: "rgba(37,84,26,0.92)", color: "#FFF8EC", fontFamily: BODY, fontWeight: 700, fontSize: 30 }}>FriendlyPear · github.com/Ruby570bocadito/FriendlyPear</span>
-          </div>
-        )}
-      </div>
-      <AbsoluteFill style={{ background: `linear-gradient(90deg, rgba(255,245,220,${0.18 * turn}) 0%, rgba(0,0,0,0) 40%, rgba(40,20,0,${turn * 0.55}) 100%)` }} />
-    </AbsoluteFill>
+/** The cover of Peri's diary, close up ([zoom]), with the project's link on it at the very end ([credits]). */
+const CoverFace = ({ zoom, credits = 0 }: { zoom: number; credits?: number }) => (
+  <AbsoluteFill style={{ height: H, overflow: "hidden" }}>
+    <div style={{ position: "absolute", inset: 0, scale: `${zoom}`, transformOrigin: "48.5% 46%" }}>
+      <Img src={pic("diary/cover")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      <div style={{ position: "absolute", left: 0, right: 40, top: 560, textAlign: "center", fontFamily: HEADING, fontWeight: 700, fontSize: 62, color: "#FFF4D6", textShadow: "0 3px 0 rgba(30,60,20,0.55), 0 0 10px rgba(255,230,160,0.35)", letterSpacing: 1 }}>Peri's Diary</div>
+      {credits > 0 && (
+        <div style={{ position: "absolute", left: 0, right: 0, top: 890, textAlign: "center", opacity: credits }}>
+          <span style={{ padding: "8px 22px", borderRadius: 999, background: "rgba(37,84,26,0.92)", color: "#FFF8EC", fontFamily: BODY, fontWeight: 700, fontSize: 30 }}>FriendlyPear · github.com/Ruby570bocadito/FriendlyPear</span>
+        </div>
+      )}
+    </div>
   </AbsoluteFill>
 );
 
-/** The diary opening at the very start: close in on the cover, then it swings open. */
+/** The diary opening at the very start: close in on the cover, then it turns over like the pages do. */
+const COVER_TURN = 24;
 const Cover = () => {
   const fr = useCurrentFrame();
-  if (fr >= 46) return null;
-  const zoom = interpolate(fr, [6, 26], [1, 2.25], { ...clamp, easing: Easing.inOut(Easing.cubic) });
-  const turn = interpolate(fr, [25, 46], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
-  return <CoverFace zoom={zoom} turn={turn} />;
+  if (fr >= COVER_TURN + TURN) return null;
+  const zoom = interpolate(fr, [4, 22], [1, 2.25], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  return (
+    <Page turnAt={COVER_TURN} name="cover">
+      <CoverFace zoom={zoom} />
+    </Page>
+  );
 };
 
 /** The four tricks of the day, as photos of the crook, each with its name; then "$0" on every one. */
@@ -454,7 +482,6 @@ const HOOK = [
  * trick), and got nothing ($0 on every one).
  */
 const Open = () => {
-  const fr = useCurrentFrame();
   const four = say("open", 1, "Four") - 4;
   const cent = say("open", 2) + 2;
   return (
@@ -474,28 +501,28 @@ const Open = () => {
           <Sticker key={h.pose} at={cent + i * 6} x={h.x + 262} y={h.y + 14} text="$0" />
         ))}
       </Camera>
-      {fr < 46 && <Cover />}
-      <Snd src="diary/sfx/page" at={26} volume={0.6} />
+      <Cover />
+      <Snd src="diary/sfx/page" at={COVER_TURN} volume={0.5} />
       <Snd src="diary/sfx/pencil" at={f(1.1)} volume={0.35} />
-      <Snd src="diary/sfx/flick" at={say("open", 1) - 6} volume={0.5} />
+      <Snd src="diary/sfx/flick" at={say("open", 1) - 6} volume={0.45} />
       {HOOK.map((_, i) => (
-        <Snd key={`f${i}`} src="diary/sfx/flick" at={four + i * 5} volume={0.5} />
+        <Snd key={`f${i}`} src="diary/sfx/flick" at={four + i * 5} volume={0.45} />
       ))}
       {HOOK.map((_, i) => (
-        <Snd key={`s${i}`} src="reel/sfx/stamp" at={cent + i * 6} volume={0.35} />
+        <Snd key={`s${i}`} src="diary/sfx/stamp" at={cent + i * 6} volume={0.45} />
       ))}
     </>
   );
 };
 
-/** Where Peri stands on her hill, in the title's picture. */
-const HILL = { x: 1090, y: 600, size: 560 };
+/** Where Peri lands in the meadow of the title's picture: on the grass at the front, seen from her own height. */
+const HILL = { x: 1090, y: 902, size: 560 };
 
-/** 0:11 Morning on Peri's hill: she drops in as she does when the app opens, shows where she lives, and says what she does. */
+/** 0:11 Morning in Peri's meadow: she drops in as she does when the app opens, shows where she lives, and says what she does. */
 const Title = () => {
   const fr = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const dropAt = 22;
+  const dropAt = 24;
   const landed = dropAt + f(1.08) + 2;
   const logo = spring({ frame: fr - 26, fps, config: { damping: 10, stiffness: 150 } });
   const phoneFrom = say("title", 0) + 4;
@@ -503,15 +530,15 @@ const Title = () => {
   return (
     <>
       <Camera shots={[{ at: 0, zoom: 1 }, { at: landed, zoom: 1.04, x: HILL.x, y: HILL.y - 220, ease: 160 }]}>
-        <Place src="diary/hill_morning" focus="50% 20%" soft={99999} name="title">
+        <Place src="diary/meadow_ground" focus="50% 70%" soft={99999} name="title">
           <Motes kind="pollen" count={26} />
         </Place>
         <Flock at={4} y={120} dur={260} />
-        <Drawn keys={DROP} at={dropAt} until={landed} x={HILL.x} y={HILL.y} size={HILL.size} />
+        <Sparks at={dropAt + f(0.5)} x={HILL.x} y={HILL.y - HILL.size * 0.4} kinds={["fx_star", "fx_star_green"]} count={8} spread={330} />
+        <Drawn keys={DROP} at={dropAt} until={landed} x={HILL.x} y={HILL.y} size={HILL.size} ground />
         {fr >= landed && (
-          <PeriMoods scene="title" parts={[{ from: landed, pose: "peri_happy" }, { from: say("title", 1) - 3, pose: "peri_protective" }, { from: say("title", 1, "anything risky") - 3, pose: "peri_calling" }]} x={HILL.x - HILL.size / 2} y={HILL.y - HILL.size} w={HILL.size} h={HILL.size} enter={-30} />
+          <PeriMoods scene="title" parts={[{ from: landed, pose: "peri_happy" }, { from: say("title", 1) - 3, pose: "peri_protective" }, { from: say("title", 1, "anything risky") - 3, pose: "peri_calling" }]} x={HILL.x - HILL.size / 2} y={HILL.y - HILL.size} w={HILL.size} h={HILL.size} enter={-30} ground />
         )}
-        <Sparks at={dropAt + f(0.5)} x={HILL.x} y={HILL.y - 40} kinds={["fx_star", "fx_star_green"]} count={8} spread={300} />
         <div style={{ position: "absolute", left: 70, top: 64, display: "flex", alignItems: "center", gap: 20, scale: `${interpolate(logo, [0, 1], [2, 1])}`, opacity: Math.min(1, logo * 2), transformOrigin: "0% 50%" }}>
           <Img src={img("icon")} style={{ width: 120, height: 120, borderRadius: "50%", boxShadow: "0 8px 0 rgba(0,0,0,0.12)" }} />
           <span style={{ fontFamily: HEADING, fontWeight: 700, fontSize: 104, color: INK, textShadow: "0 7px 0 rgba(255,255,255,0.7)" }}>FriendlyPear</span>
@@ -534,7 +561,7 @@ const Title = () => {
   );
 };
 
-/** 0:22 What tricks like his cost, written on a page, with the money falling away. */
+/** 0:22 What tricks like his cost, written on a page, with the money falling away and Peri under her umbrella. */
 const Stakes = () => {
   const fr = useCurrentFrame();
   const n = interpolate(fr, [10, 54], [0, 7.7], { ...clamp, easing: Easing.out(Easing.cubic) });
@@ -551,9 +578,10 @@ const Stakes = () => {
           </div>
           <div style={{ fontFamily: BODY, fontSize: 28, color: "rgba(59,47,42,0.7)", marginTop: 30 }}>Source: FBI Internet Crime Complaint Center (IC3), 2025</div>
         </div>
-        <Actor pose="peri_worried" who="peri" scene="stakes" x={1460} y={470} w={460} h={500} contain enter={4} />
-        <Snd src="submission/sfx/ticks" at={10} volume={0.3} />
-        <Snd src="final/sfx/slam" at={54} volume={0.6} />
+        <Ground x={1690} y={470 + 500 - (1 - SOLES) * 460} w={460 * 0.55} />
+        <Actor pose="peri_protective" who="peri" scene="stakes" x={1460} y={470} w={460} h={500} contain enter={4} />
+        <Snd src="diary/sfx/ticks" at={10} volume={0.35} />
+        <Snd src="diary/sfx/slam" at={54} volume={0.4} />
       </Paper>
     </Camera>
   );
@@ -576,11 +604,12 @@ const E1 = () => {
         <Flock at={0} y={90} dur={200} count={3} />
         <Album
           scene="e1"
+          place="diary/town_morning"
           snaps={[
             { at: say("e1", 0) - 8, pose: "crook_desk", who: "crook" },
-            { at: say("e1", 1) - 8, pose: "peri_worried", who: "peri" },
+            { at: say("e1", 1) - 8, pose: "peri_phone_check", who: "peri" },
             { at: say("e1", 2) - 8, pose: "rosa_yes", who: "rosa" },
-            { at: say("e1", 3) - 10, pose: "ana_call_rest", who: "ana" },
+            { at: say("e1", 3) - 10, pose: "ana_morning", who: "ana" },
             { at: result, pose: "crook_shock", who: "crook" },
             { at: ends("e1", 4) + 8, pose: "rosa_yes", who: "rosa" },
           ]}
@@ -599,12 +628,12 @@ const E1 = () => {
       </Camera>
       <Label from={phoneFrom} to={result} text="ROSA'S PHONE" />
       <TimeCard time="8:42 a.m." title="A text from a new number" ink="#1F6FA8" from={6 * 60} to={8 * 60 + 42} />
-      <Snd src="short/sfx/typing" at={say("e1", 0) + 10} volume={0.4} />
-      <Snd src="short/sfx/send" at={at(4.1)} volume={0.4} />
-      <Snd src="short/sfx/ding" at={at(4.3)} volume={0.45} />
-      <Snd src="submission/sfx/listen" at={at(19.7)} volume={0.4} />
-      <Snd src="submission/sfx/ringback" at={at(23.3)} volume={0.28} length={shown(T, 25.0) - shown(T, 23.3)} />
-      <Snd src="submission/sfx/answer" at={at(25.0)} volume={0.4} />
+      <Snd src="diary/sfx/typing" at={say("e1", 0) + 10} volume={0.45} />
+      <Snd src="diary/sfx/send" at={at(4.1)} volume={0.4} />
+      <Snd src="diary/sfx/ding" at={at(4.3)} volume={0.45} />
+      <Snd src="diary/sfx/listen" at={at(19.7)} volume={0.4} />
+      <Snd src="diary/sfx/ringback" at={at(23.3)} volume={0.3} length={shown(T, 25.0) - shown(T, 23.3)} />
+      <Snd src="diary/sfx/answer" at={at(25.0)} volume={0.45} />
     </>
   );
 };
@@ -628,12 +657,13 @@ const E2 = () => {
         </Place>
         <Album
           scene="e2"
+          place="diary/kitchen_noon"
           snaps={[
             { at: say("e2", 0) - 8, pose: "crook_phone", who: "crook" },
             { at: ends("e2", 0) + 6, pose: "rosa_kitchen", who: "rosa" },
             { at: say("e2", 1) - 8, pose: "peri_thinking", who: "peri" },
             { at: say("e2", 2) - 8, pose: "crook_phone", who: "crook" },
-            { at: say("e2", 3) - 8, pose: "peri_protective", who: "peri" },
+            { at: say("e2", 3) - 8, pose: "peri_hangup", who: "peri" },
             { at: result, pose: "crook_angry", who: "crook" },
             { at: ends("e2", 4) + 8, pose: "rosa_kitchen_hangup", who: "rosa" },
           ]}
@@ -653,12 +683,12 @@ const E2 = () => {
       </Camera>
       <Label from={phoneFrom} to={result} text="ROSA'S PHONE" />
       <TimeCard time="11:05 a.m." title="A call from “the bank”" ink="#C2412D" from={8 * 60 + 42} to={11 * 60 + 5} />
-      <Snd src="submission/sfx/ring" at={6} volume={0.25} length={phoneFrom - 6} />
-      <Snd src="submission/sfx/ring" at={at(3.8)} volume={0.35} length={shown(T, 7.8) - shown(T, 3.8)} />
-      <Snd src="submission/sfx/answer" at={at(7.8)} volume={0.4} />
-      <Snd src="short/sfx/ding" at={at(12.8)} volume={0.45} />
-      <Snd src="submission/sfx/alert" at={fire} volume={0.6} />
-      <Snd src="short/sfx/boing" at={say("e2", 4, "PEAR")} volume={0.55} />
+      <Snd src="diary/sfx/ring" at={6} volume={0.35} length={phoneFrom - 6} />
+      <Snd src="diary/sfx/ring" at={at(3.8)} volume={0.35} length={shown(T, 7.8) - shown(T, 3.8)} />
+      <Snd src="diary/sfx/answer" at={at(7.8)} volume={0.45} />
+      <Snd src="diary/sfx/ding" at={at(12.8)} volume={0.45} />
+      <Snd src="diary/sfx/alert" at={fire} volume={0.5} />
+      <Snd src="diary/sfx/boing" at={say("e2", 4, "PEAR")} volume={0.55} />
     </>
   );
 };
@@ -668,23 +698,24 @@ const E3 = () => {
   const T = TAKES.e3;
   const phoneFrom = f(1.6);
   const verdict = shown(T, 9.05);
-  const result = say("e3", 3) - 8;
+  const result = say("e3", 4) - 8;
   return (
     <>
-      <Camera shots={[{ at: 0, zoom: 1 }, { at: phoneFrom + shown(T, 4.2) - 6, zoom: 1.05, x: 1150, y: 520, ease: 30 }, { at: say("e3", 1) - 6, zoom: 1.08, x: 1200, y: 420, ease: 10 }, { at: say("e3", 2) - 6, zoom: 1.03, x: 1100, y: 600 }, { at: result - 4, zoom: 1, ease: 16 }]} shakes={[say("e3", 1, "A note"), result + 10]}>
+      <Camera shots={[{ at: 0, zoom: 1 }, { at: phoneFrom + shown(T, 4.2) - 6, zoom: 1.05, x: 1150, y: 520, ease: 30 }, { at: say("e3", 2) - 6, zoom: 1.08, x: 1200, y: 420, ease: 10 }, { at: say("e3", 3) - 6, zoom: 1.03, x: 1100, y: 600 }, { at: result - 4, zoom: 1, ease: 16 }]} shakes={[say("e3", 2, "A note"), result + 10]}>
         <Place src="diary/street_afternoon" focus="50% 55%" name="e3">
           <Motes kind="leaves" count={9} x={900} y={0} w={1000} h={H} />
           <Motes kind="dust" count={16} />
         </Place>
         <Album
           scene="e3"
+          place="diary/street_afternoon"
           snaps={[
             { at: say("e3", 0) - 8, pose: "crook_stickers", who: "crook" },
-            { at: ends("e3", 0) + 6, pose: "rosa_qr", who: "rosa" },
-            { at: say("e3", 1) - 8, pose: "peri_protective", who: "peri" },
-            { at: say("e3", 2) - 8, pose: "peri_thinking", who: "peri" },
+            { at: ends("e3", 0) + 2, pose: "rosa_qr", who: "rosa" },
+            { at: say("e3", 2) - 8, pose: "peri_stop", who: "peri" },
+            { at: say("e3", 3) - 8, pose: "peri_detective", who: "peri" },
             { at: result, pose: "crook_shock", who: "crook" },
-            { at: ends("e3", 3) + 8, pose: "rosa_qr_away", who: "rosa" },
+            { at: ends("e3", 4) + 8, pose: "rosa_qr_away", who: "rosa" },
           ]}
         />
         <Sequence from={phoneFrom} durationInFrames={result - phoneFrom} layout="none">
@@ -695,17 +726,17 @@ const E3 = () => {
           <Zoom take={T} region={QR} x={800} y={430} w={340} from={verdict + 6} to={result - phoneFrom} label="SAM 3.1 circles it" color="#FF8A7A" />
           <Zoom take={T} region={NOTE} x={800} y={800} w={560} from={verdict + 6} to={result - phoneFrom} label="...and Peri ignores it" />
         </Sequence>
-        <Slam text="NOT FOOLED." at={say("e3", 1, "A note")} until={result - 2} x={760} y={90} size={100} color="#C0392B" shade="rgba(255,255,255,0.75)" rotate={-6} />
-        <Note at={say("e3", 2)} until={result - 2} x={1000} y={250} w={420} rotate={2} tape="#FFE07A">
+        <Slam text="NOT FOOLED." at={say("e3", 2, "A note")} until={result - 2} x={760} y={90} size={100} color="#C0392B" shade="rgba(255,255,255,0.75)" rotate={-6} />
+        <Note at={say("e3", 3)} until={result - 2} x={1000} y={250} w={420} rotate={2} tape="#FFE07A">
           <div style={{ fontFamily: HEADING, fontWeight: 600, fontSize: 32, color: INK, lineHeight: 1.15 }}>Muse Spark reads the picture. The phone has the last word.</div>
         </Note>
         <Victory at={result} n={3} />
       </Camera>
       <Label from={phoneFrom} to={result} text="ROSA'S PHONE" />
       <TimeCard time="3:30 p.m." title="A sticker with a secret" ink="#B07400" from={11 * 60 + 5} to={15 * 60 + 30} />
-      <Snd src="submission/sfx/shutter" at={phoneFrom + shown(T, 3.7)} volume={0.45} />
-      <Snd src="submission/sfx/alert" at={phoneFrom + verdict} volume={0.45} />
-      <Snd src="reel/sfx/stamp" at={say("e3", 1, "A note")} volume={0.55} />
+      <Snd src="diary/sfx/shutter" at={phoneFrom + shown(T, 3.7)} volume={0.5} />
+      <Snd src="diary/sfx/alert" at={phoneFrom + verdict} volume={0.5} />
+      <Snd src="diary/sfx/stamp" at={say("e3", 2, "A note")} volume={0.45} />
     </>
   );
 };
@@ -713,19 +744,23 @@ const E3 = () => {
 /** The family key: Rosa's pear asks the family's pears; two yeses, each behind their own phone's lock; one no stops it. */
 const STEPS = [
   { text: "Peri to Peri: family phones only", line: 4, word: undefined as string | undefined, color: "#7CC242" },
-  { text: "They see: possible scam in progress", line: 4, word: "Ana and Pablo", color: "#FFC83D" },
+  { text: "They see: possible scam in progress", line: 4, word: "Ana and Leo", color: "#FFC83D" },
   { text: "A code needs two guardians' yes", line: 5, word: undefined, color: "#6EC6FF" },
   { text: "Each yes: their own phone's lock", line: 5, word: "each confirmed", color: "#A98BFF" },
   { text: "A single no stops it", line: 5, word: "A single no", color: "#FF8A7A" },
   { text: "They never see her messages", line: 6, word: undefined, color: "#BDE68A" },
 ];
 
+/** How early the family key's page slides in before Peri explains it, so she can drop onto it first. */
+const KEY_EARLY = 40;
+
 const FamilyKey = ({ from, until }: { from: number; until: number }) => {
   const fr = useCurrentFrame();
   const { fps } = useVideoConfig();
-  if (fr < from || fr >= until + 14) return null;
+  const arrive = from - KEY_EARLY;
+  if (fr < arrive || fr >= until + 14) return null;
   const k = fr - from;
-  const slide = interpolate(fr, [from, from + 12], [-1, 0], { ...clamp, easing: Easing.out(Easing.cubic) }) + interpolate(fr, [until, until + 14], [0, -1], { ...clamp, easing: Easing.in(Easing.cubic) });
+  const slide = interpolate(fr, [arrive, arrive + 12], [-1, 0], { ...clamp, easing: Easing.out(Easing.cubic) }) + interpolate(fr, [until, until + 14], [0, -1], { ...clamp, easing: Easing.in(Easing.cubic) });
   const asked = say("e4", 4) - from;
   const no = say("e4", 5, "A single no") - from;
   const beam = interpolate(k, [asked, asked + 18], [0, 1], clamp);
@@ -749,7 +784,8 @@ const FamilyKey = ({ from, until }: { from: number; until: number }) => {
       <Paper>
         <div style={{ position: "absolute", left: 190, top: 34, fontFamily: HEADING, fontWeight: 700, fontSize: 70, color: "#2A1A5E" }}>The family key</div>
         <div style={{ position: "absolute", left: 194, top: 124, width: 470, fontFamily: BODY, fontWeight: 700, fontSize: 29, lineHeight: 1.25, color: "#3F3566" }}>Two-step verification, where the second key is the family.</div>
-        <PeriMoods scene="e4" parts={[{ from, pose: "peri_thinking" }, { from: say("e4", 4) - 4, pose: "peri_calling" }, { from: say("e4", 5) - 4, pose: "peri_waiting" }, { from: say("e4", 6) - 4, pose: "peri_calm" }]} x={150} y={330} w={500} h={H - 330} />
+        <Drawn keys={DROP} at={arrive + 10} until={from + 2} x={400} y={H} size={500} ground />
+        {fr >= from + 2 && <PeriMoods scene="e4" parts={[{ from: from + 2, pose: "peri_key" }, { from: say("e4", 4) - 4, pose: "peri_calling" }, { from: say("e4", 5) - 4, pose: "peri_waiting" }, { from: say("e4", 6) - 4, pose: "peri_calm" }]} x={150} y={330} w={500} h={H - 330} enter={-30} ground />}
         <svg style={{ position: "absolute", left: 0, top: 0 }} width={1240} height={H}>
           {[740, 1080].map((x2) => (
             <line key={x2} x1={910} y1={250} x2={910 + (x2 - 910) * beam} y2={250 + (330 - 250) * beam} stroke="#A98BFF" strokeWidth={8} strokeDasharray="18 14" strokeDashoffset={-k * 3} strokeLinecap="round" />
@@ -757,7 +793,7 @@ const FamilyKey = ({ from, until }: { from: number; until: number }) => {
         </svg>
         {card("pear_rosa", "Rosa", 910, 40, 200, 6)}
         {card("pear_ana", "Ana", 740, 330, 170, asked + 10, <>{lock(say("e4", 5, "each confirmed") - from)}{nope}</>)}
-        {card("pear_pablo", "Pablo", 1080, 330, 170, asked + 16, lock(say("e4", 5, "each confirmed") - from + 8))}
+        {card("pear_pablo", "Leo", 1080, 330, 170, asked + 16, lock(say("e4", 5, "each confirmed") - from + 8))}
         {STEPS.map((s, i) => {
           const at = say("e4", s.line, s.word) - from;
           if (k < at) return null;
@@ -782,29 +818,30 @@ const E4 = () => {
   const result = say("e4", 8) - 6;
   return (
     <>
-      <Camera shots={[{ at: 0, zoom: 1 }, { at: say("e4", 1) - 10, zoom: 1.04, x: 500, y: 500, ease: 30 }, { at: say("e4", 2) - 6, zoom: 1.07, x: 900, y: 380, ease: 10 }, { at: keyFrom - 4, zoom: 1, ease: 14 }, { at: anaFrom - 4, zoom: 1.05, x: 1100, y: 600, ease: 20 }, { at: result - 4, zoom: 1, ease: 16 }]} shakes={[say("e4", 2), result + 10]}>
+      <Camera shots={[{ at: 0, zoom: 1 }, { at: say("e4", 1) - 10, zoom: 1.04, x: 500, y: 500, ease: 30 }, { at: say("e4", 2) - 6, zoom: 1.07, x: 900, y: 380, ease: 10 }, { at: keyFrom - KEY_EARLY - 6, zoom: 1, ease: 14 }, { at: anaFrom - 4, zoom: 1.05, x: 1100, y: 600, ease: 20 }, { at: result - 4, zoom: 1, ease: 16 }]} shakes={[say("e4", 2), result + 10]}>
         <Place src="diary/garden_sunset" focus="50% 50%" name="e4">
           <Motes kind="petals" count={16} />
           <Motes kind="fireflies" count={10} y={420} h={500} />
         </Place>
         <Album
           scene="e4"
+          place="diary/garden_sunset"
           snaps={[
             { at: say("e4", 0) - 8, pose: "crook_phone", who: "crook" },
             { at: say("e4", 1) - 8, pose: "rosa_garden_call", who: "rosa" },
-            { at: say("e4", 2) - 8, pose: "peri_protective", who: "peri" },
+            { at: say("e4", 2) - 8, pose: "peri_wait", who: "peri" },
             { at: anaFrom, pose: "ana_no", who: "ana" },
             { at: result, pose: "crook_quit", who: "crook" },
             { at: ends("e4", 8) + 8, pose: "rosa_garden_smile", who: "rosa" },
           ]}
         />
-        <Slam text="PAUSED." at={say("e4", 2)} until={keyFrom - 2} x={760} y={100} size={120} color="#FFF8EC" shade="#2A1A5E" rotate={-5} />
-        <Note at={say("e4", 2) + 12} until={keyFrom - 2} x={790} y={300} w={420} rotate={2} tape="#E3D3FF">
+        <Slam text="PAUSED." at={say("e4", 2)} until={keyFrom - KEY_EARLY + 4} x={760} y={100} size={120} color="#FFF8EC" shade="#2A1A5E" rotate={-5} />
+        <Note at={say("e4", 2) + 12} until={keyFrom - KEY_EARLY + 4} x={790} y={300} w={420} rotate={2} tape="#E3D3FF">
           <div style={{ fontFamily: HEADING, fontWeight: 700, fontSize: 36, color: "#2A1A5E", lineHeight: 1.12 }}>A code during a stranger's call needs the family's yes.</div>
         </Note>
         <Sequence from={keyFrom} durationInFrames={result - keyFrom} layout="none">
           <Leaving length={result - keyFrom}>
-            <AppPhone take={T} x={PHONE.x} y={PHONE.y} h={PHONE.h} tilt={-3} marks={[{ region: SCAM_BOX, from: say("e4", 4, "Ana and Pablo") - keyFrom, to: say("e4", 5) - keyFrom }, { region: TWO_YES, from: say("e4", 5) - keyFrom, to: anaFrom - keyFrom, color: "#6EC6FF" }, { region: BUTTONS, from: anaFrom - keyFrom, to: result - keyFrom, color: "#A98BFF" }]} />
+            <AppPhone take={T} x={PHONE.x} y={PHONE.y} h={PHONE.h} tilt={-3} marks={[{ region: SCAM_BOX, from: say("e4", 4, "Ana and Leo") - keyFrom, to: say("e4", 5) - keyFrom }, { region: TWO_YES, from: say("e4", 5) - keyFrom, to: anaFrom - keyFrom, color: "#6EC6FF" }, { region: BUTTONS, from: anaFrom - keyFrom, to: result - keyFrom, color: "#A98BFF" }]} />
           </Leaving>
           <Zoom take={T} region={BUTTONS} x={800} y={440} w={560} from={anaFrom - keyFrom} to={result - keyFrom} label="One tap" color="#A98BFF" />
         </Sequence>
@@ -814,15 +851,15 @@ const E4 = () => {
       </Camera>
       <Label from={keyFrom} to={result} text="ANA'S PHONE" />
       {/* The hour stays pinned until the family key's page slides over it. */}
-      <Sequence from={0} durationInFrames={keyFrom + 6} layout="none">
+      <Sequence from={0} durationInFrames={keyFrom - KEY_EARLY + 6} layout="none">
         <TimeCard time="6:15 p.m." title="Keep her talking" ink="#6A4BC4" from={15 * 60 + 30} to={18 * 60 + 15} />
       </Sequence>
-      <Snd src="submission/sfx/alert" at={say("e4", 2)} volume={0.5} />
-      <Snd src="short/sfx/ding" at={keyFrom + 12} volume={0.45} />
-      <Snd src="final/sfx/slam" at={say("e4", 5, "each confirmed")} volume={0.4} />
-      <Snd src="reel/sfx/stamp" at={say("e4", 5, "A single no")} volume={0.5} />
-      <Snd src="reel/sfx/stamp" at={ends("e4", 7)} volume={0.55} />
-      <Snd src="diary/sfx/page" at={keyFrom} volume={0.4} />
+      <Snd src="diary/sfx/alert" at={say("e4", 2)} volume={0.5} />
+      <Snd src="diary/sfx/ding" at={keyFrom + 12} volume={0.45} />
+      <Snd src="diary/sfx/slam" at={say("e4", 5, "each confirmed")} volume={0.4} />
+      <Snd src="diary/sfx/stamp" at={say("e4", 5, "A single no")} volume={0.45} />
+      <Snd src="diary/sfx/stamp" at={ends("e4", 7)} volume={0.45} />
+      <Snd src="diary/sfx/page" at={keyFrom - KEY_EARLY} volume={0.5} />
     </>
   );
 };
@@ -830,12 +867,13 @@ const E4 = () => {
 const GATES = [
   { title: "Rules on the phone", text: "Work offline", color: "#BDE68A", word: "Rules" },
   { title: "Hard rules", text: "No AI can overrule them", color: "#FFB8AA", word: "Hard rules" },
-  { title: "Muse Spark Open", text: "A second opinion, ±2 at most", color: "#B4E2FF", word: "A second" },
+  { title: "Muse Spark Open", text: "A second opinion: a small vote, ±2", color: "#B4E2FF", word: "A second" },
+  { title: "Muse Spark agent", text: "Investigates with its own tools", color: "#FFE3A3", word: "An investigator" },
   { title: "The family", text: "The final yes", color: "#D9CBFF", word: "And the family" },
 ];
 const TEAM = [
   { name: "Muse Spark Open", job: "Second opinion", color: "#FFB27A", robot: 5 },
-  { name: "Muse Spark + SAM 3.1", job: "Investigator, pictures", color: "#FF8A7A", robot: 0 },
+  { name: "Muse Spark + SAM 3.1", job: "Investigator agent, pictures, reports", color: "#FF8A7A", robot: 0 },
   { name: "Muse Voice Transcribe", job: "Peri's ears", color: "#6EC6FF", robot: 1 },
   { name: "Muse Image", job: "Peri's looks", color: "#A98BFF", robot: 2 },
   { name: "Muse Spark contributor", job: "Training data, red team", color: "#7CC242", robot: 4 },
@@ -862,7 +900,9 @@ const MuseWall = ({ at }: { at: number }) => {
   const count = Math.round(interpolate(k, [6, 96], [0, 1000], { ...clamp, easing: Easing.out(Easing.cubic) }));
   return (
     <Paper margin={false}>
-      <div style={{ position: "absolute", left: 0, right: 0, top: 26, textAlign: "center", scale: `${interpolate(head, [0, 1], [1.6, 1])}`, opacity: Math.min(1, head * 2) }}>
+      {/* It only fades in: the line is about 1,720 px wide and the camera pulls back from 1.1x anchored at the top
+          edge, so it fits from its first frame. Growing it as well would spill it off the page. */}
+      <div style={{ position: "absolute", left: 0, right: 0, top: 26, textAlign: "center", opacity: Math.min(1, head * 2) }}>
         <span style={{ fontFamily: HEADING, fontWeight: 700, fontSize: 70, color: INK }}>Every picture: Muse Image </span>
         <span style={{ fontFamily: HEADING, fontWeight: 700, fontSize: 70, color: "#7B5CD6" }}>· {count >= 1000 ? "1,000+" : count} made for FriendlyPear</span>
       </div>
@@ -880,7 +920,7 @@ const MuseWall = ({ at }: { at: number }) => {
         );
       })}
       {[0, 8, 16, 24, 32, 40, 48, 56, 64].map((d) => (
-        <Snd key={d} src="diary/sfx/flick" at={at + 6 + d} volume={0.3} />
+        <Snd key={d} src="diary/sfx/flick" at={at + 6 + d} volume={0.45} />
       ))}
     </Paper>
   );
@@ -895,10 +935,12 @@ const How = () => {
   const wallAt = say("how", 4) - 6;
   const gates = GATES.map((g) => say("how", 1, g.word));
   const reached = gates.filter((t) => fr >= t).length;
+  const done = reached === GATES.length && fr > gates[GATES.length - 1] + 20;
   const cards = TEAM.map((_, i) => teamAt + 8 + i * 10);
   const writing = interpolate(fr, [2, 20], [0, 1], clamp);
+  const landed = 6 + 34;
   return (
-    <Camera shots={[{ at: 0, zoom: 1 }, { at: say("how", 1) - 6, zoom: 1.04, x: 900, y: 400, ease: 60 }, { at: teamAt - 6, zoom: 1, ease: 12 }, { at: wallAt, zoom: 1.15, x: 960, y: 520, ease: 1 }, { at: wallAt + 2, zoom: 1, ease: 110 }]}>
+    <Camera shots={[{ at: 0, zoom: 1 }, { at: say("how", 1) - 6, zoom: 1.04, x: 900, y: 400, ease: 60 }, { at: teamAt - 6, zoom: 1, ease: 12 }, { at: wallAt, zoom: 1.1, x: 960, y: 0, ease: 1 }, { at: wallAt + 2, zoom: 1, x: 960, y: 0, ease: 110 }]}>
       {fr >= wallAt ? (
         <MuseWall at={wallAt} />
       ) : (
@@ -908,16 +950,17 @@ const How = () => {
               <div style={{ position: "absolute", left: 190, top: 40, fontFamily: HEADING, fontWeight: 700, fontSize: 76, color: INK, clipPath: `inset(0 ${(1 - writing) * 100}% 0 0)` }}>How Peri decides</div>
               <svg style={{ position: "absolute", left: 0, top: 0 }} width={1920} height={H}>
                 <path d="M 196 138 C 420 152, 600 128, 830 142" stroke="#E5533D" strokeWidth={6} fill="none" strokeLinecap="round" strokeDasharray={700} strokeDashoffset={interpolate(fr, [18, 34], [700, 0], clamp)} />
-                {[0, 1, 2].map((i) => {
+                {[0, 1, 2, 3].map((i) => {
                   const t = gates[i + 1];
                   const k = interpolate(fr, [t - 4, t + 8], [0, 1], clamp);
-                  const x0 = 520 + i * 370;
+                  const x0 = 466 + i * 330;
                   if (k <= 0) return null;
-                  return <path key={i} d={`M ${x0} 400 q 30 -40 64 0`} stroke={INK} strokeWidth={5} fill="none" strokeLinecap="round" strokeDasharray={120} strokeDashoffset={(1 - k) * 120} markerEnd={k >= 1 ? "url(#tip)" : undefined} />;
+                  return <path key={i} d={`M ${x0} 370 L ${x0 + 40} 370`} stroke={INK} strokeWidth={5} fill="none" strokeLinecap="round" strokeDasharray={60} strokeDashoffset={(1 - k) * 60} markerEnd={k >= 1 ? "url(#tip)" : undefined} />;
                 })}
                 <defs>
-                  <marker id="tip" markerWidth="10" markerHeight="10" refX="6" refY="5" orient="auto">
-                    <path d="M0,0 L10,5 L0,10 z" fill={INK} />
+                  {/* A head of fixed size: by default a marker grows with the line's width. */}
+                  <marker id="tip" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" refX="6" refY="9" orient="auto">
+                    <path d="M0,2 L15,9 L0,16 z" fill={INK} />
                   </marker>
                 </defs>
               </svg>
@@ -926,20 +969,21 @@ const How = () => {
                 const p = spring({ frame: fr - gates[i], fps, config: { damping: 11, stiffness: 170 } });
                 const lit = reached - 1 === i;
                 return (
-                  <div key={g.title} style={{ position: "absolute", left: 230 + i * 370, top: 210, width: 310, height: 330, background: g.color, boxShadow: lit ? "0 18px 30px rgba(40,20,0,0.35)" : "0 8px 16px rgba(40,20,0,0.22)", rotate: `${[-3, 2, -2, 3][i]}deg`, scale: `${interpolate(p, [0, 1], [1.5, lit ? 1.04 : 1])}`, opacity: Math.min(1, p * 2.5), padding: 22, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+                  <div key={g.title} style={{ position: "absolute", left: 190 + i * 330, top: 200, width: 270, height: 340, background: g.color, boxShadow: lit ? "0 18px 30px rgba(40,20,0,0.35)" : "0 8px 16px rgba(40,20,0,0.22)", rotate: `${[-3, 2, -2, 3, -2][i]}deg`, scale: `${interpolate(p, [0, 1], [1.5, lit ? 1.04 : 1])}`, opacity: Math.min(1, p * 2.5), padding: 22, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
                     <Tape color="rgba(255,255,255,0.7)" w={110} />
                     <div style={{ width: 70, height: 70, borderRadius: 35, background: "rgba(255,255,255,0.85)", display: "grid", placeItems: "center", fontFamily: HEADING, fontWeight: 700, fontSize: 42, color: INK }}>{i + 1}</div>
-                    <div style={{ fontFamily: HEADING, fontWeight: 700, fontSize: 42, lineHeight: 1.05, color: INK, marginTop: 16 }}>{g.title}</div>
-                    <div style={{ fontFamily: BODY, fontWeight: 700, fontSize: 26, color: "#3F4D39", marginTop: 10 }}>{g.text}</div>
+                    <div style={{ fontFamily: HEADING, fontWeight: 700, fontSize: 36, lineHeight: 1.05, color: INK, marginTop: 14 }}>{g.title}</div>
+                    <div style={{ fontFamily: BODY, fontWeight: 700, fontSize: 24, color: "#3F4D39", marginTop: 10 }}>{g.text}</div>
                   </div>
                 );
               })}
               {reached > 0 && (
-                <div style={{ position: "absolute", top: 600, left: interpolate(spring({ frame: fr - gates[reached - 1], fps, config: { damping: 14 } }), [0, 1], [230 + Math.max(0, reached - 2) * 370, 230 + (reached - 1) * 370]) + 155, translate: "-50% 0", padding: "14px 26px", borderRadius: "28px 28px 28px 6px", background: reached === 4 && fr > gates[3] + 20 ? "#C0392B" : "#FFFDF7", color: reached === 4 && fr > gates[3] + 20 ? "#FFF8EC" : INK, fontFamily: BODY, fontWeight: 700, fontSize: 28, whiteSpace: "nowrap", boxShadow: "0 10px 22px rgba(40,20,0,0.3)" }}>
-                  {reached === 4 && fr > gates[3] + 20 ? "TRAP. Stopped." : "“Hi Mum, new number...”"}
+                <div style={{ position: "absolute", top: 572, left: interpolate(spring({ frame: fr - gates[reached - 1], fps, config: { damping: 14 } }), [0, 1], [190 + Math.max(0, reached - 2) * 330, 190 + (reached - 1) * 330]) + 135, translate: "-50% 0", padding: "14px 26px", borderRadius: "28px 28px 28px 6px", background: done ? "#C0392B" : "#FFFDF7", color: done ? "#FFF8EC" : INK, fontFamily: BODY, fontWeight: 700, fontSize: 28, whiteSpace: "nowrap", boxShadow: "0 10px 22px rgba(40,20,0,0.3)" }}>
+                  {done ? "TRAP. Stopped." : "“Hi Mum, new number...”"}
                 </div>
               )}
-              <PeriMoods scene="how" parts={[{ from: 0, pose: "peri_happy" }, { from: say("how", 1) - 4, pose: "peri_thinking" }]} x={1450} y={560} w={420} h={424} enter={4} />
+              <Drawn keys={DROP} at={6} until={landed} x={1725} y={H} size={330} ground />
+              {fr >= landed && <PeriMoods scene="how" parts={[{ from: landed, pose: "peri_happy" }, { from: say("how", 1) - 4, pose: "peri_thinking" }, { from: say("how", 1, "An investigator") - 4, pose: "peri_detective" }, { from: say("how", 1, "And the family") - 4, pose: "peri_key" }]} x={1560} y={640} w={330} h={344} enter={-30} ground />}
               {gates.map((t, i) => (
                 <Snd key={i} src="diary/sfx/flick" at={t} volume={0.45} />
               ))}
@@ -983,9 +1027,9 @@ const How = () => {
                 </div>
               )}
               {cards.map((t, i) => (
-                <Snd key={i} src="diary/sfx/flick" at={t} volume={0.35} />
+                <Snd key={i} src="diary/sfx/flick" at={t} volume={0.45} />
               ))}
-              <Snd src="final/sfx/impact" at={resultsAt} volume={0.45} />
+              <Snd src="diary/sfx/impact" at={resultsAt} volume={0.45} />
             </>
           )}
         </Paper>
@@ -1021,9 +1065,10 @@ const Night = () => {
         </Place>
         <Album
           scene="night"
+          place="diary/cottage_night"
           until={hugAt + 6}
           snaps={[
-            { at: say("night", 0) - 8, pose: "peri_calm", who: "peri" },
+            { at: say("night", 0) - 8, pose: "peri_lantern", who: "peri" },
             { at: say("night", 1) - 8, pose: "rosa_fallen_night", who: "rosa" },
             { at: say("night", 2) - 8, pose: "peri_calling", who: "peri" },
             { at: anaAt, pose: "ana_go_rest", who: "ana" },
@@ -1040,7 +1085,13 @@ const Night = () => {
           <AbsoluteFill style={{ height: H, opacity: Math.min(1, hug * 1.6), zIndex: 70 }}>
             <Img src={pic("diary/ana_hug")} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "47% 44%", scale: `${interpolate(fr, [hugAt, hugAt + 150], [1.04, 1.12])}` }} />
             <Floaties x={60} w={1800} kinds={["fx_heart_pink", "fx_heart_coral", "fx_star"]} count={10} />
-            <Img src={pic("peri7/calm_love.webp")} style={{ position: "absolute", left: 1500, top: 560, width: 400, height: 400, translate: `0 ${(1 - hug) * 200}px` }} />
+            <Drawn keys={DROP} at={hugAt + 12} until={hugAt + 46} x={1700} y={960} size={400} ground />
+            {fr >= hugAt + 46 && (
+              <>
+                <Ground x={1700} y={960 - (1 - SOLES) * 400} w={400 * 0.55} />
+                <Img src={pic("peri7/calm_love.webp")} style={{ position: "absolute", left: 1500, top: 560, width: 400, height: 400 }} />
+              </>
+            )}
           </AbsoluteFill>
         )}
       </Camera>
@@ -1048,8 +1099,8 @@ const Night = () => {
       <Sequence from={0} durationInFrames={hugAt} layout="none">
         <TimeCard time="9:40 p.m." title="A quiet evening" ink="#2A4B8C" from={18 * 60 + 15} to={21 * 60 + 40} />
       </Sequence>
-      <Snd src="submission/sfx/listen" at={phoneFrom + shown(T, 13.0)} volume={0.4} />
-      <Snd src="submission/sfx/ringback" at={phoneFrom + shown(T, 16.8)} volume={0.28} length={Math.max(1, hugAt - phoneFrom - shown(T, 16.8))} />
+      <Snd src="diary/sfx/listen" at={phoneFrom + shown(T, 13.0)} volume={0.4} />
+      <Snd src="diary/sfx/ringback" at={phoneFrom + shown(T, 16.8)} volume={0.3} length={Math.max(1, hugAt - phoneFrom - shown(T, 16.8))} />
     </>
   );
 };
@@ -1060,11 +1111,10 @@ const Close = () => {
   const { fps } = useVideoConfig();
   const yawnAt = ends("close", 2) + 2;
   const sleepAt = yawnAt + 22;
-  const closeAt = sleepAt + 40;
+  const closeAt = sleepAt + 22;
   const credits = say("close", 1);
   const logo = spring({ frame: fr - credits, fps, config: { damping: 11, stiffness: 140 } });
-  const swing = interpolate(fr, [closeAt, closeAt + 12], [1, 0], { ...clamp, easing: Easing.out(Easing.cubic) });
-  const back = interpolate(fr, [closeAt + 12, closeAt + 30], [2.25, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  const back = interpolate(fr, [closeAt + TURN, closeAt + TURN + 16], [2.25, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
   return (
     <>
       <Camera shots={[{ at: 0, zoom: 1 }, { at: say("close", 2) - 10, zoom: 1.05, x: 640, y: 560, ease: 90 }]}>
@@ -1087,14 +1137,20 @@ const Close = () => {
             <div style={{ fontFamily: HEADING, fontWeight: 600, fontSize: 36, color: "#25541A", textAlign: "center", marginTop: 14 }}>Built by Rafa in 9 days</div>
             <div style={{ fontFamily: BODY, fontWeight: 700, fontSize: 26, color: BROWN, textAlign: "center", marginTop: 10 }}>Meta Global AI Developer Hackathon · Indie track</div>
             <div style={{ fontFamily: BODY, fontWeight: 700, fontSize: 26, color: BROWN, textAlign: "center", marginTop: 6 }}>Real app · Android · English & Spanish</div>
+            <div style={{ fontFamily: BODY, fontWeight: 700, fontSize: 21, color: "#6B5A50", textAlign: "center", marginTop: 8, lineHeight: 1.3 }}>Also: Mini Peri over any app · a pause on bank apps during a stranger's call · the trap game · a police report in one tap</div>
             <div style={{ margin: "16px auto 0", width: "fit-content", padding: "8px 20px", borderRadius: 999, background: "#25541A", color: "#FFF8EC", fontFamily: BODY, fontWeight: 700, fontSize: 26 }}>github.com/Ruby570bocadito/FriendlyPear</div>
           </div>
         )}
         {fr >= sleepAt && <Floaties x={560} w={260} kinds={["fx_music_note", "fx_star"]} count={4} />}
       </Camera>
-      {fr >= closeAt && <CoverFace zoom={back} turn={swing} credits={interpolate(fr, [closeAt + 24, closeAt + 34], [0, 1], clamp)} />}
-      <Snd src="diary/sfx/pencil" at={say("close", 0) - 10} volume={0.3} />
-      <Snd src="diary/sfx/close" at={closeAt + 11} volume={0.7} />
+      {/* The cover comes back over the page, the way the pages turn but backwards, and the diary is shut. */}
+      {fr >= closeAt && (
+        <Page turnAt={closeAt} reverse name="close">
+          <CoverFace zoom={back} credits={interpolate(fr, [closeAt + TURN + 6, closeAt + TURN + 14], [0, 1], clamp)} />
+        </Page>
+      )}
+      <Snd src="diary/sfx/pencil" at={say("close", 0) - 10} volume={0.35} />
+      <Snd src="diary/sfx/close" at={closeAt + TURN - 2} volume={0.6} />
     </>
   );
 };
@@ -1112,27 +1168,73 @@ const BODIES: Record<Name, ReactNode> = {
   close: <Close />,
 };
 
+/** The part of a polygon where side(point) <= 0 (one plane of Sutherland-Hodgman). */
+const clipSide = (pts: [number, number][], side: (p: [number, number]) => number): [number, number][] => {
+  const out: [number, number][] = [];
+  pts.forEach((a, i) => {
+    const b = pts[(i + 1) % pts.length];
+    const sa = side(a);
+    const sb = side(b);
+    if (sa <= 0) out.push(a);
+    if (sa <= 0 !== sb <= 0) {
+      const k = sa / (sa - sb);
+      out.push([a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]);
+    }
+  });
+  return out;
+};
+const svgPoints = (pts: [number, number][]) => pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+
 /**
- * A page of the diary; at [turnAt] it turns away to the left around its spine, showing the next one underneath, with
- * the shadow it casts sweeping across the new page.
+ * A page of the diary. At [turnAt] it turns over like paper: its bottom-right corner lifts and travels up and over
+ * to the left, folding the page back along a moving line. The folded part shows the page's plain back and casts a
+ * soft shadow; where the page has lifted away, the next one shows, shaded near the fold. [reverse] plays it
+ * backwards: the page comes back over and lies flat.
  */
-const Page = ({ turnAt, children }: { turnAt?: number; children: ReactNode }) => {
+const Page = ({ turnAt, reverse = false, name = "", children }: { turnAt?: number; reverse?: boolean; name?: string; children: ReactNode }) => {
   const fr = useCurrentFrame();
-  const t = turnAt === undefined ? 0 : interpolate(fr, [turnAt, turnAt + TURN], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  const k = turnAt === undefined ? 0 : interpolate(fr, [turnAt, turnAt + TURN], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  const t = reverse ? 1 - k : k;
+  const box = { position: "absolute", left: 0, top: 0, width: 1920, height: H } as const;
   if (t >= 1) return null;
-  const angle = t * 90;
-  const r = (angle * Math.PI) / 180;
-  // Where the page's free edge appears as it swings away (perspective 2600 px, spine at the left).
-  const edge = (1920 * Math.cos(r)) / (1 + (1920 * Math.sin(r)) / 2600);
+  if (t <= 0) return <div style={box}>{children}</div>;
+  const W = 1920;
+  // The corner: from the bottom right, arching up over the page, down to where the page lies turned on the left.
+  const cx = W - t * 2 * W;
+  const cy = H - Math.sin(t * Math.PI) * H * 0.6;
+  // The fold is the line halfway between where the corner was and where it is now.
+  const mx = (W + cx) / 2;
+  const my = (H + cy) / 2;
+  const len = Math.hypot(W - cx, H - cy);
+  const nx = (W - cx) / len;
+  const ny = (H - cy) / len;
+  const side = ([x, y]: [number, number]) => (x - mx) * nx + (y - my) * ny;
+  const page: [number, number][] = [[0, 0], [W, 0], [W, H], [0, H]];
+  const flat = clipSide(page, side);
+  const lifted = clipSide(page, (q) => -side(q));
+  const back = lifted.map(([x, y]): [number, number] => [x - 2 * side([x, y]) * nx, y - 2 * side([x, y]) * ny]);
+  const id = `turn${name}${turnAt}`;
   return (
-    <div style={{ position: "absolute", left: 0, top: 0, width: 1920, height: H }}>
-      <div style={{ position: "absolute", inset: 0, perspective: 2600 }}>
-        <div style={{ position: "absolute", inset: 0, overflow: "hidden", transformOrigin: "0% 50%", transform: t > 0 ? `rotateY(${angle}deg)` : undefined }}>
-          {children}
-          {t > 0 && <AbsoluteFill style={{ background: `linear-gradient(90deg, rgba(255,250,235,${0.2 * Math.sin(t * Math.PI)}) 0%, rgba(0,0,0,0) 35%, rgba(50,25,0,${0.55 * t}) 100%)` }} />}
-        </div>
-      </div>
-      {t > 0 && <div style={{ position: "absolute", top: 0, height: H, left: edge, width: 460, background: `linear-gradient(90deg, rgba(40,20,0,${0.45 * Math.sin(t * Math.PI)}), rgba(40,20,0,0))` }} />}
+    <div style={box}>
+      <div style={{ ...box, clipPath: `polygon(${flat.map(([x, y]) => `${x.toFixed(1)}px ${y.toFixed(1)}px`).join(", ")})` }}>{children}</div>
+      <svg style={{ position: "absolute", left: 0, top: 0, overflow: "visible" }} width={W} height={H}>
+        <defs>
+          <linearGradient id={`${id}s`} gradientUnits="userSpaceOnUse" x1={mx} y1={my} x2={mx + nx * 240} y2={my + ny * 240}>
+            <stop offset="0" stopColor="#2A1600" stopOpacity={0.42} />
+            <stop offset="1" stopColor="#2A1600" stopOpacity={0} />
+          </linearGradient>
+          <linearGradient id={`${id}b`} gradientUnits="userSpaceOnUse" x1={mx} y1={my} x2={mx - nx * 900} y2={my - ny * 900}>
+            <stop offset="0" stopColor="#D8CAB0" />
+            <stop offset="0.1" stopColor="#FFFCF3" />
+            <stop offset="1" stopColor="#EFE5D2" />
+          </linearGradient>
+          <filter id={`${id}f`} x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="-12" dy="12" stdDeviation="18" floodColor="#2A1600" floodOpacity="0.35" />
+          </filter>
+        </defs>
+        {lifted.length > 2 && <polygon points={svgPoints(lifted)} fill={`url(#${id}s)`} />}
+        {back.length > 2 && <polygon points={svgPoints(back)} fill={`url(#${id}b)`} filter={`url(#${id}f)`} />}
+      </svg>
     </div>
   );
 };
@@ -1159,7 +1261,7 @@ export const Diary = () => (
         return (
           <Sequence key={name} from={f(AT[name][0])} durationInFrames={length(name) + (last ? 0 : TURN)} style={{ zIndex: NAMES.length - i }}>
             <Page turnAt={last ? undefined : length(name)}>{BODIES[name]}</Page>
-            {!last && <Snd src="diary/sfx/page" at={length(name) - 2} volume={0.55} />}
+            {!last && <Snd src="diary/sfx/page" at={length(name) - 2} volume={0.5} />}
           </Sequence>
         );
       })}

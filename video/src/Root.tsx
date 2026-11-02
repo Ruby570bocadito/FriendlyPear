@@ -11,6 +11,7 @@ import { Short, SHORT_FRAMES } from "./Short";
 import { StoryTeaser } from "./Story";
 import { Submission, SUBMISSION_FRAMES } from "./Submission";
 import { Thirty, THIRTY_FRAMES } from "./Thirty";
+import { Thumb } from "./Thumb";
 
 /** The ad (20 s, for X and the gallery) and the first minute of Peri's story, both vertical; the 3-minute demo, 16:9. */
 export const Root = () => (
@@ -22,6 +23,7 @@ export const Root = () => (
     <Composition id="Thirty" component={Thirty} durationInFrames={THIRTY_FRAMES} fps={30} width={1920} height={1080} />
     <Composition id="Final" component={Final} durationInFrames={FINAL_FRAMES} fps={30} width={1920} height={1080} />
     <Composition id="Diary" component={Diary} durationInFrames={DIARY_FRAMES} fps={30} width={1920} height={1080} />
+    <Composition id="Thumb" component={Thumb} durationInFrames={1} fps={30} width={1280} height={720} />
     <Composition id="Submission" component={Submission} durationInFrames={SUBMISSION_FRAMES} fps={30} width={1920} height={1080} />
     <Composition id="Interview" component={Interview} durationInFrames={INTERVIEW_FRAMES} fps={30} width={1080} height={1920} />
     <Composition id="Short" component={Short} durationInFrames={SHORT_FRAMES} fps={30} width={1080} height={1920} />

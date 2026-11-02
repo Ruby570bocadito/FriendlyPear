@@ -73,5 +73,45 @@
     "from": "diary/peri_desk.png",
     "prompt": "A closed cosy notebook lying flat on the same wooden desk, seen from straight above and filling most of the picture: a soft green fabric cover with rounded corners and stitched edges, a cute clay pear sticker with a little leaf in the middle, a red ribbon bookmark hanging out at the bottom, a pencil beside it, warm lamp light. No text, no letters. the same soft 3D clay style, warm and cosy.",
     "size": "1792x1024"
+  },
+  "ana_morning": {
+    "from": "heist/ana_call_rest.png",
+    "prompt": "Exactly the same young woman, same pose holding her phone to her ear, same flat, same framing and the same soft 3D clay style. Only change: it is now early morning: soft bright daylight comes through the window and the city outside is pale in the morning light, with no lights on in the buildings. Her mouth stays closed, with the same surprised, concerned look.",
+    "size": "1024x1024"
+  },
+  "peri_phone_check": {
+    "from": "../../assets/peri/peri_calm.webp",
+    "prompt": "Only change: Peri holds up a smartphone in one hand, its screen showing an unknown phone number and a big question mark, and looks at it with a concerned, careful face, her mouth closed. Same Peri: same face, big round dark eyes, rosy cheeks, leaf, colours and soft clay style, standing in the same place at the same size and framing. Plain cream background.",
+    "size": "1024x1024"
+  },
+  "peri_hangup": {
+    "from": "../../assets/peri/peri_calm.webp",
+    "prompt": "Only change: Peri holds a smartphone out in front of her in one hand, its screen showing a big round red hang-up button, and raises her other hand firmly, with a serious, caring face, her mouth closed. Same Peri: same face, big round dark eyes, rosy cheeks, leaf, colours and soft clay style, standing in the same place at the same size and framing. Plain cream background.",
+    "size": "1024x1024"
+  },
+  "peri_stop": {
+    "from": "../../assets/peri/peri_calm.webp",
+    "prompt": "Only change: Peri holds up a small round red stop sign on a stick with a white hand drawn on it (no letters), and with her other hand holds a little square card printed with a QR code, a firm, caring face, her mouth closed. Same Peri: same face, big round dark eyes, rosy cheeks, leaf, colours and soft clay style, standing in the same place at the same size and framing. Plain cream background.",
+    "size": "1024x1024"
+  },
+  "peri_wait": {
+    "from": "../../assets/peri/peri_calm.webp",
+    "prompt": "Only change: Peri raises one hand with her palm out, like a crossing guard saying wait, and holds a round badge with a big pause symbol in her other hand, a calm but firm face, her mouth closed. Same Peri: same face, big round dark eyes, rosy cheeks, leaf, colours and soft clay style, standing in the same place at the same size and framing. Plain cream background.",
+    "size": "1024x1024"
+  },
+  "peri_key": {
+    "from": "../../assets/peri/peri_calm.webp",
+    "prompt": "Only change: Peri hugs a big golden clay key whose handle is shaped like a heart, smiling proudly, her mouth closed. Same Peri: same face, big round dark eyes, rosy cheeks, leaf, colours and soft clay style, standing in the same place at the same size and framing. Plain cream background.",
+    "size": "1024x1024"
+  },
+  "peri_lantern": {
+    "from": "../../assets/peri/peri_calm.webp",
+    "prompt": "Only change: Peri holds up a small glowing clay lantern in one hand, keeping watch with a gentle, caring smile, her mouth closed. Same Peri: same face, big round dark eyes, rosy cheeks, leaf, colours and soft clay style, standing in the same place at the same size and framing. Plain cream background.",
+    "size": "1024x1024"
+  },
+  "meadow_ground": {
+    "from": "diary/hill_morning.png",
+    "prompt": "The same soft 3D clay world and the same pastel morning sky with puffy clay clouds, but seen from ground level with the camera low and level: a flat meadow of short green grass with tiny flowers fills the whole bottom third of the picture, the nearest grass soft and slightly blurred, gentle rolling green hills further back. The middle of the foreground is an open patch of short grass, empty, where a small character could stand. No characters, no buildings, nothing on the grass. Simple, calm and bright. the same soft 3D clay style, warm and cosy.",
+    "size": "1792x1024"
   }
 }

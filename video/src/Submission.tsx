@@ -153,7 +153,9 @@ export const AppPhone = ({ take, x, y, h, tilt = -4, marks = [], shake = 0 }: { 
       <div style={{ position: "relative", width: "100%", height: "100%", borderRadius: 50, overflow: "hidden", background: "#000" }}>
         <ClipPlayer take={take} />
         {marks.map((m, i) => {
-          const on = interpolate(f, [m.from, m.from + 8, m.to - 6, m.to], [0, 1, 1, 0], clamp);
+          // A short mark fades in and out faster, so its keyframes never meet.
+          const fade = Math.min(8, (m.to - m.from) / 3);
+          const on = m.to - m.from < 3 ? 0 : interpolate(f, [m.from, m.from + fade, m.to - Math.min(6, fade), m.to], [0, 1, 1, 0], clamp);
           if (on <= 0) return null;
           const [x0, y0, x1, y1] = m.region;
           return (

@@ -1,0 +1,8 @@
+{
+  "polish": true,
+  "sentences": true,
+  "crook": ["en-AU-WilliamMultilingualNeural", "+6%", "+0Hz"],
+  "peri": ["en-US-AvaMultilingualNeural", "+11%", "+6Hz"],
+  "rosa": ["en-GB-SoniaNeural", "+3%", "-4Hz"],
+  "ana": ["en-US-EmmaMultilingualNeural", "+8%", "+0Hz"]
+}

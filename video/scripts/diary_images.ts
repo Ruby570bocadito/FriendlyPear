@@ -25,6 +25,7 @@ if (!key) throw new Error("META_API_KEY is missing (run from backend/, whose .en
 const CLAY = "the same soft 3D clay style, warm and cosy";
 const WIDE = "1792x1024";
 const PERI = "Peri, the same small green clay pear with the same face, big round dark eyes, rosy cheeks and leaf";
+const PERI_SAME = "Same Peri: same face, big round dark eyes, rosy cheeks, leaf, colours and soft clay style, standing in the same place at the same size and framing. Plain cream background.";
 
 /** Each picture: what it's an edit of (a path under video/public), its prompt and its size. Order matters: some build on others. */
 const PICTURES: Record<string, { from: string; prompt: string; size: string }> = {
@@ -58,6 +59,12 @@ const PICTURES: Record<string, { from: string; prompt: string; size: string }> =
     prompt: `A small round clay hill covered in soft grass and tiny flowers, in the middle of a cosy little world, under a sunrise sky in pastel yellow, peach and pink with a few puffy clay clouds; the top of the hill is empty and flat, ready for someone to stand on it. No buildings, no people. Wide view, ${CLAY}.`,
     size: WIDE,
   },
+  // Where Peri first appears: a meadow seen from her height, so she lands on grass that is really under her feet.
+  meadow_ground: {
+    from: "diary/hill_morning.png",
+    prompt: `The same soft 3D clay world and the same pastel morning sky with puffy clay clouds, but seen from ground level with the camera low and level: a flat meadow of short green grass with tiny flowers fills the whole bottom third of the picture, the nearest grass soft and slightly blurred, gentle rolling green hills further back. The middle of the foreground is an open patch of short grass, empty, where a small character could stand. No characters, no buildings, nothing on the grass. Simple, calm and bright. ${CLAY}.`,
+    size: WIDE,
+  },
   peri_desk: {
     from: "../../assets/peri/sprites/scene_night.webp",
     prompt: `${PERI}, sits at a small wooden desk in her cosy little room at night, writing in an open diary with a pencil and looking up with a gentle smile; a warm desk lamp lights the room, a round window shows stars and a crescent moon, a mug and a little plant on the desk. Wide view with Peri in the middle, ${CLAY}, warm light, not dark.`,
@@ -77,6 +84,42 @@ const PICTURES: Record<string, { from: string; prompt: string; size: string }> =
     from: "diary/peri_desk.png",
     prompt: `A closed cosy notebook lying flat on the same wooden desk, seen from straight above and filling most of the picture: a soft green fabric cover with rounded corners and stitched edges, a cute clay pear sticker with a little leaf in the middle, a red ribbon bookmark hanging out at the bottom, a pencil beside it, warm lamp light. No text, no letters. ${CLAY}.`,
     size: WIDE,
+  },
+  // New poses for Peri, each an edit of her calm pose (as the app makes hers), for the moments she says them.
+  peri_phone_check: {
+    from: "../../assets/peri/peri_calm.webp",
+    prompt: `Only change: Peri holds up a smartphone in one hand, its screen showing an unknown phone number and a big question mark, and looks at it with a concerned, careful face, her mouth closed. ${PERI_SAME}`,
+    size: "1024x1024",
+  },
+  peri_hangup: {
+    from: "../../assets/peri/peri_calm.webp",
+    prompt: `Only change: Peri holds a smartphone out in front of her in one hand, its screen showing a big round red hang-up button, and raises her other hand firmly, with a serious, caring face, her mouth closed. ${PERI_SAME}`,
+    size: "1024x1024",
+  },
+  peri_stop: {
+    from: "../../assets/peri/peri_calm.webp",
+    prompt: `Only change: Peri holds up a small round red stop sign on a stick with a white hand drawn on it (no letters), and with her other hand holds a little square card printed with a QR code, a firm, caring face, her mouth closed. ${PERI_SAME}`,
+    size: "1024x1024",
+  },
+  peri_wait: {
+    from: "../../assets/peri/peri_calm.webp",
+    prompt: `Only change: Peri raises one hand with her palm out, like a crossing guard saying wait, and holds a round badge with a big pause symbol in her other hand, a calm but firm face, her mouth closed. ${PERI_SAME}`,
+    size: "1024x1024",
+  },
+  peri_key: {
+    from: "../../assets/peri/peri_calm.webp",
+    prompt: `Only change: Peri hugs a big golden clay key whose handle is shaped like a heart, smiling proudly, her mouth closed. ${PERI_SAME}`,
+    size: "1024x1024",
+  },
+  peri_lantern: {
+    from: "../../assets/peri/peri_calm.webp",
+    prompt: `Only change: Peri holds up a small glowing clay lantern in one hand, keeping watch with a gentle, caring smile, her mouth closed. ${PERI_SAME}`,
+    size: "1024x1024",
+  },
+  ana_morning: {
+    from: "heist/ana_call_rest.png",
+    prompt: `Exactly the same young woman, same pose holding her phone to her ear, same flat, same framing and the same soft 3D clay style. Only change: it is now early morning: soft bright daylight comes through the window and the city outside is pale in the morning light, with no lights on in the buildings. Her mouth stays closed, with the same surprised, concerned look.`,
+    size: "1024x1024",
   },
   rosa_fallen_night: {
     from: "heist/rosa_fallen.png",

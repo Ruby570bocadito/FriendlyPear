@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <!-- Once the demo video is online, put it first: <a href="VIDEO_URL"><b>▶ Watch the 3-minute demo</b></a> &nbsp;·&nbsp; -->
+  <a href="https://youtu.be/RylxfEh_EoI"><b>▶ Watch the 3-minute demo</b></a> &nbsp;·&nbsp;
   <a href="https://ruby570bocadito.github.io/FriendlyPear/"><b>Website</b></a> &nbsp;·&nbsp;
   <a href="https://github.com/Ruby570bocadito/FriendlyPear/releases/latest"><b>Download the app</b></a> &nbsp;·&nbsp;
   <a href="docs/INSTALL.md"><b>Install in 5 minutes</b></a> &nbsp;·&nbsp;
@@ -76,6 +76,8 @@ In 2025, Americans aged 60 and over reported losing **$7.7 billion** to online c
 | **Demo** | Every clip below is the real app recorded on the Android emulator with Peri's server, two phones side by side for the family, and the same 40 features are checked end to end by a script. |
 
 ## See it work
+
+<p align="center"><a href="https://youtu.be/RylxfEh_EoI"><img src="docs/media/video-thumbnail.jpg" width="640" alt="Watch the 3-minute demo, Peri's Diary: on the left the crook on the phone saying 'Hi Mum, it's me!', on the right Peri the detective with her magnifying glass"></a><br><sub><b>▶ Peri's Diary</b>, the 3-minute demo: a crook tries four scams on Rosa in one day, and every app scene is the real app.</sub></p>
 
 <p align="center"><img src="docs/media/screens.png" width="860" alt="Four screens of the app today: Peri's home in her meadow; Peri under her umbrella warning about a fake Correos text, with buttons to see the trap, report it or block the number; Learn with Peri, with the Scam or not game and the traps she knows; and Peri's diary of what she did"></p>
 

@@ -234,6 +234,141 @@ def scribble(dur=1.2):
         t += 0.06 + rng.random() * 0.1
     return out
 
+
+# Warmer, more acoustic instruments for "Peri's diary": a ukulele, an upright bass, a marimba, a shaker, a whistle
+# and wind chimes, so the music sounds played rather than beeped.
+
+
+def soften(sig, cutoff, order=2):
+    """Roll off the highs above [cutoff] Hz: a smooth low-pass, done in one go in the frequency domain."""
+    f = np.fft.rfftfreq(len(sig), 1 / SR)
+    return np.fft.irfft(np.fft.rfft(sig) / np.sqrt(1 + (f / cutoff) ** (2 * order)), len(sig))
+
+
+def string(n, dur, bright=0.5, ring=1.5, seed=0, body=5000):
+    """A plucked string (Karplus-Strong): a burst of noise circling a delay one period long, softened a little on
+    every pass, so it rings at the note and fades like a real string, the high harmonics first. [bright] is how hard
+    it's plucked (a pick near 1, a fingertip near 0), [ring] the seconds it takes to die away and [body] where the
+    instrument's wooden body rolls off the highs."""
+    f = hz(n)
+    period = max(2, int(SR / f - 0.5))
+    made = SR / (period + 0.5)  # the pitch a whole-sample delay really rings at; played back tuned below
+    length = int(SR * dur * made / f) + period + 2
+    r = np.random.default_rng(seed)
+    burst = soften(r.uniform(-1, 1, period + 1), 400 + 5000 * bright)
+    burst /= max(1e-9, np.abs(burst).max())
+    out = np.zeros(length)
+    out[: period + 1] = burst - burst.mean()
+    loss = 10 ** (-3 / (ring * made))
+    i = period + 1
+    while i < length:
+        j = min(i + period, length)
+        out[i:j] = loss * 0.5 * (out[i - period : j - period] + out[i - period - 1 : j - period - 1])
+        i = j
+    x = np.arange(int(SR * dur)) * f / made
+    sig = soften(np.interp(x, np.arange(length), out), body, 1)
+    fade = min(len(sig), int(SR * 0.04))
+    sig[len(sig) - fade :] *= np.linspace(1, 0, fade)
+    return sig
+
+
+# The ukulele's chords, its four strings low to high (G C E A, the G tuned high as on a real uke).
+UKE = {
+    "C": [67, 60, 64, 72], "G": [67, 62, 67, 71], "Am": [69, 60, 64, 69], "F": [69, 60, 65, 69],
+    "Dm": [69, 62, 65, 69], "E7": [71, 62, 64, 71], "Em": [67, 64, 67, 71], "G7": [67, 62, 65, 71],
+}
+
+
+def strum(chord, dur=0.5, up=False, seed=0):
+    """One ukulele strum: down across all four strings (G to A, a hair apart), or a lighter up-stroke on the top
+    three; it lasts [dur], until the next strum stops the strings."""
+    notes = UKE[chord][::-1][:3] if up else UKE[chord]
+    out = np.zeros(int(SR * (dur + 0.06)))
+    for i, n in enumerate(notes):
+        put(out, string(n, dur + 0.04, 0.25 if up else 0.35, 1.4, seed * 7 + i, 3500), i * (0.008 if up else 0.012), 0.6 if up else 1.0)
+    return out
+
+
+def upright(n, dur=0.5):
+    """A pizzicato upright bass: a dark, round pluck that thumps and fades."""
+    return string(n, dur, 0.05, 0.9, n, 900)
+
+
+def marimba(n, dur=1.0):
+    """A marimba bar hit with a yarn mallet: a warm wooden fundamental, its overtone two octaves up and a fainter
+    one higher still that fade much sooner, and the mallet's soft knock."""
+    x = ts(dur)
+    f = hz(n)
+    ring = 0.9 * (262 / f) ** 0.5
+    s = np.sin(2 * np.pi * f * x) * np.exp(-6.9 * x / ring)
+    s += 0.22 * np.sin(2 * np.pi * f * 3.99 * x) * np.exp(-6.9 * x / (ring * 0.25))
+    if f * 9.9 < SR / 2.2:
+        s += 0.05 * np.sin(2 * np.pi * f * 9.9 * x) * np.exp(-6.9 * x / (ring * 0.08))
+    knock = np.convolve(rng.standard_normal(len(x)), np.ones(12) / 12, mode="same") * np.exp(-x / 0.004) * 0.6
+    return (s + knock) * np.minimum(x / 0.0015, 1)
+
+
+def shaker(accent=1.0):
+    """An egg shaker: a hiss of beads, swelling for a moment and gone."""
+    x = ts(0.1)
+    noise = rng.standard_normal(len(x))
+    hiss = noise - np.convolve(noise, np.ones(4) / 4, mode="same")
+    return hiss * np.minimum(x / 0.014, 1) * np.exp(-x / 0.028) * accent
+
+
+def whistle(tune, step, rest=0.06):
+    """Someone whistling a tune: a pure tone that glides between notes, a gentle vibrato once a note settles and a
+    breath of air. [tune] has one note (or None for a rest) every [step] seconds; a held note is the same number
+    repeated."""
+    n = int(SR * (len(tune) * step + 0.3))
+    target = np.full(n, np.nan)
+    loud = np.zeros(n)
+    for i, note in enumerate(tune):
+        if note is not None:
+            a, b = int(SR * i * step), int(SR * (i + 1) * step)
+            target[a:b] = note
+            end_of_phrase = i + 1 >= len(tune) or tune[i + 1] is None
+            loud[a : b - (int(SR * rest) if end_of_phrase else 0)] = 1
+    # Hold the last pitch through rests (and the first one before it starts), so each note slides in from the last.
+    first = np.flatnonzero(~np.isnan(target))[0]
+    target[:first] = target[first]
+    idx = np.where(np.isnan(target), 0, np.arange(n))
+    target = target[np.maximum.accumulate(idx)]
+    # The pitch glides into each note in about 25 ms and the sound swells and fades in about 20 ms.
+    block = 64
+    to_pitch, to_level = 1 - np.exp(-block / (SR * 0.025)), 1 - np.exp(-block / (SR * 0.02))
+    g, level = target[0], 0.0
+    glide, amp = np.zeros(n), np.zeros(n)
+    for i in range(0, n, block):
+        g += to_pitch * (target[i] - g)
+        level += to_level * (loud[i] - level)
+        glide[i : i + block], amp[i : i + block] = g, level
+    x = np.arange(n) / SR
+    f = 440.0 * 2 ** ((glide - 69) / 12) * (1 + 0.007 * np.sin(2 * np.pi * 5.6 * x) * np.clip(amp, 0, 1))
+    phase = 2 * np.pi * np.cumsum(f) / SR
+    tone = np.sin(phase) + 0.04 * np.sin(2 * phase)
+    air = np.convolve(rng.standard_normal(n), np.ones(3) / 3, mode="same") * 0.05
+    return (tone + air) * amp
+
+
+def wind_chimes(dur, density=0.5, seed=6):
+    """Wind chimes in the garden: six tuned tubes (C, D, E, G, A, C), knocked now and then by the breeze in little
+    clusters, each tube ringing long with its bell-like overtones."""
+    r = np.random.default_rng(seed)
+    tubes = [84, 86, 88, 91, 93, 96]
+    out = np.zeros(int(SR * dur))
+    t = r.uniform(0.2, 1.5)
+    while t < dur - 0.5:
+        for k in range(r.integers(2, 6)):
+            n = tubes[r.integers(0, len(tubes))]
+            x = ts(3.0)
+            f = hz(n)
+            tube = (np.sin(2 * np.pi * f * x) + 0.4 * np.sin(2 * np.pi * f * 2.76 * x) * np.exp(-x / 0.6) + 0.15 * np.sin(2 * np.pi * f * 5.4 * x) * np.exp(-x / 0.25)) * env(len(x), 0.001, 1.1)
+            put(out, tube, t + k * r.uniform(0.08, 0.22), r.uniform(0.25, 1.0))
+        t += r.uniform(1.5, 4.0) / density
+    return out / max(1e-9, np.abs(out).max())
+
+
 def save(path, sig, peak=0.9):
     sig = sig / max(1e-9, np.max(np.abs(sig))) * peak
     with wave.open(str(path), "wb") as w:

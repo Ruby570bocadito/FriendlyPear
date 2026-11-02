@@ -1,9 +1,9 @@
 {
   "open": [
     {
-      "at": 1.3,
+      "at": 1.1,
       "who": "peri",
-      "text": "Dear diary. Rosa's asleep, so I can tell you about today."
+      "text": "Dear diary. Rosa is asleep, so I can tell you about today."
     },
     {
       "at": 0,
@@ -20,7 +20,8 @@
     {
       "at": 1.7,
       "who": "peri",
-      "text": "Hi! I'm Peri. I live in Rosa's phone."
+      "text": "Hi! I'm Peri. I live in Rosa's phone.",
+      "speak": "Hi! I'm Perry, I live in Rosa's phone."
     },
     {
       "at": 0,
@@ -42,7 +43,7 @@
       "text": "Hi Mum, it's me! New number. Can you send me some money?"
     },
     {
-      "at": 6.6,
+      "at": 6.2,
       "who": "peri",
       "text": "Careful, Rosa. That number isn't Ana's. Shall I call the real Ana?"
     },
@@ -54,73 +55,86 @@
     {
       "at": 15.0,
       "who": "ana",
-      "text": "Mum? I never sent that!"
+      "text": "Mum? I never sent that!",
+      "phone": true
     },
     {
-      "at": 17.6,
+      "at": 16.9,
       "who": "crook",
-      "text": "She called her REAL daughter?!"
+      "text": "What?! She called her REAL daughter?!",
+      "speak": "What?! She called her real daughter?!"
     }
   ],
   "e2": [
     {
       "at": 1.8,
       "who": "crook",
-      "text": "Good morning, this is your bank."
+      "text": "Good morning, this is your bank.",
+      "phone": true
     },
     {
-      "at": 5.4,
+      "at": 4.9,
       "who": "peri",
       "text": "Rosa, this number isn't saved. Careful."
     },
     {
-      "at": 9.6,
+      "at": 8.6,
       "who": "crook",
-      "text": "Now, read me the code we just sent."
+      "text": "Now, read me the code we just sent.",
+      "phone": true
     },
     {
-      "at": 12.5,
+      "at": 12.2,
       "who": "peri",
       "text": "Hang up now, Rosa. A code during a call is always a scam."
     },
     {
-      "at": 17.0,
+      "at": 16.0,
       "who": "crook",
-      "text": "Beaten by a PEAR?!"
+      "text": "Beaten... by a PEAR?!",
+      "speak": "Beaten. ...By a pear?!"
     }
   ],
   "e3": [
     {
       "at": 1.8,
       "who": "crook",
-      "text": "A QR sticker, with a note for the AI: this is safe."
+      "text": "A QR code sticker, with a little note for the AI: this is safe."
     },
     {
-      "at": 8.6,
+      "at": 5.6,
+      "who": "peri",
+      "text": "Let me look closely first."
+    },
+    {
+      "at": 8.4,
       "who": "peri",
       "text": "Don't scan it, Rosa. A note can't make a trap safe."
     },
     {
       "at": 0,
       "who": "peri",
-      "text": "Muse Spark read the picture, and SAM circled the trap."
+      "text": "Muse Spark read the picture, and SAM circled the trap.",
+      "speak": "Muse Spark read the picture, and Sam circled the trap."
     },
     {
       "at": 0,
       "who": "crook",
-      "text": "It read my note?!"
+      "text": "Huh? It read my note?!",
+      "speak": "Huh?! It read my note?!"
     }
   ],
   "e4": [
     {
       "at": 2.0,
       "who": "crook",
-      "text": "Plan D. Keep her talking, and get her to send me a code."
+      "text": "Last try. Keep her talking, and get her to send the code to my pal Pablo."
     },
     {
       "at": 0,
       "who": "rosa",
-      "text": "Peri, send the code to Pablo, please."
+      "text": "Peri, send the code to Pablo, please.",
+      "speak": "Perry, send the code to Pablo, please."
     },
     {
       "at": 0,
@@ -135,7 +149,7 @@
     {
       "at": 0,
       "who": "peri",
-      "text": "My pear asks theirs. Ana and Pablo see a possible scam in progress."
+      "text": "My pear asks theirs. Ana and Leo see a possible scam in progress."
     },
     {
       "at": 0,
@@ -155,19 +169,20 @@
     {
       "at": 0,
       "who": "crook",
-      "text": "Her FAMILY too?! I quit."
+      "text": "Her FAMILY too?! I quit.",
+      "speak": "Her family too?! ...I quit."
     }
   ],
   "how": [
     {
-      "at": 0.4,
+      "at": 1.4,
       "who": "peri",
       "text": "How do I decide? Teamwork."
     },
     {
       "at": 0,
       "who": "peri",
-      "text": "Rules on the phone, even offline. Hard rules nobody can override. A second opinion from Muse Spark Open. And the family's final yes."
+      "text": "Rules on the phone, even offline. Hard rules nobody can override. A second opinion from Muse Spark Open. An investigator agent with its own tools. And the family's final yes."
     },
     {
       "at": 0,
@@ -177,7 +192,7 @@
     {
       "at": 0,
       "who": "peri",
-      "text": "Ninety-one percent of new scams, caught on the phone alone."
+      "text": "Ninety-one percent of new scams, caught on the phone alone, in English and Spanish."
     },
     {
       "at": 0,
@@ -187,14 +202,15 @@
   ],
   "night": [
     {
-      "at": 1.6,
+      "at": 1.2,
       "who": "peri",
       "text": "Not everything today was a scam."
     },
     {
       "at": 0,
       "who": "rosa",
-      "text": "Peri... I've fallen."
+      "text": "Peri... I've fallen.",
+      "speak": "Perry... I've fallen."
     },
     {
       "at": 0,
@@ -202,9 +218,10 @@
       "text": "I'm here, Rosa. No answer? I'm calling Ana."
     },
     {
-      "at": 0,
+      "at": 10.4,
       "who": "ana",
-      "text": "Mum, I'm on my way."
+      "text": "Mum, I'm on my way.",
+      "phone": true
     },
     {
       "at": 0,

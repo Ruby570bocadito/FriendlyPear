@@ -68,6 +68,11 @@ MARKED = {
     "rosa_qr_away": {"eyes": (0.48, 0.355, 0.66, 0.42)},
     "rosa_garden_smile": {"eyes": (0.44, 0.255, 0.60, 0.31)},
     "peri_desk": {"mouth": (0.40, 0.56, 0.51, 0.645), "eyes": (0.30, 0.46, 0.54, 0.585)},
+    # Peri's new poses keep her calm pose's face: eyes about 0.40 and 0.60 across, mouth just below them. The key's
+    # handle is near her right eye, and in her detective pose the magnifying glass makes that eye big.
+    **{name: {"mouth": (0.42, 0.485, 0.58, 0.585), "eyes": (0.31, 0.385, 0.67, 0.505)} for name in ("peri_phone_check", "peri_hangup", "peri_stop", "peri_wait", "peri_lantern")},
+    "peri_key": {"mouth": (0.41, 0.475, 0.56, 0.56), "eyes": (0.31, 0.38, 0.62, 0.50)},
+    "peri_detective": {"mouth": (0.40, 0.47, 0.57, 0.56), "eyes": (0.29, 0.29, 0.79, 0.50)},
 }
 
 
